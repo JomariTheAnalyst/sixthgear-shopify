@@ -1,6 +1,6 @@
 "use client"
 
-import { Table, Text, clx, Checkbox, Badge } from "@medusajs/ui"
+
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
@@ -19,6 +19,7 @@ import {
   getStockLabel,
   isItemOutOfStock,
 } from "@lib/util/cart-helpers"
+import { cn } from "@lib/util/cn"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -59,32 +60,33 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   }
 
   return (
-    <Table.Row
-      className={clx("w-full", {
+    <tr
+      className={cn("w-full", {
         "opacity-60": outOfStock,
       })}
       data-testid="product-row"
     >
       {/* Checkbox Column */}
       {type === "full" && (
-        <Table.Cell className="!pl-0 p-4 w-12">
-          <Checkbox
+        <td className="!pl-0 p-4 w-12">
+          <input
+            type="checkbox"
             checked={isSelected(item.id)}
-            onCheckedChange={handleCheckboxChange}
+            onChange={handleCheckboxChange}
             disabled={outOfStock}
-            className="cursor-pointer"
+            className="cursor-pointer w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
           />
-        </Table.Cell>
+        </td>
       )}
 
-      <Table.Cell
-        className={clx("p-4 w-24", {
+      <td
+        className={cn("p-4 w-24", {
           "!pl-0": type === "preview",
         })}
       >
         <LocalizedClientLink
           href={`/products/${item.product_handle}`}
-          className={clx("flex", {
+          className={cn("flex", {
             "w-16": type === "preview",
             "small:w-24 w-12": type === "full",
           })}
@@ -95,32 +97,32 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             size="square"
           />
         </LocalizedClientLink>
-      </Table.Cell>
+      </td>
 
-      <Table.Cell className="text-left">
-        <Text
-          className="txt-medium-plus text-ui-fg-base"
+      <td className="text-left">
+        <span
+          className="txt-medium-plus text-gray-900 font-medium"
           data-testid="product-title"
         >
           {item.product_title}
-        </Text>
+        </span>
         <LineItemOptions variant={item.variant} data-testid="product-variant" />
 
         {/* Stock Status Badges */}
         {stockStatus === "out_of_stock" && (
-          <Badge color="red" className="mt-2">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 mt-2">
             {getStockLabel(stockStatus)}
-          </Badge>
+          </span>
         )}
         {stockStatus === "low_stock" && (
-          <Badge color="orange" className="mt-2">
+          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700 mt-2">
             {getStockLabel(stockStatus, inventoryQty)}
-          </Badge>
+          </span>
         )}
-      </Table.Cell>
+      </td>
 
       {type === "full" && (
-        <Table.Cell>
+        <td>
           <div className="flex gap-2 items-center w-28">
             <DeleteButton id={item.id} data-testid="product-delete-button" />
             <CartItemSelect
@@ -144,28 +146,28 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             {updating && <Spinner />}
           </div>
           <ErrorMessage error={error} data-testid="product-error-message" />
-        </Table.Cell>
+        </td>
       )}
 
       {type === "full" && (
-        <Table.Cell className="hidden small:table-cell">
+        <td className="hidden small:table-cell">
           <LineItemUnitPrice
             item={item}
             style="tight"
             currencyCode={currencyCode}
           />
-        </Table.Cell>
+        </td>
       )}
 
-      <Table.Cell className="!pr-0">
+      <td className="!pr-0">
         <span
-          className={clx("!pr-0", {
+          className={cn("!pr-0", {
             "flex flex-col items-end h-full justify-center": type === "preview",
           })}
         >
           {type === "preview" && (
             <span className="flex gap-x-1 ">
-              <Text className="text-ui-fg-muted">{item.quantity}x </Text>
+              <span className="text-gray-500">{item.quantity}x </span>
               <LineItemUnitPrice
                 item={item}
                 style="tight"
@@ -179,8 +181,8 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             currencyCode={currencyCode}
           />
         </span>
-      </Table.Cell>
-    </Table.Row>
+      </td>
+    </tr>
   )
 }
 

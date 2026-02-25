@@ -1,72 +1,86 @@
-import { Metadata } from "next"
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import StoreTemplate from "@modules/store/templates"
-import { getWishlist } from "@lib/data/wishlist"
+import {
+  getCollectionFilters,
+  getFilteredCollection,
+  buildShopifyFilters,
+} from "@lib/data/collections";
+import { parseSearchParams } from "@lib/util/filterParams";
+import CollectionTemplate from "@modules/collections/templates";
 
 export const metadata: Metadata = {
-  title: "Store",
+  title: "Shop | Sixthgear Moto",
   description: "Explore all of our products.",
-}
+};
 
-// Revalidate page every 60 seconds in production
-export const revalidate = 60
+export const revalidate = 60;
+
+// The store page uses the "frontpage" collection as the "all products" view.
+// Shopify filters only work inside collection.products() queries,
+// so we must route through a collection handle.
+const STORE_COLLECTION_HANDLE = "all-products";
 
 type Params = {
-  searchParams: Promise<{
-    sortBy?: SortOptions
-    page?: string
-    tag?: string
-    category?: string
-    query?: string
-    categories?: string
-    brands?: string
-    tags?: string
-    minPrice?: string
-    maxPrice?: string
-    sort?: string
-  }>
-  params: Promise<{
-    countryCode: string
-  }>
-}
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  params: Promise<{ countryCode: string }>;
+};
 
 export default async function StorePage(props: Params) {
-  const params = await props.params
-  const searchParams = await props.searchParams
-  const {
-    sortBy,
-    page,
-    tag,
-    category,
-    query,
-    categories,
-    brands,
-    tags,
-    minPrice,
-    maxPrice,
-    sort,
-  } = searchParams
+  const params = await props.params;
+  const rawSearchParams = await props.searchParams;
 
-  // Check if Meilisearch filters are active
-  const hasFilters = !!(
-    categories ||
-    brands ||
-    tags ||
-    minPrice ||
-    maxPrice ||
-    sort
-  )
+  // Convert raw searchParams to URLSearchParams
+  const urlParams = new URLSearchParams();
+  Object.entries(rawSearchParams).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((v) => urlParams.append(key, v));
+    } else if (value !== undefined) {
+      urlParams.append(key, value);
+    }
+  });
+
+  // Parse filter state from URL
+  const filterState = parseSearchParams(urlParams);
+
+  // Build Shopify ProductFilter[] from our clean state
+  const shopifyFilters = buildShopifyFilters(filterState);
+
+  // Fetch filtered products from the frontpage collection
+  const result = await getFilteredCollection(STORE_COLLECTION_HANDLE, {
+    filters: shopifyFilters,
+    sortKey: filterState.sortKey,
+    reverse: filterState.reverse,
+    first: 24,
+    after: urlParams.get("after") || undefined,
+  });
+
+  if (!result) {
+    console.error("StorePage: getFilteredCollection returned null for handle:", STORE_COLLECTION_HANDLE);
+    console.error("StorePage: Filters used:", JSON.stringify(shopifyFilters));
+    console.error("StorePage: Sorting used:", filterState.sortKey, filterState.reverse);
+    notFound();
+  }
+
+  // Fetch sidebar filters (unfiltered to show all available options)
+  const sidebarFilters = await getCollectionFilters(STORE_COLLECTION_HANDLE);
+
+  // Override collection title to "Shop" for the store page
+  const storeCollection = {
+    ...result.collection,
+    title: "Shop",
+    description: "Explore all of our products.",
+  };
 
   return (
-    <StoreTemplate
-      sortBy={sortBy}
-      page={page}
+    <CollectionTemplate
+      collection={storeCollection}
+      products={result.products}
+      filters={result.filters}
+      sidebarFilters={sidebarFilters}
+      pageInfo={result.pageInfo}
+      initialFilterState={filterState}
       countryCode={params.countryCode}
-      tagValue={tag}
-      categoryHandle={category}
-      searchQuery={query}
-      hasFilters={hasFilters}
     />
-  )
+  );
 }

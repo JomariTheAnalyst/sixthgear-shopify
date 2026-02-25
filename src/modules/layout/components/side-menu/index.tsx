@@ -1,8 +1,7 @@
 "use client"
 
 import { Popover, PopoverPanel, Transition } from "@headlessui/react"
-import { ArrowRightMini, XMark } from "@medusajs/icons"
-import { Text, clx, useToggleState } from "@medusajs/ui"
+import { ArrowRight as ArrowRightMini, X as XMark } from "lucide-react"
 import { Fragment } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -10,6 +9,8 @@ import CountrySelect from "../country-select"
 import LanguageSelect from "../language-select"
 import { HttpTypes } from "@medusajs/types"
 import { Locale } from "@lib/data/locales"
+import useToggleState from "@lib/hooks/use-toggle-state"
+import { cn } from "@lib/util/cn"
 
 const SideMenuItems = {
   Home: "/",
@@ -37,7 +38,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
               <div className="relative flex h-full">
                 <Popover.Button
                   data-testid="nav-menu-button"
-                  className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-ui-fg-base"
+                  className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-gray-900"
                 >
                   Menu
                 </Popover.Button>
@@ -100,7 +101,7 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                             currentLocale={currentLocale}
                           />
                           <ArrowRightMini
-                            className={clx(
+                            className={cn(
                               "transition-transform duration-150",
                               languageToggleState.state ? "-rotate-90" : ""
                             )}
@@ -119,16 +120,16 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                           />
                         )}
                         <ArrowRightMini
-                          className={clx(
+                          className={cn(
                             "transition-transform duration-150",
                             countryToggleState.state ? "-rotate-90" : ""
                           )}
                         />
                       </div>
-                      <Text className="flex justify-between txt-compact-small">
+                      <span className="flex justify-between txt-compact-small">
                         © {new Date().getFullYear()} Medusa Store. All rights
                         reserved.
-                      </Text>
+                      </span>
                     </div>
                   </div>
                 </PopoverPanel>

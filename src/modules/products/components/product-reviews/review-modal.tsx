@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { submitProductReview, checkProductPurchased } from "@lib/data/products"
 import { retrieveCustomer } from "@lib/data/customer"
-import { X } from "@medusajs/icons"
+import { X } from "lucide-react"
 
 type ReviewModalProps = {
   productId: string

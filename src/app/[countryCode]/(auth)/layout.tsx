@@ -4,6 +4,7 @@ import Nav from "@modules/layout/templates/nav"
 import Footer from "@modules/layout/templates/footer"
 import CartDrawerWrapper from "@modules/cart/components/cart-drawer-wrapper"
 import { retrieveCart } from "@lib/data/cart"
+import { mapShopifyCartToStoreCart } from "@lib/util/map-shopify-cart"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
@@ -14,7 +15,8 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
-  const cart = await retrieveCart().catch(() => null)
+  const shopifyCart = await retrieveCart().catch(() => null)
+  const cart = mapShopifyCartToStoreCart(shopifyCart)
 
   return (
     <CartDrawerWrapper cart={cart}>

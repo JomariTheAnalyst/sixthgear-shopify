@@ -7,6 +7,7 @@
  */
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Logo from "@modules/layout/components/brand-logo"
 
 const menuLinks = [
   { name: "Home", href: "/" },
@@ -293,11 +294,9 @@ export default function Footer() {
                 >
                   © {new Date().getFullYear()} Sixthgear, A Moto Supply
                 </p>
-                <img
-                  src="/images/logo/sixthgear-logo-white.png"
-                  alt="Sixthgear"
-                  className="h-6 opacity-50"
-                />
+                <div className="text-white/50 scale-75 origin-right">
+                  <Logo />
+                </div>
               </div>
             </div>
           </div>

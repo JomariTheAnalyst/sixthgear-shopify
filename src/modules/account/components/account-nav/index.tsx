@@ -1,6 +1,6 @@
 "use client"
 
-import { clx } from "@medusajs/ui"
+import { cn } from "@lib/util/cn"
 import { useParams, usePathname } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
@@ -140,7 +140,7 @@ const AccountNav = ({
               <LocalizedClientLink
                 key={item.href}
                 href={item.href}
-                className={clx(
+                className={cn(
                   "flex items-center gap-3 px-4 py-3.5 transition-colors",
                   index !== navItems.length - 1 && "border-b border-gray-100",
                   isActive
@@ -192,7 +192,7 @@ const AccountNav = ({
               <LocalizedClientLink
                 key={item.href}
                 href={item.href}
-                className={clx(
+                className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group",
                   isActive
                     ? "text-gray-900 font-medium bg-white shadow-sm border border-gray-100"

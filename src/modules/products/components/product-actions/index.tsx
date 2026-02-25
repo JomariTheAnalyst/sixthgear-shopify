@@ -1,6 +1,7 @@
 "use client"
 
 import { addToCart } from "@lib/data/cart"
+import { useCartStore } from "@lib/cart"
 import { useIntersection } from "@lib/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
 import { isEqual } from "lodash"
@@ -24,12 +25,16 @@ type ProductActionsProps = {
 }
 
 const optionsAsKeymap = (
-  variantOptions: HttpTypes.StoreProductVariant["options"]
+  variantOptions: any
 ) => {
-  return variantOptions?.reduce((acc: Record<string, string>, varopt: any) => {
-    acc[varopt.option_id] = varopt.value
-    return acc
-  }, {})
+  if (!variantOptions) return {}
+  if (Array.isArray(variantOptions)) {
+    return variantOptions.reduce((acc: Record<string, string>, varopt: any) => {
+      acc[varopt.option_id] = varopt.value
+      return acc
+    }, {})
+  }
+  return variantOptions
 }
 
 export default function ProductActions({
@@ -155,6 +160,10 @@ export default function ProductActions({
   const { openCart } = useCartDrawer()
   const { showCartLimitModal } = useCartLimitModal()
 
+  // Zustand store sync
+  const setCart = useCartStore((s) => s.setCart)
+  const setCartId = useCartStore((s) => s.setCartId)
+
   // add the selected variant to the cart
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return null
@@ -162,11 +171,16 @@ export default function ProductActions({
     setIsAdding(true)
 
     try {
-      await addToCart({
+      const updatedCart = await addToCart({
         variantId: selectedVariant.id,
         quantity: quantity,
         countryCode,
       })
+      // Sync Zustand with the returned Shopify cart
+      if (updatedCart) {
+        setCart(updatedCart as any)
+        setCartId(updatedCart.id)
+      }
       openCart()
     } catch (error: any) {
       // Check if it's a cart limit error

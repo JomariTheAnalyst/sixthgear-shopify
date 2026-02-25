@@ -9,7 +9,16 @@ import {
 } from "@headlessui/react"
 import { Fragment, useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import ReactCountryFlag from "react-country-flag"
+
+// Inline country flag using emoji
+const ReactCountryFlag = ({ countryCode, style, ...props }: { countryCode: string; style?: React.CSSProperties; svg?: boolean }) => {
+  const flag = countryCode
+    .toUpperCase()
+    .split("")
+    .map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
+    .join("")
+  return <span style={{ fontSize: "16px", lineHeight: 1, ...style }} {...props}>{flag}</span>
+}
 
 import { StateType } from "@lib/hooks/use-toggle-state"
 import { updateLocale } from "@lib/data/locale-actions"

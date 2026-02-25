@@ -1,15 +1,13 @@
 import { Metadata } from "next"
 import { draftMode } from "next/headers"
 
-import { listCartOptions, retrieveCart } from "@lib/data/cart"
+import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
 import { getMarketingForPath } from "@lib/data/marketing"
 import { getBaseURL } from "@lib/util/env"
-import { StoreCartShippingOption } from "@medusajs/types"
-import CartMismatchBanner from "@modules/layout/components/cart-mismatch-banner"
+import { mapShopifyCartToStoreCart } from "@lib/util/map-shopify-cart"
 import Footer from "@modules/layout/templates/footer"
 import Nav from "@modules/layout/templates/nav"
-import FreeShippingPriceNudge from "@modules/shipping/components/free-shipping-price-nudge"
 import CartDrawerWrapper from "@modules/cart/components/cart-drawer-wrapper"
 import CartCleanup from "@modules/cart/components/cart-cleanup"
 import { MarketingProvider } from "@modules/marketing"
@@ -23,15 +21,9 @@ export const metadata: Metadata = {
 
 export default async function PageLayout(props: { children: React.ReactNode }) {
   const customer = await retrieveCustomer()
-  const cart = await retrieveCart()
+  const shopifyCart = await retrieveCart()
+  const cart = mapShopifyCartToStoreCart(shopifyCart)
   const draft = await draftMode()
-  let shippingOptions: StoreCartShippingOption[] = []
-
-  if (cart) {
-    const { shipping_options } = await listCartOptions()
-
-    shippingOptions = shipping_options
-  }
 
   // Fetch marketing content for the layout (strip only at this level)
   const marketing = await getMarketingForPath("/")
@@ -45,17 +37,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
 
           <MarketingProvider marketing={marketing}>
             <Nav />
-            {customer && cart && (
-              <CartMismatchBanner customer={customer} cart={cart} />
-            )}
 
-            {cart && (
-              <FreeShippingPriceNudge
-                variant="popup"
-                cart={cart}
-                shippingOptions={shippingOptions}
-              />
-            )}
             {props.children}
             <Footer />
 

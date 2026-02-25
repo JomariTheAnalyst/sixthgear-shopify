@@ -1,14 +1,14 @@
 "use client"
 
 import { convertToLocale } from "@lib/util/money"
-import { CheckCircleSolid, XMark } from "@medusajs/icons"
+import { CheckCircle, X } from "lucide-react"
+import { cn } from "@lib/util/cn"
 import {
   HttpTypes,
   StoreCart,
   StoreCartShippingOption,
   StorePrice,
 } from "@medusajs/types"
-import { Button, clx } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useState } from "react"
 import { StoreFreeShippingPrice } from "types/global"
@@ -148,7 +148,7 @@ function FreeShippingInline({
           <div>
             {price.target_reached ? (
               <div className="flex items-center gap-1.5">
-                <CheckCircleSolid className="text-green-500 inline-block" />{" "}
+                <CheckCircle className="text-green-500 inline-block w-4 h-4" />{" "}
                 Free Shipping unlocked!
               </div>
             ) : (
@@ -157,7 +157,7 @@ function FreeShippingInline({
           </div>
 
           <div
-            className={clx("visible", {
+            className={cn("visible", {
               "opacity-0 invisible": price.target_reached,
             })}
           >
@@ -173,7 +173,7 @@ function FreeShippingInline({
         </div>
         <div className="flex justify-between gap-1">
           <div
-            className={clx(
+            className={cn(
               "bg-gradient-to-r from-zinc-400 to-zinc-500 h-1 rounded-full max-w-full duration-500 ease-in-out",
               {
                 "from-green-400 to-green-500": price.target_reached,
@@ -199,7 +199,7 @@ function FreeShippingPopup({
 
   return (
     <div
-      className={clx(
+      className={cn(
         "fixed bottom-5 right-5 flex flex-col items-end gap-2 transition-all duration-500 ease-in-out z-10",
         {
           "opacity-0 invisible delay-1000": price.target_reached,
@@ -209,12 +209,12 @@ function FreeShippingPopup({
       )}
     >
       <div>
-        <Button
-          className="rounded-full bg-neutral-900 shadow-none outline-none border-none text-[15px] p-2"
+        <button
+          className="rounded-full bg-neutral-900 shadow-none outline-none border-none text-[15px] p-2 text-white"
           onClick={() => setIsClosed(true)}
         >
-          <XMark />
-        </Button>
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       <div className="w-[400px] bg-black text-white p-6 rounded-lg ">
@@ -224,7 +224,7 @@ function FreeShippingPopup({
               <div>
                 {price.target_reached ? (
                   <div className="flex items-center gap-1.5">
-                    <CheckCircleSolid className="text-green-500 inline-block" />{" "}
+                    <CheckCircle className="text-green-500 inline-block w-4 h-4" />{" "}
                     Free Shipping unlocked!
                   </div>
                 ) : (
@@ -233,7 +233,7 @@ function FreeShippingPopup({
               </div>
 
               <div
-                className={clx("visible", {
+                className={cn("visible", {
                   "opacity-0 invisible": price.target_reached,
                 })}
               >
@@ -249,7 +249,7 @@ function FreeShippingPopup({
             </div>
             <div className="flex justify-between gap-1">
               <div
-                className={clx(
+                className={cn(
                   "bg-gradient-to-r from-zinc-400 to-zinc-500 h-1.5 rounded-full max-w-full duration-500 ease-in-out",
                   {
                     "from-green-400 to-green-500": price.target_reached,

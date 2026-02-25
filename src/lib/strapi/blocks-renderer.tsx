@@ -119,7 +119,7 @@ function renderBlock(block: RichTextBlock, index: number): React.ReactNode {
 
     case "heading":
       const level = block.level || 2
-      const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements
+      const HeadingTag = `h${level}` as any
       const headingClasses = {
         1: "text-4xl font-bold mb-6 mt-8",
         2: "text-3xl font-bold mb-5 mt-7",
@@ -136,7 +136,7 @@ function renderBlock(block: RichTextBlock, index: number): React.ReactNode {
       )
 
     case "list":
-      const ListTag = block.format === "ordered" ? "ol" : "ul"
+      const ListTag = (block.format === "ordered" ? "ol" : "ul") as any
       const listClass =
         block.format === "ordered"
           ? "list-decimal list-inside mb-4 space-y-2"

@@ -1,7 +1,7 @@
 "use client"
 
 import { Disclosure } from "@headlessui/react"
-import { clx } from "@medusajs/ui"
+import { cn } from "@lib/util/cn"
 import { useEffect } from "react"
 import useToggleState from "@lib/hooks/use-toggle-state"
 import { useFormStatus } from "react-dom"
@@ -63,7 +63,7 @@ const AccountInfo = ({
         <button
           type={state ? "reset" : "button"}
           onClick={handleToggle}
-          className={clx(
+          className={cn(
             "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
             state
               ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -80,7 +80,7 @@ const AccountInfo = ({
       <Disclosure>
         <Disclosure.Panel
           static
-          className={clx(
+          className={cn(
             "transition-all duration-300 ease-in-out overflow-hidden",
             {
               "max-h-20 opacity-100": isSuccess,
@@ -116,7 +116,7 @@ const AccountInfo = ({
       <Disclosure>
         <Disclosure.Panel
           static
-          className={clx(
+          className={cn(
             "transition-all duration-300 ease-in-out overflow-hidden",
             {
               "max-h-20 opacity-100": isError,
@@ -150,7 +150,7 @@ const AccountInfo = ({
       <Disclosure>
         <Disclosure.Panel
           static
-          className={clx(
+          className={cn(
             "transition-all duration-300 ease-in-out overflow-visible",
             {
               "max-h-[1000px] opacity-100": state,
@@ -165,7 +165,7 @@ const AccountInfo = ({
                 <button
                   type="submit"
                   disabled={pending}
-                  className={clx(
+                  className={cn(
                     "px-6 py-2.5 rounded-md text-sm font-medium transition-all shadow-sm",
                     "bg-gray-900 text-white hover:bg-gray-800",
                     "disabled:opacity-50 disabled:cursor-not-allowed",

@@ -1,13 +1,12 @@
 "use client"
 
-import { Button, Heading } from "@medusajs/ui"
 import { useEffect, useState, useActionState } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import CountrySelect from "@modules/checkout/components/country-select"
 import Input from "@modules/common/components/input"
 import Modal from "@modules/common/components/modal"
-import { SubmitButton } from "@modules/checkout/components/submit-button"
+import { SubmitButton } from "@modules/common/components/submit-button"
 import { HttpTypes } from "@medusajs/types"
 import { addCustomerAddress } from "@lib/data/customer"
 
@@ -74,7 +73,7 @@ const AddAddress = ({
 
       <Modal isOpen={state} close={close} data-testid="add-address-modal">
         <Modal.Title>
-          <Heading className="mb-2">Add New Address</Heading>
+          <h2 className="mb-2 font-semibold">Add New Address</h2>
         </Modal.Title>
         <form action={formAction}>
           <Modal.Body>
@@ -174,15 +173,14 @@ const AddAddress = ({
           </Modal.Body>
           <Modal.Footer>
             <div className="flex gap-3 mt-6">
-              <Button
+              <button
                 type="reset"
-                variant="secondary"
                 onClick={close}
                 className="h-10 px-5"
                 data-testid="cancel-button"
               >
                 Cancel
-              </Button>
+              </button>
               <SubmitButton
                 data-testid="save-button"
                 className="h-10 px-5 bg-orange-500 hover:bg-orange-600"

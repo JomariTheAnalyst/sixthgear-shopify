@@ -1,4 +1,4 @@
-import { clx } from "@medusajs/ui"
+import { cn } from "@lib/util/cn"
 
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
@@ -36,7 +36,7 @@ export default function ProductPrice({
       <div className="flex items-baseline gap-3 flex-wrap">
         {/* Current/Sale Price */}
         <span
-          className={clx(
+          className={cn(
             "text-2xl md:text-3xl font-bold",
             isOnSale ? "text-red-600" : "text-gray-900"
           )}

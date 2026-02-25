@@ -11,6 +11,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { getProductPricing } from "@lib/util/get-product-pricing"
 import { addToCart } from "@lib/data/cart"
+import { useCartStore } from "@lib/cart"
 import WishlistButton from "@modules/wishlist/components/wishlist-button"
 import StarRating from "@modules/products/components/star-rating"
 
@@ -101,6 +102,9 @@ export default function ProductCard({
   // Get brand name from collection (not category)
   const brandName = product.collection?.title || "No Brand"
 
+  const setCart = useCartStore((s) => s.setCart)
+  const setCartStoreId = useCartStore((s) => s.setCartId)
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -109,11 +113,15 @@ export default function ProductCard({
 
     setIsAdding(true)
     try {
-      await addToCart({
+      const updatedCart = await addToCart({
         variantId: firstVariant.id,
         quantity: 1,
         countryCode: region.countries?.[0]?.iso_2 || "ph",
       })
+      if (updatedCart) {
+        setCart(updatedCart as any)
+        setCartStoreId(updatedCart.id)
+      }
     } catch (error) {
       console.error("Failed to add to cart:", error)
     } finally {

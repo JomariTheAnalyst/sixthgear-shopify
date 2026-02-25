@@ -5,7 +5,8 @@
 /* Custom Fonts */
 @font-face {
   font-family: "Tanker";
-  src: url("/fonts/6915c486dfa7291ccd49d04f_Tanker-Regular.otf") format("opentype");
+  src: url("/fonts/6915c486dfa7291ccd49d04f_Tanker-Regular.otf")
+    format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -13,7 +14,8 @@
 
 @font-face {
   font-family: "Inter Display";
-  src: url("/fonts/6915c833d7582e107aa019fa_InterDisplay-Regular.woff") format("woff");
+  src: url("/fonts/6915c833d7582e107aa019fa_InterDisplay-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -21,7 +23,8 @@
 
 @font-face {
   font-family: "Inter Display";
-  src: url("/fonts/6915c8332ea6e8104f5a63fd_InterDisplay-Medium.woff") format("woff");
+  src: url("/fonts/6915c8332ea6e8104f5a63fd_InterDisplay-Medium.woff")
+    format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -49,6 +52,20 @@
 
 .animate-marquee {
   animation: marquee linear infinite;
+}
+
+/* Mobile Filter Drawer Slide-Up */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
 }
 
 @layer utilities {

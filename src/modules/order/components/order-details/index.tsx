@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { Text } from "@medusajs/ui"
 
 type OrderDetailsProps = {
   order: HttpTypes.StoreOrder

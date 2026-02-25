@@ -17,12 +17,10 @@ import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
 import ShopByBrands from "@modules/home/components/shop-by-brands"
-import {
-  HotDealsSection,
-  BestSellersSection,
-  NewArrivalsSection,
-} from "@modules/home/components/product-sections"
+import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
+import { getProducts, getCollections } from "@lib/shopify"
+
 import { getMarketingForPath } from "@lib/data/marketing"
 import { BannerSlot, PopupAds } from "@modules/marketing"
 import { fetchHomeContent } from "@lib/strapi/home"
@@ -75,11 +73,45 @@ export default async function Home(props: {
   const params = await props.params
   const { countryCode } = params
 
-  const region = await getRegion(countryCode)
+  const region = await getRegion()
 
   if (!region) {
     return null
   }
+
+  // Fetch multiple data sources in parallel using Promise.all
+  const [featuredProductsResp, collections, newArrivalsResp] = await Promise.all([
+    getProducts({ first: 8, query: 'tag:featured' }),
+    getCollections(8),
+    getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true })
+  ])
+
+  // Get products
+  const featuredProducts = featuredProductsResp.products
+  const newArrivals = newArrivalsResp.products
+
+  // Map helper
+  const mapShopifyToMedusa = (p: any) => ({
+    id: p.id,
+    title: p.title,
+    handle: p.handle,
+    thumbnail: p.featuredImage?.url,
+    images: p.featuredImage ? [{ url: p.featuredImage.url }] : [],
+    collection: { title: p.vendor },
+    variants: [
+      {
+        id: p.id, 
+        allow_backorder: false,
+        manage_inventory: true,
+        inventory_quantity: p.availableForSale ? 10 : 0,
+        calculated_price: {
+          calculated_amount: p.priceRange?.minVariantPrice ? parseFloat(p.priceRange.minVariantPrice.amount) : null,
+          original_amount: p.compareAtPriceRange?.minVariantPrice ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount) : null,
+          currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php"
+        }
+      }
+    ]
+  } as any);
 
   // Fetch marketing content for homepage
   const marketing = await getMarketingForPath("/")
@@ -156,9 +188,17 @@ export default async function Home(props: {
       {/* Shop By Categories */}
       <ShopByCategories />
 
-      {/* Hot Deals */}
+      {/* Hot Deals / Featured */}
       <Suspense fallback={<ProductSectionSkeleton />}>
-        <HotDealsSection region={region} countryCode={countryCode} />
+        {featuredProducts.length > 0 && (
+          <ProductSection
+            title="Featured"
+            products={featuredProducts.map(mapShopifyToMedusa)}
+            region={region}
+            viewAllLink={`/${countryCode}/store?tag=featured`}
+            maxItems={8}
+          />
+        )}
       </Suspense>
 
       {/* Mid-page Banner Slot */}
@@ -170,15 +210,32 @@ export default async function Home(props: {
 
       {/* Best Sellers */}
       <Suspense fallback={<ProductSectionSkeleton />}>
-        <BestSellersSection region={region} countryCode={countryCode} />
+        {featuredProducts.length > 0 && (
+          <ProductSection
+            title="Best Sellers"
+            products={featuredProducts.map(mapShopifyToMedusa)}
+            region={region}
+            viewAllLink={`/${countryCode}/store?tag=best-seller`}
+            maxItems={4}
+          />
+        )}
       </Suspense>
 
       {/* New Arrivals */}
       <Suspense fallback={<ProductSectionSkeleton />}>
-        <NewArrivalsSection region={region} countryCode={countryCode} />
+        {newArrivals.length > 0 && (
+          <ProductSection
+            title="New Arrivals"
+            products={newArrivals.map(mapShopifyToMedusa)}
+            region={region}
+            viewAllLink={`/${countryCode}/store?tag=new-arrival`}
+            maxItems={4}
+          />
+        )}
       </Suspense>
 
       {/* Coffee Showcase */}
+
       <CoffeeShowcase
         mainHeadingLine1={coffeeContent.mainHeadingLine1}
         highlightedWord={coffeeContent.highlightedWord}
@@ -200,7 +257,7 @@ export default async function Home(props: {
       <ProjectsSection
         sectionTitle={spaceAndExperienceContent.sectionTitle}
         sectionDescription={spaceAndExperienceContent.sectionDescription}
-        items={spaceAndExperienceContent.items}
+        items={spaceAndExperienceContent.items as any}
       />
 
       {/* <Stats/> */}

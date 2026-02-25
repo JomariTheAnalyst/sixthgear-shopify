@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircleSolid } from "@medusajs/icons"
+import { CheckCircle2 as CheckCircleSolid } from "lucide-react"
 
 interface CheckoutProgressProps {
   currentStep: "contact" | "shipping" | "delivery" | "payment"

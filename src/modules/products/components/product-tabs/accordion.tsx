@@ -1,6 +1,6 @@
-import { Text, clx } from "@medusajs/ui"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import React from "react"
+import { cn } from "@lib/util/cn"
 
 type AccordionItemProps = AccordionPrimitive.AccordionItemProps & {
   title: string
@@ -46,7 +46,7 @@ const Item: React.FC<AccordionItemProps> = ({
   return (
     <AccordionPrimitive.Item
       {...props}
-      className={clx(
+      className={cn(
         "border-grey-20 group border-t last:mb-0 last:border-b",
         "py-3",
         className
@@ -56,27 +56,27 @@ const Item: React.FC<AccordionItemProps> = ({
         <div className="flex flex-col">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-4">
-              <Text className="text-ui-fg-subtle text-sm">{title}</Text>
+              <span className="text-gray-500 text-sm">{title}</span>
             </div>
             <AccordionPrimitive.Trigger>
               {customTrigger || <MorphingTrigger />}
             </AccordionPrimitive.Trigger>
           </div>
           {subtitle && (
-            <Text as="span" size="small" className="mt-1">
+            <span className="mt-1">
               {subtitle}
-            </Text>
+            </span>
           )}
         </div>
       </AccordionPrimitive.Header>
       <AccordionPrimitive.Content
         forceMount={forceMountContent}
-        className={clx(
+        className={cn(
           "radix-state-closed:animate-accordion-close radix-state-open:animate-accordion-open radix-state-closed:pointer-events-none px-1"
         )}
       >
         <div className="inter-base-regular group-radix-state-closed:animate-accordion-close">
-          {description && <Text>{description}</Text>}
+          {description && <span>{description}</span>}
           <div className="w-full">{children}</div>
         </div>
       </AccordionPrimitive.Content>

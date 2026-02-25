@@ -1,6 +1,6 @@
 import repeat from "@lib/util/repeat"
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Table, Checkbox } from "@medusajs/ui"
+
 
 import Item from "@modules/cart/components/item"
 import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
@@ -35,13 +35,15 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
   return (
     <div>
       <div className="pb-3 flex items-center justify-between">
-        <Heading className="text-[2rem] leading-[2.75rem]">Cart</Heading>
+        <h2 className="text-[2rem] leading-[2.75rem] font-semibold">Cart</h2>
         {items && items.length > 0 && (
           <div className="flex items-center gap-2">
-            <Checkbox
+            <input
+              type="checkbox"
               checked={allSelected}
-              onCheckedChange={handleSelectAll}
+              onChange={handleSelectAll}
               disabled={inStockItems.length === 0}
+              className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
             />
             <span className="text-sm text-ui-fg-subtle">
               {allSelected ? "Deselect All" : "Select All"}
@@ -49,28 +51,28 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
           </div>
         )}
       </div>
-      <Table>
-        <Table.Header className="border-t-0">
-          <Table.Row className="text-ui-fg-subtle txt-medium-plus">
-            <Table.HeaderCell className="!pl-0 w-12"></Table.HeaderCell>
-            <Table.HeaderCell className="!pl-0">Item</Table.HeaderCell>
-            <Table.HeaderCell></Table.HeaderCell>
-            <Table.HeaderCell>Quantity</Table.HeaderCell>
-            <Table.HeaderCell className="hidden small:table-cell">
+      <table className="w-full text-sm">
+        <thead className="border-t-0">
+          <tr className="text-gray-500 font-medium">
+            <th className="!pl-0 w-12"></th>
+            <th className="!pl-0 text-left">Item</th>
+            <th></th>
+            <th className="text-left">Quantity</th>
+            <th className="hidden small:table-cell text-left">
               Price
-            </Table.HeaderCell>
-            <Table.HeaderCell className="!pr-0 text-right">
+            </th>
+            <th className="!pr-0 text-right">
               Total
-            </Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
           {items
             ? items
-                .sort((a, b) => {
+                .sort((a: any, b: any) => {
                   return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
                 })
-                .map((item) => {
+                .map((item: any) => {
                   return (
                     <Item
                       key={item.id}
@@ -82,8 +84,8 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
             : repeat(5).map((i) => {
                 return <SkeletonLineItem key={i} />
               })}
-        </Table.Body>
-      </Table>
+        </tbody>
+      </table>
     </div>
   )
 }

@@ -1,6 +1,5 @@
 "use client"
 
-import { Heading } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useSelectedItems } from "@lib/context/selected-cart-items-context"
 import { convertToLocale } from "@lib/util/money"
@@ -69,7 +68,7 @@ const CheckoutSummary = ({ cart }: { cart: any }) => {
       {/* Totals - Based on Selected Items */}
       <div className="px-6 py-5 border-t border-gray-200">
         <div>
-          <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle">
+          <div className="flex flex-col gap-y-2 txt-medium text-gray-500">
             <div className="flex items-center justify-between">
               <span>Subtotal (excl. shipping and taxes)</span>
               <span data-testid="cart-subtotal">
@@ -99,7 +98,7 @@ const CheckoutSummary = ({ cart }: { cart: any }) => {
             </div>
           </div>
           <div className="h-px w-full border-b border-gray-200 my-4" />
-          <div className="flex items-center justify-between text-ui-fg-base mb-2 txt-medium">
+          <div className="flex items-center justify-between text-gray-900 mb-2 txt-medium">
             <span>Total</span>
             <span className="txt-xlarge-plus" data-testid="cart-total">
               {formatPrice(finalTotal)}

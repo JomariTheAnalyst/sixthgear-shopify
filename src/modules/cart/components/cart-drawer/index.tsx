@@ -9,6 +9,7 @@ import {
   updateLineItem,
   changeLineItemVariant,
   forceNewCart,
+  getCheckoutUrl,
 } from "@lib/data/cart"
 import { getProductByHandle } from "@lib/data/products"
 import {
@@ -20,6 +21,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import DeleteButton from "@modules/common/components/delete-button"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useRouter, useParams } from "next/navigation"
+import { useCartStore } from "@lib/cart"
 
 type CartDrawerProps = {
   cart: HttpTypes.StoreCart | null
@@ -45,6 +47,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
   } = useSelectedItems()
   const [updatingItem, setUpdatingItem] = useState<string | null>(null)
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [variantSelector, setVariantSelector] =
     useState<VariantSelectorState>(null)
   const [productData, setProductData] = useState<HttpTypes.StoreProduct | null>(
@@ -56,6 +59,9 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
   const router = useRouter()
   const params = useParams()
   const countryCode = (params.countryCode as string) || "ph"
+
+  // Get Shopify cart from Zustand store for checkout URL
+  const shopifyCart = useCartStore((s) => s.cart)
 
   // Close on ESC key
   useEffect(() => {
@@ -171,11 +177,16 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
     }
   }
 
+  const setShopifyCart = useCartStore((s) => s.setCart)
+
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return
     setUpdatingItem(itemId)
     try {
-      await updateLineItem({ lineId: itemId, quantity: newQuantity })
+      const updatedCart = await updateLineItem({ lineId: itemId, quantity: newQuantity })
+      if (updatedCart) {
+        setShopifyCart(updatedCart as any)
+      }
     } catch (error) {
       console.error("Failed to update quantity:", error)
     } finally {
@@ -183,23 +194,19 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
     }
   }
 
-  const handleCheckout = (e: React.MouseEvent) => {
+  const handleCheckout = async (e: React.MouseEvent) => {
     e.preventDefault()
-
-    // Store selected item IDs in sessionStorage for checkout page
-    const selectedItemIds = Array.from(selectedItems)
-    sessionStorage.setItem(
-      "checkoutSelectedItems",
-      JSON.stringify(selectedItemIds)
-    )
-    console.log(
-      "[Cart Drawer] Stored selected items for checkout:",
-      selectedItemIds.length
-    )
-
+    setCheckoutError(null)
     setIsRedirecting(true)
-    closeCart()
-    router.push("/checkout")
+
+    try {
+      const url = await getCheckoutUrl()
+      window.location.href = url
+    } catch (error) {
+      console.error("[checkout] Failed to get checkout URL:", error)
+      setCheckoutError("Unable to start checkout. Please try again.")
+      setIsRedirecting(false)
+    }
   }
 
   const openVariantSelector = (item: HttpTypes.StoreCartLineItem) => {
@@ -682,7 +689,14 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
               </span>
             </div>
 
-            {/* Checkout Button - Disabled when no selection */}
+            {/* Checkout Error */}
+            {checkoutError && (
+              <div className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded">
+                {checkoutError}
+              </div>
+            )}
+
+            {/* Checkout Button — Shopify Hosted Checkout */}
             <button
               onClick={handleCheckout}
               disabled={isRedirecting || !hasSelectedItems}
@@ -709,12 +723,11 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Processing...
+                  Redirecting to checkout…
                 </>
               ) : hasSelectedItems ? (
                 <>
-                  Checkout ({actualSelectedCount}{" "}
-                  {actualSelectedCount === 1 ? "item" : "items"})
+                  Proceed to Checkout
                   <svg
                     className="w-5 h-5"
                     fill="none"

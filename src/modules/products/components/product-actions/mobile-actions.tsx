@@ -1,7 +1,6 @@
 "use client"
 
 import { Dialog, Transition } from "@headlessui/react"
-import { Button, clx } from "@medusajs/ui"
 import React, { Fragment, useMemo } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
@@ -15,6 +14,7 @@ import { isColorOption, isSizeOption } from "@lib/util/variant-helpers"
 import ColorSwatch from "./color-swatch"
 import SizeSelector from "./size-selector"
 import GenericOptionSelector from "./generic-option-selector"
+import { cn } from "@lib/util/cn"
 
 type MobileActionsProps = {
   product: HttpTypes.StoreProduct
@@ -82,7 +82,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   return (
     <>
       <div
-        className={clx("lg:hidden inset-x-0 bottom-0 fixed z-50", {
+        className={cn("lg:hidden inset-x-0 bottom-0 fixed z-50", {
           "pointer-events-none": !show,
         })}
       >
@@ -106,7 +106,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
               </span>
               <span>—</span>
               {selectedPrice ? (
-                <div className="flex items-end gap-x-2 text-ui-fg-base">
+                <div className="flex items-end gap-x-2 text-gray-900">
                   {selectedPrice.price_type === "sale" && (
                     <p>
                       <span className="line-through text-small-regular text-gray-400">
@@ -115,7 +115,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                     </p>
                   )}
                   <span
-                    className={clx("font-semibold", {
+                    className={cn("font-semibold", {
                       "text-red-600": selectedPrice.price_type === "sale",
                     })}
                   >
@@ -127,14 +127,13 @@ const MobileActions: React.FC<MobileActionsProps> = ({
               )}
             </div>
             <div
-              className={clx("grid grid-cols-2 w-full gap-x-4", {
+              className={cn("grid grid-cols-2 w-full gap-x-4", {
                 "!grid-cols-1": isSimple,
               })}
             >
               {!isSimple && (
-                <Button
+                <button
                   onClick={open}
-                  variant="secondary"
                   className="w-full"
                   data-testid="mobile-actions-button"
                 >
@@ -146,13 +145,12 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                     </span>
                     <ChevronDown />
                   </div>
-                </Button>
+                </button>
               )}
-              <Button
+              <button
                 onClick={handleAddToCart}
                 disabled={!inStock || !variant}
                 className="w-full bg-gray-900 hover:bg-[#F16D34]"
-                isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
                 {!variant
@@ -160,7 +158,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   : !inStock
                   ? "Out of stock"
                   : "Add to cart"}
-              </Button>
+              </button>
             </div>
           </div>
         </Transition>
@@ -199,7 +197,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   <div className="w-full flex justify-end pr-6">
                     <button
                       onClick={close}
-                      className="bg-white w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center shadow-lg"
+                      className="bg-white w-12 h-12 rounded-full text-gray-900 flex justify-center items-center shadow-lg"
                       data-testid="close-modal-button"
                       aria-label="Close options"
                     >
@@ -232,12 +230,12 @@ const MobileActions: React.FC<MobileActionsProps> = ({
 
                     {/* Done button */}
                     <div className="mt-6">
-                      <Button
+                      <button
                         onClick={close}
                         className="w-full bg-gray-900 hover:bg-[#F16D34]"
                       >
                         Done
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </Dialog.Panel>

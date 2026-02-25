@@ -18,11 +18,11 @@ export const listLocales = async (): Promise<Locale[] | null> => {
   }
 
   return sdk.client
-    .fetch<{ locales: Locale[] }>(`/store/locales`, {
+    .fetch(`/store/locales`, {
       method: "GET",
       next,
       cache: "force-cache",
     })
-    .then(({ locales }) => locales)
+    .then((res: any) => res.locales as Locale[])
     .catch(() => null)
 }

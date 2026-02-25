@@ -1,7 +1,6 @@
 "use client"
 
 import { requestPasswordReset } from "@lib/data/customer"
-import { Button } from "@medusajs/ui"
 import Input from "@modules/common/components/input"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useFormState } from "react-dom"
@@ -62,14 +61,12 @@ export default function ForgotPasswordTemplate() {
               name="email"
               type="email"
               autoComplete="email"
-              required
-              placeholder="you@example.com"
             />
           </div>
 
-          <Button type="submit" className="w-full">
+          <button type="submit" className="w-full">
             Send Reset Link
-          </Button>
+          </button>
 
           <div className="text-center">
             <LocalizedClientLink

@@ -1,6 +1,6 @@
 "use client"
 
-import { clx } from "@medusajs/ui"
+import { cn } from "@lib/util/cn"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 export function Pagination({
@@ -35,7 +35,7 @@ export function Pagination({
   ) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
+      className={cn("txt-xlarge-plus text-ui-fg-muted", {
         "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
       })}
       disabled={isCurrent}
@@ -57,7 +57,7 @@ export function Pagination({
 
   // Function to render page buttons based on the current page and total pages
   const renderPageButtons = () => {
-    const buttons = []
+    const buttons: React.ReactNode[] = []
 
     if (totalPages <= 7) {
       // Show all pages

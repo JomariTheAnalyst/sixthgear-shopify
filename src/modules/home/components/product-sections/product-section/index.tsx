@@ -94,7 +94,7 @@ export default async function ProductSection({
                   product={product}
                   region={region}
                   badgeMode={badgeMode}
-                  inventoryMap={inventoryByProduct[product.id]}
+                  inventoryMap={inventoryByProduct?.[product.id] || {}}
                 />
               </div>
             ))}
@@ -141,7 +141,7 @@ export default async function ProductSection({
               product={product}
               region={region}
               badgeMode={badgeMode}
-              inventoryMap={inventoryByProduct[product.id]}
+              inventoryMap={inventoryByProduct?.[product.id] || {}}
             />
           ))}
         </div>

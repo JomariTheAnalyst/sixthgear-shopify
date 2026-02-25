@@ -1,7 +1,6 @@
 "use client"
 
-import { Button, Heading, Text } from "@medusajs/ui"
-import { X } from "@medusajs/icons"
+import { X } from "lucide-react"
 
 type CartLimitModalProps = {
   isOpen: boolean
@@ -28,29 +27,30 @@ const CartLimitModal = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-ui-fg-muted hover:text-ui-fg-base"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         >
-          <X />
+          <X className="w-5 h-5" />
         </button>
 
         {/* Content */}
         <div className="flex flex-col gap-4">
-          <Heading level="h2" className="text-xl">
-            Cart Limit Reached
-          </Heading>
+          <h2 className="text-xl font-semibold">Cart Limit Reached</h2>
 
-          <Text className="text-ui-fg-subtle">
+          <p className="text-gray-600">
             You have reached the maximum cart limit of {limit} items. Your cart
             currently has {currentCount} items.
-          </Text>
+          </p>
 
-          <Text className="text-ui-fg-subtle">
+          <p className="text-gray-600">
             Please remove some items from your cart before adding more.
-          </Text>
+          </p>
 
-          <Button onClick={onClose} className="w-full mt-2">
+          <button
+            onClick={onClose}
+            className="w-full mt-2 bg-black text-white py-2 px-4 rounded hover:bg-gray-800"
+          >
             Got it
-          </Button>
+          </button>
         </div>
       </div>
     </div>

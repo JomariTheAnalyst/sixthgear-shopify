@@ -1,7 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
-import { sdk } from "@lib/config"
 import ProductCard from "@modules/home/components/product-sections/product-card"
-import { getProductsInventory } from "@lib/data/products"
+import { getProductRecommendations, getProducts } from "@lib/shopify"
 
 type YouMayLikeProps = {
   productId: string
@@ -9,47 +8,61 @@ type YouMayLikeProps = {
   region: HttpTypes.StoreRegion
 }
 
+// Maps Shopify Product Card to the Medusa Shape expected by ProductCard component
+function mapShopifyToMedusa(p: any) {
+  return {
+    id: p.id,
+    title: p.title,
+    handle: p.handle,
+    thumbnail: p.featuredImage?.url,
+    images: p.featuredImage ? [{ url: p.featuredImage.url }] : [],
+    collection: { title: p.vendor },
+    variants: [
+      {
+        id: p.id,
+        allow_backorder: false,
+        manage_inventory: true,
+        inventory_quantity: p.availableForSale ? 10 : 0,
+        calculated_price: {
+          calculated_amount: p.priceRange?.minVariantPrice ? parseFloat(p.priceRange.minVariantPrice.amount) : null,
+          original_amount: p.compareAtPriceRange?.minVariantPrice ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount) : null,
+          currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php"
+        }
+      }
+    ]
+  } as any;
+}
+
 export default async function YouMayLike({
   productId,
   countryCode,
   region,
 }: YouMayLikeProps) {
-  console.log(`[YouMayLike Component] Rendering for product: ${productId}`)
+  console.log(`[YouMayLike Component] Fetching recommendations for: ${productId}`)
 
-  // Fetch related products from our custom endpoint (uses Meilisearch for IDs)
-  const backendUrl =
-    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
-  const apiKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-
-  let relatedProductIds: string[] = []
+  let shopifyProducts: any[] = []
 
   try {
-    const response = await fetch(
-      `${backendUrl}/store/products/${productId}/related`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "x-publishable-api-key": apiKey || "",
-        },
-        next: {
-          revalidate: 60,
-        },
-      }
-    )
-
-    if (response.ok) {
-      const data = await response.json()
-      relatedProductIds = data.related_products?.map((p: any) => p.id) || []
-      console.log(
-        `[YouMayLike Component] Got ${relatedProductIds.length} product IDs`
-      )
+    // 1. Try Shopify's AI recommendations
+    shopifyProducts = await getProductRecommendations(productId)
+    
+    // 2. Fallback: If no recommendations generated yet by Shopify AI, fetch recent products
+    if (!shopifyProducts || shopifyProducts.length === 0) {
+      console.log(`[YouMayLike Component] AI recommendations empty. Fetching fallback products...`)
+      const fallback = await getProducts({ first: 4 })
+      
+      // Filter out the current product from the fallback list just in case
+      shopifyProducts = fallback.products.filter(p => p.id !== productId).slice(0, 3) 
+    } else {
+      // Just keep top 3
+      shopifyProducts = shopifyProducts.slice(0, 3)
     }
+
   } catch (error) {
-    console.error(`[YouMayLike Component] Error fetching related IDs:`, error)
+    console.error(`[YouMayLike Component] Error fetching recommendations/fallback:`, error)
   }
 
-  // If no related products, return empty state
-  if (relatedProductIds.length === 0) {
+  if (!shopifyProducts || shopifyProducts.length === 0) {
     return (
       <div className="w-full">
         <h2
@@ -80,63 +93,11 @@ export default async function YouMayLike({
     )
   }
 
-  // Fetch full product details with calculated_price from Medusa
-  const { products } = await sdk.store.product
-    .list({
-      id: relatedProductIds,
-      region_id: region.id,
-      fields: "*variants.calculated_price,+variants.inventory_quantity",
-      limit: 3,
-    })
-    .catch(() => ({ products: [] }))
+  // Map to the Medusa format expected by ProductCard
+  const mappedProducts = shopifyProducts.map(mapShopifyToMedusa)
 
-  console.log(
-    `[YouMayLike Component] Fetched ${products?.length || 0} full products`
-  )
-
-  if (!products || products.length === 0) {
-    return (
-      <div className="w-full">
-        <h2
-          className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight mb-8"
-          style={{ fontFamily: "BRHendrix, sans-serif" }}
-        >
-          You May Like
-        </h2>
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <svg
-            className="w-16 h-16 text-gray-300 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-            />
-          </svg>
-          <p className="text-gray-500 text-sm">
-            No related products found at the moment.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  // Get inventory data for stock status
-  const inventoryByProduct = await getProductsInventory(
-    products.map((p) => p.id!)
-  )
-
-  // Flatten inventory map: product_id -> variant_id -> quantity becomes variant_id -> quantity
+  // Provide an empty/default inventory map since Shopify variant inventory is stubbed at availableForSale
   const inventoryMap: Record<string, number> = {}
-  Object.values(inventoryByProduct).forEach((variantMap) => {
-    Object.entries(variantMap).forEach(([variantId, quantity]) => {
-      inventoryMap[variantId] = quantity
-    })
-  })
 
   return (
     <div className="w-full">
@@ -150,7 +111,7 @@ export default async function YouMayLike({
 
       {/* Product Grid - Wider cards (3 columns on desktop instead of 6) */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-6 gap-y-8">
-        {products.map((product) => (
+        {mappedProducts.map((product) => (
           <ProductCard
             key={product.id}
             product={product}

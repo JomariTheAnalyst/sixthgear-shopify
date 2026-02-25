@@ -1,6 +1,5 @@
 "use client"
 
-import { IconBadge, clx } from "@medusajs/ui"
 import {
   SelectHTMLAttributes,
   forwardRef,
@@ -11,6 +10,7 @@ import {
 } from "react"
 
 import ChevronDown from "@modules/common/icons/chevron-down"
+import { cn } from "@lib/util/cn"
 
 type NativeSelectProps = {
   placeholder?: string
@@ -38,14 +38,14 @@ const CartItemSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
 
     return (
       <div>
-        <IconBadge
+        <div
           onFocus={() => innerRef.current?.focus()}
           onBlur={() => innerRef.current?.blur()}
-          className={clx(
-            "relative flex items-center txt-compact-small border text-ui-fg-base group",
+          className={cn(
+            "relative flex items-center txt-compact-small border text-gray-900 group",
             className,
             {
-              "text-ui-fg-subtle": isPlaceholder,
+              "text-gray-500": isPlaceholder,
             }
           )}
         >
@@ -62,7 +62,7 @@ const CartItemSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
           <span className="absolute flex pointer-events-none justify-end w-8 group-hover:animate-pulse">
             <ChevronDown />
           </span>
-        </IconBadge>
+        </div>
       </div>
     )
   }

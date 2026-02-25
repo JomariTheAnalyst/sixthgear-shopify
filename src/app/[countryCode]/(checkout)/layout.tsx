@@ -1,6 +1,6 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ChevronDown from "@modules/common/icons/chevron-down"
-import MedusaCTA from "@modules/layout/components/medusa-cta"
+
 import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
 
@@ -42,7 +42,7 @@ export default function CheckoutLayout({
             {children}
           </div>
           <div className="py-4 w-full flex items-center justify-center">
-            <MedusaCTA />
+            <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} Sixthgear MotoSupply</p>
           </div>
         </div>
       </SelectedItemsProvider>

@@ -11,7 +11,7 @@ interface ServiceCard {
   description: string
   image: string
   slug?: string
-  link?: string // Add link field from Strapi
+  link?: string | null // Add link field from Strapi
 }
 
 interface OurServicesProps {
@@ -22,7 +22,7 @@ interface OurServicesProps {
     title: string
     description: string
     image: string | null
-    link?: string // Add link field from Strapi
+    link?: string | null // Add link field from Strapi
   }>
 }
 
@@ -111,7 +111,7 @@ export default function OurServices({
             slug: "rider-support",
           },
         ],
-  }
+  } as { title: string; description: string; cards: ServiceCard[] }
 
   // Don't render if no services
   if (content.cards.length === 0) {

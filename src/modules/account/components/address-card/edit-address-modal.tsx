@@ -1,18 +1,18 @@
 "use client"
 
 import React, { useEffect, useState, useActionState } from "react"
-import { Button, Heading, clx } from "@medusajs/ui"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import CountrySelect from "@modules/checkout/components/country-select"
 import Input from "@modules/common/components/input"
 import Modal from "@modules/common/components/modal"
-import { SubmitButton } from "@modules/checkout/components/submit-button"
+import { SubmitButton } from "@modules/common/components/submit-button"
 import { HttpTypes } from "@medusajs/types"
 import {
   deleteCustomerAddress,
   updateCustomerAddress,
 } from "@lib/data/customer"
+import { cn } from "@lib/util/cn"
 
 type EditAddressProps = {
   region: HttpTypes.StoreRegion
@@ -62,7 +62,7 @@ const EditAddress: React.FC<EditAddressProps> = ({
   return (
     <>
       <div
-        className={clx(
+        className={cn(
           "bg-white border rounded-xl p-5 min-h-[200px] h-full w-full flex flex-col justify-between transition-all hover:shadow-md",
           {
             "border-orange-500 ring-2 ring-orange-100": isActive,
@@ -207,7 +207,7 @@ const EditAddress: React.FC<EditAddressProps> = ({
 
       <Modal isOpen={state} close={close} data-testid="edit-address-modal">
         <Modal.Title>
-          <Heading className="mb-2">Edit Address</Heading>
+          <h2 className="mb-2 font-semibold">Edit Address</h2>
         </Modal.Title>
         <form action={formAction}>
           <input type="hidden" name="addressId" value={address.id} />
@@ -315,15 +315,14 @@ const EditAddress: React.FC<EditAddressProps> = ({
           </Modal.Body>
           <Modal.Footer>
             <div className="flex gap-3 mt-6">
-              <Button
+              <button
                 type="reset"
-                variant="secondary"
                 onClick={close}
                 className="h-10 px-5"
                 data-testid="cancel-button"
               >
                 Cancel
-              </Button>
+              </button>
               <SubmitButton
                 data-testid="save-button"
                 className="h-10 px-5 bg-orange-500 hover:bg-orange-600"

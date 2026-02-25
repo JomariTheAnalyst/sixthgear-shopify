@@ -5,6 +5,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "noImplicitAny": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -18,7 +19,10 @@
     "paths": {
       "@lib/*": ["lib/*"],
       "@modules/*": ["modules/*"],
-      "@pages/*": ["pages/*"]
+      "@pages/*": ["pages/*"],
+      "@medusajs/types": ["types/medusa-shim"],
+      "@medusajs/ui": ["shims/medusa-ui"],
+      "@medusajs/icons": ["shims/medusa-icons"]
     },
     "plugins": [
       {

@@ -1,130 +1,141 @@
-"use server"
+import { shopifyGraphql } from "@lib/shopify/client";
+import { getCollectionFiltersQuery, getCollectionWithFiltersQuery, getCollectionsQuery } from "@lib/shopify/queries/collection";
+import type {
+  ShopifyFilter,
+  ShopifyPageInfo,
+  ShopifyCollection,
+  ShopifyProductCard,
+  ShopifyImage,
+  ShopifyMoney,
+  FilterState,
+  ProductFilter,
+  ProductCollectionSortKeys,
+} from "@lib/shopify/types";
 
-import { sdk } from "@lib/config"
-import { HttpTypes } from "@medusajs/types"
+// ─── Fetch available filter options for the sidebar ───────────────────────────
 
-export const retrieveCollection = async (id: string) => {
-  return sdk.client
-    .fetch<{ collection: HttpTypes.StoreCollection }>(
-      `/store/collections/${id}`,
-      {
-        cache: "no-store", // Real-time updates
-      }
-    )
-    .then(({ collection }) => collection)
-}
+export async function getCollectionFilters(handle: string): Promise<ShopifyFilter[]> {
+  const { data, errors } = await shopifyGraphql<{
+    collection: {
+      products: {
+        filters: ShopifyFilter[];
+      };
+    };
+  }>(getCollectionFiltersQuery, { handle });
 
-export const listCollections = async (
-  queryParams: Record<string, string> = {}
-): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
-  queryParams.limit = queryParams.limit || "100"
-  queryParams.offset = queryParams.offset || "0"
-
-  return sdk.client
-    .fetch<{ collections: HttpTypes.StoreCollection[]; count: number }>(
-      "/store/collections",
-      {
-        query: queryParams,
-        cache: "no-store", // Real-time updates
-      }
-    )
-    .then(({ collections }) => ({ collections, count: collections.length }))
-}
-
-export const getCollectionByHandle = async (
-  handle: string
-): Promise<HttpTypes.StoreCollection | null> => {
-  try {
-    const response =
-      await sdk.client.fetch<HttpTypes.StoreCollectionListResponse>(
-        `/store/collections`,
-        {
-          query: { handle, fields: "*products" },
-          cache: "no-store", // Real-time updates
-        }
-      )
-    return response.collections[0] || null
-  } catch (error) {
-    console.error(`Error fetching collection by handle "${handle}":`, error)
-    return null
+  if (errors && errors.length > 0) {
+    console.error("Shopify API Error (getCollectionFilters):", errors);
+    return [];
   }
+
+  return data?.collection?.products?.filters || [];
 }
 
-/**
- * Get products by collection handle with calculated pricing
- * Includes region_id for price list/sale price calculation
- */
-export const getProductsByCollectionHandle = async (
+// ─── Fetch filtered + sorted products for collection page ─────────────────────
+
+export async function getFilteredCollection(
   handle: string,
-  limit: number = 8,
-  regionId?: string
-): Promise<HttpTypes.StoreProduct[]> => {
-  try {
-    // First get the collection
-    const collection = await getCollectionByHandle(handle)
-
-    if (!collection?.id) {
-      console.warn(`Collection with handle "${handle}" not found`)
-      return []
-    }
-
-    // Fetch products with calculated pricing context
-    const query: Record<string, any> = {
-      collection_id: [collection.id],
-      limit,
-      // Include calculated_price for sale price detection
-      fields: "*variants.calculated_price,+variants.inventory_quantity",
-    }
-
-    // IMPORTANT: region_id enables price list (sale) calculations
-    if (regionId) {
-      query.region_id = regionId
-    }
-
-    const response = await sdk.client.fetch<{
-      products: HttpTypes.StoreProduct[]
-    }>(`/store/products`, {
-      query,
-      cache: "no-store", // Real-time sale price updates
-    })
-
-    return response.products || []
-  } catch (error) {
-    console.error(`Error fetching products for collection "${handle}":`, error)
-    return []
+  options?: {
+    filters?: ProductFilter[];
+    sortKey?: ProductCollectionSortKeys;
+    reverse?: boolean;
+    first?: number;
+    after?: string;
   }
+): Promise<{
+  collection: {
+    id: string;
+    title: string;
+    handle: string;
+    description: string;
+    image: ShopifyImage | null;
+  };
+  products: ShopifyProductCard[];
+  filters: ShopifyFilter[];
+  pageInfo: ShopifyPageInfo;
+} | null> {
+  const { data, errors } = await shopifyGraphql<{
+    collection: {
+      id: string;
+      title: string;
+      handle: string;
+      description: string;
+      image: ShopifyImage | null;
+      products: {
+        filters: ShopifyFilter[];
+        edges: { cursor: string; node: ShopifyProductCard }[];
+        pageInfo: ShopifyPageInfo;
+      };
+    };
+  }>(getCollectionWithFiltersQuery, {
+    handle,
+    filters: options?.filters || [],
+    sortKey: options?.sortKey || "COLLECTION_DEFAULT",
+    reverse: options?.reverse || false,
+    first: options?.first || 24,
+    after: options?.after || null,
+  });
+
+  if (errors && errors.length > 0) {
+    console.error("Shopify API Error (getFilteredCollection):", errors);
+  }
+
+  if (!data?.collection) return null;
+
+  const { products, ...collectionInfo } = data.collection;
+
+  return {
+    collection: collectionInfo,
+    products: products.edges.map((e) => e.node),
+    filters: products.filters || [],
+    pageInfo: products.pageInfo,
+  };
 }
 
-/**
- * Get new arrivals with calculated pricing
- */
-export const getNewArrivals = async (
-  limit: number = 8,
-  regionId?: string
-): Promise<HttpTypes.StoreProduct[]> => {
-  try {
-    const query: Record<string, any> = {
-      limit,
-      order: "-created_at",
-      // Include calculated_price for sale price detection
-      fields: "*variants.calculated_price,+variants.inventory_quantity",
-    }
+// ─── Build ProductFilter[] from FilterState ───────────────────────────────────
 
-    // IMPORTANT: region_id enables price list (sale) calculations
-    if (regionId) {
-      query.region_id = regionId
-    }
+export function buildShopifyFilters(state: FilterState): ProductFilter[] {
+  const filters: ProductFilter[] = [];
 
-    const response = await sdk.client.fetch<{
-      products: HttpTypes.StoreProduct[]
-    }>(`/store/products`, {
-      query,
-      cache: "no-store", // Real-time sale price updates
-    })
-
-    return response.products || []
-  } catch (error) {
-    console.error("Error fetching new arrivals:", error)
-    return []
+  if (state.priceRange) {
+    filters.push({ price: { min: state.priceRange.min, max: state.priceRange.max } });
   }
+
+  if (state.available) {
+    filters.push({ available: true });
+  }
+
+  state.vendors.forEach((v) => filters.push({ productVendor: v }));
+  state.productTypes.forEach((t) => filters.push({ productType: t }));
+  state.tags.forEach((tag) => filters.push({ tag }));
+  state.variantOptions.forEach((opt) =>
+    filters.push({ variantOption: { name: opt.name, value: opt.value } })
+  );
+
+  return filters;
 }
+
+// ─── Backward-compatible exports ──────────────────────────────────────────────
+
+import { getCollection, getCollections } from "@lib/shopify";
+
+export const getCollectionByHandle = async (handle?: string) => {
+  if (!handle) return null;
+  try {
+    return await getCollection(handle);
+  } catch {
+    return null;
+  }
+};
+
+export const listCollections = async (opts?: any) => {
+  try {
+    const collections = await getCollections(opts?.limit || 20);
+    return { collections };
+  } catch {
+    return { collections: [] };
+  }
+};
+
+export const getProductsByCollectionHandle = async (_handle?: string, _limit?: number, _regionId?: string) => [] as any[];
+export const getNewArrivals = async (_limit?: number, _regionId?: string) => [] as any[];

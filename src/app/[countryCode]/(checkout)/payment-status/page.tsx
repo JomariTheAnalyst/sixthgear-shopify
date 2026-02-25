@@ -10,7 +10,7 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { CheckCircleSolid } from "@medusajs/icons"
+import { CheckCircle2 as CheckCircleSolid } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Payment Status",

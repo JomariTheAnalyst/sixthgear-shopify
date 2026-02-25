@@ -1,4 +1,3 @@
-import { Table } from "@medusajs/ui"
 
 import repeat from "@lib/util/repeat"
 import SkeletonCartItem from "@modules/skeletons/components/skeleton-cart-item"
@@ -24,32 +23,32 @@ const SkeletonCartPage = () => {
               <div className="pb-3 flex items-center">
                 <div className="w-20 h-12 bg-gray-200 animate-pulse" />
               </div>
-              <Table>
-                <Table.Header className="border-t-0">
-                  <Table.Row>
-                    <Table.HeaderCell className="!pl-0">
+              <table className="w-full text-sm">
+                <thead className="border-t-0">
+                  <tr>
+                    <th className="!pl-0">
                       <div className="w-10 h-6 bg-gray-200 animate-pulse" />
-                    </Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>
-                    <Table.HeaderCell>
+                    </th>
+                    <th></th>
+                    <th>
                       <div className="w-16 h-6 bg-gray-200 animate-pulse" />
-                    </Table.HeaderCell>
-                    <Table.HeaderCell>
+                    </th>
+                    <th>
                       <div className="w-12 h-6 bg-gray-200 animate-pulse" />
-                    </Table.HeaderCell>
-                    <Table.HeaderCell className="!pr-0">
+                    </th>
+                    <th className="!pr-0">
                       <div className="flex justify-end">
                         <div className="w-12 h-6 bg-gray-200 animate-pulse" />
                       </div>
-                    </Table.HeaderCell>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
                   {repeat(4).map((index) => (
                     <SkeletonCartItem key={index} />
                   ))}
-                </Table.Body>
-              </Table>
+                </tbody>
+              </table>
             </div>
           </div>
           <div className="flex flex-col gap-y-8">

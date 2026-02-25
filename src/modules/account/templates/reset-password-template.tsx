@@ -1,7 +1,6 @@
 "use client"
 
 import { resetPassword } from "@lib/data/customer"
-import { Button } from "@medusajs/ui"
 import Input from "@modules/common/components/input"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useFormState } from "react-dom"
@@ -76,7 +75,6 @@ export default function ResetPasswordTemplate() {
               type="password"
               autoComplete="new-password"
               required
-              placeholder="Enter new password"
             />
             <p className="text-xs text-gray-500 mt-1">
               Must be at least 8 characters
@@ -90,13 +88,12 @@ export default function ResetPasswordTemplate() {
               type="password"
               autoComplete="new-password"
               required
-              placeholder="Confirm new password"
             />
           </div>
 
-          <Button type="submit" className="w-full">
+          <button type="submit" className="w-full">
             Reset Password
-          </Button>
+          </button>
 
           <div className="text-center">
             <LocalizedClientLink

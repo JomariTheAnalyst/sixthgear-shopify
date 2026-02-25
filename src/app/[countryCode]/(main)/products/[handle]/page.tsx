@@ -1,11 +1,12 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
-import { listProducts } from "@lib/data/products"
-import { getRegion, listRegions } from "@lib/data/regions"
+import { getProduct, getProducts } from "@lib/shopify"
+import { getRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product-detail"
-import { HttpTypes } from "@medusajs/types"
+
+export const revalidate = 60
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -14,88 +15,33 @@ type Props = {
 
 export async function generateStaticParams() {
   try {
-    const countryCodes = await listRegions().then((regions) =>
-      regions?.map((r) => r.countries?.map((c) => c.iso_2)).flat()
-    )
-
-    if (!countryCodes) {
-      return []
-    }
-
-    const promises = countryCodes.map(async (country) => {
-      const { response } = await listProducts({
-        countryCode: country,
-        queryParams: { limit: 100, fields: "handle" },
-      })
-
-      return {
-        country,
-        products: response.products,
-      }
-    })
-
-    const countryProducts = await Promise.all(promises)
-
-    return countryProducts
-      .flatMap((countryData) =>
-        countryData.products.map((product) => ({
-          countryCode: countryData.country,
-          handle: product.handle,
-        }))
-      )
-      .filter((param) => param.handle)
+    const { products } = await getProducts({ first: 50 })
+    return products.map((product) => ({
+      handle: product.handle,
+    }))
   } catch (error) {
-    console.error(
-      `Failed to generate static paths for product pages: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }.`
-    )
+    console.error("Failed to generate static paths:", error)
     return []
   }
-}
-
-function getImagesForVariant(
-  product: HttpTypes.StoreProduct,
-  selectedVariantId?: string
-) {
-  if (!selectedVariantId || !product.variants) {
-    return product.images
-  }
-
-  const variant = product.variants!.find((v) => v.id === selectedVariantId)
-  if (!variant || !variant.images || !variant.images.length) {
-    return product.images
-  }
-
-  const imageIdsMap = new Map(variant.images.map((i) => [i.id, true]))
-  return product.images!.filter((i) => imageIdsMap.has(i.id))
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle } = params
-  const region = await getRegion(params.countryCode)
 
-  if (!region) {
-    notFound()
-  }
-
-  const product = await listProducts({
-    countryCode: params.countryCode,
-    queryParams: { handle },
-  }).then(({ response }) => response.products[0])
+  const product = await getProduct(handle)
 
   if (!product) {
     notFound()
   }
 
   return {
-    title: `${product.title} | Medusa Store`,
-    description: `${product.title}`,
+    title: `${product.title} | Sixthgear Moto`,
+    description: product.description,
     openGraph: {
-      title: `${product.title} | Medusa Store`,
-      description: `${product.title}`,
-      images: product.thumbnail ? [product.thumbnail] : [],
+      title: `${product.title} | Sixthgear Moto`,
+      description: product.description,
+      images: product.featuredImage ? [product.featuredImage.url] : [],
     },
   }
 }
@@ -105,30 +51,91 @@ export default async function ProductPage(props: Props) {
   const region = await getRegion(params.countryCode)
   const searchParams = await props.searchParams
 
-  const selectedVariantId = searchParams.v_id
-
   if (!region) {
     notFound()
   }
 
-  const pricedProduct = await listProducts({
-    countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
-  }).then(({ response }) => response.products[0])
+  const shopifyProduct = await getProduct(params.handle)
 
-  const images = getImagesForVariant(pricedProduct, selectedVariantId)
-
-  if (!pricedProduct) {
+  if (!shopifyProduct) {
     notFound()
+  }
+
+  // Map Shopify product to the Medusa HttpTypes.StoreProduct format expected by the template
+  const mappedProduct = {
+    id: shopifyProduct.id,
+    title: shopifyProduct.title,
+    handle: shopifyProduct.handle,
+    description: shopifyProduct.descriptionHtml || shopifyProduct.description,
+    thumbnail: shopifyProduct.featuredImage?.url,
+    collection: { title: shopifyProduct.vendor },
+    options: shopifyProduct.options.map((opt) => ({
+      id: opt.id,
+      title: opt.name,
+      values: opt.values.map(val => ({ id: val, value: val })),
+    })),
+    images: shopifyProduct.images.edges.map((edge) => ({
+      id: edge.node.url,
+      url: edge.node.url,
+    })),
+    variants: shopifyProduct.variants.edges.map((edge) => {
+      const v = edge.node;
+      
+      // Stock logic requested by user mapping
+      let q = 0;
+      if (v.quantityAvailable === null || v.quantityAvailable === undefined) {
+        q = v.availableForSale ? 10 : 0;
+      } else {
+        q = v.quantityAvailable;
+      }
+
+      return {
+        id: v.id,
+        title: v.title,
+        options: v.selectedOptions.map((opt) => {
+          const matchedOption = shopifyProduct.options.find(o => o.name === opt.name);
+          return {
+            option_id: matchedOption?.id || opt.name,
+            value: opt.value,
+          };
+        }),
+        options_values: v.selectedOptions,
+        manage_inventory: true,
+        allow_backorder: false,
+        inventory_quantity: q,
+        calculated_price: {
+          calculated_amount: v.price ? parseFloat(v.price.amount) : null,
+          original_amount: v.compareAtPrice ? parseFloat(v.compareAtPrice.amount) : null,
+          currency_code: v.price?.currencyCode || "php"
+        }
+      }
+    }),
+    metadata: shopifyProduct.metafields?.reduce((acc: any, field: any) => {
+      acc[field.key] = field.value;
+      return acc;
+    }, {}) || {}
+  } as any;
+
+  // Emulate getImagesForVariant functionality
+  const selectedVariantId = searchParams.v_id
+  let displayImages = mappedProduct.images;
+  if (selectedVariantId) {
+    const variantNode = shopifyProduct.variants.edges.find(e => e.node.id === selectedVariantId)?.node;
+    if (variantNode?.image?.url) {
+      displayImages = [
+        { id: variantNode.image.url, url: variantNode.image.url },
+        ...mappedProduct.images.filter((img: any) => img.url !== variantNode.image?.url)
+      ];
+    }
   }
 
   return (
     <Suspense fallback={<SkeletonProductDetail />}>
       <ProductTemplate
-        product={pricedProduct}
+        product={mappedProduct}
         region={region}
         countryCode={params.countryCode}
-        images={images || []}
+        images={displayImages}
       />
     </Suspense>
   )

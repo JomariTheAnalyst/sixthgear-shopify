@@ -5,7 +5,7 @@ import { convertToLocale } from "@lib/util/money"
 import { useSelectedItems } from "@lib/context/selected-cart-items-context"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import DiscountCode from "@modules/checkout/components/discount-code"
-import { ChevronDown, ChevronUpMini } from "@medusajs/icons"
+import { ChevronDown, ChevronUp as ChevronUpMini } from "lucide-react"
 import { useState, useMemo } from "react"
 import Image from "next/image"
 

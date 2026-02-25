@@ -2,7 +2,6 @@ import React, { Suspense } from "react"
 
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
-import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
 import ProductTabs from "@modules/products/components/product-tabs"
 import ProductReviews from "@modules/products/components/product-reviews"
 import YouMayLike from "@modules/products/components/you-may-like"
@@ -12,7 +11,7 @@ import { notFound } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 import { getProductReviews } from "@lib/data/products"
 
-import ProductActionsWrapper from "./product-actions-wrapper"
+
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -76,9 +75,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
 
               {/* Description */}
               {product.description && (
-                <p className="text-sm md:text-base text-gray-600 leading-relaxed line-clamp-3">
-                  {product.description}
-                </p>
+                <div
+                  className="text-sm md:text-base text-gray-600 leading-relaxed max-w-none prose prose-p:my-2 prose-a:text-[#F16D34] line-clamp-3"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
               )}
 
               {/* Star Rating with Review Count Link */}
@@ -91,25 +91,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
               </div>
 
               {/* Variant Selection & Add to Cart */}
-              <Suspense
-                fallback={
-                  <ProductActions
-                    disabled={true}
-                    product={product}
-                    region={region}
-                  />
-                }
-              >
-                <ProductActionsWrapper id={product.id} region={region} />
-              </Suspense>
+              <ProductActions product={product} region={region} />
 
               {/* Collapsible Information Sections */}
               <div className="mt-6">
                 <ProductTabs product={product} />
               </div>
-
-              {/* Onboarding CTA (if applicable) */}
-              <ProductOnboardingCta />
             </div>
           </div>
 
