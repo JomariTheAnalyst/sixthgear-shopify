@@ -57,8 +57,8 @@ export default function ReviewModal({
       setIsAuthenticated(authenticated)
 
       if (authenticated) {
-        setFirstName(customer.first_name || "")
-        setLastName(customer.last_name || "")
+        setFirstName(customer.firstName || "")
+        setLastName(customer.lastName || "")
 
         const purchased = await checkProductPurchased(productId)
         setHasPurchased(purchased)

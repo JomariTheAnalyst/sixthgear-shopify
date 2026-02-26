@@ -19,14 +19,12 @@ const ProfileName: React.FC<MyInformationProps> = ({ customer }) => {
     _currentState: Record<string, unknown>,
     formData: FormData
   ) => {
-    const customer = {
-      first_name: formData.get("first_name") as string,
-      last_name: formData.get("last_name") as string,
-    }
-
     try {
-      await updateCustomer(customer)
-      return { success: true, error: null }
+      const result = await updateCustomer(null, formData)
+      if (result === "success") {
+        return { success: true, error: null }
+      }
+      return { success: false, error: result || "Update failed" }
     } catch (error: any) {
       return { success: false, error: error.toString() }
     }

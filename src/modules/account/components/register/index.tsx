@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useActionState } from "react"
+import { useRouter, useParams } from "next/navigation"
 import { signup } from "@lib/data/customer"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -13,8 +14,26 @@ type Props = {
 }
 
 const Register = ({ setCurrentView }: Props) => {
-  const [message, formAction] = useActionState(signup, null)
+  const [message, formAction, isPending] = useActionState(signup, null)
   const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
+  const { countryCode } = useParams() as { countryCode: string }
+  const hasSubmitted = useRef(false)
+
+  // Track submissions
+  useEffect(() => {
+    if (isPending) {
+      hasSubmitted.current = true
+    }
+  }, [isPending])
+
+  // Redirect on successful registration (auto-logged in)
+  useEffect(() => {
+    if (hasSubmitted.current && !isPending && message === null) {
+      router.push(`/${countryCode}/account`)
+      router.refresh()
+    }
+  }, [isPending, message, router, countryCode])
 
   return (
     <div data-testid="register-page">
@@ -84,21 +103,6 @@ const Register = ({ setCurrentView }: Props) => {
           />
         </div>
 
-        {/* Phone */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Phone Number
-          </label>
-          <input
-            name="phone"
-            type="tel"
-            placeholder="Phone Number"
-            autoComplete="tel"
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            data-testid="phone-input"
-          />
-        </div>
-
         {/* Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -108,16 +112,17 @@ const Register = ({ setCurrentView }: Props) => {
             <input
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Min. 5 characters"
               autoComplete="new-password"
               required
+              minLength={5}
               className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               data-testid="password-input"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+              className="absolute right-3 top-1/3 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
             >
               {showPassword ? (
                 <svg
@@ -156,6 +161,10 @@ const Register = ({ setCurrentView }: Props) => {
               )}
             </button>
           </div>
+          <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+            You&apos;ll be automatically signed in after clicking the activation
+            link sent to your email.
+          </p>
         </div>
 
         {/* Terms */}

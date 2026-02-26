@@ -210,8 +210,10 @@ export async function applyDiscount(
 
 /**
  * 7. getCheckoutUrl — returns the Shopify hosted checkout URL
+ *    Appends ?logged_in=true when customer is authenticated (SSO)
  */
 export async function getCheckoutUrl(): Promise<string> {
+  const { getCustomerToken } = await import("@lib/data/customer")
   const cartId = await getCartId()
 
   if (!cartId) {
@@ -222,6 +224,14 @@ export async function getCheckoutUrl(): Promise<string> {
 
   if (!cart?.checkoutUrl) {
     throw new Error("[cart] getCheckoutUrl: Cart has no checkout URL")
+  }
+
+  // Checkout SSO: keep customer logged in through Shopify checkout
+  const customerToken = await getCustomerToken()
+  if (customerToken) {
+    const url = new URL(cart.checkoutUrl)
+    url.searchParams.set("logged_in", "true")
+    return url.toString()
   }
 
   return cart.checkoutUrl

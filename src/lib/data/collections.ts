@@ -1,5 +1,6 @@
 import { shopifyGraphql } from "@lib/shopify/client";
 import { getCollectionFiltersQuery, getCollectionWithFiltersQuery, getCollectionsQuery } from "@lib/shopify/queries/collection";
+import { cacheKey, getCached, TTL } from "@lib/cache/redis";
 import type {
   ShopifyFilter,
   ShopifyPageInfo,
@@ -54,42 +55,78 @@ export async function getFilteredCollection(
   filters: ShopifyFilter[];
   pageInfo: ShopifyPageInfo;
 } | null> {
-  const { data, errors } = await shopifyGraphql<{
-    collection: {
-      id: string;
-      title: string;
-      handle: string;
-      description: string;
-      image: ShopifyImage | null;
-      products: {
-        filters: ShopifyFilter[];
-        edges: { cursor: string; node: ShopifyProductCard }[];
-        pageInfo: ShopifyPageInfo;
-      };
-    };
-  }>(getCollectionWithFiltersQuery, {
-    handle,
-    filters: options?.filters || [],
-    sortKey: options?.sortKey || "COLLECTION_DEFAULT",
-    reverse: options?.reverse || false,
-    first: options?.first || 24,
-    after: options?.after || null,
-  });
+  const sortedFilters = (options?.filters ?? [])
+    .map((filter) => sortObjectKeys(filter))
+    .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
 
-  if (errors && errors.length > 0) {
-    console.error("Shopify API Error (getFilteredCollection):", errors);
+  const key = cacheKey(
+    "collection",
+    handle,
+    options?.sortKey ?? "default",
+    String(options?.first ?? 24),
+    options?.after ?? "page-1",
+    JSON.stringify(sortedFilters)
+  )
+
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{
+        collection: {
+          id: string;
+          title: string;
+          handle: string;
+          description: string;
+          image: ShopifyImage | null;
+          products: {
+            filters: ShopifyFilter[];
+            edges: { cursor: string; node: ShopifyProductCard }[];
+            pageInfo: ShopifyPageInfo;
+          };
+        };
+      }>(getCollectionWithFiltersQuery, {
+        handle,
+        filters: options?.filters || [],
+        sortKey: options?.sortKey || "COLLECTION_DEFAULT",
+        reverse: options?.reverse || false,
+        first: options?.first || 24,
+        after: options?.after || null,
+      });
+
+      if (errors && errors.length > 0) {
+        console.error("Shopify API Error (getFilteredCollection):", errors);
+      }
+
+      if (!data?.collection) return null;
+
+      const { products, ...collectionInfo } = data.collection;
+
+      return {
+        collection: collectionInfo,
+        products: products.edges.map((e) => e.node),
+        filters: products.filters || [],
+        pageInfo: products.pageInfo,
+      };
+    },
+    TTL.COLLECTION
+  )
+}
+
+function sortObjectKeys<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => sortObjectKeys(item)) as T
   }
 
-  if (!data?.collection) return null;
+  if (value && typeof value === "object") {
+    return Object.keys(value as Record<string, unknown>)
+      .sort((a, b) => a.localeCompare(b))
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = sortObjectKeys((value as Record<string, unknown>)[key])
+        return acc
+      }, {}) as T
+  }
 
-  const { products, ...collectionInfo } = data.collection;
-
-  return {
-    collection: collectionInfo,
-    products: products.edges.map((e) => e.node),
-    filters: products.filters || [],
-    pageInfo: products.pageInfo,
-  };
+  return value
 }
 
 // ─── Build ProductFilter[] from FilterState ───────────────────────────────────

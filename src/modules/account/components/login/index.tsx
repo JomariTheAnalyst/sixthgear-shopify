@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useActionState } from "react"
+import { useRouter, useParams, useSearchParams } from "next/navigation"
 import { login } from "@lib/data/customer"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -13,8 +14,29 @@ type Props = {
 }
 
 const Login = ({ setCurrentView }: Props) => {
-  const [message, formAction] = useActionState(login, null)
+  const [message, formAction, isPending] = useActionState(login, null)
   const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
+  const { countryCode } = useParams() as { countryCode: string }
+  const searchParams = useSearchParams()
+  const hasSubmitted = useRef(false)
+
+  // Track submissions
+  useEffect(() => {
+    if (isPending) {
+      hasSubmitted.current = true
+    }
+  }, [isPending])
+
+  // Redirect on successful login
+  useEffect(() => {
+    if (hasSubmitted.current && !isPending && message === null) {
+      const redirectTo =
+        searchParams.get("redirect") || `/${countryCode}/account`
+      router.push(redirectTo)
+      router.refresh()
+    }
+  }, [isPending, message, router, countryCode, searchParams])
 
   return (
     <div data-testid="login-page">
@@ -120,7 +142,7 @@ const Login = ({ setCurrentView }: Props) => {
             <span>Remember me</span>
           </label>
           <LocalizedClientLink
-            href="/account/forgot-password"
+            href="/forgot-password"
             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
             Forgot password?

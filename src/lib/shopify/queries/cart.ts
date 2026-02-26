@@ -93,6 +93,7 @@ export async function getCart(cartId: string): Promise<ShopifyCart | null> {
 
   if (errors?.length) {
     const isNotFound = errors.some((e: any) =>
+      e.extensions?.code === "UNAUTHORIZED" ||
       e.message?.toLowerCase().includes("not found") ||
       e.message?.toLowerCase().includes("invalid") ||
       e.message?.toLowerCase().includes("does not exist")

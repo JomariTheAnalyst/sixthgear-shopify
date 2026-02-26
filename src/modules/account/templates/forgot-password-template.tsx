@@ -1,83 +1,122 @@
 "use client"
 
 import { requestPasswordReset } from "@lib/data/customer"
-import Input from "@modules/common/components/input"
+import { useActionState } from "react"
+import { useState, useEffect, useRef } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { useFormState } from "react-dom"
-import { useState } from "react"
+import { SubmitButton } from "@modules/common/components/submit-button"
+import { Mail } from "lucide-react"
 
 export default function ForgotPasswordTemplate() {
-  const [message, formAction] = useFormState(requestPasswordReset, null)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [message, formAction, isPending] = useActionState(
+    requestPasswordReset,
+    null
+  )
+  const [showSuccess, setShowSuccess] = useState(false)
+  const hasSubmitted = useRef(false)
 
-  // Check if the message is success
-  if (message === "success" && !isSuccess) {
-    setIsSuccess(true)
-  }
+  useEffect(() => {
+    if (isPending) {
+      hasSubmitted.current = true
+    }
+  }, [isPending])
+
+  useEffect(() => {
+    if (hasSubmitted.current && !isPending && message === "success") {
+      setShowSuccess(true)
+    }
+  }, [isPending, message])
 
   return (
-    <div className="w-full max-w-md">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Forgot Password?
-        </h1>
-        <p className="text-gray-600">
-          Enter your email address and we'll send you a link to reset your
-          password.
-        </p>
-      </div>
-
-      {isSuccess ? (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-          <div className="text-green-600 text-5xl mb-4">✓</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Check Your Email
-          </h2>
-          <p className="text-gray-600 mb-6">
-            We've sent a password reset link to your email address. Please check
-            your inbox and follow the instructions.
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Forgot Password?
+          </h1>
+          <p className="text-gray-600">
+            Enter your email address and we&apos;ll send you a link to reset
+            your password.
           </p>
-          <p className="text-sm text-gray-500 mb-4">
-            Didn't receive the email? Check your spam folder or try again.
-          </p>
-          <LocalizedClientLink
-            href="/account/login"
-            className="text-sm text-gray-900 hover:text-gray-700 font-medium underline"
-          >
-            Back to Login
-          </LocalizedClientLink>
         </div>
-      ) : (
-        <form action={formAction} className="space-y-6">
-          {message && message !== "success" && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-600">{message}</p>
-            </div>
-          )}
 
-          <div>
-            <Input
-              label="Email"
-              name="email"
-              type="email"
-              autoComplete="email"
-            />
-          </div>
+        {showSuccess ? (
+          <div className="border border-gray-200 rounded-xl p-8 text-center">
+            {/* Icon */}
+            <Mail className="w-10 h-10 text-[#0a0a0a] mx-auto mb-6" strokeWidth={1.5} />
 
-          <button type="submit" className="w-full">
-            Send Reset Link
-          </button>
+            {/* Headline */}
+            <h2 className="text-[22px] font-bold text-[#0a0a0a] mb-4">
+              Check your inbox
+            </h2>
 
-          <div className="text-center">
+            {/* Body */}
+            <p className="text-sm text-gray-600 leading-relaxed mb-3">
+              If an account exists for this email, you will receive
+              password reset instructions.
+            </p>
+
+            <p className="text-xs text-gray-500 leading-relaxed mb-2">
+              Didn&apos;t receive the email? Check your spam folder
+              or try again.
+            </p>
+
+            {/* Help */}
+            <p className="text-xs text-gray-400 mb-6">
+              Need help? Contact us at noreply@sixthgearmoto.com
+            </p>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-6" />
+
             <LocalizedClientLink
-              href="/account/login"
-              className="text-sm text-gray-600 hover:text-gray-900"
+              href="/login"
+              className="flex w-full items-center justify-center bg-[#0a0a0a] text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
             >
-              ← Back to Login
+              Back to Sign In
             </LocalizedClientLink>
           </div>
-        </form>
-      )}
+        ) : (
+          <form action={formAction} className="space-y-6">
+            {message && message !== "success" && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-sm text-red-600">{message}</p>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                name="email"
+                type="email"
+                placeholder="Email Address"
+                autoComplete="email"
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                data-testid="email-input"
+              />
+            </div>
+
+            <SubmitButton
+              className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+              data-testid="send-reset-button"
+            >
+              Send Reset Link
+            </SubmitButton>
+
+            <div className="text-center">
+              <LocalizedClientLink
+                href="/login"
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                ← Back to Login
+              </LocalizedClientLink>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   )
 }

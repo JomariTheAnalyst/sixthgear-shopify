@@ -13,9 +13,11 @@ const serverSchema = z.object({
     .string()
     .min(1, "SHOPIFY_STOREFRONT_ACCESS_TOKEN is required"),
   SHOPIFY_STORE_DOMAIN: shopifyDomain,
+  UPSTASH_REDIS_REST_URL: z.string().url(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
   SHOPIFY_ADMIN_ACCESS_TOKEN: z.string().optional(),
-  SHOPIFY_WEBHOOK_SECRET: z.string().optional(),
-  SHOPIFY_API_VERSION: z.string().default("2025-01"),
+  SHOPIFY_WEBHOOK_SECRET: z.string().min(1).optional(),
+  SHOPIFY_API_VERSION: z.string().default("2025-10"),
   REVALIDATION_SECRET: z.string().optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
@@ -50,6 +52,8 @@ function createServerEnv(): ServerEnv {
   const parsed = serverSchema.safeParse({
     SHOPIFY_STOREFRONT_ACCESS_TOKEN: process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
     SHOPIFY_STORE_DOMAIN: process.env.SHOPIFY_STORE_DOMAIN,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     SHOPIFY_ADMIN_ACCESS_TOKEN: process.env.SHOPIFY_ADMIN_ACCESS_TOKEN,
     SHOPIFY_WEBHOOK_SECRET: process.env.SHOPIFY_WEBHOOK_SECRET,
     SHOPIFY_API_VERSION: process.env.SHOPIFY_API_VERSION,

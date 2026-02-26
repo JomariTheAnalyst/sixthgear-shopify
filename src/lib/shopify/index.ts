@@ -2,6 +2,7 @@ import { shopifyGraphql } from "./client";
 import { getProductQuery, getProductsQuery, getProductRecommendationsQuery } from "./queries/product";
 import { getCollectionQuery, getCollectionsQuery } from "./queries/collection";
 import { predictiveSearchQuery, searchProductsQuery } from "./queries/search";
+import { cacheKey, getCached, TTL } from "@lib/cache/redis";
 
 import {
   ShopifyProduct,
@@ -23,24 +24,32 @@ export function formatPrice(money: ShopifyMoney): string {
 }
 
 export async function getProduct(handle: string): Promise<ShopifyProduct | null> {
-  const { data, errors } = await shopifyGraphql<{
-    product: Omit<ShopifyProduct, "metafields"> & { metafields?: Array<{ key: string, namespace: string, value: string } | null> };
-  }>(getProductQuery, { handle });
+  const key = cacheKey("product", handle);
 
-  if (errors && errors.length > 0) {
-    throw new Error(`Shopify API Error (getProduct): ${JSON.stringify(errors)}`);
-  }
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{
+        product: Omit<ShopifyProduct, "metafields"> & { metafields?: Array<{ key: string, namespace: string, value: string } | null> };
+      }>(getProductQuery, { handle });
 
-  if (!data?.product) {
-    return null;
-  }
+      if (errors && errors.length > 0) {
+        throw new Error(`Shopify API Error (getProduct): ${JSON.stringify(errors)}`);
+      }
 
-  const metafields = data.product.metafields?.filter(Boolean) as ShopifyProduct["metafields"];
-  
-  return {
-    ...data.product,
-    metafields
-  };
+      if (!data?.product) {
+        return null;
+      }
+
+      const metafields = data.product.metafields?.filter(Boolean) as ShopifyProduct["metafields"];
+
+      return {
+        ...data.product,
+        metafields
+      };
+    },
+    TTL.PRODUCT
+  );
 }
 
 export async function getProducts(options: {
@@ -50,27 +59,40 @@ export async function getProducts(options: {
   sortKey?: string;
   reverse?: boolean;
 }): Promise<{ products: ShopifyProductCard[]; pageInfo: ShopifyPageInfo }> {
-  const { data, errors } = await shopifyGraphql<{
-    products: {
-      edges: { node: ShopifyProductCard }[];
-      pageInfo: ShopifyPageInfo;
-    };
-  }>(getProductsQuery, {
-    first: options.first || 20,
-    after: options.after,
-    query: options.query,
-    sortKey: options.sortKey,
-    reverse: options.reverse,
-  });
+  const key = cacheKey(
+    "products",
+    options.sortKey ?? "default",
+    String(options.first ?? 12),
+    options.query ?? "all"
+  );
 
-  if (errors && errors.length > 0) {
-    throw new Error(`Shopify API Error (getProducts): ${JSON.stringify(errors)}`);
-  }
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{
+        products: {
+          edges: { node: ShopifyProductCard }[];
+          pageInfo: ShopifyPageInfo;
+        };
+      }>(getProductsQuery, {
+        first: options.first || 20,
+        after: options.after,
+        query: options.query,
+        sortKey: options.sortKey,
+        reverse: options.reverse,
+      });
 
-  return {
-    products: data?.products?.edges.map((e) => e.node) || [],
-    pageInfo: data?.products?.pageInfo || { hasNextPage: false, hasPreviousPage: false, endCursor: null, startCursor: null },
-  };
+      if (errors && errors.length > 0) {
+        throw new Error(`Shopify API Error (getProducts): ${JSON.stringify(errors)}`);
+      }
+
+      return {
+        products: data?.products?.edges.map((e) => e.node) || [],
+        pageInfo: data?.products?.pageInfo || { hasNextPage: false, hasPreviousPage: false, endCursor: null, startCursor: null },
+      };
+    },
+    TTL.PRODUCT
+  );
 }
 
 export async function getCollection(
@@ -83,34 +105,50 @@ export async function getCollection(
     reverse?: boolean;
   }
 ): Promise<ShopifyCollection | null> {
-  const { data, errors } = await shopifyGraphql<{ collection: ShopifyCollection }>(getCollectionQuery, {
-    handle,
-    first: options?.first || 20,
-    after: options?.after,
-    filters: options?.filters,
-    sortKey: options?.sortKey,
-    reverse: options?.reverse,
-  });
+  const key = cacheKey("collection", handle);
 
-  if (errors && errors.length > 0) {
-    throw new Error(`Shopify API Error (getCollection): ${JSON.stringify(errors)}`);
-  }
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{ collection: ShopifyCollection }>(getCollectionQuery, {
+        handle,
+        first: options?.first || 20,
+        after: options?.after,
+        filters: options?.filters,
+        sortKey: options?.sortKey,
+        reverse: options?.reverse,
+      });
 
-  return data?.collection || null;
+      if (errors && errors.length > 0) {
+        throw new Error(`Shopify API Error (getCollection): ${JSON.stringify(errors)}`);
+      }
+
+      return data?.collection || null;
+    },
+    TTL.COLLECTION
+  );
 }
 
 export async function getCollections(first: number = 20): Promise<ShopifyCollection[]> {
-  const { data, errors } = await shopifyGraphql<{
-    collections: {
-      edges: { node: ShopifyCollection }[];
-    };
-  }>(getCollectionsQuery, { first });
+  const key = cacheKey("collections", "all");
 
-  if (errors && errors.length > 0) {
-    throw new Error(`Shopify API Error (getCollections): ${JSON.stringify(errors)}`);
-  }
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{
+        collections: {
+          edges: { node: ShopifyCollection }[];
+        };
+      }>(getCollectionsQuery, { first });
 
-  return data?.collections?.edges.map((e) => e.node) || [];
+      if (errors && errors.length > 0) {
+        throw new Error(`Shopify API Error (getCollections): ${JSON.stringify(errors)}`);
+      }
+
+      return data?.collections?.edges.map((e) => e.node) || [];
+    },
+    TTL.COLLECTIONS_LIST
+  );
 }
 
 export async function getPredictiveSearch(query: string): Promise<ShopifyPredictiveSearchResult> {

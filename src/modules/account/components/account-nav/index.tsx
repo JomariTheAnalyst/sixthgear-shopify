@@ -3,13 +3,13 @@
 import { cn } from "@lib/util/cn"
 import { useParams, usePathname } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { HttpTypes } from "@medusajs/types"
+import { ShopifyCustomer } from "@lib/shopify/types"
 import { signout } from "@lib/data/customer"
 
 const AccountNav = ({
   customer,
 }: {
-  customer: HttpTypes.StoreCustomer | null
+  customer: ShopifyCustomer | null
 }) => {
   const route = usePathname()
   const { countryCode } = useParams() as { countryCode: string }

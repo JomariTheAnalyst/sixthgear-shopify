@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { usePathname } from "next/navigation"
 
 import { StoreRegion, HttpTypes } from "@medusajs/types"
+import { ShopifyCustomer } from "@lib/shopify/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartDropdown from "@modules/layout/components/cart-dropdown"
 import MobileMenu from "./mobile-menu"
@@ -27,7 +28,7 @@ interface NavClientProps {
   regions: StoreRegion[]
   cart: HttpTypes.StoreCart | null
   servicesData: ServiceCategory[]
-  customer: HttpTypes.StoreCustomer | null
+  customer: ShopifyCustomer | null
   wishlistCount: number
 }
 
@@ -66,8 +67,8 @@ const NavClient = ({
   // Helper to get initials
   const getInitials = () => {
     if (!customer) return ""
-    const first = customer.first_name?.charAt(0) || ""
-    const last = customer.last_name?.charAt(0) || ""
+    const first = customer.firstName?.charAt(0) || ""
+    const last = customer.lastName?.charAt(0) || ""
     const initials = (first + last).toUpperCase()
     return initials || customer.email?.charAt(0).toUpperCase() || "U"
   }
@@ -182,7 +183,7 @@ const NavClient = ({
 
                 {/* Account Icon */}
                 <LocalizedClientLink
-                  href="/account"
+                  href={customer ? "/account" : "/login"}
                   className="hover:text-[#F16D34] transition-colors text-gray-900 p-2 md:p-0"
                 >
                   {customer ? (

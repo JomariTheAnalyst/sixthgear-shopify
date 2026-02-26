@@ -1,11 +1,11 @@
 "use client"
 
 import React from "react"
-import { HttpTypes } from "@medusajs/types"
+import { ShopifyCustomer } from "@lib/shopify/types"
 import AccountNav from "../components/account-nav"
 
 interface AccountLayoutProps {
-  customer: HttpTypes.StoreCustomer | null
+  customer: ShopifyCustomer | null
   children: React.ReactNode
 }
 
@@ -18,7 +18,6 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
     return <>{children}</>
   }
 
-  // Dashboard layout for logged-in users
   // Dashboard layout for logged-in users
   return (
     <div className="min-h-screen bg-gray-50/50" data-testid="account-page">

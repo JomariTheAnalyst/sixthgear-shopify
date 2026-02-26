@@ -182,12 +182,69 @@ export interface ShopifyCartLine {
   };
 }
 
+export interface ShopifyMailingAddress {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  province: string | null;
+  country: string | null;
+  zip: string | null;
+  phone: string | null;
+}
+
+export interface ShopifyOrder {
+  id: string;
+  orderNumber: number;
+  processedAt: string;
+  financialStatus: string;
+  fulfillmentStatus: string;
+  statusUrl: string;
+  currentTotalPrice: ShopifyMoney;
+  lineItems: {
+    edges: {
+      node: {
+        title: string;
+        quantity: number;
+        variant: {
+          id: string;
+          title: string;
+          price: ShopifyMoney;
+          image: ShopifyImage | null;
+          product: {
+            handle: string;
+            title: string;
+          };
+        } | null;
+      };
+    }[];
+  };
+}
+
+export interface ShopifyCustomerAccessToken {
+  accessToken: string;
+  expiresAt: string;
+}
+
+export interface ShopifyCustomerUserError {
+  code: string;
+  field: string[] | null;
+  message: string;
+}
+
 export interface ShopifyCustomer {
   id: string;
-  firstName: string;
-  lastName: string;
+  firstName: string | null;
+  lastName: string | null;
   email: string;
   phone: string | null;
+  acceptsMarketing: boolean;
+  createdAt: string;
+  defaultAddress: ShopifyMailingAddress | null;
+  addresses: { edges: { node: ShopifyMailingAddress }[] };
+  orders: { edges: { node: ShopifyOrder }[] };
 }
 
 export interface ShopifyCart {
