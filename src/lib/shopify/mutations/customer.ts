@@ -129,6 +129,119 @@ const CUSTOMER_UPDATE_MUTATION = `
   }
 `;
 
+const CUSTOMER_ADDRESS_CREATE_MUTATION = `
+  mutation customerAddressCreate(
+    $customerAccessToken: String!
+    $address: MailingAddressInput!
+  ) {
+    customerAddressCreate(
+      customerAccessToken: $customerAccessToken
+      address: $address
+    ) {
+      customerAddress {
+        id
+        firstName
+        lastName
+        company
+        address1
+        address2
+        city
+        province
+        provinceCode
+        country
+        countryCodeV2
+        zip
+        phone
+        name
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+const CUSTOMER_ADDRESS_UPDATE_MUTATION = `
+  mutation customerAddressUpdate(
+    $customerAccessToken: String!
+    $id: ID!
+    $address: MailingAddressInput!
+  ) {
+    customerAddressUpdate(
+      customerAccessToken: $customerAccessToken
+      id: $id
+      address: $address
+    ) {
+      customerAddress {
+        id
+        firstName
+        lastName
+        company
+        address1
+        address2
+        city
+        province
+        provinceCode
+        country
+        countryCodeV2
+        zip
+        phone
+        name
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+const CUSTOMER_ADDRESS_DELETE_MUTATION = `
+  mutation customerAddressDelete(
+    $customerAccessToken: String!
+    $id: ID!
+  ) {
+    customerAddressDelete(
+      customerAccessToken: $customerAccessToken
+      id: $id
+    ) {
+      deletedCustomerAddressId
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+const CUSTOMER_DEFAULT_ADDRESS_UPDATE_MUTATION = `
+  mutation customerDefaultAddressUpdate(
+    $customerAccessToken: String!
+    $addressId: ID!
+  ) {
+    customerDefaultAddressUpdate(
+      customerAccessToken: $customerAccessToken
+      addressId: $addressId
+    ) {
+      customer {
+        id
+        defaultAddress {
+          id
+        }
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
 // ─── Mutation Callers ────────────────────────────────────────────────────────
 
 export async function customerCreate(input: {
@@ -252,4 +365,95 @@ export async function customerUpdate(
   }
 
   return data?.customerUpdate ?? null;
+}
+
+export async function customerAddressCreate(input: {
+  customerAccessToken: string;
+  address: {
+    firstName?: string;
+    lastName?: string;
+    company?: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    province?: string;
+    country?: string;
+    zip?: string;
+    phone?: string;
+  };
+}) {
+  const { data, errors } = await shopifyGraphql<any>(
+    CUSTOMER_ADDRESS_CREATE_MUTATION,
+    input,
+    true
+  );
+
+  if (errors?.length) {
+    console.error("[customerAddressCreate] GraphQL errors:", errors);
+  }
+
+  return data?.customerAddressCreate ?? null;
+}
+
+export async function customerAddressUpdate(input: {
+  customerAccessToken: string;
+  id: string;
+  address: {
+    firstName?: string;
+    lastName?: string;
+    company?: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    province?: string;
+    country?: string;
+    zip?: string;
+    phone?: string;
+  };
+}) {
+  const { data, errors } = await shopifyGraphql<any>(
+    CUSTOMER_ADDRESS_UPDATE_MUTATION,
+    input,
+    true
+  );
+
+  if (errors?.length) {
+    console.error("[customerAddressUpdate] GraphQL errors:", errors);
+  }
+
+  return data?.customerAddressUpdate ?? null;
+}
+
+export async function customerAddressDelete(input: {
+  customerAccessToken: string;
+  id: string;
+}) {
+  const { data, errors } = await shopifyGraphql<any>(
+    CUSTOMER_ADDRESS_DELETE_MUTATION,
+    input,
+    true
+  );
+
+  if (errors?.length) {
+    console.error("[customerAddressDelete] GraphQL errors:", errors);
+  }
+
+  return data?.customerAddressDelete ?? null;
+}
+
+export async function customerDefaultAddressUpdate(input: {
+  customerAccessToken: string;
+  addressId: string;
+}) {
+  const { data, errors } = await shopifyGraphql<any>(
+    CUSTOMER_DEFAULT_ADDRESS_UPDATE_MUTATION,
+    input,
+    true
+  );
+
+  if (errors?.length) {
+    console.error("[customerDefaultAddressUpdate] GraphQL errors:", errors);
+  }
+
+  return data?.customerDefaultAddressUpdate ?? null;
 }

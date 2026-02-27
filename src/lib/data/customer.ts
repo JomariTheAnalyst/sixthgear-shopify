@@ -12,6 +12,10 @@ import {
   customerResetByUrl as shopifyCustomerResetByUrl,
   customerActivateByUrl as shopifyCustomerActivateByUrl,
   customerUpdate as shopifyCustomerUpdate,
+  customerAddressCreate as shopifyCustomerAddressCreate,
+  customerAddressUpdate as shopifyCustomerAddressUpdate,
+  customerAddressDelete as shopifyCustomerAddressDelete,
+  customerDefaultAddressUpdate as shopifyCustomerDefaultAddressUpdate,
 } from "@lib/shopify/mutations/customer"
 import { getCustomer as shopifyGetCustomer } from "@lib/shopify/queries/customer"
 import { ShopifyCustomer } from "@lib/shopify/types"
@@ -61,6 +65,38 @@ async function deleteCustomerToken(): Promise<void> {
 type AuthResult = {
   success: boolean
   error?: string
+}
+
+type LegacyAddressActionState = {
+  success: boolean
+  error: string | boolean | null
+  [key: string]: unknown
+}
+
+function isLegacyAddressState(
+  state: string | null | LegacyAddressActionState | Record<string, unknown>
+): state is LegacyAddressActionState {
+  return (
+    typeof state === "object" &&
+    state !== null &&
+    !Array.isArray(state) &&
+    "success" in state &&
+    "error" in state
+  )
+}
+
+function toAddressActionResult(
+  state: string | null | LegacyAddressActionState | Record<string, unknown>,
+  error: string | null
+): string | null | LegacyAddressActionState {
+  if (typeof state === "object" && state !== null && !Array.isArray(state)) {
+    return {
+      ...state,
+      success: error === null,
+      error,
+    }
+  }
+  return error
 }
 
 // ─── Server Actions ──────────────────────────────────────────────────────────
@@ -388,16 +424,235 @@ export async function updateCustomer(
 
 // ─── Legacy compat stubs (keep for existing imports) ─────────────────────────
 
-// TODO: Implement in address management phase
-export const addCustomerAddress = async (_prevState?: any, _formData?: any) =>
-  null as any
+export async function addCustomerAddress(
+  _prevState: string | null,
+  formData: FormData
+): Promise<string | null>
+export async function addCustomerAddress(
+  _prevState: LegacyAddressActionState,
+  formData: FormData
+): Promise<LegacyAddressActionState>
+export async function addCustomerAddress(
+  _prevState: Record<string, unknown>,
+  formData: FormData
+): Promise<LegacyAddressActionState>
+export async function addCustomerAddress(
+  _prevState: string | null | LegacyAddressActionState | Record<string, unknown>,
+  formData: FormData
+): Promise<string | null | LegacyAddressActionState> {
+  const token = await getCustomerToken()
+  if (!token) return toAddressActionResult(_prevState, "You must be logged in.")
 
-// TODO: Implement in address management phase
-export const deleteCustomerAddress = async (_addressId?: string) =>
-  null as any
+  const firstName = (formData.get("firstName") as string) || ""
+  const lastName = (formData.get("lastName") as string) || ""
+  const company = (formData.get("company") as string) || ""
+  const address1 = (formData.get("address1") as string) || ""
+  const address2 = (formData.get("address2") as string) || ""
+  const city = (formData.get("city") as string) || ""
+  const province = (formData.get("province") as string) || ""
+  const country = (formData.get("country") as string) || "Philippines"
+  const zip = (formData.get("zip") as string) || ""
+  const phone = (formData.get("phone") as string) || ""
+  const isDefault = formData.get("isDefault") as string | null
 
-// TODO: Implement in address management phase
-export const updateCustomerAddress = async (
-  _prevState?: any,
-  _formData?: any
-) => null as any
+  if (!address1.trim()) return toAddressActionResult(_prevState, "Street address is required.")
+  if (!city.trim()) return toAddressActionResult(_prevState, "City is required.")
+  if (!province.trim()) return toAddressActionResult(_prevState, "Province is required.")
+  if (!zip.trim()) return toAddressActionResult(_prevState, "ZIP code is required.")
+
+  try {
+    const result = await shopifyCustomerAddressCreate({
+      customerAccessToken: token,
+      address: {
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+        company: company || undefined,
+        address1: address1.trim(),
+        address2: address2 || undefined,
+        city: city.trim(),
+        province: province.trim(),
+        country: country || "Philippines",
+        zip: zip.trim(),
+        phone: phone || undefined,
+      },
+    })
+
+    if (!result) {
+      return toAddressActionResult(_prevState, "Failed to save address.")
+    }
+
+    const userErrors = result.customerUserErrors || []
+    if (userErrors.length > 0) {
+      return toAddressActionResult(
+        _prevState,
+        userErrors[0].message || "Failed to save address."
+      )
+    }
+
+    if (isDefault === "on") {
+      const newId = result.customerAddress?.id
+      if (newId) {
+        await shopifyCustomerDefaultAddressUpdate({
+          customerAccessToken: token,
+          addressId: newId,
+        })
+      }
+    }
+
+    revalidatePath("/", "layout")
+    return toAddressActionResult(_prevState, null)
+  } catch (error) {
+    console.error("[addCustomerAddress] Error:", error)
+    return toAddressActionResult(_prevState, "Failed to save address.")
+  }
+}
+
+export async function updateCustomerAddress(
+  _prevState: string | null,
+  formData: FormData
+): Promise<string | null>
+export async function updateCustomerAddress(
+  _prevState: LegacyAddressActionState,
+  formData: FormData
+): Promise<LegacyAddressActionState>
+export async function updateCustomerAddress(
+  _prevState: Record<string, unknown>,
+  formData: FormData
+): Promise<LegacyAddressActionState>
+export async function updateCustomerAddress(
+  _prevState: string | null | LegacyAddressActionState | Record<string, unknown>,
+  formData: FormData
+): Promise<string | null | LegacyAddressActionState> {
+  const token = await getCustomerToken()
+  if (!token) return toAddressActionResult(_prevState, "You must be logged in.")
+
+  const addressId = (formData.get("addressId") as string) || ""
+  const firstName = (formData.get("firstName") as string) || ""
+  const lastName = (formData.get("lastName") as string) || ""
+  const company = (formData.get("company") as string) || ""
+  const address1 = (formData.get("address1") as string) || ""
+  const address2 = (formData.get("address2") as string) || ""
+  const city = (formData.get("city") as string) || ""
+  const province = (formData.get("province") as string) || ""
+  const country = (formData.get("country") as string) || "Philippines"
+  const zip = (formData.get("zip") as string) || ""
+  const phone = (formData.get("phone") as string) || ""
+  const isDefault = formData.get("isDefault") as string | null
+
+  if (!addressId.trim()) return toAddressActionResult(_prevState, "Invalid address ID.")
+  if (!address1.trim()) return toAddressActionResult(_prevState, "Street address is required.")
+  if (!city.trim()) return toAddressActionResult(_prevState, "City is required.")
+  if (!province.trim()) return toAddressActionResult(_prevState, "Province is required.")
+  if (!zip.trim()) return toAddressActionResult(_prevState, "ZIP code is required.")
+
+  try {
+    const result = await shopifyCustomerAddressUpdate({
+      customerAccessToken: token,
+      id: addressId.trim(),
+      address: {
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+        company: company || undefined,
+        address1: address1.trim(),
+        address2: address2 || undefined,
+        city: city.trim(),
+        province: province.trim(),
+        country: country || "Philippines",
+        zip: zip.trim(),
+        phone: phone || undefined,
+      },
+    })
+
+    if (!result) {
+      return toAddressActionResult(_prevState, "Failed to save address.")
+    }
+
+    const userErrors = result.customerUserErrors || []
+    if (userErrors.length > 0) {
+      return toAddressActionResult(
+        _prevState,
+        userErrors[0].message || "Failed to save address."
+      )
+    }
+
+    if (isDefault === "on") {
+      const updatedId = result.customerAddress?.id || addressId
+      await shopifyCustomerDefaultAddressUpdate({
+        customerAccessToken: token,
+        addressId: updatedId,
+      })
+    }
+
+    revalidatePath("/", "layout")
+    return toAddressActionResult(_prevState, null)
+  } catch (error) {
+    console.error("[updateCustomerAddress] Error:", error)
+    return toAddressActionResult(_prevState, "Failed to save address.")
+  }
+}
+
+export async function deleteCustomerAddress(
+  addressId: string
+): Promise<{ success: boolean; error?: string }> {
+  const token = await getCustomerToken()
+  if (!token) return { success: false, error: "You must be logged in." }
+  if (!addressId?.trim()) return { success: false, error: "Invalid address ID." }
+
+  try {
+    const result = await shopifyCustomerAddressDelete({
+      customerAccessToken: token,
+      id: addressId.trim(),
+    })
+
+    if (!result) {
+      return { success: false, error: "Failed to delete address." }
+    }
+
+    const userErrors = result.customerUserErrors || []
+    if (userErrors.length > 0) {
+      return {
+        success: false,
+        error: userErrors[0].message || "Failed to delete address.",
+      }
+    }
+
+    revalidatePath("/", "layout")
+    return { success: true }
+  } catch (error) {
+    console.error("[deleteCustomerAddress] Error:", error)
+    return { success: false, error: "Failed to delete address." }
+  }
+}
+
+export async function setDefaultAddress(
+  addressId: string
+): Promise<{ success: boolean; error?: string }> {
+  const token = await getCustomerToken()
+  if (!token) return { success: false, error: "You must be logged in." }
+  if (!addressId?.trim()) return { success: false, error: "Invalid address ID." }
+
+  try {
+    const result = await shopifyCustomerDefaultAddressUpdate({
+      customerAccessToken: token,
+      addressId: addressId.trim(),
+    })
+
+    if (!result) {
+      return { success: false, error: "Failed to set default address." }
+    }
+
+    const userErrors = result.customerUserErrors || []
+    if (userErrors.length > 0) {
+      return {
+        success: false,
+        error: userErrors[0].message || "Failed to set default address.",
+      }
+    }
+
+    revalidatePath("/", "layout")
+    return { success: true }
+  } catch (error) {
+    console.error("[setDefaultAddress] Error:", error)
+    return { success: false, error: "Failed to set default address." }
+  }
+}

@@ -1,241 +1,280 @@
 "use client"
 
-import { cn } from "@lib/util/cn"
-import { useParams, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
+import { useParams } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
+import {
+  Package, User, MapPin, Heart, CreditCard,
+  Headphones, LogOut, Loader2, X, Menu
+} from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { ShopifyCustomer } from "@lib/shopify/types"
 import { signout } from "@lib/data/customer"
+import { ShopifyCustomer } from "@lib/shopify/types"
 
-const AccountNav = ({
-  customer,
-}: {
-  customer: ShopifyCustomer | null
-}) => {
-  const route = usePathname()
-  const { countryCode } = useParams() as { countryCode: string }
-
-  const handleLogout = async () => {
-    await signout(countryCode)
-  }
-
-  const navItems = [
-    {
-      href: "/account",
-      label: "Overview",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
-      ),
-      testId: "overview-link",
-    },
-    {
-      href: "/account/profile",
-      label: "Profile",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
-      ),
-      testId: "profile-link",
-    },
-    {
-      href: "/account/addresses",
-      label: "Addresses",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      ),
-      testId: "addresses-link",
-    },
-    {
-      href: "/account/orders",
-      label: "Orders",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-          />
-        </svg>
-      ),
-      testId: "orders-link",
-    },
-    {
-      href: "/wishlist",
-      label: "Wishlist",
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-          />
-        </svg>
-      ),
-      testId: "wishlist-link",
-    },
-  ]
-
-  return (
-    <div>
-      {/* Mobile Navigation */}
-      <div className="lg:hidden" data-testid="mobile-account-nav">
-        <nav className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          {navItems.map((item, index) => {
-            const isActive =
-              route === `/${countryCode}${item.href}` ||
-              (item.href === "/account" && route === `/${countryCode}/account`)
-            return (
-              <LocalizedClientLink
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3.5 transition-colors",
-                  index !== navItems.length - 1 && "border-b border-gray-100",
-                  isActive
-                    ? "bg-orange-50 text-orange-600"
-                    : "text-gray-700 hover:bg-gray-50"
-                )}
-                data-testid={item.testId}
-              >
-                {item.icon}
-                <span className="font-medium">{item.label}</span>
-                {isActive && (
-                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500" />
-                )}
-              </LocalizedClientLink>
-            )
-          })}
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3.5 w-full text-red-600 hover:bg-red-50 transition-colors"
-            data-testid="logout-button"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            <span className="font-medium">Log out</span>
-          </button>
-        </nav>
-      </div>
-
-      {/* Desktop Navigation */}
-      <div className="hidden lg:block" data-testid="account-nav">
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const isActive =
-              route === `/${countryCode}${item.href}` ||
-              (item.href === "/account" && route === `/${countryCode}/account`)
-            return (
-              <LocalizedClientLink
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group",
-                  isActive
-                    ? "text-gray-900 font-medium bg-white shadow-sm border border-gray-100"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-white/50"
-                )}
-                data-testid={item.testId}
-              >
-                {item.icon}
-                <span className="font-medium">{item.label}</span>
-                {isActive && (
-                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500" />
-                )}
-              </LocalizedClientLink>
-            )
-          })}
-
-          <div className="pt-4 mt-4 border-t border-gray-200/50">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg w-full text-gray-500 hover:text-red-600 transition-colors group"
-              data-testid="logout-button"
-            >
-              <svg
-                className="w-5 h-5 group-hover:text-red-500 transition-colors"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-              <span className="font-medium">Log out</span>
-            </button>
-          </div>
-        </nav>
-      </div>
-    </div>
-  )
+interface AccountNavProps {
+  customer: ShopifyCustomer
 }
 
-export default AccountNav
+type NavItem = {
+  label: string
+  icon: React.ElementType
+  href?: string
+  comingSoon?: boolean
+  isExternal?: boolean
+  externalHref?: string
+}
+
+const navItems: NavItem[] = [
+  {
+    label: "My Orders",
+    icon: Package,
+    href: "/account/orders",
+  },
+  {
+    label: "Profile",
+    icon: User,
+    href: "/account/profile",
+  },
+  {
+    label: "Addresses",
+    icon: MapPin,
+    href: "/account/addresses",
+  },
+  {
+    label: "Wishlist",
+    icon: Heart,
+    comingSoon: true,
+  },
+  {
+    label: "Payments",
+    icon: CreditCard,
+    comingSoon: true,
+  },
+  {
+    label: "Customer Support",
+    icon: Headphones,
+    isExternal: true,
+    externalHref: "mailto:support@sixthgearmoto.com",
+  },
+]
+
+export default function AccountNav({ customer }: AccountNavProps) {
+  const pathname = usePathname()
+  const params = useParams()
+  const countryCode = (params?.countryCode as string) ?? "ph"
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+
+  const isActive = (href: string) => {
+    // Dashboard root: exact match only
+    if (href === "/account" || href === "/account/") {
+      return pathname.endsWith("/account") || pathname.endsWith("/account/")
+    }
+    return pathname.includes(href)
+  }
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await signout(countryCode)
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const renderNavItem = (item: NavItem, onItemClick?: () => void) => {
+    const Icon = item.icon
+    const active = item.href ? isActive(item.href) : false
+
+    const baseClasses = [
+      "flex items-center gap-3 w-full px-3 py-2.5",
+      "rounded-lg text-sm font-medium transition-colors duration-150",
+      "text-left cursor-pointer",
+      active
+        ? "bg-orange-500/10 text-orange-500"
+        : "text-gray-400 hover:bg-white/5 hover:text-white",
+    ].join(" ")
+
+    const content = (
+      <>
+        <Icon className="w-4 h-4 flex-shrink-0" />
+        <span className="flex-1">{item.label}</span>
+        {item.comingSoon && (
+          <span className={[
+            "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+            "bg-orange-500/10 text-orange-500 border border-orange-500/20",
+          ].join(" ")!}>
+            Soon
+          </span>
+        )}
+      </>
+    )
+
+    if (item.comingSoon) {
+      return (
+        <button
+          key={item.label}
+          className={baseClasses}
+          onClick={() => {
+            toast(`${item.label} coming soon!`, {
+              description: "We're working on it. Stay tuned.",
+            })
+            onItemClick?.()
+          }}
+        >
+          {content}
+        </button>
+      )
+    }
+
+    if (item.isExternal) {
+      return (
+        <a
+          key={item.label}
+          href={item.externalHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={baseClasses}
+          onClick={() => onItemClick?.()}
+        >
+          {content}
+        </a>
+      )
+    }
+
+    return (
+      <LocalizedClientLink
+        key={item.label}
+        href={item.href!}
+        className={baseClasses}
+        onClick={() => onItemClick?.()}
+      >
+        {content}
+      </LocalizedClientLink>
+    )
+  }
+
+  const initials = ((customer.firstName?.[0] ?? "") + (customer.lastName?.[0] ?? "")) || "U"
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex lg:flex-col w-64 flex-shrink-0 bg-[#0a0a0a] rounded-xl sticky top-24 self-start overflow-hidden border border-white/5" style={{ maxHeight: "calc(100vh - 7rem)" }}>
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-sm font-bold">
+                {initials.toUpperCase()}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-white text-sm font-semibold truncate">
+                {customer.firstName} {customer.lastName}
+              </p>
+              <p className="text-gray-400 text-xs truncate mt-0.5">
+                {customer.email}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-[10px] font-semibold tracking-widest text-gray-600 uppercase px-3 mb-2 mt-4">
+          Account
+        </p>
+
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
+          {navItems.map(item => renderNavItem(item))}
+        </div>
+
+        <div className="p-3 border-t border-white/10">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/5 transition-colors duration-150 disabled:opacity-50"
+          >
+            {isLoggingOut ? (
+              <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
+            ) : (
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+            )}
+            <span>{isLoggingOut ? "Signing out..." : "Sign Out"}</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile trigger button */}
+      <button
+        className="lg:hidden fixed top-[5.5rem] right-4 z-50 w-10 h-10 rounded-lg bg-[#0a0a0a] text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors"
+        onClick={() => setIsMobileOpen(true)}
+        aria-label="Open menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Mobile drawer */}
+      {isMobileOpen && (
+        <div className="lg:hidden">
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-[#0a0a0a] flex flex-col overflow-y-auto border-r border-white/5">
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <span className="text-white text-sm font-semibold">
+                My Account
+              </span>
+              <button
+                onClick={() => setIsMobileOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-sm font-bold">
+                    {initials.toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-white text-sm font-semibold truncate">
+                    {customer.firstName} {customer.lastName}
+                  </p>
+                  <p className="text-gray-400 text-xs truncate mt-0.5">
+                    {customer.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[10px] font-semibold tracking-widest text-gray-600 uppercase px-3 mb-2 mt-4">
+              Account
+            </p>
+
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
+              {navItems.map(item => renderNavItem(item, () => setIsMobileOpen(false)))}
+            </div>
+
+            <div className="p-3 border-t border-white/10">
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/5 transition-colors duration-150 disabled:opacity-50"
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
+                ) : (
+                  <LogOut className="w-4 h-4 flex-shrink-0" />
+                )}
+                <span>{isLoggingOut ? "Signing out..." : "Sign Out"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}

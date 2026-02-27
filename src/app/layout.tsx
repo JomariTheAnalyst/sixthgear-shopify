@@ -40,6 +40,7 @@ export const metadata: Metadata = {
   manifest: "/images/favicon/site.webmanifest",
 }
 
+import { Toaster } from "sonner"
 import { hendrix } from "@lib/fonts"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
@@ -48,6 +49,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body className={`${hendrix.variable} font-sans`}>
         <PreviewIndicator />
         <main className="relative">{props.children}</main>
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   )

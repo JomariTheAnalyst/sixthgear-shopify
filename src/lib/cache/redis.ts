@@ -40,16 +40,34 @@ export async function getCached<T>(
   }
 
   try {
-    const cached = await redis.get<string>(key)
+    const cached = await redis.get<T | string>(key)
     if (cached !== null) {
-      return JSON.parse(cached) as T
+      if (typeof cached === "string") {
+        return JSON.parse(cached) as T
+      }
+      return cached as T
     }
 
     const result = await fetcher()
     await redis.setex(key, ttl, JSON.stringify(result))
     return result
   } catch (error) {
-    console.warn("[cache] Redis error, falling back to direct fetch:", error)
+    // DYNAMIC_SERVER_USAGE occurs during Next.js static build when Redis
+    // uses no-store fetch under static generation. This is expected during
+    // build attempts on routes that should be force-dynamic.
+    const isDynamicServerError =
+      error instanceof Error &&
+      (error.message.includes("DYNAMIC_SERVER_USAGE") ||
+        error.message.includes("Dynamic server usage") ||
+        (error as any).digest === "DYNAMIC_SERVER_USAGE")
+
+    if (!isDynamicServerError) {
+      console.warn(
+        "[cache] Redis unavailable, falling back to direct fetch:",
+        error
+      )
+    }
+
     return fetcher()
   }
 }

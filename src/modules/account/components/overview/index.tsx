@@ -1,179 +1,183 @@
 "use client"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { ShopifyCustomer, ShopifyOrder } from "@lib/shopify/types"
+import { ShopifyCustomer } from "@lib/shopify/types"
+import { Package, MapPin, Calendar, ChevronRight, User } from "lucide-react"
 
 type OverviewProps = {
   customer: ShopifyCustomer
 }
 
-const Overview = ({ customer }: OverviewProps) => {
-  const orders = customer.orders?.edges?.map((e) => e.node) || []
-  const addressCount = customer.addresses?.edges?.length || 0
-  const orderCount = orders.length
-  const profileCompletion = getProfileCompletion(customer)
+export default function Overview({ customer }: OverviewProps) {
+  const addressCount = customer.addresses?.edges?.length ?? 0
+  const orderCount = customer.orders?.edges?.length ?? 0
+
+  const recentOrders = customer.orders?.edges
+    ?.slice(0, 3)
+    ?.map(e => e.node) ?? []
+
+  const formattedDate = customer.createdAt
+    ? new Date(customer.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : "—"
 
   return (
     <div data-testid="overview-page-wrapper" className="space-y-8">
-      {/* Welcome Section w/ Minimal Stats */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-6">
-         <div>
-            <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                Hello, {customer.firstName || "there"}
-            </h2>
-            <p className="text-gray-500 mt-1 text-sm">
-                Here&apos;s a look at your account activity.
-            </p>
-         </div>
-         <div className="flex items-center gap-6">
-            <div className="text-right">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-widest">Orders</p>
-                <p className="text-xl font-semibold text-gray-900">{orderCount}</p>
+      {/* SECTION A — Stats row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Card 1 — Total Orders */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+              <Package className="w-5 h-5 text-orange-500" />
             </div>
-            <div className="w-px h-8 bg-gray-200 hidden sm:block"></div>
-            <div className="text-right">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-widest">Addresses</p>
-                <p className="text-xl font-semibold text-gray-900">{addressCount}</p>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 mt-4">
+            {orderCount}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">Total Orders</p>
+        </div>
+
+        {/* Card 2 — Saved Addresses */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-orange-500" />
             </div>
-         </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 mt-4">
+            {addressCount}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">Saved Addresses</p>
+        </div>
+
+        {/* Card 3 — Member Since */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-orange-500" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 mt-4">
+            {formattedDate}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">Member Since</p>
+        </div>
       </div>
 
-      {/* Recent Orders */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Recent Orders</h3>
-          {orders.length > 0 && (
-            <LocalizedClientLink
-              href="/account/orders"
-              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              View all
-            </LocalizedClientLink>
-          )}
+      {/* SECTION B — Recent Orders */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Recent Orders
+          </h2>
+          <LocalizedClientLink href="/account/orders"
+            className="text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors">
+            View all &rarr;
+          </LocalizedClientLink>
         </div>
-        
-        <div className="bg-white rounded-lg border border-gray-200/60 shadow-sm overflow-hidden" data-testid="orders-wrapper">
-          {orders.length > 0 ? (
-            <div className="divide-y divide-gray-100">
-              {orders.slice(0, 5).map((order) => (
+
+        {recentOrders.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-10 mt-4 text-center">
+            <Package className="w-10 h-10 text-gray-300 mx-auto" />
+            <p className="text-gray-900 font-medium mt-3">
+              No orders yet
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Your order history will appear here
+            </p>
+            <LocalizedClientLink href="/store"
+              className="inline-block mt-4 px-4 py-2 bg-[#0a0a0a] text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
+              Start Shopping
+            </LocalizedClientLink>
+          </div>
+        ) : (
+          <div className="mt-4 bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+            {recentOrders.map(order => {
+              const status = order.fulfillmentStatus || order.financialStatus || ""
+              let colorClasses = "bg-gray-100 text-gray-600 border-gray-200"
+
+              if (status === "FULFILLED" || status === "PAID") {
+                colorClasses = "bg-green-50 text-green-700 border-green-100"
+              } else if (status === "UNFULFILLED" || status === "PENDING") {
+                colorClasses = "bg-orange-50 text-orange-700 border-orange-100"
+              } else if (status === "CANCELLED") {
+                colorClasses = "bg-red-50 text-red-700 border-red-100"
+              }
+
+              return (
                 <LocalizedClientLink
                   key={order.id}
                   href={`/account/orders/${encodeURIComponent(order.id)}`}
-                  className="block hover:bg-gray-50/50 transition-colors group"
-                  data-testid="order-wrapper"
-                >
-                  <div className="px-6 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                         <div className="flex flex-col">
-                             <span className="text-sm font-medium text-gray-900 group-hover:text-orange-600 transition-colors">#{order.orderNumber}</span>
-                             <span className="text-xs text-gray-500">
-                                {new Date(order.processedAt).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                })}
-                             </span>
-                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-6">
-                            <OrderStatusBadge status={order.fulfillmentStatus} />
-                            <span className="text-sm font-medium text-gray-900 w-24 text-right">
-                                ₱{parseFloat(order.currentTotalPrice.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })}
-                            </span>
-                             <svg
-                                className="w-4 h-4 text-gray-300 group-hover:text-gray-500"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                                />
-                            </svg>
-                      </div>
+                  className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
+                  
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Order #{order.orderNumber}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {new Date(order.processedAt).toLocaleDateString(
+                        "en-PH", { year:"numeric", month:"short", day:"numeric" }
+                      )}
+                    </p>
+                  </div>
+
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${colorClasses}`}>
+                    {status ? status.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ") : "Unknown"}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-900">
+                      ₱{parseFloat(order.currentTotalPrice?.amount ?? "0").toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
                   </div>
                 </LocalizedClientLink>
-              ))}
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* SECTION C — Quick Actions */}
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Quick Actions
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <LocalizedClientLink href="/account/profile"
+            className="flex items-center gap-4 bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-orange-200 hover:shadow-md transition-all duration-150 group">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 transition-colors">
+              <User className="w-5 h-5 text-orange-500" />
             </div>
-          ) : (
-            <div
-              className="px-6 py-16 text-center"
-              data-testid="no-orders-message"
-            >
-              <h3 className="text-gray-900 font-medium mb-1">No orders yet</h3>
-              <p className="text-gray-500 text-sm mb-6">
-                You haven&apos;t placed any orders yet.
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">
+                Edit Profile
               </p>
-              <LocalizedClientLink
-                href="/"
-                className="inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 transition-all shadow-sm"
-              >
-                Start Shopping
-              </LocalizedClientLink>
+              <p className="text-xs text-gray-500 mt-0.5 truncate">
+                Update your personal information
+              </p>
             </div>
-          )}
+            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors" />
+          </LocalizedClientLink>
+
+          <LocalizedClientLink href="/account/addresses"
+            className="flex items-center gap-4 bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-orange-200 hover:shadow-md transition-all duration-150 group">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 transition-colors">
+              <MapPin className="w-5 h-5 text-orange-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">
+                Manage Addresses
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5 truncate">
+                Add or edit shipping addresses
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors" />
+          </LocalizedClientLink>
         </div>
       </div>
-      
-      {/* Profile Completion */}
-       {profileCompletion < 100 && (
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-100 flex items-center justify-between">
-              <div>
-                  <h4 className="text-sm font-medium text-gray-900">Complete your profile</h4>
-                  <p className="text-xs text-gray-500 mt-1">Add your phone number and address to speed up checkout.</p>
-              </div>
-              <LocalizedClientLink href="/account/profile" className="text-sm font-medium text-orange-600 hover:text-orange-700">
-                  Complete Details &rarr;
-              </LocalizedClientLink>
-          </div>
-       )}
     </div>
   )
 }
-
-const OrderStatusBadge = ({ status }: { status: string }) => {
-  const statusConfig: Record<
-    string,
-    { bg: string; text: string; dot: string; label: string }
-  > = {
-    UNFULFILLED: { bg: "bg-yellow-50", text: "text-yellow-700", dot: "bg-yellow-500", label: "Pending" },
-    PARTIALLY_FULFILLED: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500", label: "Processing" },
-    FULFILLED: { bg: "bg-green-50", text: "text-green-700", dot: "bg-green-500", label: "Shipped" },
-    IN_PROGRESS: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500", label: "In Progress" },
-  }
-
-  const config = statusConfig[status] || {
-    bg: "bg-gray-50",
-    text: "text-gray-700",
-    dot: "bg-gray-500",
-    label: status
-      ? status.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")
-      : "Unknown",
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-transparent ${config.bg} ${config.text}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
-      {config.label}
-    </span>
-  )
-}
-
-const getProfileCompletion = (customer: ShopifyCustomer) => {
-  let count = 0
-
-  if (customer.email) count++
-  if (customer.firstName && customer.lastName) count++
-  if (customer.phone) count++
-  if (customer.defaultAddress) count++
-
-  return (count / 4) * 100
-}
-
-export default Overview

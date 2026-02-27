@@ -15,13 +15,17 @@ const GET_CUSTOMER_QUERY = `
         id
         firstName
         lastName
+        company
         address1
         address2
         city
         province
+        provinceCode
         country
+        countryCodeV2
         zip
         phone
+        name
       }
       addresses(first: 10) {
         edges {
@@ -29,13 +33,17 @@ const GET_CUSTOMER_QUERY = `
             id
             firstName
             lastName
+            company
             address1
             address2
             city
             province
+            provinceCode
             country
+            countryCodeV2
             zip
             phone
+            name
           }
         }
       }
