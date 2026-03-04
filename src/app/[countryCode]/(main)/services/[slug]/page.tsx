@@ -17,7 +17,6 @@ interface ServicePageProps {
 // Use dynamic rendering with ISR for CMS-driven content
 // This prevents build failures when new services are added to Strapi
 export const dynamic = "force-dynamic"
-export const revalidate = 60 // Revalidate every 60 seconds
 
 // OPTIONAL: If you want static generation, uncomment this and comment out dynamic/revalidate above
 // But this requires all slugs to exist at build time

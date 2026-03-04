@@ -131,7 +131,10 @@ export default function ProductCard({
 
   // Star rating component - reads from product metadata
   const StarRatingDisplay = () => (
-    <StarRating rating={ratingAverage} count={ratingCount} size="sm" />
+    <div className="flex items-center gap-1">
+      <StarRating rating={ratingAverage} size="sm" />
+      <span className="text-xs text-gray-500">({ratingCount})</span>
+    </div>
   )
 
   return (

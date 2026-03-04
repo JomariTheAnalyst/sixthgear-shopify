@@ -179,3 +179,19 @@
     @apply text-[32px] leading-[44px] font-semibold;
   }
 }
+
+/* Mobile filter drawer slide-up animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}

@@ -19,6 +19,8 @@ const serverSchema = z.object({
   SHOPIFY_WEBHOOK_SECRET: z.string().min(1).optional(),
   SHOPIFY_API_VERSION: z.string().default("2025-10"),
   REVALIDATION_SECRET: z.string().optional(),
+  JUDGEME_PRIVATE_TOKEN: z.string().min(1).optional(),
+  JUDGEME_SHOP_DOMAIN: z.string().min(1).optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -30,6 +32,8 @@ const clientSchema = z.object({
     .min(1, "NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN is required"),
   NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN: shopifyDomain.optional(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: z.string().min(1).optional(),
+  NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: z.string().min(1).optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>
@@ -58,6 +62,8 @@ function createServerEnv(): ServerEnv {
     SHOPIFY_WEBHOOK_SECRET: process.env.SHOPIFY_WEBHOOK_SECRET,
     SHOPIFY_API_VERSION: process.env.SHOPIFY_API_VERSION,
     REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
+    JUDGEME_PRIVATE_TOKEN: process.env.JUDGEME_PRIVATE_TOKEN,
+    JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
     NODE_ENV: process.env.NODE_ENV,
   })
 
@@ -76,6 +82,8 @@ function createClientEnv(): ClientEnv {
     NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN:
       process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
+    NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
   })
 
   if (!parsed.success) {
@@ -107,6 +115,8 @@ export const clientEnv: ClientEnv =
         NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN:
           process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN,
         NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+        NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
+        NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
       } as ClientEnv)
     : createClientEnv()
 

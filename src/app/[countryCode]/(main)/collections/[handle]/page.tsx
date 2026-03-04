@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { getCollections } from "@lib/shopify";
 import {
   getCollectionFilters,
   getFilteredCollection,
@@ -10,21 +9,12 @@ import {
 import { parseSearchParams, getDefaultFilterState } from "@lib/util/filterParams";
 import CollectionTemplate from "@modules/collections/templates";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ handle: string; countryCode: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
-
-export async function generateStaticParams() {
-  try {
-    const collections = await getCollections(50);
-    return collections.map((c) => ({ handle: c.handle }));
-  } catch {
-    return [];
-  }
-}
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;

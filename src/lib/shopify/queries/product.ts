@@ -68,11 +68,14 @@ export const getProductQuery = `
       metafields(identifiers: [
         {namespace: "custom", key: "care_instructions"},
         {namespace: "custom", key: "size_guide"},
-        {namespace: "custom", key: "material"}
+        {namespace: "custom", key: "material"},
+        {namespace: "reviews", key: "rating"},
+        {namespace: "reviews", key: "rating_count"}
       ]) {
         key
         value
         namespace
+        type
       }
     }
   }

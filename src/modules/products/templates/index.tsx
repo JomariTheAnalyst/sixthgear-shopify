@@ -5,13 +5,11 @@ import ProductActions from "@modules/products/components/product-actions"
 import ProductTabs from "@modules/products/components/product-tabs"
 import ProductReviews from "@modules/products/components/product-reviews"
 import YouMayLike from "@modules/products/components/you-may-like"
-import ProductInfo from "@modules/products/templates/product-info"
+import StarRating from "@modules/products/components/star-rating"
 import Breadcrumb from "@modules/products/components/breadcrumb"
 import { notFound } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
-import { getProductReviews } from "@lib/data/products"
-
-
+import { parseRatingSummaryFromMetafields } from "@lib/data/reviews"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -30,134 +28,105 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
     return notFound()
   }
 
-  // Fetch reviews
-  const reviewData = await getProductReviews(product.id)
+  // Parse aggregate rating from metafields (synchronous, no API call)
+  const ratingSummary = parseRatingSummaryFromMetafields(
+    product.metafields as any
+  )
 
   return (
-    <>
-      {/* Main Product Section */}
-      <div className="bg-white pt-28">
-        <div
-          className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 py-6 md:py-8 lg:py-12"
+    <div className="min-h-screen bg-white">
+      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-6 lg:pb-10">
+        {/* Breadcrumb */}
+        <Breadcrumb product={product} />
+
+        {/* Above the Fold: Gallery + Info */}
+        <section
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16"
           data-testid="product-container"
         >
-          {/* Breadcrumb Navigation */}
-          <Breadcrumb product={product} />
+          {/* Left Column — Gallery (sticky on desktop) */}
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <ImageGallery images={images} />
+          </div>
 
-          {/* Two Column Layout: Images Left, Info Right */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 mt-6">
-            {/* Left Column - Product Images */}
-            <div className="order-1">
-              <div className="lg:sticky lg:top-32">
-                <ImageGallery images={images} />
-              </div>
-            </div>
-
-            {/* Right Column - Product Info & Actions */}
-            <div className="order-2 flex flex-col gap-y-6">
-              {/* Top Section: Title with Stock Badge on Right */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h1
-                    className="text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 leading-tight"
-                    data-testid="product-title"
-                    style={{ fontFamily: "BRHendrix, sans-serif" }}
-                  >
-                    {product.title}
-                  </h1>
-                </div>
-
-                {/* Stock Badge on Right */}
-                <span className="inline-block px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-medium rounded">
-                  In Stock
-                </span>
-              </div>
-
-              {/* Description */}
-              {product.description && (
-                <div
-                  className="text-sm md:text-base text-gray-600 leading-relaxed max-w-none prose prose-p:my-2 prose-a:text-[#F16D34] line-clamp-3"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
-                />
+          {/* Right Column — Product Info */}
+          <div className="space-y-6">
+            {/* Vendor & Title */}
+            <div>
+              {product.collection?.title && (
+                <p className="text-sm text-slate-500 uppercase tracking-wide mb-2">
+                  {product.collection.title}
+                </p>
               )}
+              <h1
+                className="text-2xl lg:text-3xl font-bold text-slate-900 mb-3"
+                data-testid="product-title"
+              >
+                {product.title}
+              </h1>
 
-              {/* Star Rating with Review Count Link */}
-              <div className="flex items-center gap-2 pb-6 border-b border-gray-200">
-                <ProductInfo
-                  product={product}
-                  averageRating={reviewData?.average_rating}
-                  reviewCount={reviewData?.count}
-                />
-              </div>
-
-              {/* Variant Selection & Add to Cart */}
-              <ProductActions product={product} region={region} />
-
-              {/* Collapsible Information Sections */}
-              <div className="mt-6">
-                <ProductTabs product={product} />
-              </div>
+              {/* Star Rating + Review Count (from Shopify metafields) */}
+              <a
+                href="#reviews"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                {ratingSummary && ratingSummary.count > 0 ? (
+                  <>
+                    <StarRating rating={ratingSummary.average} size="sm" />
+                    <span className="text-sm text-gray-500">
+                      ({ratingSummary.count})
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <StarRating rating={0} size="sm" />
+                    <span className="text-sm text-gray-400">
+                      No reviews yet
+                    </span>
+                  </>
+                )}
+              </a>
             </div>
+
+            {/* Variant Selection & Add to Cart (includes Price, Options, Qty, Buttons) */}
+            <ProductActions product={product} region={region} />
+
+            {/* Collapsible Content Sections */}
+            <ProductTabs product={product} />
           </div>
+        </section>
 
-          {/* Product Reviews Section */}
-          {reviewData && reviewData.count > 0 && (
-            <div className="mt-12 md:mt-16 border-t border-gray-200 pt-8 md:pt-12">
-              <ProductReviews
-                productId={product.id}
-                reviews={reviewData.reviews}
-                count={reviewData.count}
-                averageRating={reviewData.average_rating}
-              />
-            </div>
-          )}
+        {/* Reviews Section — Judge.me powered */}
+        <ProductReviews
+          productHandle={product.handle || ""}
+          productTitle={product.title || ""}
+          metafields={product.metafields as any}
+        />
 
-          {/* You May Like Section - Meilisearch Powered */}
-          <div className="mt-12 md:mt-16 border-t border-gray-200 pt-8 md:pt-12">
-            <Suspense
-              fallback={
-                <div className="animate-pulse">
-                  <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    {[...Array(6)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="bg-gray-200 aspect-square rounded"
-                      ></div>
-                    ))}
-                  </div>
+        {/* You May Like (Related Products) */}
+        <section className="mb-16">
+          <Suspense
+            fallback={
+              <div className="animate-pulse">
+                <div className="h-8 bg-slate-200 rounded w-48 mb-6" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-slate-100 aspect-square rounded-xl" />
+                  ))}
                 </div>
-              }
-            >
-              <YouMayLike
-                productId={product.id}
-                countryCode={countryCode}
-                region={region}
-              />
-            </Suspense>
-          </div>
-        </div>
-      </div>
-    </>
+              </div>
+            }
+          >
+            <YouMayLike
+              productId={product.id}
+              countryCode={countryCode}
+              region={region}
+            />
+          </Suspense>
+        </section>
+      </main>
+    </div>
   )
 }
-
-// Trust Badge Component - Enhanced
-const TrustBadge = ({
-  icon,
-  label,
-}: {
-  icon: React.ReactNode
-  label: string
-}) => (
-  <div className="flex flex-col items-center text-center gap-1.5 md:gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-    <div className="text-gray-400 hover:text-[#F16D34] transition-colors">
-      {icon}
-    </div>
-    <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide text-gray-600 leading-tight">
-      {label}
-    </span>
-  </div>
-)
 
 export default ProductTemplate

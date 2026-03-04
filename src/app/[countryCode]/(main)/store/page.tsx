@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Explore all of our products.",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 // The store page uses the "frontpage" collection as the "all products" view.
 // Shopify filters only work inside collection.products() queries,

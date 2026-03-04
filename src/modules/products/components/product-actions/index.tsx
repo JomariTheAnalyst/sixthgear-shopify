@@ -16,12 +16,29 @@ import { isColorOption, isSizeOption } from "@lib/util/variant-helpers"
 import ColorSwatch from "./color-swatch"
 import SizeSelector from "./size-selector"
 import GenericOptionSelector from "./generic-option-selector"
+import {
+  ShoppingCart,
+  Zap,
+  Heart,
+  Minus,
+  Plus,
+  Shield,
+  Award,
+  Truck,
+  RotateCcw,
+  Lock,
+  CreditCard,
+  ChevronDown,
+  Check,
+  AlertTriangle,
+  X as XIcon,
+} from "lucide-react"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   disabled?: boolean
-  inventoryMap?: Record<string, number> // variant_id -> quantity
+  inventoryMap?: Record<string, number>
 }
 
 const optionsAsKeymap = (
@@ -105,14 +122,11 @@ export default function ProductActions({
 
   // check if the selected variant is in stock
   const inStock = useMemo(() => {
-    // If no variant selected, check if ANY variant has stock
     if (!selectedVariant) {
-      // Check if any variant has stock
       if (inventoryMap && Object.keys(inventoryMap).length > 0) {
         return Object.values(inventoryMap).some((qty) => qty > 0)
       }
 
-      // Fallback: check if any variant has stock from variant data
       return (
         product.variants?.some((v) => {
           if (v.allow_backorder) return true
@@ -128,13 +142,11 @@ export default function ProductActions({
       )
     }
 
-    // If we have inventory data from our custom endpoint, use it
     if (inventoryMap && selectedVariant.id in inventoryMap) {
       const quantity = inventoryMap[selectedVariant.id]
       return quantity > 0
     }
 
-    // Fallback to variant properties
     if (selectedVariant.allow_backorder) {
       return true
     }
@@ -143,7 +155,6 @@ export default function ProductActions({
       return true
     }
 
-    // Check API inventory_quantity (may be null in Medusa v2)
     if (
       selectedVariant.inventory_quantity !== null &&
       selectedVariant.inventory_quantity !== undefined
@@ -151,11 +162,11 @@ export default function ProductActions({
       return selectedVariant.inventory_quantity > 0
     }
 
-    // Default: if manage_inventory is true but no quantity data, assume out of stock
     return false
   }, [selectedVariant, inventoryMap, product.variants])
 
   const actionsRef = useRef<HTMLDivElement>(null)
+  const addToCartRef = useRef<HTMLButtonElement>(null)
   const inView = useIntersection(actionsRef, "0px")
   const { openCart } = useCartDrawer()
   const { showCartLimitModal } = useCartLimitModal()
@@ -176,14 +187,12 @@ export default function ProductActions({
         quantity: quantity,
         countryCode,
       })
-      // Sync Zustand with the returned Shopify cart
       if (updatedCart) {
         setCart(updatedCart as any)
         setCartId(updatedCart.id)
       }
       openCart()
     } catch (error: any) {
-      // Check if it's a cart limit error
       if (error.message?.startsWith("CART_LIMIT_EXCEEDED:")) {
         const [, currentCount, limit] = error.message.split(":")
         showCartLimitModal(parseInt(currentCount), parseInt(limit))
@@ -195,19 +204,47 @@ export default function ProductActions({
     }
   }
 
+  const handleBuyNow = async () => {
+    if (!selectedVariant?.id) return null
+    // Add to cart then immediately open cart for checkout
+    await handleAddToCart()
+  }
+
   // Quantity handlers
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1)
   }
 
   const increaseQuantity = () => {
-    // Use inventory map if available, otherwise fall back to variant data
     const maxQty =
       inventoryMap && selectedVariant?.id
         ? inventoryMap[selectedVariant.id] || 99
         : selectedVariant?.inventory_quantity || 99
     if (quantity < maxQty) setQuantity(quantity + 1)
   }
+
+  const isAddToCartDisabled =
+    !inStock ||
+    !selectedVariant ||
+    !!disabled ||
+    isAdding ||
+    !isValidVariant
+
+  // Inventory status computation
+  const inventoryStatus = useMemo(() => {
+    if (!selectedVariant) return { status: "unavailable" as const, message: "Select options" }
+    if (!inStock) return { status: "out-of-stock" as const, message: "Out of stock" }
+
+    let qty = selectedVariant.inventory_quantity
+    if (inventoryMap && selectedVariant.id in inventoryMap) {
+      qty = inventoryMap[selectedVariant.id]
+    }
+
+    if (qty !== null && qty !== undefined && qty <= 5) {
+      return { status: "low-stock" as const, message: `Only ${qty} left` }
+    }
+    return { status: "in-stock" as const, message: "In stock" }
+  }, [selectedVariant, inStock, inventoryMap])
 
   // Render the appropriate selector based on option type
   const renderOptionSelector = (option: HttpTypes.StoreProductOption) => {
@@ -218,7 +255,7 @@ export default function ProductActions({
       updateOption: setOptionValue,
       currentSelections: options,
       disabled: disabled || isAdding,
-      inventoryMap, // Pass inventory map to selectors
+      inventoryMap,
     }
 
     if (isColorOption(option)) {
@@ -232,184 +269,200 @@ export default function ProductActions({
     return <GenericOptionSelector key={option.id} {...commonProps} />
   }
 
+  const inventoryStatusConfig = {
+    "in-stock": {
+      icon: Check,
+      bgColor: "bg-green-50",
+      textColor: "text-green-700",
+      iconColor: "text-green-600",
+    },
+    "low-stock": {
+      icon: AlertTriangle,
+      bgColor: "bg-amber-50",
+      textColor: "text-amber-700",
+      iconColor: "text-amber-600",
+    },
+    "out-of-stock": {
+      icon: XIcon,
+      bgColor: "bg-red-50",
+      textColor: "text-red-700",
+      iconColor: "text-red-600",
+    },
+    "unavailable": {
+      icon: XIcon,
+      bgColor: "bg-slate-100",
+      textColor: "text-slate-600",
+      iconColor: "text-slate-500",
+    },
+  }
+
+  const StatusIcon = inventoryStatusConfig[inventoryStatus.status].icon
+
   return (
     <>
       <div className="flex flex-col gap-y-6" ref={actionsRef}>
-        {/* Price Section - Above Variants */}
-        <div className="pb-6 border-b border-gray-200">
-          <ProductPrice product={product} variant={selectedVariant} />
+        {/* Price */}
+        <ProductPrice product={product} variant={selectedVariant} />
+
+        {/* Value Props */}
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { icon: Shield, label: "Authentic Parts", description: "100% Genuine" },
+            { icon: Award, label: "Warranty", description: "Full coverage" },
+            { icon: Truck, label: "Fast Delivery", description: "3-5 days" },
+            { icon: RotateCcw, label: "Easy Returns", description: "Hassle-free" },
+          ].map(({ icon: Icon, label, description }) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg"
+            >
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Icon className="w-5 h-5 text-slate-700" aria-hidden="true" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{label}</p>
+                <p className="text-xs text-slate-600">{description}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Variant Options */}
         {(product.variants?.length ?? 0) > 1 && (
-          <div className="flex flex-col gap-y-5">
+          <div className="flex flex-col gap-y-5 pt-2">
             {(product.options || []).map((option) =>
               renderOptionSelector(option)
             )}
           </div>
         )}
 
-        {/* Selected Options Summary */}
-        {Object.keys(options).length > 0 && (
-          <div className="text-sm text-gray-600">
-            Selected:{" "}
-            <span className="font-medium text-gray-900">
-              {Object.values(options).filter(Boolean).join(" • ")}
-            </span>
-          </div>
-        )}
-
-        {/* Quantity & Add to Cart Row */}
-        <div className="flex items-center gap-2">
-          {/* Quantity Selector */}
-          <div className="flex items-center border border-gray-300 flex-shrink-0">
-            <button
-              onClick={decreaseQuantity}
-              disabled={quantity <= 1 || disabled || isAdding}
-              className="w-10 h-12 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
-              aria-label="Decrease quantity"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 12H4"
-                />
-              </svg>
-            </button>
-            <span className="w-10 h-12 flex items-center justify-center text-sm font-semibold text-gray-900 border-x border-gray-300">
-              {quantity}
-            </span>
-            <button
-              onClick={increaseQuantity}
-              disabled={disabled || isAdding}
-              className="w-10 h-12 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
-              aria-label="Increase quantity"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </button>
-          </div>
-
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={
-              !inStock ||
-              !selectedVariant ||
-              !!disabled ||
-              isAdding ||
-              !isValidVariant
-            }
-            className={`
-              flex-1 h-12 px-4 text-sm font-bold uppercase tracking-wider transition-all duration-200
-              flex items-center justify-center gap-2
-              ${
-                !inStock
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : !selectedVariant || !isValidVariant
-                  ? "bg-gray-900 text-white hover:bg-[#F16D34] cursor-pointer"
-                  : "bg-gray-900 text-white hover:bg-[#F16D34]"
-              }
-            `}
-            data-testid="add-product-button"
+        {/* Inventory Status Badge */}
+        <div
+          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${inventoryStatusConfig[inventoryStatus.status].bgColor}`}
+        >
+          <StatusIcon
+            className={`w-4 h-4 ${inventoryStatusConfig[inventoryStatus.status].iconColor}`}
+            aria-hidden="true"
+          />
+          <span
+            className={`text-sm font-medium ${inventoryStatusConfig[inventoryStatus.status].textColor}`}
           >
-            {isAdding ? (
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-            ) : !inStock ? (
-              <>
-                <span className="hidden lg:inline">Out of stock</span>
-                <span className="lg:hidden">Out</span>
-              </>
-            ) : (
-              <>
-                <span className="hidden lg:inline">Add to Cart</span>
-                <svg
-                  className="w-5 h-5 lg:w-4 lg:h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
+            {inventoryStatus.message}
+          </span>
+        </div>
+
+        {/* Quantity & Buttons */}
+        <div className="space-y-4 pt-2">
+          {/* Quantity Selector */}
+          <div className="flex items-center">
+            <label className="text-sm font-medium text-slate-900 mr-4">Quantity</label>
+            <div className="flex items-center border-2 border-slate-300 rounded-lg">
+              <button
+                onClick={decreaseQuantity}
+                disabled={quantity <= 1 || disabled || isAdding}
+                className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-900 rounded-l-md"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value) || 1
+                  setQuantity(Math.max(1, val))
+                }}
+                min={1}
+                disabled={disabled || isAdding}
+                className="w-14 h-10 text-center text-slate-900 font-medium border-x-2 border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-900 disabled:opacity-40"
+                aria-label="Quantity"
+              />
+              <button
+                onClick={increaseQuantity}
+                disabled={disabled || isAdding}
+                className="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-900 rounded-r-md"
+                aria-label="Increase quantity"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              ref={addToCartRef}
+              onClick={handleAddToCart}
+              disabled={isAddToCartDisabled}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-slate-900 text-white font-semibold rounded-xl hover:bg-slate-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+              data-testid="add-product-button"
+            >
+              {isAdding ? (
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-              </>
-            )}
-          </button>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5" aria-hidden="true" />
+                  <span>{!inStock ? "Out of Stock" : "Add to Cart"}</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={handleBuyNow}
+              disabled={isAddToCartDisabled}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-amber-500 text-slate-900 font-semibold rounded-xl hover:bg-amber-400 transition-colors disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+            >
+              <Zap className="w-5 h-5" aria-hidden="true" />
+              <span>Buy Now</span>
+            </button>
+          </div>
 
           {/* Wishlist Button */}
-          <button
-            className="w-12 h-12 flex items-center justify-center border border-gray-300 hover:border-[#F16D34] hover:bg-[#F16D34] hover:text-white transition-colors group flex-shrink-0"
-            aria-label="Add to wishlist"
-          >
-            <svg
-              className="w-6 h-6 text-gray-600 group-hover:text-white transition-colors"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
+          <button className="w-full flex items-center justify-center gap-2 px-6 py-3 border-2 border-slate-200 text-slate-700 font-medium rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2">
+            <Heart className="w-5 h-5" aria-hidden="true" />
+            <span>Add to Wishlist</span>
           </button>
         </div>
 
-        {/* Secured Checkout Text */}
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-          <svg
-            className="w-4 h-4 text-green-500"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span className="font-semibold">100% Secured Checkout</span>
+        {/* Shipping Info */}
+        <ShippingInfoBlock />
+
+        {/* Trust Badges */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Secure Payment</span>
+            <div className="flex items-center gap-1.5">
+              {["Visa", "MC", "Amex", "PayPal", "Apple"].map((method) => (
+                <div
+                  key={method}
+                  className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded text-[11px] font-medium"
+                  aria-label={method}
+                >
+                  {method}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-slate-500 font-medium">
+            <div className="flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>SSL Encrypted</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>2-year manufacturer warranty against defects</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CreditCard className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Secure Checkout</span>
+            </div>
+          </div>
         </div>
 
+        {/* Mobile Sticky Add to Cart */}
         <MobileActions
           product={product}
           variant={selectedVariant}
@@ -423,5 +476,65 @@ export default function ProductActions({
         />
       </div>
     </>
+  )
+}
+
+/* ─── Inline Shipping Info ─── */
+function ShippingInfoBlock() {
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  return (
+    <div className="border border-slate-200 rounded-xl overflow-hidden">
+      <div className="p-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <Truck className="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-medium text-slate-900">Shipping</p>
+            <p className="text-sm text-slate-600">3-5 business days delivery in Metro Manila</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <RotateCcw className="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-medium text-slate-900">Returns</p>
+            <p className="text-sm text-slate-600">Easy returns within warranty period</p>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full px-4 py-3 flex items-center justify-between bg-slate-50 border-t border-slate-200 hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-900"
+        aria-expanded={isExpanded}
+      >
+        <span className="text-sm font-medium text-slate-700">More details</span>
+        <ChevronDown
+          className={`w-4 h-4 text-slate-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {isExpanded && (
+        <div className="p-4 border-t border-slate-200 bg-white space-y-4">
+          <div>
+            <h4 className="text-sm font-semibold text-slate-900 mb-2">Shipping Details</h4>
+            <ul className="text-sm text-slate-600 space-y-1">
+              <li>• Standard: 3-5 business days</li>
+              <li>• Provincial: 5-7 business days</li>
+              <li>• Cash on Delivery available</li>
+              <li>• Tracking provided for all orders</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-slate-900 mb-2">Return Policy</h4>
+            <ul className="text-sm text-slate-600 space-y-1">
+              <li>• Returns accepted for defective items</li>
+              <li>• Item must be unused and in original packaging</li>
+              <li>• Contact us within 7 days of delivery</li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

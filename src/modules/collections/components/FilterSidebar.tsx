@@ -26,6 +26,11 @@ export default function FilterSidebar({
       ? activeState.priceRange?.max?.toString() || ""
       : ""
   );
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (id: string) => {
+    setCollapsedSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const handleCheckboxToggle = (
     filterType: "vendors" | "productTypes" | "tags",
@@ -86,7 +91,6 @@ export default function FilterSidebar({
   };
 
   const getVariantOptionName = (filter: ShopifyFilter): string => {
-    // Extract option name from the filter label (e.g., "Color", "Size")
     return filter.label;
   };
 
@@ -108,57 +112,100 @@ export default function FilterSidebar({
     return false;
   };
 
+  const activeCount =
+    activeState.vendors.length +
+    activeState.productTypes.length +
+    activeState.tags.length +
+    activeState.variantOptions.length +
+    (activeState.priceRange ? 1 : 0) +
+    (activeState.available ? 1 : 0);
+
+  const clearAll = () => {
+    setLocalPriceMin("");
+    setLocalPriceMax("");
+    onChange({
+      ...activeState,
+      vendors: [],
+      productTypes: [],
+      tags: [],
+      variantOptions: [],
+      priceRange: null,
+      available: false,
+    });
+  };
+
   const renderFilterGroup = (filter: ShopifyFilter) => {
+    const isCollapsed = collapsedSections[filter.id] ?? false;
+
     // Price range filter
     if (filter.type === "PRICE_RANGE") {
       return (
-        <div key={filter.id} className="border-b border-gray-200 py-4">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900 mb-3">
-            {filter.label}
-          </h3>
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                ₱
-              </span>
-              <input
-                type="number"
-                placeholder="Min"
-                value={localPriceMin}
-                onChange={(e) => setLocalPriceMin(e.target.value)}
-                className="w-full pl-7 pr-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
-              />
-            </div>
-            <span className="text-gray-400">–</span>
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                ₱
-              </span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={localPriceMax}
-                onChange={(e) => setLocalPriceMax(e.target.value)}
-                className="w-full pl-7 pr-2 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={handlePriceApply}
-              className="flex-1 py-1.5 bg-gray-900 text-white text-xs font-semibold uppercase rounded hover:bg-gray-800 transition-colors"
+        <div key={filter.id} className="border-b border-gray-100 py-4">
+          <button
+            onClick={() => toggleSection(filter.id)}
+            className="w-full flex items-center justify-between group"
+          >
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 group-hover:text-gray-900 transition-colors">
+              {filter.label}
+            </h3>
+            <svg
+              className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+                isCollapsed ? "" : "rotate-180"
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Apply
-            </button>
-            {activeState.priceRange && (
-              <button
-                onClick={handlePriceClear}
-                className="py-1.5 px-3 text-xs text-gray-500 hover:text-gray-900 transition-colors"
-              >
-                Clear
-              </button>
-            )}
-          </div>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {!isCollapsed && (
+            <div className="mt-3 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                    ₱
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={localPriceMin}
+                    onChange={(e) => setLocalPriceMin(e.target.value)}
+                    className="w-full pl-6 pr-2 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all"
+                  />
+                </div>
+                <span className="text-gray-300 text-xs">–</span>
+                <div className="relative flex-1">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                    ₱
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={localPriceMax}
+                    onChange={(e) => setLocalPriceMax(e.target.value)}
+                    className="w-full pl-6 pr-2 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-all"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePriceApply}
+                  className="flex-1 py-1.5 bg-gray-900 text-white text-xs font-semibold uppercase rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Apply
+                </button>
+                {activeState.priceRange && (
+                  <button
+                    onClick={handlePriceClear}
+                    className="py-1.5 px-3 text-xs text-gray-400 hover:text-gray-900 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -176,124 +223,174 @@ export default function FilterSidebar({
     });
 
     return (
-      <div key={filter.id} className="border-b border-gray-200 py-4">
-        <h3 className="text-sm font-bold uppercase tracking-wide text-gray-900 mb-3">
-          {filter.label}
-        </h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {uniqueValues.map((val) => {
-            const isActive = isValueActive(filterType, val.label, filter);
-            const isDisabled = val.count === 0 && !isActive;
+      <div key={filter.id} className="border-b border-gray-100 py-4">
+        <button
+          onClick={() => toggleSection(filter.id)}
+          className="w-full flex items-center justify-between group"
+        >
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 group-hover:text-gray-900 transition-colors">
+            {filter.label}
+          </h3>
+          <svg
+            className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+              isCollapsed ? "" : "rotate-180"
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {!isCollapsed && (
+          <div className="mt-3 space-y-2 max-h-52 overflow-y-auto pr-1">
+            {uniqueValues.map((val) => {
+              const isActive = isValueActive(filterType, val.label, filter);
+              const isDisabled = val.count === 0 && !isActive;
 
-            return (
-              <label
-                key={val.id}
-                className={`flex items-center gap-2 cursor-pointer text-sm ${
-                  isDisabled
-                    ? "opacity-40 cursor-not-allowed"
-                    : "hover:text-gray-900"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={isActive}
-                  disabled={isDisabled}
-                  onChange={() => {
-                    if (isDisabled) return;
-                    if (isVariant) {
-                      handleVariantOptionToggle(
-                        getVariantOptionName(filter),
-                        val.label
-                      );
-                    } else if (filterType) {
-                      handleCheckboxToggle(filterType, val.label);
-                    }
-                  }}
-                  className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
-                />
-                <span className="text-gray-700">{val.label}</span>
-                <span className="text-gray-400 text-xs ml-auto">
-                  ({val.count})
-                </span>
-              </label>
-            );
-          })}
-        </div>
+              return (
+                <label
+                  key={val.id}
+                  className={`flex items-center gap-2.5 py-0.5 cursor-pointer text-sm ${
+                    isDisabled
+                      ? "opacity-30 cursor-not-allowed"
+                      : "hover:text-gray-900"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isActive}
+                    disabled={isDisabled}
+                    onChange={() => {
+                      if (isDisabled) return;
+                      if (isVariant) {
+                        handleVariantOptionToggle(
+                          getVariantOptionName(filter),
+                          val.label
+                        );
+                      } else if (filterType) {
+                        handleCheckboxToggle(filterType, val.label);
+                      }
+                    }}
+                    className="w-3.5 h-3.5 rounded border-gray-300 text-gray-900 focus:ring-gray-900 focus:ring-offset-0 transition-colors"
+                  />
+                  <span className={`flex-1 text-sm ${isActive ? "text-gray-900 font-medium" : "text-gray-600"}`}>
+                    {val.label}
+                  </span>
+                  <span className="text-[10px] text-gray-300 tabular-nums">
+                    {val.count}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
 
+  const filteredGroups = filters.filter((f) => {
+    const label = f.label.trim().toLowerCase();
+    const id = f.id.trim().toLowerCase();
+    return (
+      label !== "color" &&
+      label !== "availability" &&
+      !id.includes("availability")
+    );
+  });
+
   const sidebarContent = (
-    <div className="space-y-0">
-      {/* Dynamic Shopify filters */}
-      {filters
-        .filter((f) => {
-          const label = f.label.trim().toLowerCase();
-          const id = f.id.trim().toLowerCase();
-          return (
-            label !== "color" &&
-            label !== "availability" &&
-            !id.includes("availability")
-          );
-        })
-        .map((filter) => renderFilterGroup(filter))}
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900">
+            Filters
+          </h2>
+          {activeCount > 0 && (
+            <span className="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-gray-900 rounded-full">
+              {activeCount}
+            </span>
+          )}
+        </div>
+        {activeCount > 0 && (
+          <button
+            onClick={clearAll}
+            className="text-xs font-medium text-gray-400 hover:text-red-500 transition-colors"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {/* Filter Groups */}
+      {filteredGroups.map((filter) => renderFilterGroup(filter))}
     </div>
   );
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:block w-64 flex-shrink-0 pr-8">
-        <h2
-          className="text-lg font-black uppercase tracking-tight text-gray-900 mb-4"
-          style={{ fontFamily: "BRHendrix, sans-serif" }}
-        >
-          Filters
-        </h2>
-        {sidebarContent}
+      <aside className="hidden lg:block w-60 xl:w-64 flex-shrink-0 pr-6">
+        <div className="sticky top-28">{sidebarContent}</div>
       </aside>
 
       {/* Mobile drawer overlay */}
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onMobileClose}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto p-6 animate-slide-up">
-            <div className="flex items-center justify-between mb-4">
-              <h2
-                className="text-lg font-black uppercase tracking-tight text-gray-900"
-                style={{ fontFamily: "BRHendrix, sans-serif" }}
-              >
-                Filters
-              </h2>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[85vh] overflow-y-auto shadow-2xl animate-slide-up">
+            {/* Drawer Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 bg-gray-200 rounded-full" />
+            </div>
+
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-gray-900">Filters</h2>
+                {activeCount > 0 && (
+                  <span className="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-gray-900 rounded-full">
+                    {activeCount}
+                  </span>
+                )}
+              </div>
               <button
                 onClick={onMobileClose}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Close filters"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            {sidebarContent}
-            <button
-              onClick={onMobileClose}
-              className="w-full mt-4 py-3 bg-gray-900 text-white font-bold uppercase text-sm rounded hover:bg-gray-800 transition-colors"
-            >
-              Show Results
-            </button>
+
+            {/* Drawer Content */}
+            <div className="px-6 py-2">
+              {filteredGroups.map((filter) => renderFilterGroup(filter))}
+            </div>
+
+            {/* Drawer Footer */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4 flex gap-3">
+              {activeCount > 0 && (
+                <button
+                  onClick={clearAll}
+                  className="flex-1 py-3 border border-gray-200 text-gray-600 font-semibold text-sm rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  Clear All
+                </button>
+              )}
+              <button
+                onClick={onMobileClose}
+                className="flex-1 py-3 bg-gray-900 text-white font-semibold text-sm rounded-xl hover:bg-gray-800 transition-colors"
+              >
+                Show Results
+              </button>
+            </div>
           </div>
         </div>
       )}

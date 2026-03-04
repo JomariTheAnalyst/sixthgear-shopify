@@ -23,16 +23,18 @@ const ProductInfo = ({
     <div className="flex items-center gap-2">
       <StarRating
         rating={metadataRating}
-        count={metadataCount}
         size="md"
-        showCount={false}
       />
-      {metadataCount > 0 && (
+      {metadataCount > 0 ? (
         <a
           href="#reviews"
           className="text-sm text-gray-600 hover:text-[#F16D34] transition-colors underline"
         >
           {metadataCount} Review{metadataCount !== 1 ? "s" : ""}
+        </a>
+      ) : (
+        <a href="#reviews" className="text-sm text-gray-400 hover:text-[#F16D34] transition-colors">
+          No reviews yet
         </a>
       )}
     </div>

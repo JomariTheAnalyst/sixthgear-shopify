@@ -15,7 +15,7 @@ export default function ActiveFilterPills({
 
   activeState.vendors.forEach((v) => {
     pills.push({
-      label: `Brand: ${v}`,
+      label: v,
       onRemove: () =>
         onRemove({
           ...activeState,
@@ -26,7 +26,7 @@ export default function ActiveFilterPills({
 
   activeState.productTypes.forEach((t) => {
     pills.push({
-      label: `Category: ${t}`,
+      label: t,
       onRemove: () =>
         onRemove({
           ...activeState,
@@ -37,7 +37,7 @@ export default function ActiveFilterPills({
 
   activeState.tags.forEach((tag) => {
     pills.push({
-      label: `Tag: ${tag}`,
+      label: tag,
       onRemove: () =>
         onRemove({
           ...activeState,
@@ -66,7 +66,7 @@ export default function ActiveFilterPills({
         ? "∞"
         : `₱${activeState.priceRange.max.toLocaleString()}`;
     pills.push({
-      label: `Price: ₱${min.toLocaleString()} – ${max}`,
+      label: `₱${min.toLocaleString()} – ${max}`,
       onRemove: () => onRemove({ ...activeState, priceRange: null }),
     });
   }
@@ -83,30 +83,20 @@ export default function ActiveFilterPills({
   const hasMultiple = pills.length > 1;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-4">
+    <div className="flex flex-wrap items-center gap-2 mb-5">
       {pills.map((pill, i) => (
         <span
           key={i}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-full"
+          className="group inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 bg-gray-50 text-gray-600 text-xs font-medium rounded-full border border-gray-100 hover:border-gray-300 transition-all"
         >
           {pill.label}
           <button
             onClick={pill.onRemove}
-            className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-gray-300 transition-colors"
+            className="w-4 h-4 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
             aria-label={`Remove ${pill.label}`}
           >
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </span>
@@ -124,7 +114,7 @@ export default function ActiveFilterPills({
               available: false,
             })
           }
-          className="text-sm text-gray-500 hover:text-gray-900 underline transition-colors"
+          className="text-xs font-medium text-gray-400 hover:text-red-500 transition-colors ml-1"
         >
           Clear all
         </button>

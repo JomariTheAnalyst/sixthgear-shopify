@@ -39,6 +39,7 @@ export interface ShopifyMetafield {
   key: string;
   namespace: string;
   value: string;
+  type?: string;
 }
 
 export interface ShopifyProductCard {
@@ -55,6 +56,13 @@ export interface ShopifyProductCard {
   availableForSale: boolean;
   tags: string[];
   vendor: string;
+  variants?: {
+    edges: {
+      node: {
+        id: string;
+      };
+    }[];
+  };
 }
 
 export interface ShopifyProduct {
@@ -328,4 +336,60 @@ export type ProductFilter = {
   tag?: string;
   variantOption?: { name: string; value: string };
 };
+
+// ─── Judge.me Review Types ───────────────────────────
+
+export type JudgeMeReviewer = {
+  id: number
+  email: string
+  name: string
+  phone: string | null
+  accepts_marketing: boolean
+  unsubscribed_at: string | null
+  tags: string[]
+}
+
+export type JudgeMeReview = {
+  id: number
+  title: string
+  body: string
+  rating: number
+  reviewer: JudgeMeReviewer
+  source: string
+  featured: boolean
+  published: boolean
+  hidden: boolean
+  verified: string
+  created_at: string
+  updated_at: string
+  product_handle: string
+  product_title: string
+  picture_urls: string[]
+  curated: string
+  sentiment: string
+  moderated: boolean
+  ip_address: string
+  has_published_pictures: boolean
+  has_published_videos: boolean
+}
+
+export type JudgeMeReviewsResponse = {
+  reviews: JudgeMeReview[]
+  current_page: number
+  total_pages: number
+  per_page: number
+  total_count: number
+}
+
+export type JudgeMeRatingSummary = {
+  average: number
+  count: number
+  distribution: {
+    1: number
+    2: number
+    3: number
+    4: number
+    5: number
+  }
+}
 

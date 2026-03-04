@@ -2,265 +2,148 @@
 
 import { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
+import { ChevronDown } from "lucide-react"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
 }
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
-  const [openTab, setOpenTab] = useState<string | null>(null)
+  const [openItems, setOpenItems] = useState<string[]>([])
 
-  const toggleTab = (tabId: string) => {
-    setOpenTab(openTab === tabId ? null : tabId)
+  const toggleItem = (id: string) => {
+    setOpenItems((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    )
   }
 
   const tabs = [
     {
-      id: "details",
-      label: "Details",
-      content: <ProductInfoTab product={product} />,
+      id: "description",
+      title: "Description",
+      content: product.description ? (
+        <div
+          className="prose prose-slate prose-sm max-w-none mb-4"
+          dangerouslySetInnerHTML={{ __html: product.description }}
+        />
+      ) : (
+        <p className="text-sm text-slate-400 italic mb-4">No description available.</p>
+      ),
     },
     {
-      id: "shipping",
-      label: "Shipping & Returns",
-      content: <ShippingInfoTab />,
+      id: "specifications",
+      title: "Specifications",
+      content: <ProductInfoContent product={product} />,
     },
     {
-      id: "authenticity",
-      label: "Authenticity",
-      content: <AuthenticityTab />,
-    },
+      id: "fitment",
+      title: "Fitment & Compatibility",
+      content: <FitmentContent />,
+    }
   ]
 
   return (
-    <div className="flex flex-col">
-      {tabs.map((tab, index) => (
-        <div
-          key={tab.id}
-          className={`${index !== 0 ? "border-t border-gray-200" : ""}`}
-        >
-          <button
-            onClick={() => toggleTab(tab.id)}
-            className="w-full py-5 flex items-center justify-between text-left group hover:bg-gray-50 transition-colors px-1"
-          >
-            <span className="text-sm md:text-base font-bold uppercase tracking-wide text-gray-900">
-              {tab.label}
-            </span>
-            <svg
-              className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
-                openTab === tab.id ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+    <div className="flex flex-col w-full">
+      {tabs.map((item, index) => {
+        const isOpen = openItems.includes(item.id)
+        return (
+          <div key={item.id} className="border-b border-gray-100 last:border-b">
+            <button
+              onClick={() => toggleItem(item.id)}
+              className="w-full py-5 flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-900 group"
+              aria-expanded={isOpen}
+              aria-controls={`accordion-content-${item.id}`}
+              id={`accordion-header-${item.id}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
+              <span className="text-[15px] font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
+                {item.title}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+                aria-hidden="true"
               />
-            </svg>
-          </button>
-          <div
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              openTab === tab.id ? "max-h-[600px] pb-6 px-1" : "max-h-0"
-            }`}
-          >
-            {tab.content}
+            </button>
+            <div
+              id={`accordion-content-${item.id}`}
+              role="region"
+              aria-labelledby={`accordion-header-${item.id}`}
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="text-slate-600 pb-5">{item.content}</div>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
 
-const ProductInfoTab = ({ product }: ProductTabsProps) => {
+/* ─── Specifications (Details) ─── */
+const ProductInfoContent = ({ product }: ProductTabsProps) => {
+  const hasDetails =
+    product.material ||
+    product.origin_country ||
+    product.type ||
+    product.weight
+
+  if (!hasDetails) {
+    return (
+      <p className="text-sm text-slate-400 italic mb-4">
+        No additional specifications available.
+      </p>
+    )
+  }
+
+  const specs: Record<string, string> = {}
+  if (product.material) specs["Material"] = product.material
+  if (product.origin_country) specs["Country of Origin"] = product.origin_country
+  if (product.type) specs["Type"] = product.type.value
+  if (product.weight) specs["Weight"] = `${product.weight} g`
+  if (product.length && product.width && product.height) {
+    specs["Dimensions"] = `${product.length}L x ${product.width}W x ${product.height}H`
+  }
+
+  const entries = Object.entries(specs)
+
   return (
-    <div className="text-sm text-gray-600 space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        {product.material && (
-          <div>
-            <span className="font-semibold text-gray-900 block">Material</span>
-            <span>{product.material}</span>
-          </div>
-        )}
-        {product.origin_country && (
-          <div>
-            <span className="font-semibold text-gray-900 block">
-              Country of Origin
-            </span>
-            <span>{product.origin_country}</span>
-          </div>
-        )}
-        {product.type && (
-          <div>
-            <span className="font-semibold text-gray-900 block">Type</span>
-            <span>{product.type.value}</span>
-          </div>
-        )}
-        {product.weight && (
-          <div>
-            <span className="font-semibold text-gray-900 block">Weight</span>
-            <span>{product.weight} g</span>
-          </div>
-        )}
-        {product.length && product.width && product.height && (
-          <div>
-            <span className="font-semibold text-gray-900 block">
-              Dimensions
-            </span>
-            <span>
-              {product.length}L x {product.width}W x {product.height}H
-            </span>
-          </div>
-        )}
-      </div>
-      {!product.material &&
-        !product.origin_country &&
-        !product.type &&
-        !product.weight && (
-          <p className="text-gray-400 italic">
-            No additional product details available.
-          </p>
-        )}
+    <div className="border border-slate-100 rounded-lg overflow-hidden mb-4">
+      <table className="w-full text-sm">
+        <tbody>
+          {entries.map(([key, value], index) => (
+            <tr
+              key={key}
+              className={index % 2 === 0 ? "bg-slate-50/50" : "bg-white"}
+            >
+              <th
+                scope="row"
+                className="px-4 py-3 text-left font-semibold text-slate-900 w-1/3"
+              >
+                {key}
+              </th>
+              <td className="px-4 py-3 text-slate-600 border-l border-slate-100">{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
 
-const ShippingInfoTab = () => {
-  return (
-    <div className="text-sm text-gray-600 space-y-4">
-      <div className="flex items-start gap-3">
-        <svg
-          className="w-5 h-5 text-[#F16D34] mt-0.5 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
-        <div>
-          <span className="font-semibold text-gray-900 block">
-            Fast Delivery
-          </span>
-          <p>
-            Your package will arrive in 3-5 business days at your pick up
-            location or in the comfort of your home.
-          </p>
-        </div>
-      </div>
-      <div className="flex items-start gap-3">
-        <svg
-          className="w-5 h-5 text-[#F16D34] mt-0.5 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-        <div>
-          <span className="font-semibold text-gray-900 block">
-            Simple Exchanges
-          </span>
-          <p>
-            Is the fit not quite right? No worries - we&apos;ll exchange your
-            product for a new one.
-          </p>
-        </div>
-      </div>
-      <div className="flex items-start gap-3">
-        <svg
-          className="w-5 h-5 text-[#F16D34] mt-0.5 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-          />
-        </svg>
-        <div>
-          <span className="font-semibold text-gray-900 block">
-            Easy Returns
-          </span>
-          <p>
-            Just return your product and we&apos;ll refund your money. No
-            questions asked – we&apos;ll do our best to make sure your return is
-            hassle-free.
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const AuthenticityTab = () => {
-  return (
-    <div className="text-sm text-gray-600 space-y-4">
-      <div className="flex items-start gap-3">
-        <svg
-          className="w-5 h-5 text-[#F16D34] mt-0.5 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-          />
-        </svg>
-        <div>
-          <span className="font-semibold text-gray-900 block">
-            100% Authentic
-          </span>
-          <p>
-            All products sold are guaranteed authentic. We source directly from
-            authorized distributors and manufacturers.
-          </p>
-        </div>
-      </div>
-      <div className="flex items-start gap-3">
-        <svg
-          className="w-5 h-5 text-[#F16D34] mt-0.5 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <div>
-          <span className="font-semibold text-gray-900 block">
-            Quality Guaranteed
-          </span>
-          <p>
-            Every item undergoes quality checks before shipping to ensure you
-            receive products in perfect condition.
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
+/* ─── Fitment & Compatibility ─── */
+const FitmentContent = () => (
+  <div className="text-sm text-slate-600 mb-4">
+    <p>
+      Please check the manufacturer's manual or contact our support team at{" "}
+      <a href="mailto:support@sixthgearmoto.com" className="text-orange-500 hover:text-orange-600 underline underline-offset-2">
+        support@sixthgearmoto.com
+      </a>{" "}
+      if you are unsure whether this part fits your motorcycle.
+    </p>
+  </div>
+)
 
 export default ProductTabs

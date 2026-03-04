@@ -1,28 +1,16 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
-import { getProduct, getProducts } from "@lib/shopify"
+import { getProduct } from "@lib/shopify"
 import { getRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product-detail"
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
   searchParams: Promise<{ v_id?: string }>
-}
-
-export async function generateStaticParams() {
-  try {
-    const { products } = await getProducts({ first: 50 })
-    return products.map((product) => ({
-      handle: product.handle,
-    }))
-  } catch (error) {
-    console.error("Failed to generate static paths:", error)
-    return []
-  }
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
