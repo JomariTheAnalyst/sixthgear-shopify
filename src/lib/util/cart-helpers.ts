@@ -42,3 +42,4 @@ export function getStockLabel(status: StockStatus, quantity?: number): string {
 export function isItemOutOfStock(item: HttpTypes.StoreCartLineItem): boolean {
   return getStockStatus(item) === "out_of_stock"
 }
+
