@@ -122,6 +122,34 @@ function mapActivationError(
   return "activation_failed"
 }
 
+function generateActivationPassword(): string {
+  const lower = "abcdefghijklmnopqrstuvwxyz"
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  const digits = "0123456789"
+  const symbols = "!@#$%^&*()-_=+"
+  const all = `${lower}${upper}${digits}${symbols}`
+
+  const pick = (chars: string) => chars[randomBytes(1)[0] % chars.length]
+
+  // Ensure mixed character classes while keeping the full value random.
+  const chars = [
+    pick(lower),
+    pick(upper),
+    pick(digits),
+    pick(symbols),
+    ...Array.from(randomBytes(20), (b) => all[b % all.length]),
+  ]
+
+  // Shuffle using cryptographic randomness (Fisher-Yates).
+  const entropy = randomBytes(chars.length)
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = entropy[i] % (i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+
+  return chars.join("")
+}
+
 function isLegacyAddressState(
   state: string | null | LegacyAddressActionState | Record<string, unknown>
 ): state is LegacyAddressActionState {
@@ -427,8 +455,8 @@ export async function activateCustomerAccountByUrl(
   }
 
   // Shopify requires a password in customerActivateByUrl.
-  // Generate a strong value server-side and rely on returned token for session.
-  const generatedPassword = `Sg!${randomBytes(16).toString("hex")}`
+  // Generate it server-side; it is never hardcoded or persisted.
+  const generatedPassword = generateActivationPassword()
 
   try {
     const result = await shopifyCustomerActivateByUrl(

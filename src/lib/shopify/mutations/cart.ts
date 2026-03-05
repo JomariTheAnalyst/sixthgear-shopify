@@ -126,7 +126,10 @@ export async function cartLinesAdd(cartId: string, lines: { merchandiseId: strin
   return data?.cartLinesAdd?.cart || null;
 }
 
-export async function cartLinesUpdate(cartId: string, lines: { id: string; quantity: number }[]): Promise<ShopifyCart | null> {
+export async function cartLinesUpdate(
+  cartId: string,
+  lines: { id: string; quantity: number; merchandiseId?: string }[]
+): Promise<ShopifyCart | null> {
   const query = `
     mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
       cartLinesUpdate(cartId: $cartId, lines: $lines) {

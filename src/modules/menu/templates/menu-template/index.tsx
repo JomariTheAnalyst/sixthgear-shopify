@@ -322,57 +322,122 @@ export default function MenuTemplate({
         }
       `}</style>
 
-      {/* Hero Section with Image */}
-      <div className="relative h-[50vh] md:h-[60vh] min-h-[400px] overflow-hidden">
-        {/* Hero Image - Café Background */}
-        <div className="absolute inset-0">
-          <img
-            src={
-              heroData?.backgroundImage ||
-              "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1920&q=80"
-            }
-            alt="Coffee shop interior"
-            className="w-full h-full object-cover"
-          />
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30" />
-        </div>
+      {/* Hero Section — Contained Card with Background Image */}
+      <div className="pt-20 md:pt-24 lg:pt-28 pb-8 max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
+        <div
+          className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden min-h-[450px] md:min-h-[550px] lg:min-h-[650px] flex items-center bg-[#E1DBD1]"
+          style={{
+            backgroundImage: `url(${heroData?.backgroundImage || "/images/firstgear-coffee/menu-hero-bg.png"})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center right",
+          }}
+        >
+          {/* Gradient Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#E1DBD1] via-[#E1DBD1]/90 to-transparent w-full sm:w-4/5 md:w-3/4 lg:w-2/3 pointer-events-none"></div>
 
-        {/* Hero Content - Positioned to avoid nav overlap */}
-        <div className="relative h-full flex items-center justify-center px-4 pt-24 md:pt-32">
-          <div className="text-center max-w-4xl mx-auto">
-            {/* Brand Label */}
-            <div className="mb-4 md:mb-6">
-              <span
-                className="inline-block text-[#F16D34] text-sm md:text-base font-bold tracking-widest uppercase"
-                style={{ fontFamily: "Inter Display, sans-serif" }}
-              >
-                First Gear Coffee
-              </span>
-            </div>
-
-            {/* Main Heading */}
+          {/* Content overlay on the left */}
+          <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-20 py-10 md:py-16 max-w-2xl w-full">
+            {/* Heading */}
             <h1
-              className="text-4xl md:text-6xl lg:text-7xl mb-4 md:mb-6 text-white leading-tight"
-              style={{ fontFamily: "Tanker, sans-serif" }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-[#3E2723] mb-4 sm:mb-6"
+              style={{ fontFamily: "var(--font-inter), Georgia, 'Times New Roman', serif", fontWeight: 800 }}
             >
-              {heroData?.pageTitle || "Our Menu"}
+              {heroData?.pageTitle || (
+                <>
+                  Indulge in
+                  <br />
+                  Our <span className="text-[#E8910D]">Coffee</span>
+                  <br />
+                  Delights
+                </>
+              )}
             </h1>
 
-            {/* Subtitle */}
+            {/* Description */}
             <p
-              className="text-gray-200 text-base md:text-xl max-w-2xl mx-auto leading-relaxed"
-              style={{
-                fontFamily: "Inter Display, sans-serif",
-                fontWeight: 400,
-              }}
+              className="text-[#3E2723] text-sm sm:text-base lg:text-[17px] leading-[1.6] sm:leading-[1.7] max-w-lg mb-6 sm:mb-8 md:mb-10 font-medium opacity-90"
+              style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
             >
               {heroData?.pageSubtitle ||
-                "Handcrafted brews served with passion. More than a pit stop—it's where riders refuel, relax, and reconnect."}
+                "At CafeBrew, we believe that every cup of coffee tells a story. From the rich aroma that tantalizes your senses to the smooth, velvety taste that lingers on your palate, each sip is an experience to be savored."}
             </p>
+
+            {/* CTA Button */}
+            <div>
+              <button
+                onClick={() => {
+                  const el = document.getElementById(
+                    menuCategories[0]?.id || "hot-coffee"
+                  )
+                  if (el) {
+                    const offset = 120
+                    const pos = el.getBoundingClientRect().top + window.pageYOffset - offset
+                    window.scrollTo({ top: pos, behavior: "smooth" })
+                  }
+                }}
+                className="inline-flex items-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#E8910D] hover:bg-[#D17E08] text-white text-[14px] sm:text-[15px] font-bold rounded-full transition-all duration-300 hover:shadow-xl hover:shadow-[#E8910D]/30 hover:-translate-y-1"
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                Explore Our Products
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Stats Row */}
+      <div className="px-4 md:px-8 lg:px-12 pb-10 md:pb-16">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-3 gap-6 py-8 md:py-12">
+            <div className="text-center">
+              <p
+                className="text-[#5D4037] text-sm md:text-base lg:text-lg font-semibold mb-2"
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                Our Products
+              </p>
+              <p
+                className="text-[#3E2723] text-5xl md:text-7xl lg:text-[80px] font-black tracking-tighter leading-none"
+                style={{ fontFamily: "var(--font-inter), Georgia, serif" }}
+              >
+                +25
+              </p>
+            </div>
+            <div className="text-center">
+              <p
+                className="text-[#5D4037] text-sm md:text-base lg:text-lg font-semibold mb-2"
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                Total Sales
+              </p>
+              <p
+                className="text-[#3E2723] text-5xl md:text-7xl lg:text-[80px] font-black tracking-tighter leading-none"
+                style={{ fontFamily: "var(--font-inter), Georgia, serif" }}
+              >
+                +325k
+              </p>
+            </div>
+            <div className="text-center">
+              <p
+                className="text-[#5D4037] text-sm md:text-base lg:text-lg font-semibold mb-2"
+                style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
+              >
+                Happy Customer
+              </p>
+              <p
+                className="text-[#3E2723] text-5xl md:text-7xl lg:text-[80px] font-black tracking-tighter leading-none"
+                style={{ fontFamily: "var(--font-inter), Georgia, serif" }}
+              >
+                +45k
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">

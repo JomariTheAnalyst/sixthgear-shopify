@@ -269,10 +269,44 @@ export async function getCheckoutUrl(): Promise<string> {
   return fallbackCheckoutUrl
 }
 
+/**
+ * 9. changeLineItemVariant — switches an existing cart line to another variant.
+ */
+export async function changeLineItemVariant(opts: {
+  lineId: string
+  newVariantId: string
+  quantity: number
+}): Promise<ShopifyCart> {
+  const { lineId, newVariantId, quantity } = opts
+  const cartId = await getCartId()
+
+  if (!cartId) {
+    throw new Error("[cart] changeLineItemVariant: No cart exists")
+  }
+
+  if (!lineId || !newVariantId) {
+    throw new Error("[cart] changeLineItemVariant: Missing line or variant ID")
+  }
+
+  const updatedCart = await shopifyCartLinesUpdate(cartId, [
+    {
+      id: lineId,
+      merchandiseId: newVariantId,
+      quantity: Math.max(1, quantity),
+    },
+  ])
+
+  if (!updatedCart) {
+    throw new Error("[cart] changeLineItemVariant: Shopify returned no cart data")
+  }
+
+  revalidatePath("/", "layout")
+  return updatedCart
+}
+
 // ─── Legacy compat stubs (used by cart drawer, keep for now) ────────────────
 
 export const listCartOptions = async () => null as any
-export const changeLineItemVariant = async (opts?: any) => null as any
 export const forceNewCart = async (_countryCode?: string) => {
   await deleteCartCookie()
   const cart = await createCart()
