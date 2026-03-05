@@ -16,10 +16,10 @@ import { isColorOption, isSizeOption } from "@lib/util/variant-helpers"
 import ColorSwatch from "./color-swatch"
 import SizeSelector from "./size-selector"
 import GenericOptionSelector from "./generic-option-selector"
+import WishlistButton from "@modules/wishlist/components/wishlist-button"
 import {
   ShoppingCart,
   Zap,
-  Heart,
   Minus,
   Plus,
   Shield,
@@ -420,10 +420,25 @@ export default function ProductActions({
           </div>
 
           {/* Wishlist Button */}
-          <button className="w-full flex items-center justify-center gap-2 px-6 py-3 border-2 border-slate-200 text-slate-700 font-medium rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2">
-            <Heart className="w-5 h-5" aria-hidden="true" />
-            <span>Add to Wishlist</span>
-          </button>
+          {product.handle && (
+            <WishlistButton
+              productData={{
+                handle: product.handle,
+                id: product.id,
+                title: product.title || "",
+                imageUrl: product.thumbnail || product.images?.[0]?.url || null,
+                imageAlt: product.title || null,
+                price: product.variants?.[0]?.calculated_price?.calculated_amount ?? 0,
+                compareAtPrice: product.variants?.[0]?.calculated_price?.original_amount ?? null,
+                currencyCode: product.variants?.[0]?.calculated_price?.currency_code || "php",
+                availableForSale: inStock,
+                vendor: product.collection?.title || product.subtitle || "No Brand",
+                variantId: product.variants?.[0]?.id || product.id,
+              }}
+              showLabel
+              className="w-full border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+            />
+          )}
         </div>
 
         {/* Shipping Info */}
@@ -478,6 +493,7 @@ export default function ProductActions({
     </>
   )
 }
+
 
 /* ─── Inline Shipping Info ─── */
 function ShippingInfoBlock() {

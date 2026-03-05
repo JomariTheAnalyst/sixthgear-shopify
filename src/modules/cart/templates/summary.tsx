@@ -5,6 +5,7 @@ import { useSelectedItems } from "@lib/context/selected-cart-items-context"
 import { useMemo, useState } from "react"
 import { convertToLocale } from "@lib/util/money"
 import { useCartStore } from "@lib/cart"
+import { getCheckoutUrl } from "@lib/data/cart"
 
 type SummaryProps = {
   cart: any
@@ -55,17 +56,33 @@ const Summary = ({ cart }: SummaryProps) => {
     })
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setCheckoutError(null)
 
-    const url = shopifyCart?.checkoutUrl
-    if (!url) {
+    const fallbackUrl = shopifyCart?.checkoutUrl
+    if (!fallbackUrl) {
       setCheckoutError("Unable to start checkout. Please try again.")
       return
     }
 
     setIsRedirecting(true)
-    window.location.href = url
+
+    const startedAt = Date.now()
+    let targetUrl = fallbackUrl
+
+    try {
+      targetUrl = await getCheckoutUrl()
+    } catch (error) {
+      console.warn("[checkout] buyer identity association failed; using guest checkout", error)
+      targetUrl = fallbackUrl
+    }
+
+    const elapsed = Date.now() - startedAt
+    if (elapsed < 300) {
+      await new Promise((resolve) => setTimeout(resolve, 300 - elapsed))
+    }
+
+    window.location.href = targetUrl
   }
 
   return (

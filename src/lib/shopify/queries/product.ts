@@ -116,3 +116,16 @@ export const getProductRecommendationsQuery = `
   ${MONEY_FRAGMENT}
   ${PRODUCT_CARD_FRAGMENT}
 `;
+
+export const getProductsByIdsQuery = `
+  query getProductsByIds($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on Product {
+        ...ProductCardFragment
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+  ${MONEY_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
+`;

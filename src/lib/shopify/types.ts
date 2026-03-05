@@ -215,6 +215,17 @@ export interface ShopifyOrder {
   fulfillmentStatus: string;
   statusUrl: string;
   currentTotalPrice: ShopifyMoney;
+  shippingAddress: {
+    firstName: string | null;
+    lastName: string | null;
+    address1: string | null;
+    address2: string | null;
+    city: string | null;
+    province: string | null;
+    zip: string | null;
+    country: string | null;
+    phone: string | null;
+  } | null;
   lineItems: {
     edges: {
       node: {

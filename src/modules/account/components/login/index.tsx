@@ -13,12 +13,31 @@ type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
 
+const ACTIVATION_ERROR_MESSAGES: Record<string, string> = {
+  activation_missing_url:
+    "Activation link is missing details. Please request a new activation email.",
+  activation_malformed_url:
+    "Activation link is invalid. Please request a new activation email.",
+  activation_expired:
+    "This activation link has expired. Please request a new activation email.",
+  activation_used:
+    "This activation link was already used. Try signing in to your account.",
+  already_activated:
+    "Your account is already activated. Please sign in.",
+  activation_failed:
+    "We could not activate your account from that link. Please request a new activation email.",
+}
+
 const Login = ({ setCurrentView }: Props) => {
   const [message, formAction, isPending] = useActionState(login, null)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const { countryCode } = useParams() as { countryCode: string }
   const searchParams = useSearchParams()
+  const errorCode = searchParams.get("error")
+  const activationError = errorCode
+    ? ACTIVATION_ERROR_MESSAGES[errorCode]
+    : null
   const hasSubmitted = useRef(false)
 
   // Track submissions
@@ -49,6 +68,7 @@ const Login = ({ setCurrentView }: Props) => {
             onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
             className="text-blue-600 hover:text-blue-700 font-medium"
             data-testid="register-button"
+            type="button"
           >
             Sign up
           </button>
@@ -57,6 +77,15 @@ const Login = ({ setCurrentView }: Props) => {
 
       {/* Form */}
       <form className="space-y-6" action={formAction}>
+        {activationError && (
+          <div
+            className="bg-orange-50 border border-orange-200 rounded-xl p-4"
+            data-testid="activation-error-message"
+          >
+            <p className="text-sm text-orange-700">{activationError}</p>
+          </div>
+        )}
+
         {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -211,3 +211,36 @@ export async function cartBuyerIdentityUpdate(cartId: string, buyerIdentity: { e
   const { data } = await shopifyGraphql<any>(query, { cartId, buyerIdentity }, isServer());
   return data?.cartBuyerIdentityUpdate?.cart || null;
 }
+
+type ShopifyCartUserError = {
+  field: string[] | null;
+  message: string;
+};
+
+export async function cartBuyerIdentityUpdateResult(
+  cartId: string,
+  buyerIdentity: { email?: string; phone?: string; customerAccessToken?: string; countryCode?: string }
+): Promise<{ cart: ShopifyCart | null; userErrors: ShopifyCartUserError[] }> {
+  const query = `
+    mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+      cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
+        cart {
+          ...CartDetails
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    ${CART_FRAGMENT}
+  `;
+
+  const { data } = await shopifyGraphql<any>(query, { cartId, buyerIdentity }, isServer());
+  const payload = data?.cartBuyerIdentityUpdate;
+
+  return {
+    cart: payload?.cart || null,
+    userErrors: payload?.userErrors || [],
+  };
+}

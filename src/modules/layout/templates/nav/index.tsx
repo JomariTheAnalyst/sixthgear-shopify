@@ -1,7 +1,6 @@
 import { listRegions } from "@lib/data/regions"
 import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
-import { getWishlistCount } from "@lib/data/wishlist"
 import { StoreRegion, HttpTypes } from "@medusajs/types"
 import { mapShopifyCartToStoreCart } from "@lib/util/map-shopify-cart"
 import NavClient from "./nav-client"
@@ -13,7 +12,6 @@ export default async function Nav() {
   const cart = mapShopifyCartToStoreCart(shopifyCart)
   const customer = await retrieveCustomer().catch(() => null)
   const services = await getAllServices().catch(() => [])
-  const wishlistCount = await getWishlistCount().catch(() => 0)
 
   return (
     <NavClient
@@ -21,7 +19,7 @@ export default async function Nav() {
       cart={cart}
       servicesData={services}
       customer={customer}
-      wishlistCount={wishlistCount}
+      wishlistCount={0}
     />
   )
 }

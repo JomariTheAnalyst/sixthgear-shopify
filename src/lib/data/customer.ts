@@ -3,6 +3,7 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { randomBytes } from "crypto"
 import { serverEnv } from "@lib/env"
 import {
   customerCreate as shopifyCustomerCreate,
@@ -67,10 +68,58 @@ type AuthResult = {
   error?: string
 }
 
+type ActivationErrorCode =
+  | "activation_missing_url"
+  | "activation_malformed_url"
+  | "activation_expired"
+  | "activation_used"
+  | "already_activated"
+  | "activation_failed"
+
 type LegacyAddressActionState = {
   success: boolean
   error: string | boolean | null
   [key: string]: unknown
+}
+
+function mapActivationError(
+  code: string | undefined,
+  message: string | undefined
+): ActivationErrorCode {
+  const normalizedCode = (code || "").toUpperCase()
+  const normalizedMessage = (message || "").toLowerCase()
+
+  if (
+    normalizedCode.includes("ALREADY") ||
+    normalizedCode.includes("ENABLED") ||
+    normalizedMessage.includes("already enabled") ||
+    normalizedMessage.includes("already active")
+  ) {
+    return "already_activated"
+  }
+
+  if (
+    normalizedCode.includes("EXPIRED") ||
+    normalizedMessage.includes("expired")
+  ) {
+    return "activation_expired"
+  }
+
+  if (
+    normalizedMessage.includes("already been used") ||
+    normalizedMessage.includes("already used")
+  ) {
+    return "activation_used"
+  }
+
+  if (
+    normalizedCode.includes("INVALID") ||
+    normalizedMessage.includes("invalid")
+  ) {
+    return "activation_malformed_url"
+  }
+
+  return "activation_failed"
 }
 
 function isLegacyAddressState(
@@ -363,6 +412,56 @@ export async function resetPassword(
   } catch (error) {
     console.error("[resetPassword] Error:", error)
     return "Password reset failed. Please try again."
+  }
+}
+
+/**
+ * Activate customer account using a Shopify activation URL.
+ * On success, stores the returned customer token cookie.
+ */
+export async function activateCustomerAccountByUrl(
+  activationUrl: string
+): Promise<{ success: boolean; error?: ActivationErrorCode }> {
+  if (!activationUrl?.trim()) {
+    return { success: false, error: "activation_malformed_url" }
+  }
+
+  // Shopify requires a password in customerActivateByUrl.
+  // Generate a strong value server-side and rely on returned token for session.
+  const generatedPassword = `Sg!${randomBytes(16).toString("hex")}`
+
+  try {
+    const result = await shopifyCustomerActivateByUrl(
+      activationUrl.trim(),
+      generatedPassword
+    )
+
+    if (!result) {
+      return { success: false, error: "activation_failed" }
+    }
+
+    const userErrors = result.customerUserErrors || []
+    if (userErrors.length > 0) {
+      const firstError = userErrors[0]
+      return {
+        success: false,
+        error: mapActivationError(firstError.code, firstError.message),
+      }
+    }
+
+    if (!result.customerAccessToken) {
+      return { success: false, error: "activation_failed" }
+    }
+
+    await setCustomerToken(
+      result.customerAccessToken.accessToken,
+      result.customerAccessToken.expiresAt
+    )
+
+    return { success: true }
+  } catch (error) {
+    console.error("[activateCustomerAccountByUrl] Error:", error)
+    return { success: false, error: "activation_failed" }
   }
 }
 

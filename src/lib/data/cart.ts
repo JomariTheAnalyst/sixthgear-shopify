@@ -8,6 +8,7 @@ import {
   cartLinesUpdate as shopifyCartLinesUpdate,
   cartLinesRemove as shopifyCartLinesRemove,
   cartDiscountCodesUpdate as shopifyCartDiscountCodesUpdate,
+  cartBuyerIdentityUpdateResult as shopifyCartBuyerIdentityUpdateResult,
 } from "@lib/shopify/mutations/cart"
 import { getCart as shopifyGetCart } from "@lib/shopify/queries/cart"
 import { ShopifyCart } from "@lib/shopify/types"
@@ -209,11 +210,44 @@ export async function applyDiscount(
 }
 
 /**
- * 7. getCheckoutUrl — returns the Shopify hosted checkout URL
- *    Appends ?logged_in=true when customer is authenticated (SSO)
+ * 7. associateBuyerIdentity â€” links cart to logged-in customer token when available
+ *    Silent no-op for guests or association failures (guest checkout fallback).
+ */
+export async function associateBuyerIdentity(
+  cartId: string
+): Promise<ShopifyCart | null> {
+  const { getCustomerToken } = await import("@lib/data/customer")
+  const customerToken = await getCustomerToken()
+
+  if (!customerToken) {
+    return null
+  }
+
+  try {
+    const result = await shopifyCartBuyerIdentityUpdateResult(cartId, {
+      customerAccessToken: customerToken,
+    })
+
+    if (result.userErrors.length > 0) {
+      console.warn(
+        "[cart] cartBuyerIdentityUpdate userErrors:",
+        result.userErrors
+      )
+      return null
+    }
+
+    return result.cart
+  } catch (error) {
+    console.warn("[cart] cartBuyerIdentityUpdate failed:", error)
+    return null
+  }
+}
+
+/**
+ * 8. getCheckoutUrl — returns the Shopify hosted checkout URL
+ *    Attempts cart/customer association first, then falls back to guest checkout URL.
  */
 export async function getCheckoutUrl(): Promise<string> {
-  const { getCustomerToken } = await import("@lib/data/customer")
   const cartId = await getCartId()
 
   if (!cartId) {
@@ -226,15 +260,13 @@ export async function getCheckoutUrl(): Promise<string> {
     throw new Error("[cart] getCheckoutUrl: Cart has no checkout URL")
   }
 
-  // Checkout SSO: keep customer logged in through Shopify checkout
-  const customerToken = await getCustomerToken()
-  if (customerToken) {
-    const url = new URL(cart.checkoutUrl)
-    url.searchParams.set("logged_in", "true")
-    return url.toString()
+  const fallbackCheckoutUrl = cart.checkoutUrl
+  const associatedCart = await associateBuyerIdentity(cart.id)
+  if (associatedCart?.checkoutUrl) {
+    return associatedCart.checkoutUrl
   }
 
-  return cart.checkoutUrl
+  return fallbackCheckoutUrl
 }
 
 // ─── Legacy compat stubs (used by cart drawer, keep for now) ────────────────

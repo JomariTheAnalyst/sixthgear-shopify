@@ -12,8 +12,8 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { getProductPricing } from "@lib/util/get-product-pricing"
 import { addToCart } from "@lib/data/cart"
 import { useCartStore } from "@lib/cart"
-import WishlistButton from "@modules/wishlist/components/wishlist-button"
 import StarRating from "@modules/products/components/star-rating"
+import { Loader2 } from "lucide-react"
 
 export type BadgeMode = "discount" | "rank" | "new" | "hot" | "none"
 
@@ -50,7 +50,7 @@ export default function ProductCard({
 
   // Get first variant for quick add to cart and stock check
   const firstVariant = product.variants?.[0]
-  const canAddToCart = firstVariant && region
+  const canAddToCart = !!firstVariant
 
   // Check stock status using inventory data if available
   // Priority: inventoryMap > allow_backorder > manage_inventory false > inventory_quantity from API
@@ -116,7 +116,7 @@ export default function ProductCard({
       const updatedCart = await addToCart({
         variantId: firstVariant.id,
         quantity: 1,
-        countryCode: region.countries?.[0]?.iso_2 || "ph",
+        countryCode: region?.countries?.[0]?.iso_2 || "ph",
       })
       if (updatedCart) {
         setCart(updatedCart as any)
@@ -157,15 +157,6 @@ export default function ProductCard({
                   </span>
                 </div>
               )}
-
-            {/* Wishlist Button */}
-            <div className="absolute top-3 right-3 z-10">
-              <WishlistButton
-                variantId={firstVariant?.id || ""}
-                productId={product.id}
-                size="sm"
-              />
-            </div>
 
             {imageUrl ? (
               <Image
@@ -241,13 +232,18 @@ export default function ProductCard({
           <button
             onClick={handleAddToCart}
             disabled={isAdding || !canAddToCart || !isInStock}
-            className="w-full mt-auto py-2.5 bg-gray-900 text-white text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full mt-auto py-2.5 flex items-center justify-center gap-2 bg-gray-900 text-white text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isAdding
-              ? "Adding..."
-              : !isInStock
-              ? "Out of Stock"
-              : "Add to Cart"}
+            {isAdding ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Adding...</span>
+              </>
+            ) : !isInStock ? (
+              "Out of Stock"
+            ) : (
+              "Add to Cart"
+            )}
           </button>
         </div>
       </div>

@@ -14,6 +14,7 @@ import MobileSearchButton from "@modules/search/components/mobile-search-button"
 import Logo from "@modules/layout/components/brand-logo"
 import ServicesDropdown from "@modules/layout/components/services-dropdown"
 import { ServiceCategory } from "@lib/services-data"
+import { useWishlistStore } from "@lib/wishlist-store"
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -44,6 +45,19 @@ const NavClient = ({
   const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const headerRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
+  const wishlistItems = useWishlistStore((state) => state.items)
+  const wishlistHydrated = useWishlistStore((state) => state.hydrated)
+  const hydrateWishlist = useWishlistStore((state) => state.hydrate)
+
+  useEffect(() => {
+    if (!wishlistHydrated) {
+      hydrateWishlist()
+    }
+  }, [hydrateWishlist, wishlistHydrated])
+
+  const displayWishlistCount = wishlistHydrated
+    ? wishlistItems.length
+    : wishlistCount
 
   useEffect(() => {
     const handleScroll = () => {
@@ -152,9 +166,9 @@ const NavClient = ({
                     />
                   </svg>
                   {/* Wishlist Count Badge */}
-                  {wishlistCount > 0 && (
+                  {displayWishlistCount > 0 && (
                     <span className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 bg-[#F16D34] text-white text-[10px] md:text-xs font-bold rounded-full flex items-center justify-center">
-                      {wishlistCount > 9 ? "9+" : wishlistCount}
+                      {displayWishlistCount > 9 ? "9+" : displayWishlistCount}
                     </span>
                   )}
                 </LocalizedClientLink>

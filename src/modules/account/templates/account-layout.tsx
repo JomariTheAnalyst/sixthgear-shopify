@@ -13,67 +13,68 @@ interface AccountLayoutProps {
   children: React.ReactNode
 }
 
-export default function AccountLayout({
-  customer,
-  children,
-}: AccountLayoutProps) {
+export default function AccountLayout({ customer, children }: AccountLayoutProps) {
   const [greeting, setGreeting] = useState("")
 
   useEffect(() => {
     const hour = new Date().getHours()
-    if (hour >= 5 && hour < 12) setGreeting("Good morning")
+    if      (hour >= 5  && hour < 12) setGreeting("Good morning")
     else if (hour >= 12 && hour < 17) setGreeting("Good afternoon")
     else if (hour >= 17 && hour < 22) setGreeting("Good evening")
-    else setGreeting("Good night")
+    else                               setGreeting("Good night")
   }, [])
 
-  const pathname = usePathname()
-  const params = useParams()
-  const countryCode = (params?.countryCode as string) ?? "ph"
+  const pathname    = usePathname()
+  const params      = useParams()
 
   if (!customer) {
     return <>{children}</>
   }
 
   const bottomNavItems = [
-    { label: "Orders", href: "/account/orders", icon: Package },
-    { label: "Profile", href: "/account/profile", icon: User },
+    { label: "Orders",    href: "/account/orders",    icon: Package },
+    { label: "Profile",   href: "/account/profile",   icon: User },
     { label: "Addresses", href: "/account/addresses", icon: MapPin },
-    { label: "Support", href: "mailto:support@sixthgearmoto.com", icon: Headphones, isExternal: true },
+    { label: "Support",   href: "mailto:support@sixthgearmoto.com", icon: Headphones, isExternal: true },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50" data-testid="account-page">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 lg:pb-12">
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 lg:pb-10">
+
+        {/* ── Page grid: sidebar + content ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 items-start">
           <AccountNav customer={customer} />
 
-          <main className="flex-1 min-w-0 lg:min-h-[600px] w-full">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">
+          {/* ── Main content panel ── */}
+          <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 min-h-[520px]">
+            {/* Greeting strip */}
+            <div className="mb-6 pb-5 border-b border-gray-100">
+              <h1 className="text-lg font-semibold text-gray-900">
                 {greeting}, {customer.firstName || "there"}!
               </h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-0.5">
                 Welcome back to your account
               </p>
             </div>
 
-            <div>{children}</div>
-          </main>
+            {children}
+          </section>
         </div>
       </div>
 
+      {/* ── Mobile bottom nav (lg: hidden) ── */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 flex items-stretch h-16 pb-[env(safe-area-inset-bottom,0px)]">
         {bottomNavItems.map(item => {
-          const Icon = item.icon
+          const Icon   = item.icon
           const active = !item.isExternal && pathname.includes(item.href)
-          
+
           if (item.isExternal) {
             return (
               <a
                 key={item.label}
                 href={item.href}
-                className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors text-gray-400"
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium text-gray-400"
               >
                 <Icon className="w-5 h-5" />
                 <span>{item.label}</span>
@@ -87,7 +88,7 @@ export default function AccountLayout({
               href={item.href}
               className={[
                 "flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors",
-                active ? "text-orange-500" : "text-gray-400",
+                active ? "text-gray-900" : "text-gray-400",
               ].join(" ")}
             >
               <Icon className="w-5 h-5" />

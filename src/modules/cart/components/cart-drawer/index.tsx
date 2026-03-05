@@ -198,7 +198,6 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
     e.preventDefault()
     setCheckoutError(null)
     setIsRedirecting(true)
-
     try {
       const url = await getCheckoutUrl()
       window.location.href = url

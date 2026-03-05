@@ -60,6 +60,17 @@ const GET_CUSTOMER_QUERY = `
               amount
               currencyCode
             }
+            shippingAddress {
+              firstName
+              lastName
+              address1
+              address2
+              city
+              province
+              zip
+              country
+              phone
+            }
             lineItems(first: 10) {
               edges {
                 node {

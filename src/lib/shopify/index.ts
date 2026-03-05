@@ -1,5 +1,5 @@
 import { shopifyGraphql } from "./client";
-import { getProductQuery, getProductsQuery, getProductRecommendationsQuery } from "./queries/product";
+import { getProductQuery, getProductsQuery, getProductsByIdsQuery, getProductRecommendationsQuery } from "./queries/product";
 import { getCollectionQuery, getCollectionsQuery } from "./queries/collection";
 import { predictiveSearchQuery, searchProductsQuery } from "./queries/search";
 import { cacheKey, getCached, TTL } from "@lib/cache/redis";
@@ -90,6 +90,36 @@ export async function getProducts(options: {
         products: data?.products?.edges.map((e) => e.node) || [],
         pageInfo: data?.products?.pageInfo || { hasNextPage: false, hasPreviousPage: false, endCursor: null, startCursor: null },
       };
+    },
+    TTL.PRODUCT
+  );
+}
+
+export async function getProductsByIds(ids: string[]): Promise<ShopifyProductCard[]> {
+  if (!ids || ids.length === 0) return [];
+
+  // Sort logically for consistent cache keys
+  const sortedIds = [...ids].sort();
+  const keyStr = sortedIds.join(",");
+  const keyHash = Array.from(keyStr).reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0).toString(16);
+  const key = cacheKey("products-by-ids", keyHash);
+
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{
+        nodes: ShopifyProductCard[];
+      }>(getProductsByIdsQuery, { ids: sortedIds });
+
+      if (errors && errors.length > 0) {
+        throw new Error(`Shopify API Error (getProductsByIds): ${JSON.stringify(errors)}`);
+      }
+
+      // Filter out nulls (if a product was deleted) and enforce original order
+      const fetchedNodes = (data?.nodes || []).filter(Boolean);
+      return ids
+        .map(id => fetchedNodes.find(n => n.id === id))
+        .filter(Boolean) as ShopifyProductCard[];
     },
     TTL.PRODUCT
   );

@@ -147,7 +147,7 @@ const OrderOverview = ({ orders }: { orders: HttpTypes.StoreOrder[] }) => {
               key={o.id}
               className="bg-white rounded-lg border border-gray-200/60 overflow-hidden hover:border-gray-300 transition-colors"
             >
-              <OrderCard order={o} />
+              <OrderCard order={o} onClick={() => {}} />
             </div>
           ))}
         </div>

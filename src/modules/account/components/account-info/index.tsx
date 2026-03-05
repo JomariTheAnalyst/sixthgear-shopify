@@ -67,7 +67,7 @@ const AccountInfo = ({
             "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
             state
               ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              : "text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           )}
           data-testid="edit-button"
           data-active={state}
