@@ -21,7 +21,7 @@ const navLinks = [
   { name: "About", href: "/about" },
   { name: "Shop", href: "/store" },
   { name: "Services", href: "/services", hasDropdown: true },
-  { name: "First Gear Coffee", href: "/menu" },
+  { name: "First Gear Coffee", href: "/first-gear" },
   { name: "Contact", href: "/contact" },
 ]
 

@@ -268,8 +268,23 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Giant Outlined Text Fading Down */}
+        <div className="w-full flex justify-center overflow-hidden pointer-events-none select-none mt-8 mb-4 opacity-20">
+          <span 
+            className="text-[16vw] leading-[0.8] tracking-[0.05em] text-transparent"
+            style={{ 
+              fontFamily: "Tanker, sans-serif",
+              WebkitTextStroke: "1px #ffffff",
+              WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+              maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)"
+            }}
+          >
+            SIXTHGEAR
+          </span>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="border-t border-white/10">
+        <div className="border-t border-white/10 relative z-10">
           <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-5">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               {/* Legal Links */}
