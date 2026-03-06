@@ -41,12 +41,12 @@ export const metadata: Metadata = {
 }
 
 import { Toaster } from "sonner"
-import { hendrix, inter } from "@lib/fonts"
+import { hendrix, inter, montserrat } from "@lib/fonts"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
-      <body className={`${hendrix.variable} ${inter.variable} font-sans`}>
+      <body className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} font-sans`}>
         <PreviewIndicator />
         <main className="relative">{props.children}</main>
         <Toaster position="bottom-right" richColors />
