@@ -25,21 +25,26 @@ import { getMarketingForPath } from "@lib/data/marketing"
 import { BannerSlot, PopupAds } from "@modules/marketing"
 import { fetchHomeContent } from "@lib/strapi/home"
 import {
-  getHeroWithFallbacks,
   getAboutWithFallbacks,
-  getCoffeeWithFallbacks,
-  getServicesWithFallbacks,
 } from "@lib/strapi/home-with-fallbacks"
 import { getShopByBrandsWithFallbacks } from "@lib/strapi/shop-by-brands"
-import { getSpaceAndExperienceWithFallbacks } from "@lib/strapi/space-and-experience"
-import { getSatisfiedCustomersWithFallbacks } from "@lib/strapi/satisfied-customers"
-import { getClientTestimonialsWithFallbacks } from "@lib/strapi/client-testimonials"
 import { getClientStoriesWithFallbacks } from "@lib/strapi/client-stories"
-import { getOurTeamWithFallbacks } from "@lib/strapi/our-team"
 import { getCTABannerWithFallbacks } from "@lib/strapi/cta-banner"
+import {
+  getHomepageAbout,
+  getHomepageCategories,
+  getHomepageHero,
+  getHomepageServices,
+  getHomepageShopByBrands,
+  getCoffeeShowcase,
+  getSpaceExperiences,
+  getServiceBrandsSection,
+  getSatisfiedCustomers,
+  getFranchiseSection,
+  getOurTeamSection,
+  getClientTestimonials,
+} from "@lib/cms/client"
 
-// Use ISR with revalidation for better performance
-// This allows Strapi content changes to appear within 60 seconds
 export const revalidate = 60
 
 export const metadata: Metadata = {
@@ -48,7 +53,6 @@ export const metadata: Metadata = {
     "Your one-stop shop for motorcycle gear, parts, and great coffee in the Philippines.",
 }
 
-// Loading skeleton for product sections
 function ProductSectionSkeleton() {
   return (
     <div className="py-12 md:py-16 px-4 md:px-8 lg:px-16">
@@ -79,18 +83,43 @@ export default async function Home(props: {
     return null
   }
 
-  // Fetch multiple data sources in parallel using Promise.all
-  const [featuredProductsResp, collections, newArrivalsResp] = await Promise.all([
+  const [
+    homepageHero,
+    homepageShopByBrands,
+    homepageAbout,
+    homepageCategories,
+    homepageServices,
+    coffeeShowcase,
+    spaceExperiences,
+    serviceBrandsSection,
+    satisfiedCustomers,
+    franchiseSection,
+    ourTeamSection,
+    clientTestimonialsData,
+    featuredProductsResp,
+    collections,
+    newArrivalsResp,
+  ] = await Promise.all([
+    getHomepageHero(),
+    getHomepageShopByBrands(),
+    getHomepageAbout(),
+    getHomepageCategories(),
+    getHomepageServices(),
+    getCoffeeShowcase(),
+    getSpaceExperiences(),
+    getServiceBrandsSection(),
+    getSatisfiedCustomers(),
+    getFranchiseSection(),
+    getOurTeamSection(),
+    getClientTestimonials(),
     getProducts({ first: 8, query: 'tag:featured' }),
     getCollections(8),
-    getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true })
+    getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
   ])
 
-  // Get products
   const featuredProducts = featuredProductsResp.products
   const newArrivals = newArrivalsResp.products
 
-  // Map helper
   const mapShopifyToMedusa = (p: any) => ({
     id: p.id,
     title: p.title,
@@ -100,81 +129,56 @@ export default async function Home(props: {
     collection: { title: p.vendor },
     variants: [
       {
-        id: p.id, 
+        id: p.id,
         allow_backorder: false,
         manage_inventory: true,
         inventory_quantity: p.availableForSale ? 10 : 0,
         calculated_price: {
-          calculated_amount: p.priceRange?.minVariantPrice ? parseFloat(p.priceRange.minVariantPrice.amount) : null,
-          original_amount: p.compareAtPriceRange?.minVariantPrice ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount) : null,
-          currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php"
-        }
-      }
-    ]
-  } as any);
+          calculated_amount: p.priceRange?.minVariantPrice
+            ? parseFloat(p.priceRange.minVariantPrice.amount)
+            : null,
+          original_amount: p.compareAtPriceRange?.minVariantPrice
+            ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount)
+            : null,
+          currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php",
+        },
+      },
+    ],
+  } as any)
 
-  // Fetch marketing content for homepage
   const marketing = await getMarketingForPath("/")
 
-  // Fetch home content from Strapi CMS with field-level fallbacks
   const homeContent = await fetchHomeContent()
-  const heroContent = await getHeroWithFallbacks()
   const aboutContent = await getAboutWithFallbacks(homeContent)
-  const coffeeContent = await getCoffeeWithFallbacks(homeContent)
-  const servicesContent = await getServicesWithFallbacks(homeContent)
   const shopByBrandsContent = getShopByBrandsWithFallbacks(homeContent)
-  const spaceAndExperienceContent =
-    getSpaceAndExperienceWithFallbacks(homeContent)
-  const satisfiedCustomersContent =
-    getSatisfiedCustomersWithFallbacks(homeContent)
-  const clientTestimonialsContent =
-    getClientTestimonialsWithFallbacks(homeContent)
   const clientStoriesContent = getClientStoriesWithFallbacks(homeContent)
-  const ourTeamContent = getOurTeamWithFallbacks(homeContent)
   const ctaBannerContent = getCTABannerWithFallbacks(homeContent)
 
-  // Debug logging
-  console.log("[HomePage] Hero content with fallbacks:", heroContent)
   console.log("[HomePage] About content with fallbacks:", aboutContent)
-  console.log("[HomePage] Coffee content with fallbacks:", coffeeContent)
-  console.log("[HomePage] Services content with fallbacks:", servicesContent)
   console.log(
     "[HomePage] Shop by brands content with fallbacks:",
     shopByBrandsContent
   )
-  console.log(
-    "[HomePage] Space and experience content with fallbacks:",
-    spaceAndExperienceContent
-  )
 
   return (
     <>
-      {/* Hero Section */}
-      <Hero
-        trustBadge={heroContent.trustBadge}
-        title={heroContent.title}
-        description={heroContent.description}
-        primaryCta={heroContent.primaryCta}
-        secondaryCta={heroContent.secondaryCta}
-        backgroundImage={heroContent.backgroundImage}
-      />
+      <Hero data={homepageHero} />
 
-      {/* Shop By Brands Section */}
       <ShopByBrands
+        data={homepageShopByBrands}
         sectionTitle={shopByBrandsContent.sectionTitle}
         brands={shopByBrandsContent.brands}
         showNavDesktop={shopByBrandsContent.showNavDesktop}
       />
 
-      {/* Top Banner Slot */}
       <BannerSlot
         banners={marketing.banners}
         placement="home_hero_below"
         className="px-4 md:px-8 lg:px-16 py-4 max-w-7xl mx-auto"
       />
 
-      {/* About Section */}
       <AboutSection
+        data={homepageAbout}
         kicker={aboutContent.kicker}
         title={aboutContent.title}
         description={aboutContent.description}
@@ -185,10 +189,8 @@ export default async function Home(props: {
         videoUrl={aboutContent.videoUrl}
       />
 
-      {/* Shop By Categories */}
-      <ShopByCategories />
+      <ShopByCategories data={homepageCategories} />
 
-      {/* Hot Deals / Featured */}
       <Suspense fallback={<ProductSectionSkeleton />}>
         {featuredProducts.length > 0 && (
           <ProductSection
@@ -201,14 +203,12 @@ export default async function Home(props: {
         )}
       </Suspense>
 
-      {/* Mid-page Banner Slot */}
       <BannerSlot
         banners={marketing.banners}
         placement="home_mid"
         className="px-4 md:px-8 lg:px-16 py-8 max-w-7xl mx-auto"
       />
 
-      {/* Best Sellers */}
       <Suspense fallback={<ProductSectionSkeleton />}>
         {featuredProducts.length > 0 && (
           <ProductSection
@@ -221,7 +221,6 @@ export default async function Home(props: {
         )}
       </Suspense>
 
-      {/* New Arrivals */}
       <Suspense fallback={<ProductSectionSkeleton />}>
         {newArrivals.length > 0 && (
           <ProductSection
@@ -234,68 +233,201 @@ export default async function Home(props: {
         )}
       </Suspense>
 
-      {/* Coffee Showcase */}
-
       <CoffeeShowcase
-        mainHeadingLine1={coffeeContent.mainHeadingLine1}
-        highlightedWord={coffeeContent.highlightedWord}
-        mainHeadingLine2={coffeeContent.mainHeadingLine2}
-        descriptionText={coffeeContent.descriptionText}
-        buttonText={coffeeContent.buttonText}
-        buttonLink={coffeeContent.buttonLink}
-        coffeeItems={coffeeContent.coffeeItems}
+        mainHeadingLine1={
+          coffeeShowcase?.mainHeadingLine1 ?? undefined
+        }
+        highlightedWord={
+          coffeeShowcase?.highlightedWord ?? undefined
+        }
+        mainHeadingLine2={
+          coffeeShowcase?.mainHeadingLine2 ?? undefined
+        }
+        descriptionText={
+          coffeeShowcase?.descriptionText ?? undefined
+        }
+        buttonText={
+          coffeeShowcase?.buttonText ?? undefined
+        }
+        buttonLink={
+          coffeeShowcase?.buttonLink ?? undefined
+        }
+        coffeeItems={
+          coffeeShowcase?.coffeeItems?.map((item, index) => ({
+            id: index + 1,
+            name: item.name,
+            description: item.description,
+            image: item.imageUrl,
+          })) ?? undefined
+        }
       />
 
-      {/* Our Services */}
-      <OurServices
-        sectionTitle={servicesContent.sectionTitle}
-        sectionDescription={servicesContent.sectionDescription}
-        services={servicesContent.services}
-      />
+      <OurServices data={homepageServices} />
 
-      {/* Project Section */}
       <ProjectsSection
-        sectionTitle={spaceAndExperienceContent.sectionTitle}
-        sectionDescription={spaceAndExperienceContent.sectionDescription}
-        items={spaceAndExperienceContent.items as any}
+        sectionTitle={
+          spaceExperiences?.sectionTitle ?? undefined
+        }
+        sectionDescription={
+          spaceExperiences?.sectionDescription ?? undefined
+        }
+        items={
+          spaceExperiences?.items
+            ?.filter((item) => item.isEnabled)
+            ?.map((item, index) => ({
+              id: index + 1,
+              title: item.title,
+              description: item.description,
+              imageUrl:
+                item.imageUrl ??
+                "/images/homepage/projects/coffee.jpg",
+              isEnabled: item.isEnabled,
+            })) ?? undefined
+        }
       />
 
-      {/* <Stats/> */}
+      <Brands
+        sectionTitle={
+          serviceBrandsSection?.sectionTitle 
+          ?? undefined}
+        sectionDescription={
+          serviceBrandsSection?.sectionDescription 
+          ?? undefined}
+        brands={
+          serviceBrandsSection?.brands
+            ?.map(brand => ({
+              name: brand.name,
+              logo: brand.logoUrl ?? 
+                "/images/brands/brand1.png",
+              link: brand.link ?? null,
+            })) ?? undefined}
+      />
 
-      <Brands />
-
-      {/* satisfied customers */}
       <SatisfiedCustomers
-        sectionTitle={satisfiedCustomersContent.sectionTitle}
-        row1={satisfiedCustomersContent.row1}
-        row2={satisfiedCustomersContent.row2}
+        sectionTitle={
+          satisfiedCustomers?.sectionTitle 
+          ?? undefined}
+        row1={(() => {
+          const all = satisfiedCustomers
+            ?.customers
+          if (!all || all.length === 0) 
+            return undefined
+          const mid = Math.ceil(all.length / 2)
+          return all.slice(0, mid).map(
+            (c, i) => ({
+              id: i + 1,
+              name: c.name ?? 
+                "Sixth Gear Rider",
+              imageUrl: c.photoUrl ?? 
+                "/images/polaroid-marquee/satisfied-customers/002.jpg",
+            })
+          )
+        })()}
+        row2={(() => {
+          const all = satisfiedCustomers
+            ?.customers
+          if (!all || all.length === 0) 
+            return undefined
+          const mid = Math.ceil(all.length / 2)
+          return all.slice(mid).map(
+            (c, i) => ({
+              id: mid + i + 1,
+              name: c.name ?? 
+                "Sixth Gear Rider",
+              imageUrl: c.photoUrl ?? 
+                "/images/polaroid-marquee/satisfied-customers/011fg.jpg",
+            })
+          )
+        })()}
       />
 
-      {/* Franchise Section */}
-      <Franchise />
+      <Franchise
+        mainTitle={
+          franchiseSection?.mainTitle 
+          ?? undefined}
+        subtitle={
+          franchiseSection?.subtitle 
+          ?? undefined}
+        badge1Text={
+          franchiseSection?.badge1Text 
+          ?? undefined}
+        badge2Text={
+          franchiseSection?.badge2Text 
+          ?? undefined}
+        ctaLabel={
+          franchiseSection?.ctaLabel 
+          ?? undefined}
+        ctaLink={
+          franchiseSection?.ctaLink 
+          ?? undefined}
+        leftImageUrl={
+          franchiseSection?.leftImageUrl 
+          ?? undefined}
+        rightImageUrl={
+          franchiseSection?.rightImageUrl 
+          ?? undefined}
+      />
 
-      {/* Our Team Section */}
       <OurTeam
-        sectionTitle={ourTeamContent.sectionTitle}
-        sectionDescription={ourTeamContent.sectionDescription}
-        teamMembers={ourTeamContent.teamMembers}
+        sectionTitle={
+          ourTeamSection?.sectionTitle 
+          ?? undefined}
+        sectionDescription={
+          ourTeamSection?.sectionDescription 
+          ?? undefined}
+        teamMembers={
+          ourTeamSection?.teamMembers
+            ?.map((member, index) => ({
+              id: index + 1,
+              name: member.name,
+              role: member.role,
+              title: member.title ?? "",
+              description: 
+                member.description ?? "",
+              image: member.photoUrl ?? 
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=face",
+              socialLinks: {
+                facebook: 
+                  member.socialLinks
+                    ?.facebook ?? undefined,
+                instagram: 
+                  member.socialLinks
+                    ?.instagram ?? undefined,
+                tiktok: 
+                  member.socialLinks
+                    ?.tiktok ?? undefined,
+              },
+            })) ?? undefined}
       />
 
-      {/* Client Testimonials */}
       <ClientTestimonials
-        sectionTitle={clientTestimonialsContent.sectionTitle}
-        sectionDescription={clientTestimonialsContent.sectionDescription}
-        testimonials={clientTestimonialsContent.testimonials}
+        sectionTitle={
+          clientTestimonialsData
+            ?.sectionTitle 
+          ?? undefined}
+        sectionDescription={
+          clientTestimonialsData
+            ?.sectionDescription 
+          ?? undefined}
+        testimonials={
+          clientTestimonialsData
+            ?.testimonials
+            ?.map((t, index) => ({
+              id: index + 1,
+              name: t.name,
+              role: t.role ?? 
+                "Verified Rider",
+              quote: t.quote,
+              avatar: "",
+            })) ?? undefined}
       />
 
-      {/* Client Stories */}
       <ClientStories
         sectionTitle={clientStoriesContent.sectionTitle}
         sectionDescription={clientStoriesContent.sectionDescription}
         stories={clientStoriesContent.stories}
       />
 
-      {/* CTA Banner - Opening Hours */}
       {ctaBannerContent.isEnabled && (
         <CTABanner
           title={ctaBannerContent.title}
@@ -306,10 +438,8 @@ export default async function Home(props: {
         />
       )}
 
-      {/* Store Location */}
       <StoreLocation />
 
-      {/* Popup Ads - Shows after page load */}
       <PopupAds popups={marketing.popups} />
     </>
   )

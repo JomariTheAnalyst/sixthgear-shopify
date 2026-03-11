@@ -16,7 +16,6 @@ export default async function BestSellersSection({
   region,
   countryCode,
 }: BestSellersSectionProps) {
-  // Try both formats - "Best Seller" (admin) and "best-seller" (normalized)
   const products = await getProductsByTagValue("Best Seller", 4, region.id)
 
   if (!products || products.length === 0) {
@@ -26,6 +25,7 @@ export default async function BestSellersSection({
   return (
     <ProductSection
       title="Best Sellers"
+      badges={["rank"]}
       products={products}
       region={region}
       viewAllLink={`/${countryCode}/store?tag=best-seller`}

@@ -16,7 +16,6 @@ export default async function HotDealsSection({
   region,
   countryCode,
 }: HotDealsSectionProps) {
-  // Try both formats - "Hot Deals" (admin) and "hot-deal" (normalized)
   const products = await getProductsByTagValue("Hot Deals", 4, region.id)
 
   if (!products || products.length === 0) {
@@ -26,6 +25,7 @@ export default async function HotDealsSection({
   return (
     <ProductSection
       title="Hot Right Now"
+      badges={["hot"]}
       products={products}
       region={region}
       viewAllLink={`/${countryCode}/store?tag=hot-deals`}

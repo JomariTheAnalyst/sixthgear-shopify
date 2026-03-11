@@ -55,7 +55,7 @@ const FaqsSection = () => {
             FAQS
           </span>
           <h2 
-            className="text-[#1A422D] text-[28px] sm:text-[36px] md:text-[44px] leading-[1.1] font-black uppercase tracking-tight"
+            className="text-[#222222] text-[28px] sm:text-[36px] md:text-[44px] leading-[1.1] font-black uppercase tracking-tight"
             style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
           >
             FREQUENTLY ASKED QUESTIONS

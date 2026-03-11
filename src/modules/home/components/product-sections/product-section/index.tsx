@@ -12,7 +12,7 @@ interface ProductSectionProps {
   title: string
   products: HttpTypes.StoreProduct[]
   region: HttpTypes.StoreRegion
-  badgeMode?: BadgeMode
+  badges?: BadgeMode[]
   viewAllLink?: string
   maxItems?: number
 }
@@ -21,7 +21,7 @@ export default async function ProductSection({
   title,
   products,
   region,
-  badgeMode = "none",
+  badges = [],
   viewAllLink,
   maxItems = 4,
 }: ProductSectionProps) {
@@ -93,7 +93,7 @@ export default async function ProductSection({
                 <ProductCard
                   product={product}
                   region={region}
-                  badgeMode={badgeMode}
+                  badges={badges}
                   inventoryMap={inventoryByProduct?.[product.id] || {}}
                 />
               </div>
@@ -140,7 +140,7 @@ export default async function ProductSection({
               key={product.id}
               product={product}
               region={region}
-              badgeMode={badgeMode}
+              badges={badges}
               inventoryMap={inventoryByProduct?.[product.id] || {}}
             />
           ))}

@@ -86,8 +86,8 @@ export default function WishlistButton({
       } ${className}`}
     >
       <Heart
-        className={`h-5 w-5 ${
-          active ? "fill-orange-500 text-orange-500" : "text-gray-400"
+        className={`h-full w-full ${
+          active ? "fill-[#FF6D1F] text-[#FF6D1F]" : "fill-[#a0a0a0] text-[#a0a0a0]"
         } ${isPopping ? "scale-125" : "scale-100"} transition-transform duration-200`}
       />
       {showLabel && (

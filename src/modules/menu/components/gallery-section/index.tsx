@@ -35,13 +35,13 @@ const GallerySection = () => {
         {/* Header Section */}
         <div className="text-center mb-16 sm:mb-20 px-5 sm:px-8">
           <span 
-            className="text-[#1A422D] text-[18px] sm:text-[22px] block mb-2"
+            className="text-[#222222] text-[18px] sm:text-[22px] block mb-2"
             style={{ fontFamily: "'Brush Script MT', 'Alex Brush', cursive", fontStyle: "italic" }}
           >
             Gallery
           </span>
           <h2 
-            className="text-[#1A422D] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight max-w-[800px] mx-auto"
+            className="text-[#222222] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight max-w-[800px] mx-auto"
             style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
           >
             A VISUAL JOURNEY<br /> THROUGH OUR COFFEE<br className="hidden sm:block" /> AND COZY SPACE
@@ -57,7 +57,7 @@ const GallerySection = () => {
                 scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
               }
             }}
-            className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white text-[#1A422D] items-center justify-center hover:bg-[#1A422D] hover:text-white transition-colors shadow-lg"
+            className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white text-[#222222] items-center justify-center hover:bg-[#222222] hover:text-white transition-colors shadow-lg"
             aria-label="Previous image"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@ const GallerySection = () => {
                 scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
               }
             }}
-            className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white text-[#1A422D] items-center justify-center hover:bg-[#1A422D] hover:text-white transition-colors shadow-lg"
+            className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white text-[#222222] items-center justify-center hover:bg-[#222222] hover:text-white transition-colors shadow-lg"
             aria-label="Next image"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ const GallerySection = () => {
                   scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
                 }
               }}
-              className="w-12 h-12 rounded-full bg-white/20 text-[#1A422D] border-2 border-[#1A422D] flex items-center justify-center hover:bg-[#1A422D] hover:text-white transition-colors"
+              className="w-12 h-12 rounded-full bg-white/20 text-[#222222] border-2 border-[#222222] flex items-center justify-center hover:bg-[#222222] hover:text-white transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -123,7 +123,7 @@ const GallerySection = () => {
                   scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
                 }
               }}
-              className="w-12 h-12 rounded-full bg-[#1A422D] text-white flex items-center justify-center"
+              className="w-12 h-12 rounded-full bg-[#222222] text-white flex items-center justify-center"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

@@ -23,6 +23,7 @@ export default async function NewArrivalsSection({
   return (
     <ProductSection
       title="New Arrivals"
+      badges={["new"]}
       products={products}
       region={region}
       viewAllLink="/store?sort=created_at"

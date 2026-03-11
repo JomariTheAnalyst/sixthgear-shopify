@@ -45,7 +45,7 @@ const NewsletterSection = () => {
           />
           <button 
             type="submit"
-            className="w-full sm:w-auto shrink-0 bg-[#F3B748] text-[#1A422D] text-[13px] md:text-[14px] font-extrabold uppercase px-8 py-4 rounded-[8px] border-2 border-[#1A422D] tracking-widest transition-all active:translate-y-[2px] active:translate-x-[2px] active:shadow-[0px_0px_0px_0px_#1A422D] shadow-[3px_3px_0px_0px_#1A422D] hover:brightness-105"
+            className="w-full sm:w-auto shrink-0 bg-[#F3B748] text-[#222222] text-[13px] md:text-[14px] font-extrabold uppercase px-8 py-4 rounded-[8px] border-2 border-[#222222] tracking-widest transition-all active:translate-y-[2px] active:translate-x-[2px] active:shadow-[0px_0px_0px_0px_#222222] shadow-[3px_3px_0px_0px_#222222] hover:brightness-105"
             style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
           >
             SUBSCRIBE NOW

@@ -80,7 +80,7 @@ const BlogsSection = () => {
             Blogs
           </span>
           <h2 
-            className="text-[#1A422D] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight max-w-[800px] mx-auto"
+            className="text-[#222222] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight max-w-[800px] mx-auto"
             style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
           >
             FRESH READS FOR COFFEE<br className="hidden sm:block" /> LOVERS
@@ -123,7 +123,7 @@ const BlogsSection = () => {
                 {/* Content Section */}
                 <div className="p-6 sm:p-7 flex flex-col flex-1">
                   <h3 
-                    className="text-[#1A422D] text-[18px] sm:text-[20px] font-extrabold uppercase leading-[1.3] tracking-tight mb-3 line-clamp-2"
+                    className="text-[#222222] text-[18px] sm:text-[20px] font-extrabold uppercase leading-[1.3] tracking-tight mb-3 line-clamp-2"
                     style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
                   >
                     {post.title}
@@ -139,7 +139,7 @@ const BlogsSection = () => {
                   <div className="mt-auto pt-2 border-t border-gray-100">
                     <a 
                       href={post.link}
-                      className="inline-block text-[#1A422D]/80 hover:text-[#1A422D] text-[12px] font-extrabold uppercase tracking-widest transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[2px] after:bg-[#f16d34] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+                      className="inline-block text-[#222222]/80 hover:text-[#222222] text-[12px] font-extrabold uppercase tracking-widest transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[2px] after:bg-[#f16d34] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
                       style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
                     >
                       READ BLOG
@@ -155,7 +155,7 @@ const BlogsSection = () => {
         <div className="flex justify-center items-center gap-4 mt-8 sm:mt-12">
           <button 
             onClick={() => scroll("left")}
-            className="w-12 h-12 rounded-[12px] bg-white border border-gray-200 text-[#1A422D] flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm active:scale-95"
+            className="w-12 h-12 rounded-[12px] bg-white border border-gray-200 text-[#222222] flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm active:scale-95"
             aria-label="Previous posts"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ const BlogsSection = () => {
           </button>
           <button 
             onClick={() => scroll("right")}
-            className="w-12 h-12 rounded-[12px] bg-white border border-gray-200 text-[#1A422D] flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm active:scale-95"
+            className="w-12 h-12 rounded-[12px] bg-white border border-gray-200 text-[#222222] flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm active:scale-95"
             aria-label="Next posts"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">

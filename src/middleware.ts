@@ -1,5 +1,5 @@
 /**
- * Middleware — Shopify Storefront
+ * Middleware - Shopify Storefront
  *
  * Handles:
  * 1. Maintenance mode (production only)
@@ -19,7 +19,10 @@ export async function middleware(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname
 
-    // ── MAINTENANCE MODE (Production only) ──────────────────────────────
+    if (pathname === "/studio" || pathname.startsWith("/studio/")) {
+      return NextResponse.next()
+    }
+
     if (
       MAINTENANCE_MODE &&
       IS_PRODUCTION &&
@@ -38,7 +41,6 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
-    // ── Skip static assets and API routes ───────────────────────────────
     if (
       pathname.startsWith("/_next/") ||
       pathname.startsWith("/api/") ||
@@ -47,14 +49,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // ── Parse country code ──────────────────────────────────────────────
     const urlSegments = pathname.split("/").filter(Boolean)
     const potentialCountryCode = urlSegments[0]?.toLowerCase()
     const hasCountryCode =
       potentialCountryCode && potentialCountryCode.length === 2
     const countryCode = hasCountryCode ? potentialCountryCode : DEFAULT_REGION
 
-    // ── Routes without country code — redirect to add it ────────────────
     if (!hasCountryCode) {
       if (pathname === "/" || pathname === "") {
         return NextResponse.redirect(
@@ -70,7 +70,6 @@ export async function middleware(request: NextRequest) {
       )
     }
 
-    // ── AUTH: Protect /account/* routes ──────────────────────────────────
     const pathAfterCountry = "/" + urlSegments.slice(1).join("/")
     const customerToken = request.cookies.get(CUSTOMER_TOKEN_COOKIE)?.value
 
@@ -82,7 +81,6 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // ── AUTH: Redirect logged-in users away from auth pages ─────────────
     if (
       pathAfterCountry === "/login" ||
       pathAfterCountry === "/register"

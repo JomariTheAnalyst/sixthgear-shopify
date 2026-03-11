@@ -16,10 +16,35 @@ interface CustomerItem {
 }
 
 interface SatisfiedCustomersProps {
-  sectionTitle?: string
-  row1?: CustomerItem[]
-  row2?: CustomerItem[]
+  sectionTitle?: string | null
+  row1?: CustomerItem[] | null
+  row2?: CustomerItem[] | null
 }
+
+const defaultRow1: CustomerItem[] = [
+  { id: 1, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/002.jpg" },
+  { id: 2, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/002fg.jpg" },
+  { id: 3, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/003.jpg" },
+  { id: 4, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/004.jpg" },
+  { id: 5, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/004fg.jpg" },
+  { id: 6, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/005.jpg" },
+  { id: 7, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/007.jpg" },
+  { id: 8, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/009.jpg" },
+  { id: 9, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/010fg.jpg" },
+]
+
+const defaultRow2: CustomerItem[] = [
+  { id: 10, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/011fg.jpg" },
+  { id: 11, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/012.jpg" },
+  { id: 12, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/012fg.jpg" },
+  { id: 13, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/013.jpg" },
+  { id: 14, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/014.jpg" },
+  { id: 15, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/015.jpg" },
+  { id: 16, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/016.jpg" },
+  { id: 17, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/018.jpg" },
+  { id: 18, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/019.jpg" },
+  { id: 19, name: "Sixth Gear Rider", imageUrl: "/images/polaroid-marquee/satisfied-customers/111.jpg" },
+]
 
 // Generate random rotation for each card (-3 to 3 degrees)
 const getRotation = (index: number) => {
@@ -28,27 +53,26 @@ const getRotation = (index: number) => {
 }
 
 export default function SatisfiedCustomers({
-  sectionTitle = "Sixthgear Satisfied Customers",
-  row1 = [],
-  row2 = [],
+  sectionTitle,
+  row1,
+  row2,
 }: SatisfiedCustomersProps) {
-  // Don't render if both rows are empty
-  if (row1.length === 0 && row2.length === 0) {
-    return null
-  }
+  const activeTitle = sectionTitle || "Sixthgear Satisfied Customers"
+  const activeRow1 = row1 && row1.length > 0 ? row1 : defaultRow1
+  const activeRow2 = row2 && row2.length > 0 ? row2 : defaultRow2
 
   const rows = [
     {
       direction: "left" as const,
       speedSec: 45,
-      items: row1,
+      items: activeRow1,
     },
     {
       direction: "right" as const,
       speedSec: 50,
-      items: row2,
+      items: activeRow2,
     },
-  ].filter((row) => row.items.length > 0) // Only include rows with items
+  ]
 
   return (
     <section className="relative">
@@ -70,7 +94,7 @@ export default function SatisfiedCustomers({
               className="text-4xl md:text-6xl lg:text-7xl text-white"
               style={{ fontFamily: "Tanker, sans-serif" }}
             >
-              {sectionTitle}
+              {activeTitle}
             </h2>
           </div>
 

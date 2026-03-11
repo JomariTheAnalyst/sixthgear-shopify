@@ -150,12 +150,15 @@ export default async function PreviewPage(props: {
       <div className="pt-10">
         {/* Hero Section */}
         <Hero
-          trustBadge={heroContent.trustBadge}
-          title={heroContent.title}
-          description={heroContent.description}
-          primaryCta={heroContent.primaryCta}
-          secondaryCta={heroContent.secondaryCta}
-          backgroundImage={heroContent.backgroundImage}
+          data={{
+            heading: heroContent.title,
+            description: heroContent.description,
+            primaryLabel: heroContent.primaryCta?.text ?? "More About Us",
+            primaryLink: heroContent.primaryCta?.link ?? "/about",
+            secondaryLabel: heroContent.secondaryCta?.text,
+            secondaryLink: heroContent.secondaryCta?.link,
+            slides: null,
+          }}
         />
 
         {/* Shop By Brands Section */}

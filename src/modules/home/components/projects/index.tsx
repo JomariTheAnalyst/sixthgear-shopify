@@ -13,27 +13,53 @@ interface ExperienceItem {
 }
 
 interface ProjectsSectionProps {
-  sectionTitle?: string
-  sectionDescription?: string
-  items?: ExperienceItem[]
+  sectionTitle?: string | null
+  sectionDescription?: string | null
+  items?: ExperienceItem[] | null
 }
 
+const defaultExperiences: ExperienceItem[] = [
+  {
+    id: 1,
+    title: "Signature Coffee & Brews",
+    description:
+      "Carefully crafted coffee using quality beans, brewed to fuel riders, creatives, and everyday coffee lovers.",
+    imageUrl: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop",
+    isEnabled: true,
+  },
+  {
+    id: 2,
+    title: "Rider Lounge & Hangout",
+    description:
+      "A relaxed café and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
+    imageUrl: "https://images.unsplash.com/photo-1555529733-0e670560f8e1?q=80&w=800&auto=format&fit=crop",
+    isEnabled: true,
+  },
+  {
+    id: 3,
+    title: "Community & Meetups",
+    description:
+      "A welcoming space for rider meetups, small events, and casual gatherings built around coffee and motorcycle culture.",
+    imageUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
+    isEnabled: true,
+  },
+]
+
 const ProjectsSection = ({
-  sectionTitle = "Our Space & Experiences",
-  sectionDescription = "Great Coffee, Good Rides, Better Conversations",
-  items = [],
+  sectionTitle,
+  sectionDescription,
+  items,
 }: ProjectsSectionProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Don't render if no items
-  if (!items || items.length === 0) {
-    return null
-  }
+  const activeTitle = sectionTitle || "Our Space & Experiences"
+  const activeDesc = sectionDescription || "Great Coffee, Good Rides, Better Conversations"
+  const currentItems = items && items.length > 0 ? items : defaultExperiences
 
-  const totalItems = items.length
+  const totalItems = currentItems.length
   const maxDisplayItems = 6
-  const displayItems = items.slice(0, maxDisplayItems)
+  const displayItems = currentItems.slice(0, maxDisplayItems)
   const hasMoreItems = totalItems > maxDisplayItems
   const showCarousel = displayItems.length > 3
   const itemsPerPage = 3
@@ -78,12 +104,12 @@ const ProjectsSection = ({
             className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-4"
             style={{ fontFamily: "Tanker, sans-serif" }}
           >
-            {sectionTitle}
+            {activeTitle}
           </h2>
 
           {/* Subheading */}
           <p className="text-gray-400 text-sm md:text-base lg:text-lg max-w-2xl mx-auto">
-            {sectionDescription}
+            {activeDesc}
           </p>
         </div>
 
@@ -184,29 +210,7 @@ const ProjectsSection = ({
             </button>
           </div>
 
-          {/* View All Button - Mobile */}
-          {hasMoreItems && (
-            <div className="flex justify-center mt-6 px-4">
-              <Link
-                href="/experiences"
-                className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
-              >
-                <span>View All Experiences</span>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          )}
+       
         </div>
 
         {/* Desktop: Carousel or Grid Layout */}

@@ -35,6 +35,11 @@ export const PRODUCT_CARD_FRAGMENT = `
     availableForSale
     tags
     vendor
+    options {
+      id
+      name
+      values
+    }
     variants(first: 1) {
       edges {
         node {

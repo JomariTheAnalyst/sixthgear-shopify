@@ -8,165 +8,156 @@
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-const categories = [
+import { Plus } from "lucide-react"
+import type { SanityCategoriesSection } from "@lib/cms/types"
+
+const FALLBACK_CATEGORIES_SECTION = {
+  title: "Product Categories",
+  watermarkText: "ACCESSORIES",
+  viewAllLabel: "VIEW ALL",
+  viewAllLink: "/store",
+  items: [
   {
-    name: "Bags and Luggage",
+    name: "BAGS AND LUGGAGE",
     slug: "bags-and-luggage",
     image: "/images/product-categories/bags-and-boxes (1).png",
   },
   {
-    name: "Communications",
+    name: "COMMUNICATIONS",
     slug: "communications",
     image: "/images/product-categories/intercom.png",
   },
   {
-    name: "Helmets",
+    name: "HELMETS",
     slug: "helmets",
     image: "/images/product-categories/helmets.png",
   },
   {
-    name: "Parts and Accessories",
+    name: "PARTS AND ACCESSORIES",
     slug: "parts-and-accessories",
-    image: "/images/product-categories/exhaust.png", // Using exhaust as placeholder for parts
+    image: "/images/product-categories/exhaust.png", // Using the closest placeholder we have
   },
   {
-    name: "Riding Gear",
+    name: "RIDING GEAR",
     slug: "riding-gear",
-    image: "/images/product-categories/shoes.png", // Using shoes/gear image
+    image: "/images/product-categories/shoes.png",
   },
   {
-    name: "Apparel",
+    name: "APPAREL",
     slug: "apparel",
     image: "/images/product-categories/apparel.png",
   },
 ]
+}
 
 function CategoryCard({
   name,
   slug,
   image,
-  index,
 }: {
   name: string
   slug: string
   image: string
-  index: number
 }) {
   return (
     <LocalizedClientLink
       href={`/store?category=${slug}`}
-      className="group block"
-      style={{ animationDelay: `${index * 100}ms` }}
+      className="group relative block bg-white hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 w-full overflow-hidden h-[240px] md:h-[260px] shadow-sm rounded-md border border-gray-50"
     >
-      <div className="relative flex flex-col items-center">
-        {/* Card Container with subtle background */}
-        <div className="relative w-full bg-gradient-to-b from-gray-50 to-white rounded-2xl p-4 pb-0 transition-all duration-500 group-hover:from-orange-50 group-hover:to-white group-hover:shadow-xl group-hover:shadow-orange-100/50">
-          {/* Product Image */}
-          <div className="relative z-10 h-[160px] md:h-[180px] lg:h-[200px] w-full flex items-center justify-center mb-4">
-            <Image
-              src={image}
-              alt={name}
-              width={220}
-              height={200}
-              className="object-contain max-h-full w-auto transition-all duration-700 ease-out group-hover:scale-110 group-hover:-translate-y-3 filter drop-shadow-lg group-hover:drop-shadow-2xl"
-            />
-          </div>
+      <div className="relative z-10 flex flex-col h-full w-full p-6 lg:p-8 text-black">
+        {/* Top Header Block */}
+        <div className="flex flex-col items-start gap-4 relative z-20 w-[60%] md:w-[50%]">
+          <h3 className="font-black italic uppercase tracking-wider text-[15px] md:text-[17px] text-black leading-tight drop-shadow-sm">
+            {name}
+          </h3>
 
-          {/* Orange Label - Clean flat design */}
-          <div className="relative -mx-4 mt-auto">
-            <div className="bg-[#F16D34] py-4 px-6 text-center transition-all duration-300 group-hover:bg-[#e55f26] rounded-b-2xl">
-              <span className="text-white font-semibold text-sm md:text-base uppercase tracking-wide">
-                {name}
-              </span>
-            </div>
+          {/* Plus Button */}
+          <div className="mt-2">
+             <button className="relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#111] text-white transition-colors z-10 group-hover:bg-[#ff4e00] shadow-sm">
+               <Plus size={18} strokeWidth={3} />
+             </button>
           </div>
         </div>
 
-        {/* Hover indicator arrow */}
-        <div className="absolute bottom-6 right-6 opacity-0 transform translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-          <svg
-            className="w-5 h-5 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
+        {/* Floating Product Image - Increased width constraint and base scale for larger visual presence */}
+        <div className="absolute top-0 right-0 bottom-0 w-[70%] lg:w-[65%] p-4 lg:pr-6 pointer-events-none z-10 flex items-center justify-end">
+          <div className="relative w-full h-[100%]">
+            <Image
+              src={image}
+              alt={name}
+              fill
+              className="object-contain object-right md:object-right-bottom origin-bottom-right transition-transform duration-700 ease-out group-hover:scale-[1.10] drop-shadow-[0_15px_20px_rgba(0,0,0,0.12)] scale-[1.05]"
             />
-          </svg>
+          </div>
         </div>
       </div>
     </LocalizedClientLink>
   )
 }
 
-export default function ShopByCategories() {
+interface ShopByCategoriesProps {
+  data?: SanityCategoriesSection | null
+}
+
+export default function ShopByCategories({ data }: ShopByCategoriesProps) {
+  // Determine if we should completely ignore CMS and force default
+  const useCustom = data?.useCustomCategories !== false
+  
+  // Destructure with priority to CMS (if valid/enabled), otherwise fill from fallback
+  const title = (useCustom && data?.title) || FALLBACK_CATEGORIES_SECTION.title
+  const watermarkText = (useCustom && data?.watermarkText) || FALLBACK_CATEGORIES_SECTION.watermarkText
+  const viewAllLabel = (useCustom && data?.viewAllLabel) || FALLBACK_CATEGORIES_SECTION.viewAllLabel
+  const viewAllLink = (useCustom && data?.viewAllLink) || FALLBACK_CATEGORIES_SECTION.viewAllLink
+  
+  // Decide which items array to loop over
+  const items = (useCustom && data?.items && data.items.length > 0) 
+    ? data.items 
+    : FALLBACK_CATEGORIES_SECTION.items
+
   return (
-    <section className="py-16 md:py-24 px-4 md:px-8 lg:px-16 bg-white overflow-hidden">
-      {/* Section Header */}
-      <div className="max-w-7xl mx-auto mb-12 md:mb-16">
-        <div className="flex items-center justify-center gap-4 md:gap-6">
-          {/* Left line */}
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-gray-300" />
-
-          {/* Title with accent */}
-          <div className="text-center">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 uppercase tracking-tight">
-              Shop By <span className="text-[#F16D34]">Categories</span>
-            </h2>
-          </div>
-
-          {/* Right line */}
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent via-gray-300 to-gray-300" />
-        </div>
-
-        {/* Subtitle */}
-        <p className="text-center text-gray-500 mt-4 text-sm md:text-base max-w-2xl mx-auto">
-          Find the perfect gear for your ride. Quality products from trusted
-          brands.
-        </p>
+    <section className="relative w-full bg-[#fafafa] pt-12 pb-20 overflow-hidden">
+      {/* Absolute Background Watermark Text - Fixed scale and opacity for legibility */}
+      <div className="absolute top-0 left-0 w-full h-full flex items-start justify-center pt-8 md:pt-12 pointer-events-none overflow-hidden select-none z-0">
+        <h1 className="font-black italic text-[11vw] sm:text-[11vw] lg:text-[12vw] uppercase tracking-normal leading-none text-center transform whitespace-nowrap text-gray-200/60 drop-shadow-sm max-w-[100vw]">
+          {watermarkText}
+        </h1>
       </div>
 
-      {/* Categories Grid */}
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {categories.map((category, index) => (
-            <CategoryCard
-              key={category.slug}
-              name={category.name}
-              slug={category.slug}
-              image={category.image}
-              index={index}
-            />
+      <div className="relative z-10 max-w-[1400px] mx-auto px-4 md:px-8 mt-12 md:mt-24">
+        {/* Section Header */}
+        <div className="text-center mb-16 flex flex-col items-center">
+          <h2 className="text-[#ff4e00] font-black italic uppercase text-3xl md:text-4xl lg:text-[2.75rem] tracking-normal drop-shadow-sm">
+            {title}
+          </h2>
+        </div>
+
+        {/* Uniform 3x2 Grid Layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {items.map((category) => (
+            <CategoryCard key={category.slug} {...category} />
           ))}
         </div>
+
+        {/* View All Button */}
+        <div className="flex justify-center mt-16 md:mt-20">
+          <LocalizedClientLink
+            href={viewAllLink}
+            className="group relative inline-flex items-center justify-center px-16 py-4 bg-[#ff4e00] text-white font-bold text-[13px] tracking-[0.2em] uppercase overflow-hidden shadow-[0_8px_20px_rgba(255,78,0,0.2)] hover:shadow-[0_12px_25px_rgba(255,78,0,0.3)] transition-all duration-300"
+          >
+            {/* Dark triangle cutout on bottom right visual effect */}
+            <div className="absolute bottom-0 right-0 w-4 h-4 bg-[#fafafa] clip-triangle transform rotate-180 transition-transform group-hover:scale-110" />
+            <span className="z-10 transition-transform duration-300">
+              {viewAllLabel}
+            </span>
+          </LocalizedClientLink>
+        </div>
       </div>
 
-      {/* View All Button */}
-      <div className="text-center mt-12 md:mt-16">
-        <LocalizedClientLink
-          href="/store"
-          className="inline-flex items-center gap-2 px-8 py-3 bg-gray-900 text-white font-medium rounded-full transition-all duration-300 hover:bg-[#F16D34] hover:shadow-lg hover:shadow-orange-200/50 group"
-        >
-          <span>View All Products</span>
-          <svg
-            className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 8l4 4m0 0l-4 4m4-4H3"
-            />
-          </svg>
-        </LocalizedClientLink>
-      </div>
+      <style jsx>{`
+        .clip-triangle {
+          clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+        }
+      `}</style>
     </section>
   )
 }

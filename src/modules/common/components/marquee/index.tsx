@@ -91,12 +91,12 @@ export const Marquee = ({
             {repeatedItems.map((text, i) => (
               <div key={`marquee-1-${i}`} className="flex items-center gap-6 sm:gap-12 shrink-0">
                 <span 
-                  className="text-[#1A422D] text-[16px] sm:text-[20px] md:text-[26px] font-black tracking-widest uppercase"
+                  className="text-[#222222] text-[16px] sm:text-[20px] md:text-[26px] font-black tracking-widest uppercase"
                   style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
                 >
                   {text}
                 </span>
-                <div className="text-[#1A422D]">
+                <div className="text-[#222222]">
                   <StarbucksCupIcon />
                 </div>
               </div>
@@ -108,12 +108,12 @@ export const Marquee = ({
             {repeatedItems.map((text, i) => (
               <div key={`marquee-2-${i}`} className="flex items-center gap-6 sm:gap-12 shrink-0">
                 <span 
-                  className="text-[#1A422D] text-[16px] sm:text-[20px] md:text-[26px] font-black tracking-widest uppercase"
+                  className="text-[#222222] text-[16px] sm:text-[20px] md:text-[26px] font-black tracking-widest uppercase"
                   style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
                 >
                   {text}
                 </span>
-                <div className="text-[#1A422D]">
+                <div className="text-[#222222]">
                   <StarbucksCupIcon />
                 </div>
               </div>

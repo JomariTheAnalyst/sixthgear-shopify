@@ -3,47 +3,77 @@
 import { useState, useRef, useEffect } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-interface Brand {
-  id: number
-  name: string
-  imageUrl: string
-  link: string
-  buttonText: string
+import type { SanityShopByBrandsSection } from "@lib/cms/types"
+
+const FALLBACK_SHOP_BY_BRANDS: SanityShopByBrandsSection = {
+  useCustomShopByBrands: false,
+  sectionTitle: "BRANDS WE ARE PARTNER WITH",
+  showNavDesktop: false,
+  brands: [
+    {
+      name: "AKRAPOVIC",
+      imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+      link: "/store?brand=akrapovic",
+      buttonText: "SHOP NOW",
+      imageAlt: "Akrapovic exhaust"
+    },
+    {
+      name: "SEC MOTO",
+      imageUrl: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&h=600&fit=crop",
+      link: "/store?brand=sec-moto",
+      buttonText: "SHOP NOW",
+      imageAlt: "SEC Moto gear"
+    },
+    {
+      name: "MOTOHUB",
+      imageUrl: "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&h=600&fit=crop",
+      link: "/store?brand=motohub",
+      buttonText: "SHOP NOW",
+      imageAlt: "Motohub store"
+    },
+    {
+      name: "MOTUL",
+      imageUrl: "https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800&h=600&fit=crop",
+      link: "/store?brand=motul",
+      buttonText: "SHOP NOW",
+      imageAlt: "Motul oil"
+    },
+  ],
+  stats: [
+    {
+      icon: "⭐",
+      title: "Rider-Built Experience",
+      description: "Years of hands-on motorcycle expertise",
+    },
+    {
+      icon: "🏍️",
+      title: "Trusted by Riders",
+      description: "Preferred by riders and enthusiasts",
+    },
+    {
+      icon: "⚡",
+      title: "Fast Turnaround",
+      description: "Efficient, reliable service delivery",
+    },
+    {
+      icon: "🔩",
+      title: "Genuine Parts & Accessories",
+      description: "Trusted OEM and premium aftermarket",
+    },
+  ],
 }
 
 interface ShopByBrandsProps {
+  data?: SanityShopByBrandsSection | null
+  // Keep original props optional for existing callers if necessary, but we'll adapt them
   sectionTitle?: string
-  brands?: Brand[]
+  brands?: any[]
   showNavDesktop?: boolean
 }
 
-const stats = [
-  {
-    icon: "⭐",
-    title: "Rider-Built Experience",
-    description: "Years of hands-on motorcycle expertise",
-  },
-  {
-    icon: "🏍️",
-    title: "Trusted by Riders",
-    description: "Preferred by riders and enthusiasts",
-  },
-  {
-    icon: "⚡",
-    title: "Fast Turnaround",
-    description: "Efficient, reliable service delivery",
-  },
-  {
-    icon: "🔩",
-    title: "Genuine Parts & Accessories",
-    description: "Trusted OEM and premium aftermarket",
-  },
-]
-
 export default function ShopByBrands({
-  sectionTitle = "BRANDS WE ARE PARTNER WITH",
-  brands = [],
-  showNavDesktop = false,
+  data,
+  ...legacyProps
 }: ShopByBrandsProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -52,13 +82,34 @@ export default function ShopByBrands({
   const [scrollLeft, setScrollLeft] = useState(0)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Don't render if no brands
-  if (!brands || brands.length === 0) {
+  const isCMSDisabled = !data || data.useCustomShopByBrands === false
+  
+  // 1. If Sanity kill-switch is thrown, we strictly ignore Sanity data.
+  // 2. Otherwise we prioritize Sanity config -> Legacy Strapi config -> Hardcoded Fallback.
+  
+  const resolvedSectionTitle = isCMSDisabled 
+    ? (legacyProps.sectionTitle || FALLBACK_SHOP_BY_BRANDS.sectionTitle)
+    : (data?.sectionTitle || legacyProps.sectionTitle || FALLBACK_SHOP_BY_BRANDS.sectionTitle)
+
+  const resolvedShowNavDesktop = isCMSDisabled
+    ? (legacyProps.showNavDesktop ?? FALLBACK_SHOP_BY_BRANDS.showNavDesktop)
+    : (data?.showNavDesktop ?? legacyProps.showNavDesktop ?? FALLBACK_SHOP_BY_BRANDS.showNavDesktop)
+
+  const resolvedBrands = isCMSDisabled
+    ? (legacyProps.brands?.length ? legacyProps.brands : FALLBACK_SHOP_BY_BRANDS.brands)
+    : (data?.brands?.length ? data.brands : (legacyProps.brands?.length ? legacyProps.brands : FALLBACK_SHOP_BY_BRANDS.brands))
+
+  const resolvedStats = (isCMSDisabled
+    ? FALLBACK_SHOP_BY_BRANDS.stats
+    : (data?.stats?.length ? data.stats : FALLBACK_SHOP_BY_BRANDS.stats)) || []
+
+  // Don't render if no brands at all
+  if (!resolvedBrands || resolvedBrands.length === 0) {
     return null
   }
 
   const itemsPerView = 4
-  const maxIndex = Math.max(0, brands.length - itemsPerView)
+  const maxIndex = Math.max(0, resolvedBrands.length - itemsPerView)
 
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(0, prev - 1))
@@ -115,13 +166,13 @@ export default function ShopByBrands({
   useEffect(() => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current
-      const itemWidth = container.scrollWidth / brands.length
+      const itemWidth = container.scrollWidth / resolvedBrands.length
       container.scrollTo({
         left: currentIndex * itemWidth,
         behavior: "smooth",
       })
     }
-  }, [currentIndex, brands.length])
+  }, [currentIndex, resolvedBrands.length])
 
   return (
     <section className="w-full bg-white">
@@ -130,13 +181,13 @@ export default function ShopByBrands({
         <div className="w-full px-2 sm:px-3 md:px-4">
           {/* Section Title */}
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 uppercase tracking-tight px-1 sm:px-2">
-            {sectionTitle}
+            {resolvedSectionTitle}
           </h2>
 
           {/* Carousel Container */}
           <div className="relative">
             {/* Desktop Navigation Arrows - Only show if > 4 brands */}
-            {showNavDesktop && (
+            {resolvedShowNavDesktop && (
               <>
                 <button
                   onClick={handlePrev}
@@ -199,10 +250,10 @@ export default function ShopByBrands({
               }}
             >
               <div className="grid grid-flow-col auto-cols-[50%] md:auto-cols-[25%] gap-[2px]">
-                {brands.map((brand, index) => (
+                {resolvedBrands.map((brand, index) => (
                   <LocalizedClientLink
-                    key={brand.id}
-                    href={brand.link}
+                    key={index}
+                    href={brand.link || "#"}
                     className="group relative overflow-hidden bg-gray-900 transition-all duration-500 ease-out touch-manipulation select-none"
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
@@ -265,11 +316,15 @@ export default function ShopByBrands({
       <div className="w-full bg-[#f5f5f5] border-t border-gray-200">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 py-6 md:py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {stats.map((stat, index) => (
+            {resolvedStats.map((stat, index) => (
               <div key={index} className="flex items-start gap-3 md:gap-4">
                 {/* Icon */}
-                <div className="flex-shrink-0 text-2xl md:text-3xl">
-                  {stat.icon}
+                <div className="flex-shrink-0 text-2xl md:text-3xl flex items-center justify-center">
+                  {stat.iconUrl ? (
+                    <img src={stat.iconUrl} alt={stat.title} className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+                  ) : (
+                    stat.icon
+                  )}
                 </div>
 
                 {/* Content */}

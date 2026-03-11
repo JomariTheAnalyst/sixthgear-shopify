@@ -1,6 +1,6 @@
 /**
- * ProductCard Component
- * Redesigned layout: Image → Category → Title → Reviews → Price/Stock → Add to Cart
+ * Shared premium product card used across home sections, listing-style adapters,
+ * wishlist, and recommendation grids.
  */
 
 "use client"
@@ -8,245 +8,343 @@
 import { useState } from "react"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { getProductPricing } from "@lib/util/get-product-pricing"
+import { Check, Loader2, ShoppingCart, Flame, Truck, Plus } from "lucide-react"
+import { toast } from "sonner"
+
 import { addToCart } from "@lib/data/cart"
 import { useCartStore } from "@lib/cart"
-import StarRating from "@modules/products/components/star-rating"
-import { Loader2 } from "lucide-react"
+import { getProductPricing } from "@lib/util/get-product-pricing"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import WishlistButton from "@modules/wishlist/components/wishlist-button"
 
-export type BadgeMode = "discount" | "rank" | "new" | "hot" | "none"
+export type BadgeMode = "discount" | "rank" | "new" | "hot"
 
 interface ProductCardProps {
   product: HttpTypes.StoreProduct
-  badgeMode?: BadgeMode
+  badges?: BadgeMode[]
   rank?: number
   region?: HttpTypes.StoreRegion
-  inventoryMap?: Record<string, number> // variant_id -> quantity (flattened from product level)
-  rating?: { average_rating: number; count: number } // Rating data passed from server
+  countryCode?: string
+  inventoryMap?: Record<string, number>
+  rating?: { average_rating: number; count: number }
+}
+
+export function getBadgesFromTags(tags: string[] = []): BadgeMode[] {
+  const normalized = tags.map((tag) => tag.toLowerCase().replace(/[\s-_]+/g, ""))
+  const badges: BadgeMode[] = []
+
+  if (normalized.some((tag) => tag === "hotdeal" || tag === "hotdeals")) {
+    badges.push("hot")
+  }
+
+  if (
+    normalized.some((tag) => tag === "bestseller" || tag === "bestsellers")
+  ) {
+    badges.push("rank")
+  }
+
+  if (
+    normalized.some((tag) => tag === "newarrival" || tag === "newarrivals")
+  ) {
+    badges.push("new")
+  }
+
+  return badges
 }
 
 export default function ProductCard({
   product,
+  badges = [],
   region,
+  countryCode,
   inventoryMap,
-  rating, // Keep for backward compatibility but prefer metadata
 }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false)
+  const [added, setAdded] = useState(false)
 
-  // Read rating from product metadata (precomputed aggregates)
-  const ratingAverage = (product.metadata?.rating_average as number) || 0
-  const ratingCount = (product.metadata?.rating_count as number) || 0
-
-  console.log(`[ProductCard] ${product.title}:`, {
-    ratingAverage,
-    ratingCount,
-    metadata: product.metadata,
-  })
-
-  // Get pricing with sale detection
   const pricing = getProductPricing(product)
   const imageUrl = product.thumbnail || product.images?.[0]?.url
-
-  // Get first variant for quick add to cart and stock check
   const firstVariant = product.variants?.[0]
-  const canAddToCart = !!firstVariant
+  const canAddToCart = Boolean(firstVariant)
+  const brandName = product.collection?.title || "Sixthgear"
 
-  // Check stock status using inventory data if available
-  // Priority: inventoryMap > allow_backorder > manage_inventory false > inventory_quantity from API
+  const resolvedCountryCode =
+    countryCode || region?.countries?.[0]?.iso_2 || "ph"
+
   const isInStock = (() => {
-    if (!firstVariant) return false
+    if (!firstVariant) {
+      return false
+    }
 
-    console.log(`[ProductCard] ${product.title}:`, {
-      variantId: firstVariant.id,
-      hasInventoryMap: !!inventoryMap,
-      inventoryMapValue: inventoryMap?.[firstVariant.id],
-      allow_backorder: firstVariant.allow_backorder,
-      manage_inventory: firstVariant.manage_inventory,
-      inventory_quantity: firstVariant.inventory_quantity,
-    })
-
-    // If we have inventory data from our custom endpoint, use it
     if (inventoryMap && firstVariant.id in inventoryMap) {
-      const quantity = inventoryMap[firstVariant.id]
-      console.log(`[ProductCard] Using inventoryMap: ${quantity}`)
-      return quantity > 0
+      return inventoryMap[firstVariant.id] > 0
     }
 
-    // Fallback to variant properties
     if (firstVariant.allow_backorder === true) {
-      console.log(`[ProductCard] Using allow_backorder: true`)
-      return true
-    }
-    if (firstVariant.manage_inventory === false) {
-      console.log(`[ProductCard] Using manage_inventory: false`)
       return true
     }
 
-    // Check API inventory_quantity (may be null in Medusa v2)
+    if (firstVariant.manage_inventory === false) {
+      return true
+    }
+
     if (
       firstVariant.inventory_quantity !== null &&
       firstVariant.inventory_quantity !== undefined
     ) {
-      console.log(
-        `[ProductCard] Using inventory_quantity: ${firstVariant.inventory_quantity}`
-      )
       return firstVariant.inventory_quantity > 0
     }
 
-    // Default: if manage_inventory is true but no data, assume out of stock
-    console.log(`[ProductCard] Defaulting to out of stock`)
     return false
   })()
 
-  // Get brand name from collection (not category)
-  const brandName = product.collection?.title || "No Brand"
+  const setCart = useCartStore((state) => state.setCart)
+  const setCartStoreId = useCartStore((state) => state.setCartId)
 
-  const setCart = useCartStore((s) => s.setCart)
-  const setCartStoreId = useCartStore((s) => s.setCartId)
+  const handleAddToCart = async (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (!canAddToCart || isAdding || !isInStock) return
+    if (!canAddToCart || isAdding || !isInStock || !firstVariant) {
+      return
+    }
 
     setIsAdding(true)
+
     try {
       const updatedCart = await addToCart({
         variantId: firstVariant.id,
         quantity: 1,
-        countryCode: region?.countries?.[0]?.iso_2 || "ph",
+        countryCode: resolvedCountryCode,
       })
+
       if (updatedCart) {
         setCart(updatedCart as any)
         setCartStoreId(updatedCart.id)
+        setAdded(true)
+
+        toast.success("Added to Cart", {
+          description: `${brandName} ${product.title}`,
+        })
+
+        window.setTimeout(() => setAdded(false), 2200)
       }
     } catch (error) {
       console.error("Failed to add to cart:", error)
+      toast.error("Failed to add to cart")
     } finally {
       setIsAdding(false)
     }
   }
 
-  // Star rating component - reads from product metadata
-  const StarRatingDisplay = () => (
-    <div className="flex items-center gap-1">
-      <StarRating rating={ratingAverage} size="sm" />
-      <span className="text-xs text-gray-500">({ratingCount})</span>
-    </div>
-  )
+  // Fallback to checking the product's tags directly if no specific section badge mode was provided
+  const resolvedBadges = badges.length > 0 ? badges : getBadgesFromTags(product.tags?.map(t => t.value) || [])
+
+  // Dynamic variant availability text from Shopify options
+  const availabilityText = (() => {
+    if (!product.options || product.options.length === 0) return null
+
+    const colorOption = product.options.find(o => 
+      o.title?.toLowerCase() === "color" || o.title?.toLowerCase() === "colour" || o.title?.toLowerCase() === "renk"
+    )
+    const sizeOption = product.options.find(o => 
+      o.title?.toLowerCase() === "size" || o.title?.toLowerCase() === "beden"
+    )
+
+    const colorCount = colorOption?.values?.length || 0
+    const sizeCount = sizeOption?.values?.length || 0
+
+    if (colorCount > 1 && sizeCount > 1) {
+      return `Available in ${colorCount} colors and ${sizeCount} sizes`
+    } else if (colorCount > 1) {
+      return `Available in ${colorCount} colors`
+    } else if (sizeCount > 1) {
+      return `Available in ${sizeCount} sizes`
+    } else if (colorCount === 1 || sizeCount === 1) {
+      return "Size/Color options available"
+    }
+    
+    return null
+  })()
+
+  const getBadgeElement = (mode: BadgeMode, keyItem: string) => {
+    switch (mode) {
+      case "new":
+        return <span key={keyItem} className="bg-[#111] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 leading-none rounded-sm block">New</span>
+      case "hot":
+        return null
+      case "rank":
+        return <span key={keyItem} className="bg-[#111] text-[#fff] text-[11px] font-bold uppercase tracking-wider px-2 py-1 leading-none rounded-sm block">Best Seller</span>
+      default:
+        return null
+    }
+  }
 
   return (
-    <div className="group block h-full">
-      {/* Card with border */}
-      <div className="flex flex-col h-full border border-gray-200 hover:border-gray-300 transition-colors bg-white">
-        {/* Product Image */}
+    <article className="group h-full flex flex-col bg-white transition-colors duration-200">
+      {/* Top Image Container — square aspect ratio for compact footprint */}
+      <div className="relative w-full aspect-square bg-[#f5f5f5] overflow-hidden rounded-sm group-hover:bg-[#f2f2f2] transition-colors">
+        
+        {/* Badges Overlay (Stackable vertically, padded from edge) */}
+        <div className="absolute left-3 top-3 z-30 flex flex-col gap-1 items-start">
+          {pricing.isOnSale && (
+            <span className="bg-[#e62020] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 leading-none rounded-sm block">
+              Sale
+            </span>
+          )}
+          {resolvedBadges.map((badgeMode) => getBadgeElement(badgeMode, badgeMode))}
+        </div>
+
+        {/* Sleek Wishlist Naked Icon */}
+        <div className="absolute right-3 top-3 z-20 text-[#a0a0a0] transition-colors hover:text-[#111]" title="Add to wishlist">
+          <WishlistButton
+            productData={{
+              handle: product.handle,
+              id: product.id,
+              title: product.title || "",
+              imageUrl: imageUrl || null,
+              imageAlt: product.title || null,
+              price: pricing.minCalculated ?? 0,
+              compareAtPrice: pricing.minOriginal,
+              currencyCode: pricing.currencyCode.toUpperCase(),
+              availableForSale: isInStock,
+              vendor: brandName,
+              variantId: firstVariant?.id || product.id,
+            }}
+            className="w-10 h-10 flex items-center justify-center bg-transparent border-none p-0 shadow-none hover:bg-transparent [&_svg]:!w-6 [&_svg]:!h-6"
+          />
+        </div>
+
+        {/* Subtle bottom-left UI standard icons */}
+        <div className="absolute left-3 bottom-3 z-20 flex gap-1.5 items-end text-[#d0d0d0]">
+          {resolvedBadges.includes("hot") && (
+            <div title="Hot Deal">
+              <Flame className="w-6 h-6 text-orange-500 fill-orange-500" strokeWidth={2} />
+            </div>
+          )}
+          <Truck className="w-4 h-4 mb-0.5" strokeWidth={2} />
+        </div>
+
         <LocalizedClientLink
           href={`/products/${product.handle}`}
-          className="block"
+          className="absolute inset-0 w-full h-full block"
         >
-          <div className="relative aspect-square bg-gray-50 overflow-hidden">
-            {/* Discount Badge */}
-            {pricing.isOnSale &&
-              pricing.discountPct &&
-              pricing.discountPct >= 5 && (
-                <div className="absolute top-3 left-3 z-10">
-                  <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1.5 rounded">
-                    -{pricing.discountPct}%
-                  </span>
-                </div>
-              )}
-
-            {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={product.title || "Product"}
-                fill
-                className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                unoptimized
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <svg
-                  className="w-16 h-16 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-            )}
-          </div>
+          {/* Main Product Image */}
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={product.title || "Product"}
+              fill
+              className="object-contain p-5 sm:p-6 transition-transform duration-400 group-hover:scale-[1.03]"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              unoptimized
+            />
+          ) : (
+             <div className="flex h-full w-full items-center justify-center text-[#d0d0d0]">
+               <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+               </svg>
+             </div>
+          )}
+          
+          {/* Sold Out Overlay Layer */}
+          {!isInStock && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
+              <span className="bg-white border border-[#e0e0e0] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#5f5b53]">
+                Sold Out
+              </span>
+            </div>
+          )}
         </LocalizedClientLink>
+      </div>
 
-        {/* Product Details */}
-        <div className="flex flex-col flex-1 p-4 gap-2">
-          {/* Brand Name (from Collection) */}
-          <LocalizedClientLink href={`/products/${product.handle}`}>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">
-              {brandName}
+      {/* Compact Bottom Information Block */}
+      <div className="flex flex-col flex-1 pt-2 px-1 pb-1 bg-white relative">
+        <div className="flex flex-col gap-0.5">
+          {/* BRAND FIRST, small, muted, uppercase */}
+          <LocalizedClientLink href={`/products/${product.handle}`} className="block">
+             <p className="text-[10px] font-bold uppercase tracking-widest text-[#888] line-clamp-1">
+               {brandName}
+             </p>
+          </LocalizedClientLink>
+
+          {/* PRODUCT NAME SECOND, bold, black, visually dominant */}
+          <LocalizedClientLink href={`/products/${product.handle}`} className="block">
+             <h3 className="text-[14px] sm:text-[15px] font-extrabold text-[#111] leading-tight line-clamp-2">
+               {product.title}
+             </h3>
+          </LocalizedClientLink>
+          
+          {/* VARIANT AVAILABILITY THIRD */}
+          {availabilityText && (
+            <p className="text-[11px] text-[#767676] font-medium italic">
+              {availabilityText}
             </p>
-          </LocalizedClientLink>
+          )}
+        </div>
 
-          {/* Product Title */}
-          <LocalizedClientLink href={`/products/${product.handle}`}>
-            <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-gray-600 transition-colors">
-              {product.title}
-            </h3>
-          </LocalizedClientLink>
-
-          {/* Reviews */}
-          <StarRatingDisplay />
-
-          {/* Price */}
-          <div className="flex items-center gap-2 flex-wrap mt-1">
+        {/* Pricing & Cart Action Row */}
+        <div className="mt-auto pt-1 flex w-full items-center justify-between gap-2">
+          <div className="flex flex-col flex-1">
             {pricing.hasPrice ? (
-              <>
-                <span
-                  className={`text-base font-bold ${
-                    pricing.isOnSale ? "text-red-500" : "text-gray-900"
-                  }`}
-                >
-                  {pricing.formattedCalculated}
-                </span>
-                {pricing.isOnSale && pricing.formattedOriginal && (
-                  <span className="text-sm text-gray-400 line-through">
-                    {pricing.formattedOriginal}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {pricing.isOnSale && pricing.formattedOriginal ? (
+                  <>
+                    <span className="text-[12px] sm:text-[13px] text-[#767676]">
+                      From
+                    </span>
+                    <span className="text-[13px] sm:text-[14px] font-extrabold text-[#e62020]">
+                      {pricing.formattedCalculated}
+                    </span>
+                    <span className="text-[11px] text-[#767676] line-through decoration-[#767676] decoration-1 font-medium">
+                      {pricing.formattedOriginal}
+                    </span>
+                    {pricing.discountPct && (
+                      <span className="text-[10px] font-bold text-[#e62020]">
+                        -{pricing.discountPct}%
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-[13px] sm:text-[14px] font-extrabold text-[#111]">
+                    {pricing.formattedCalculated}
                   </span>
                 )}
-              </>
+              </div>
             ) : (
-              <span className="text-sm text-gray-400">Price unavailable</span>
+                <span className="text-[12px] text-[#a0a0a0] font-medium">Price unavailable</span>
             )}
           </div>
 
-          {/* Add to Cart Button - Always visible at bottom */}
+          {/* Minimal Add to Cart Icon - Cart Plus Style */}
           <button
+            type="button"
             onClick={handleAddToCart}
             disabled={isAdding || !canAddToCart || !isInStock}
-            className="w-full mt-auto py-2.5 flex items-center justify-center gap-2 bg-gray-900 text-white text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label={added ? "Added to cart" : "Add to cart"}
+            className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-all duration-200 rounded-sm ${
+              added
+                ? "text-emerald-500 fill-none"
+                : isInStock && canAddToCart
+                ? "text-[#111] hover:bg-[#f0f0f0]"
+                : "text-[#dcdcdc] cursor-not-allowed"
+            }`}
           >
             {isAdding ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Adding...</span>
-              </>
-            ) : !isInStock ? (
-              "Out of Stock"
+               <Loader2 className="w-5 h-5 animate-spin" />
+            ) : added ? (
+               <Check className="w-6 h-6 stroke-[3]" />
             ) : (
-              "Add to Cart"
+               <div className="relative">
+                 <ShoppingCart className="w-5 h-5 stroke-[2.5]" fill="none" />
+                 <span className="absolute -bottom-1 -right-1 bg-white text-[#111] rounded-full">
+                   <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                 </span>
+               </div>
             )}
           </button>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

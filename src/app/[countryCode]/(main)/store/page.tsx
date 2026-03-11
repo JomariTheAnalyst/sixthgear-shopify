@@ -5,8 +5,10 @@ import {
   getCollectionFilters,
   getFilteredCollection,
   buildShopifyFilters,
+  listCollections,
 } from "@lib/data/collections";
 import { parseSearchParams } from "@lib/util/filterParams";
+import { getCollectionHero } from "@lib/cms/client";
 import CollectionTemplate from "@modules/collections/templates";
 
 export const metadata: Metadata = {
@@ -46,14 +48,19 @@ export default async function StorePage(props: Params) {
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
 
-  // Fetch filtered products from the frontpage collection
-  const result = await getFilteredCollection(STORE_COLLECTION_HANDLE, {
-    filters: shopifyFilters,
-    sortKey: filterState.sortKey,
-    reverse: filterState.reverse,
-    first: 24,
-    after: urlParams.get("after") || undefined,
-  });
+  // Parallel fetches: Shopify filtered products, sidebar filters, collections menu, CMS hero
+  const [result, sidebarFilters, { collections }, storeHero] = await Promise.all([
+    getFilteredCollection(STORE_COLLECTION_HANDLE, {
+      filters: shopifyFilters,
+      sortKey: filterState.sortKey,
+      reverse: filterState.reverse,
+      first: 24,
+      after: urlParams.get("after") || undefined,
+    }),
+    getCollectionFilters(STORE_COLLECTION_HANDLE),
+    listCollections({ limit: 100 }),
+    getCollectionHero(STORE_COLLECTION_HANDLE),
+  ]);
 
   if (!result) {
     console.error("StorePage: getFilteredCollection returned null for handle:", STORE_COLLECTION_HANDLE);
@@ -62,8 +69,10 @@ export default async function StorePage(props: Params) {
     notFound();
   }
 
-  // Fetch sidebar filters (unfiltered to show all available options)
-  const sidebarFilters = await getCollectionFilters(STORE_COLLECTION_HANDLE);
+  const collectionsMenu = collections.map((c: any) => ({
+    handle: c.handle,
+    title: c.title,
+  }));
 
   // Override collection title to "Shop" for the store page
   const storeCollection = {
@@ -81,6 +90,8 @@ export default async function StorePage(props: Params) {
       pageInfo={result.pageInfo}
       initialFilterState={filterState}
       countryCode={params.countryCode}
+      collectionsMenu={collectionsMenu}
+      heroData={storeHero}
     />
   );
 }

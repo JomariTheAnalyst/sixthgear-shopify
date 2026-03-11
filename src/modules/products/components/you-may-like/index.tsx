@@ -17,6 +17,12 @@ function mapShopifyToMedusa(p: any) {
     thumbnail: p.featuredImage?.url,
     images: p.featuredImage ? [{ url: p.featuredImage.url }] : [],
     collection: { title: p.vendor },
+    tags: p.tags?.map((t: string) => ({ value: t })) || [],
+    options: p.options?.map((opt: any) => ({
+      id: opt.id,
+      title: opt.name,
+      values: opt.values?.map((v: string) => ({ id: v, value: v })) || []
+    })) || [],
     variants: [
       {
         id: p.id,

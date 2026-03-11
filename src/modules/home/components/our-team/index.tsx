@@ -18,9 +18,9 @@ interface TeamMember {
 }
 
 interface OurTeamProps {
-  sectionTitle?: string
-  sectionDescription?: string
-  teamMembers?: TeamMember[]
+  sectionTitle?: string | null
+  sectionDescription?: string | null
+  teamMembers?: TeamMember[] | null
 }
 
 const FacebookIcon = () => (
@@ -41,7 +41,7 @@ const TiktokIcon = () => (
   </svg>
 )
 
-const teamMembersFallback = [
+const teamMembersFallback: TeamMember[] = [
   {
     id: 1,
     name: "MARTIE",
@@ -78,16 +78,15 @@ const teamMembersFallback = [
 ]
 
 export default function OurTeam({
-  sectionTitle = "Our Team",
-  sectionDescription = "Riders, Technicians, and Professionals Who Care About Your Bike",
-  teamMembers = teamMembersFallback,
+  sectionTitle,
+  sectionDescription,
+  teamMembers,
 }: OurTeamProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Don't render if no team members
-  if (!teamMembers || teamMembers.length === 0) {
-    return null
-  }
+  const activeTitle = sectionTitle || "Our Team"
+  const activeDescription = sectionDescription || "Riders, Technicians, and Professionals Who Care About Your Bike"
+  const activeMembers = teamMembers && teamMembers.length > 0 ? teamMembers : teamMembersFallback
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -120,10 +119,10 @@ export default function OurTeam({
                 className="text-3xl md:text-5xl lg:text-7xl text-white mb-3 md:mb-4"
                 style={{ fontFamily: "Tanker, sans-serif" }}
               >
-                {sectionTitle}
+                {activeTitle}
               </h2>
               <p className="text-base md:text-lg lg:text-xl text-gray-400 max-w-2xl mx-auto">
-                {sectionDescription}
+                {activeDescription}
               </p>
             </div>
 
@@ -138,7 +137,7 @@ export default function OurTeam({
                   WebkitOverflowScrolling: "touch",
                 }}
               >
-                {teamMembers.map((member) => (
+                {activeMembers.map((member) => (
                   <div
                     key={member.id}
                     className="group flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-[45vw] bg-[#141414] rounded-2xl overflow-hidden border border-gray-800 snap-center"
@@ -259,7 +258,7 @@ export default function OurTeam({
 
             {/* Desktop: Grid Layout */}
             <div className="hidden lg:grid lg:grid-cols-3 gap-8 px-4 md:px-8">
-              {teamMembers.map((member) => (
+              {activeMembers.map((member) => (
                 <div
                   key={member.id}
                   className="group bg-[#141414] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#fca311]/50 transition-all duration-500 transform hover:-translate-y-2"

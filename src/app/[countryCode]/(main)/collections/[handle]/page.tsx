@@ -5,7 +5,9 @@ import {
   getCollectionFilters,
   getFilteredCollection,
   buildShopifyFilters,
+  listCollections,
 } from "@lib/data/collections";
+import { getCollectionHero } from "@lib/cms/client";
 import { parseSearchParams, getDefaultFilterState } from "@lib/util/filterParams";
 import CollectionTemplate from "@modules/collections/templates";
 
@@ -51,19 +53,26 @@ export default async function CollectionPage(props: Props) {
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
 
-  // Fetch filtered products
-  const result = await getFilteredCollection(params.handle, {
-    filters: shopifyFilters,
-    sortKey: filterState.sortKey,
-    reverse: filterState.reverse,
-    first: 24,
-    after: urlParams.get("after") || undefined,
-  });
+  // Parallel fetches: Shopify filtered products, sidebar filters, collections menu, CMS hero
+  const [result, sidebarFilters, { collections }, collectionHero] = await Promise.all([
+    getFilteredCollection(params.handle, {
+      filters: shopifyFilters,
+      sortKey: filterState.sortKey,
+      reverse: filterState.reverse,
+      first: 24,
+      after: urlParams.get("after") || undefined,
+    }),
+    getCollectionFilters(params.handle),
+    listCollections({ limit: 100 }),
+    getCollectionHero(params.handle),
+  ]);
 
   if (!result) notFound();
 
-  // Fetch sidebar filters (unfiltered to show all options)
-  const sidebarFilters = await getCollectionFilters(params.handle);
+  const collectionsMenu = collections.map((c: any) => ({
+    handle: c.handle,
+    title: c.title,
+  }));
 
   return (
     <CollectionTemplate
@@ -74,6 +83,8 @@ export default async function CollectionPage(props: Props) {
       pageInfo={result.pageInfo}
       initialFilterState={filterState}
       countryCode={params.countryCode}
+      collectionsMenu={collectionsMenu}
+      heroData={collectionHero}
     />
   );
 }

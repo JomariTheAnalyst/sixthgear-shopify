@@ -8,7 +8,7 @@ const StarburstBadge = ({ children }: { children: React.ReactNode }) => (
       {/* 24-point zig-zag badge path */}
       <path d="M 50 2 L 57 12 L 69 9 L 74 19 L 86 21 L 85 33 L 96 40 L 90 50 L 96 60 L 85 67 L 86 79 L 74 81 L 69 91 L 57 88 L 50 98 L 43 88 L 31 91 L 26 81 L 14 79 L 15 67 L 4 60 L 10 50 L 4 40 L 15 33 L 14 21 L 26 19 L 31 9 L 43 12 Z" />
     </svg>
-    <div className="relative z-10 w-10 h-10 text-[#1A422D] flex items-center justify-center">
+    <div className="relative z-10 w-10 h-10 text-[#222222] flex items-center justify-center">
       {children}
     </div>
   </div>
@@ -134,7 +134,7 @@ const WhyChooseUsSection = () => {
             Why Choose Us
           </span>
           <h2 
-            className="text-[#1A422D] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight max-w-2xl mx-auto"
+            className="text-[#222222] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight max-w-2xl mx-auto"
             style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
           >
             YOUR FAVORITE BREWS AND BITES, ALL IN ONE MENU
@@ -153,14 +153,14 @@ const WhyChooseUsSection = () => {
               </StarburstBadge>
               
               <h3 
-                className="text-[#1A422D] font-extrabold text-[16px] sm:text-[17px] uppercase tracking-wide mb-3"
+                className="text-[#222222] font-extrabold text-[16px] sm:text-[17px] uppercase tracking-wide mb-3"
                 style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
               >
                 {feature.title}
               </h3>
               
               <p 
-                className="text-[#1A422D]/70 text-[14px] leading-[1.6] font-medium max-w-[220px]"
+                className="text-[#222222]/70 text-[14px] leading-[1.6] font-medium max-w-[220px]"
                 style={{ fontFamily: "var(--font-inter), sans-serif" }}
               >
                 {feature.desc}

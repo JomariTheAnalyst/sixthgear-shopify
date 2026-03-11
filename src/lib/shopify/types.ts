@@ -56,6 +56,7 @@ export interface ShopifyProductCard {
   availableForSale: boolean;
   tags: string[];
   vendor: string;
+  options?: ShopifyProductOption[];
   variants?: {
     edges: {
       node: {

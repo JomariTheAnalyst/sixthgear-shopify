@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react"
 
-const StarGroup = ({ color = "text-[#1A422D]" }: { color?: string }) => (
+const StarGroup = ({ color = "text-[#222222]" }: { color?: string }) => (
   <div className={`flex gap-1 ${color}`}>
     {[...Array(5)].map((_, i) => (
       <svg key={i} className="w-[14px] h-[14px]" fill="currentColor" viewBox="0 0 20 20">
@@ -13,7 +13,7 @@ const StarGroup = ({ color = "text-[#1A422D]" }: { color?: string }) => (
 )
 
 const BeanIcon = () => (
-  <svg className="w-8 h-8 text-[#1A422D]/10" fill="currentColor" viewBox="0 0 24 24">
+  <svg className="w-8 h-8 text-[#222222]/10" fill="currentColor" viewBox="0 0 24 24">
     <path d="M11 20A7 7 0 0 1 4 13C4 8.6 7 5 11 5a7 7 0 0 1 7 7c0 4.4-3 8-7 8Z" />
     <path d="M11 5v15" stroke="currentColor" strokeWidth="1.5" />
     <path d="M11 13a4 4 0 0 0 4-4" stroke="currentColor" strokeWidth="1.5" />
@@ -21,14 +21,14 @@ const BeanIcon = () => (
 )
 
 const CupIcon = () => (
-  <svg className="w-8 h-8 text-[#1A422D]/10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <svg className="w-8 h-8 text-[#222222]/10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8h14v7a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M17 10h1a3 3 0 010 6h-1M7 4v2M11 4v2M15 4v2" />
   </svg>
 )
 
 const TeapotIcon = () => (
-  <svg className="w-8 h-8 text-[#1A422D]/10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <svg className="w-8 h-8 text-[#222222]/10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 2C8.686 2 6 4.686 6 8v12h12V8c0-3.314-2.686-6-6-6z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M16 10h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M8 2h8M6 10H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2" />
@@ -128,7 +128,7 @@ const ClientTestimonialsSection = () => {
               Portfolio
             </span>
             <h2 
-              className="text-[#1A422D] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight"
+              className="text-[#222222] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight"
               style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
             >
               HEAR FROM OUR HAPPY<br className="hidden md:block" /> CUSTOMERS, SHARING MOMENTS
@@ -139,7 +139,7 @@ const ClientTestimonialsSection = () => {
           <div className="flex items-center gap-3 shrink-0 mx-auto md:mx-0">
             <button 
               onClick={() => scroll("left")}
-              className="w-12 h-12 rounded-full border-2 border-[#1A422D] text-[#1A422D] flex items-center justify-center hover:bg-[#1A422D] hover:text-white transition-colors"
+              className="w-12 h-12 rounded-full border-2 border-[#222222] text-[#222222] flex items-center justify-center hover:bg-[#222222] hover:text-white transition-colors"
               aria-label="Previous testimonials"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@ const ClientTestimonialsSection = () => {
             </button>
             <button 
               onClick={() => scroll("right")}
-              className="w-12 h-12 rounded-full bg-[#1A422D] text-white flex items-center justify-center hover:brightness-110 transition-colors shadow-md"
+              className="w-12 h-12 rounded-full bg-[#222222] text-white flex items-center justify-center hover:brightness-110 transition-colors shadow-md"
               aria-label="Next testimonials"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -163,7 +163,7 @@ const ClientTestimonialsSection = () => {
           
           {/* Static Hero Column (100% width mobile, 25% width desktop) */}
           <div className="w-full lg:w-1/4 shrink-0">
-            <div className="bg-[#1A422D] rounded-[16px] p-6 sm:p-8 flex flex-col justify-between shadow-lg h-[400px] lg:h-[420px]">
+            <div className="bg-[#222222] rounded-[16px] p-6 sm:p-8 flex flex-col justify-between shadow-lg h-[400px] lg:h-[420px]">
               {/* Top row */}
               <div className="flex items-start justify-between gap-4">
                 <div className="text-white font-black flex items-baseline leading-none" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
@@ -190,9 +190,9 @@ const ClientTestimonialsSection = () => {
                 <div className="flex items-center gap-4">
                   {/* Overlapping Avatars */}
                   <div className="flex -space-x-3">
-                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-[#1A422D] object-cover relative z-20" />
-                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-[#1A422D] object-cover relative z-10" />
-                    <div className="w-10 h-10 rounded-full border-2 border-[#1A422D] bg-[#F3B748] text-[#1A422D] flex items-center justify-center text-xs font-bold relative z-0">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-[#222222] object-cover relative z-20" />
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80" alt="Avatar" className="w-10 h-10 rounded-full border-2 border-[#222222] object-cover relative z-10" />
+                    <div className="w-10 h-10 rounded-full border-2 border-[#222222] bg-[#F3B748] text-[#222222] flex items-center justify-center text-xs font-bold relative z-0">
                       35+
                     </div>
                   </div>
@@ -206,7 +206,7 @@ const ClientTestimonialsSection = () => {
               </div>
 
               <button 
-                className="w-full bg-[#F3B748] text-[#1A422D] text-[12px] font-bold tracking-widest uppercase py-3.5 rounded-lg hover:brightness-105 transition-all shadow-md"
+                className="w-full bg-[#F3B748] text-[#222222] text-[12px] font-bold tracking-widest uppercase py-3.5 rounded-lg hover:brightness-105 transition-all shadow-md"
                 style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
               >
                 MORE REVIEW
@@ -232,8 +232,8 @@ const ClientTestimonialsSection = () => {
                      <div className="bg-[#f2f2f2] rounded-[16px] p-4 flex items-center gap-4 shadow-sm shrink-0">
                        <img src={t.image} alt={t.name} className="w-12 h-12 rounded-xl object-cover" />
                        <div className="overflow-hidden">
-                         <h4 className="text-[#1A422D] text-[13px] font-bold uppercase tracking-wide truncate" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>{t.name}</h4>
-                         <p className="text-[#1A422D]/60 text-[11px] font-medium truncate" style={{ fontFamily: "var(--font-inter), sans-serif" }}>{t.role}</p>
+                         <h4 className="text-[#222222] text-[13px] font-bold uppercase tracking-wide truncate" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>{t.name}</h4>
+                         <p className="text-[#222222]/60 text-[11px] font-medium truncate" style={{ fontFamily: "var(--font-inter), sans-serif" }}>{t.role}</p>
                        </div>
                      </div>
                      <div className="bg-[#f2f2f2] rounded-[16px] p-6 flex flex-col flex-1 shadow-sm relative overflow-hidden">
@@ -241,7 +241,7 @@ const ClientTestimonialsSection = () => {
                          <StarGroup />
                          {t.icon}
                        </div>
-                       <p className="mt-auto text-[#1A422D] text-[14px] sm:text-[15px] xl:text-[16px] font-black uppercase leading-[1.4] tracking-wide z-10" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
+                       <p className="mt-auto text-[#222222] text-[14px] sm:text-[15px] xl:text-[16px] font-black uppercase leading-[1.4] tracking-wide z-10" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
                          "{t.quote}"
                        </p>
                      </div>
@@ -252,7 +252,7 @@ const ClientTestimonialsSection = () => {
                  {t.type === "type2" && (
                    <>
                      <div className="bg-[#f2f2f2] rounded-[16px] p-6 flex flex-col flex-1 shadow-sm relative overflow-hidden">
-                       <p className="text-[#1A422D] text-[14px] sm:text-[15px] xl:text-[16px] font-black uppercase leading-[1.4] tracking-wide z-10" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
+                       <p className="text-[#222222] text-[14px] sm:text-[15px] xl:text-[16px] font-black uppercase leading-[1.4] tracking-wide z-10" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
                          "{t.quote}"
                        </p>
                        <div className="mt-auto flex justify-between items-end z-10">
@@ -263,8 +263,8 @@ const ClientTestimonialsSection = () => {
                      <div className="bg-[#F3B748] rounded-[16px] p-4 flex items-center gap-4 shadow-sm shrink-0">
                        <img src={t.image} alt={t.name} className="w-12 h-12 rounded-xl object-cover border-2 border-white/20" />
                        <div className="overflow-hidden">
-                         <h4 className="text-[#1A422D] text-[13px] font-bold uppercase tracking-wide truncate" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>{t.name}</h4>
-                         <p className="text-[#1A422D]/70 text-[11px] font-medium truncate" style={{ fontFamily: "var(--font-inter), sans-serif" }}>{t.role}</p>
+                         <h4 className="text-[#222222] text-[13px] font-bold uppercase tracking-wide truncate" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>{t.name}</h4>
+                         <p className="text-[#222222]/70 text-[11px] font-medium truncate" style={{ fontFamily: "var(--font-inter), sans-serif" }}>{t.role}</p>
                        </div>
                      </div>
                    </>
@@ -285,7 +285,7 @@ const ClientTestimonialsSection = () => {
                          <StarGroup />
                          {t.icon}
                        </div>
-                       <p className="mt-auto text-[#1A422D] text-[14px] sm:text-[15px] xl:text-[16px] font-black uppercase leading-[1.4] tracking-wide z-10" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
+                       <p className="mt-auto text-[#222222] text-[14px] sm:text-[15px] xl:text-[16px] font-black uppercase leading-[1.4] tracking-wide z-10" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>
                          "{t.quote}"
                        </p>
                      </div>

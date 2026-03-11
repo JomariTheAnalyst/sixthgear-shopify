@@ -1,191 +1,163 @@
 "use client"
 
 import Image from "next/image"
+import { useState, useEffect } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import type { SanityHeroSection } from "@lib/cms/types"
 
-interface HeroProps {
-  trustBadge?: string
-  title?: string
-  description?: string
-  primaryCta?: {
-    text: string
-    link: string
-  }
-  secondaryCta?: {
-    text: string
-    link: string
-  }
-  backgroundImage?: string | null
+const FALLBACK_HERO: SanityHeroSection = {
+  useCustomHero: false,
+  heading: "Best Bike\nRepair & Service",
+  description: "Professional servicing, repairs, detailing & performance upgrades. Trusted by riders for precision and care.",
+  primaryLabel: "More About Us",
+  primaryLink: "/about",
+  secondaryLabel: "View Services",
+  secondaryLink: "/services",
+  slides: [
+    {
+      imageUrl: "/images/homepage/slideshow-hero/slideshow4.png",
+      imageAlt: "SixthgearMoto hero background 1",
+      contentAlignment: "left",
+    },
+    {
+      imageUrl: "/images/homepage/slideshow-hero/slideshow5.png",
+      imageAlt: "SixthgearMoto hero background 2",
+      contentAlignment: "left",
+    },
+    {
+      imageUrl: "/images/homepage/slideshow-hero/sixthgear-hero.png",
+      imageAlt: "SixthgearMoto hero background 3",
+      contentAlignment: "left",
+    },
+  ],
 }
 
-const Hero = ({
-  trustBadge = "Trusted by 500+ Riders",
-  title = "Best Bike\nRepair & Service",
-  description = "Professional servicing, repairs, detailing & performance upgrades. Trusted by riders for precision and care.",
-  primaryCta = { text: "More About Us", link: "/about" },
-  secondaryCta = { text: "View Services", link: "/services" },
-  backgroundImage = null,
-}: HeroProps) => {
-  // Split title by newline for rendering
-  const titleLines = title.split("\n")
+interface HeroProps {
+  data?: SanityHeroSection | null
+}
 
-  // Use CMS background image if available, otherwise use default
-  const bgImage = backgroundImage || "/images/homepage/banner-img.png"
+const Hero = ({ data }: HeroProps) => {
+  // If explicitly disabled in CMS, kill all CMS inputs and default to pure fallback
+  const isCMSDisabled = data?.useCustomHero === false
+
+  // Merge field by field: use CMS if present, otherwise FALLBACK_HERO
+  const mergedHero = (!data || isCMSDisabled)
+    ? FALLBACK_HERO
+    : {
+        heading: data.heading ?? FALLBACK_HERO.heading,
+        description: data.description ?? FALLBACK_HERO.description,
+        primaryLabel: data.primaryLabel ?? FALLBACK_HERO.primaryLabel,
+        primaryLink: data.primaryLink ?? FALLBACK_HERO.primaryLink,
+        secondaryLabel: data.secondaryLabel ?? FALLBACK_HERO.secondaryLabel,
+        secondaryLink: data.secondaryLink ?? FALLBACK_HERO.secondaryLink,
+        slides: data.slides && data.slides.length > 0 ? data.slides : (FALLBACK_HERO.slides || [])
+      }
+
+  const headingText = mergedHero.heading || "Sixthgear Moto"
+  
+  // Format title to single line (prevents 2 lines)
+  const singleLineHeading = headingText.replace(/\n/g, " ")
+
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const slides = mergedHero.slides || []
+
+  useEffect(() => {
+    if (slides.length <= 1) return
+
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length)
+    }, 5000)
+
+    return () => clearInterval(timer)
+  }, [slides.length])
 
   return (
-    <div className="relative w-full h-auto bg-black overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        {backgroundImage ? (
-          <img
-            src={bgImage}
-            alt="Hero Background"
-            className="absolute inset-0 w-full h-full object-cover opacity-40 md:opacity-60"
-          />
-        ) : (
-          <Image
-            src={bgImage}
-            alt="Hero Background"
-            fill
-            className="object-cover opacity-40 md:opacity-60"
-            sizes="100vw"
-            priority
-          />
-        )}
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90 md:bg-gradient-to-r md:from-black md:via-black/80 md:to-transparent" />
-      </div>
+    <div className="relative w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[640px]">
+      {/* Background Image Slideshow */}
+      <div className="absolute inset-0 z-0 bg-black">
+        {slides.map((slide, idx) => (
+          <div 
+            key={slide.imageUrl + idx} 
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              idx === currentSlide ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
+            <Image
+              src={slide.imageUrl}
+              alt={slide.imageAlt || `Hero Background slide ${idx + 1}`}
+              fill
+              quality={100}
+              className="object-cover object-center"
+              sizes="100vw"
+              priority={idx === 0}
+            />
 
-      {/* Mobile Layout - Centered with image on top */}
-      <div className="relative z-10 lg:hidden w-full min-h-screen flex flex-col items-center justify-center px-6 py-20">
-        <div className="w-full max-w-lg flex flex-col items-center text-center">
-          {/* Bike Image - Top */}
-          <div className="relative w-full mb-8 animate-in fade-in zoom-in-95 duration-1000">
-            <div className="relative w-full aspect-[4/3]">
-              <Image
-                src="/images/homepage/banner-bike-img.png"
-                alt="Premium Motorcycle"
-                fill
-                className="object-contain drop-shadow-[0_0_80px_rgba(241,109,52,0.3)]"
-                priority
-              />
-            </div>
-          </div>
+            {/* Content Container (Now scoped uniquely per-slide) */}
+            <div className={`absolute inset-0 z-20 w-full h-full flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20 lg:pb-24 transition-all duration-700 ${
+              slide.contentAlignment === "right" ? "items-end" : "items-start"
+            }`}>
+              <div className={`w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-1000 ${
+                slide.contentAlignment === "right" ? "text-right" : "text-left"
+              }`}>
+                {/* Title */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4 text-white uppercase tracking-tight line-clamp-1">
+                  {singleLineHeading}
+                </h1>
 
-          {/* Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4 animate-in fade-in slide-in-from-bottom duration-700 delay-100">
-            {titleLines.map((line, index) => (
-              <span key={index}>
-                <span className="text-white uppercase tracking-tight">{line}</span>
-                {index < titleLines.length - 1 && <br />}
-              </span>
-            ))}
-          </h1>
+                {/* Description */}
+                {mergedHero.description && (
+                  <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-6 max-w-xl">
+                    {mergedHero.description}
+                  </p>
+                )}
 
-          {/* Trust Badge */}
-          {trustBadge && (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-6 animate-in fade-in duration-700 delay-200">
-              <span className="w-1.5 h-1.5 bg-[#F16D34] rounded-full" />
-              <span className="text-white/70 text-xs font-medium tracking-wide uppercase">
-                {trustBadge}
-              </span>
-            </div>
-          )}
+                {/* CTA Buttons */}
+                <div className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 transition-all duration-700 ${
+                  slide.contentAlignment === "right" ? "items-end sm:justify-end" : "items-start sm:justify-start"
+                }`}>
+                  {mergedHero.primaryLink && mergedHero.primaryLabel && (
+                    <LocalizedClientLink
+                      href={mergedHero.primaryLink}
+                      className="w-full sm:w-auto px-6 py-3 bg-white text-black font-bold text-center rounded-md hover:bg-gray-100 transition-all uppercase tracking-wide text-xs sm:text-sm"
+                    >
+                      {mergedHero.primaryLabel}
+                    </LocalizedClientLink>
+                  )}
 
-          {/* CTA Buttons - Stacked */}
-          <div className="flex flex-col w-full gap-3 animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-            <LocalizedClientLink
-              href={primaryCta.link}
-              className="w-full px-8 py-4 bg-white text-black font-bold rounded-md text-center hover:bg-gray-100 transition-all uppercase tracking-wide text-sm"
-            >
-              {primaryCta.text}
-            </LocalizedClientLink>
-
-            <LocalizedClientLink
-              href={secondaryCta.link}
-              className="w-full px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-md text-center hover:bg-white hover:text-black transition-all uppercase tracking-wide text-sm"
-            >
-              {secondaryCta.text}
-            </LocalizedClientLink>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Layout - Content LEFT, Image RIGHT */}
-      <div className="relative z-10 hidden lg:flex w-full h-[65vh] min-h-[500px]">
-        <div className="w-full h-full flex items-center">
-          <div className="grid grid-cols-2 gap-8 items-center w-full h-full">
-            {/* Left: Content */}
-            <div className="flex flex-col items-start justify-end h-full pb-8 pl-8 xl:pl-12 animate-in fade-in slide-in-from-left duration-1000">
-              {/* Trust Badge */}
-              {trustBadge && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full mb-3">
-                  <span className="w-1.5 h-1.5 bg-[#F16D34] rounded-full" />
-                  <span className="text-white/70 text-xs font-medium tracking-wide uppercase">
-                    {trustBadge}
-                  </span>
+                  {mergedHero.secondaryLabel && mergedHero.secondaryLink && (
+                    <LocalizedClientLink
+                      href={mergedHero.secondaryLink}
+                      className="w-full sm:w-auto px-6 py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-xs sm:text-sm"
+                    >
+                      {mergedHero.secondaryLabel}
+                    </LocalizedClientLink>
+                  )}
                 </div>
-              )}
-
-              {/* Title */}
-              <h1 className="text-4xl xl:text-5xl font-bold leading-tight tracking-tight mb-3">
-                {titleLines.map((line, index) => (
-                  <span key={index}>
-                    <span className="text-white uppercase">{line}</span>
-                    {index < titleLines.length - 1 && <br />}
-                  </span>
-                ))}
-              </h1>
-
-              {/* Description */}
-              {description && (
-                <p className="text-gray-400 text-sm xl:text-base leading-relaxed max-w-lg mb-4">
-                  {description}
-                </p>
-              )}
-
-              {/* CTA Buttons */}
-              <div className="flex items-center gap-4">
-                <LocalizedClientLink
-                  href={primaryCta.link}
-                  className="px-6 py-3 bg-white text-black font-bold rounded-md hover:bg-gray-100 transition-all uppercase tracking-wide text-xs"
-                >
-                  {primaryCta.text}
-                </LocalizedClientLink>
-
-                <LocalizedClientLink
-                  href={secondaryCta.link}
-                  className="px-6 py-3 bg-transparent border-2 border-white text-white font-bold rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-xs"
-                >
-                  {secondaryCta.text}
-                </LocalizedClientLink>
-              </div>
-            </div>
-
-            {/* Right: Bike Image */}
-            <div className="relative w-full h-full flex items-center justify-center pr-8 animate-in fade-in slide-in-from-right duration-1000 delay-200">
-              <div className="relative w-full h-full translate-x-8">
-                <Image
-                  src="/images/homepage/banner-bike-img.png"
-                  alt="Premium Motorcycle"
-                  fill
-                  className="object-contain drop-shadow-[0_0_100px_rgba(241,109,52,0.4)]"
-                  priority
-                />
               </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Carousel Navigation Dots - Mobile only */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 lg:hidden flex items-center gap-2">
-        <button className="w-2 h-2 rounded-full bg-white" />
-        <button className="w-2 h-2 rounded-full bg-white/30" />
-        <button className="w-2 h-2 rounded-full bg-white/30" />
-      </div>
+      {/* Carousel Navigation Dots */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${
+                idx === currentSlide ? "bg-white" : "bg-white/30 hover:bg-white/50"
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 export default Hero
+

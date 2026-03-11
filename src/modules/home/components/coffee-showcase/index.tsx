@@ -64,7 +64,7 @@ export default function CoffeeShowcase({
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Use Strapi content if provided, otherwise fall back to hardcoded
+  // Use CMS content if provided, otherwise fall back to hardcoded
   const content = {
     headingLine1: mainHeadingLine1 || "Sixthgear",
     highlightedWord: highlightedWord || " fuels more than rides.",
@@ -73,7 +73,7 @@ export default function CoffeeShowcase({
       descriptionText ||
       "More than a pit stop it's where riders refuel, relax, and reconnect. Handcrafted brews served with passion, right here at Sixthgear.",
     ctaText: buttonText || "View Full Menu",
-    ctaLink: buttonLink || "/menu",
+    ctaLink: buttonLink || "/first-gear",
     drinks: coffeeItems || defaultFeaturedDrinks,
   }
 
@@ -381,7 +381,7 @@ export default function CoffeeShowcase({
             {/* View All Button or CTA Button */}
             {hasMoreItems ? (
               <Link
-                href="/menu"
+                href="/first-gear"
                 className="bg-[#F16D34] hover:bg-[#ff7a3d] text-white font-bold px-8 md:px-10 py-3 md:py-4 rounded-none transition-all duration-300 inline-flex items-center gap-2 md:gap-3 group text-base md:text-lg"
                 style={{
                   fontFamily: "Inter Display, sans-serif",

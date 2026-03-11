@@ -50,7 +50,7 @@ const CoffeeCategorySection = () => {
               Coffee Category
             </span>
             <h2 
-              className="text-[#1A422D] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight"
+              className="text-[#222222] text-[32px] sm:text-[40px] md:text-[48px] leading-[1.1] font-black uppercase tracking-tight"
               style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
             >
               OUR COFFEE,<br /> YOUR EXPERIENCE
@@ -59,7 +59,7 @@ const CoffeeCategorySection = () => {
 
           <div className="flex-shrink-0">
             <button 
-              className="bg-[#1A422D] text-white text-[11px] sm:text-xs font-bold tracking-widest uppercase px-6 sm:px-8 py-3.5 rounded-lg hover:brightness-110 active:translate-y-1 transition-all shadow-[0_4px_0_0_rgba(15,40,27,1)]"
+              className="bg-[#222222] text-white text-[11px] sm:text-xs font-bold tracking-widest uppercase px-6 sm:px-8 py-3.5 rounded-lg hover:brightness-110 active:translate-y-1 transition-all shadow-[0_4px_0_0_rgba(17,17,17,1)]"
               style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
             >
               OUR PRODUCTS
@@ -87,7 +87,7 @@ const CoffeeCategorySection = () => {
 
               {/* Category Title */}
               <h3 
-                className="text-[#1A422D] text-[20px] sm:text-[24px] md:text-[28px] font-black uppercase tracking-tight mt-auto"
+                className="text-[#222222] text-[20px] sm:text-[24px] md:text-[28px] font-black uppercase tracking-tight mt-auto"
                 style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
               >
                 {category.name}
