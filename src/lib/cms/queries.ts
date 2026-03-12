@@ -190,3 +190,33 @@ export const clientTestimonialsQuery = groq`
     }
   }
 `
+
+export const storeLocationQuery = groq`
+  *[_type == "homepage"][0]{
+    storeLocation {
+      storeName,
+      address,
+      phone,
+      hours,
+      googleMapsUrl
+    }
+  }
+`
+
+export const ctaBannerQuery = groq`
+  *[_type == "homepage"][0]{
+    ctaBanner {
+      preTitle,
+      headline,
+      headlineHighlight,
+      buttonLabel,
+      buttonLink,
+      footerTagline,
+      socialLinks {
+        instagram,
+        facebook,
+        tiktok
+      }
+    }
+  }
+`

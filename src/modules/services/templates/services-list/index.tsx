@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { ServiceCategory } from "@lib/services-data"
 import CTABanner from "@modules/home/components/cta-banner"
+import ServiceHero from "../service-hero"
 
 interface ServicesListTemplateProps {
   services: ServiceCategory[]
@@ -24,47 +25,18 @@ export default function ServicesListTemplate({
   return (
     <>
       {/* Hero Section */}
-      <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-center justify-center overflow-hidden bg-[#1a1a1a]">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-20 right-20 w-72 h-72 bg-[#F16D34]/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-[#F16D34]/10 rounded-full blur-3xl" />
-
-        {/* Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-8 text-center">
-          <span
-            className="inline-block text-[#F16D34] text-sm md:text-base font-semibold uppercase tracking-widest mb-4"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
-          >
-            Professional Motorcycle Care
-          </span>
-
-          <h1
-            className="text-4xl md:text-6xl lg:text-7xl text-white uppercase leading-[0.95] tracking-tight mb-6"
-            style={{ fontFamily: "Tanker, sans-serif" }}
-          >
-            Our <span className="text-[#F16D34]">Services</span>
-          </h1>
-
-          <p
-            className="text-white/70 text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
-          >
-            Complete motorcycle care from routine maintenance to performance
-            upgrades. Expert technicians, quality parts, and attention to
-            detail.
-          </p>
-        </div>
-      </section>
+      <ServiceHero 
+        service={{
+          id: "services-main",
+          slug: "services",
+          title: "Our Services",
+          shortTitle: "Services",
+          description: "Complete motorcycle care from routine maintenance to performance upgrades. Expert technicians, quality parts, and attention to detail.",
+          image: "/images/homepage/services/hero.png",
+          heroImage: "/images/homepage/services/hero3.png",
+          items: []
+        }} 
+      />
 
       {/* Services List - Landscape Cards */}
       <section className="bg-[#FAFAFA] py-16 md:py-24">

@@ -1,7 +1,7 @@
 import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId } from '../../../sanity/env'
-import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery } from './queries'
+import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery } from './queries'
 import type {
   SanityAboutSection,
   SanityCategoriesSection,
@@ -16,6 +16,8 @@ import type {
   SanityFranchiseSection,
   SanityOurTeamSection,
   SanityClientTestimonials,
+  SanityStoreLocation,
+  SanityCtaBanner,
 } from './types'
 
 export const client = createClient({
@@ -355,6 +357,58 @@ export async function getClientTestimonials(): Promise<SanityClientTestimonials 
     return result?.clientTestimonials ?? null
   } catch (error) {
     console.error('[Sanity] getClientTestimonials failed:', error)
+    return null
+  }
+}
+
+export async function getStoreLocation(): Promise<SanityStoreLocation | null> {
+  try {
+    console.log('Fetching homepage store location from Sanity...')
+
+    const result = await client.fetch<{ storeLocation: SanityStoreLocation | null } | null>(
+      storeLocationQuery,
+      {},
+      {
+        next: {
+          revalidate: 300,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    if (!result?.storeLocation) {
+      console.warn('[Sanity] Homepage store location query returned null:', JSON.stringify(result))
+    }
+
+    return result?.storeLocation ?? null
+  } catch (error) {
+    console.error('[Sanity] getStoreLocation failed:', error)
+    return null
+  }
+}
+
+export async function getCtaBanner(): Promise<SanityCtaBanner | null> {
+  try {
+    console.log('Fetching homepage CTA banner from Sanity...')
+
+    const result = await client.fetch<{ ctaBanner: SanityCtaBanner | null } | null>(
+      ctaBannerQuery,
+      {},
+      {
+        next: {
+          revalidate: 300,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    if (!result?.ctaBanner) {
+      console.warn('[Sanity] Homepage CTA banner query returned null:', JSON.stringify(result))
+    }
+
+    return result?.ctaBanner ?? null
+  } catch (error) {
+    console.error('[Sanity] getCtaBanner failed:', error)
     return null
   }
 }

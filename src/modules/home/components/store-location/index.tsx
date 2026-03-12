@@ -6,6 +6,14 @@
  * Allows zoom/pan with marker staying at coordinates
  */
 
+interface StoreLocationProps {
+  storeName?: string | null
+  address?: string | null
+  phone?: string | null
+  hours?: string | null
+  googleMapsUrl?: string | null
+}
+
 const storeInfo = {
   name: "Sixth Gear Moto Supply Café + Lounge",
   address: "3610 Bautista St, Makati City, Metro Manila",
@@ -18,7 +26,19 @@ const storeInfo = {
   hours: "Monday - Friday | 9:00 AM - 8:00 PM",
 }
 
-export default function StoreLocation() {
+export default function StoreLocation({
+  storeName,
+  address,
+  phone,
+  hours,
+  googleMapsUrl,
+}: StoreLocationProps) {
+  const activeName = storeName || storeInfo.name
+  const activeAddress = address || storeInfo.address
+  const activePhone = phone || storeInfo.phone
+  const activeHours = hours || storeInfo.hours
+  const activeGoogleMapsUrl = googleMapsUrl || storeInfo.googleMapsUrl
+
   const handleGetDirections = () => {
     const { lat, lng } = storeInfo.coordinates
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -29,7 +49,7 @@ export default function StoreLocation() {
         "_blank"
       )
     } else {
-      window.open(storeInfo.googleMapsUrl, "_blank")
+      window.open(activeGoogleMapsUrl, "_blank")
     }
   }
 
@@ -77,7 +97,7 @@ export default function StoreLocation() {
               className="text-3xl md:text-4xl lg:text-5xl text-[#F16D34] mb-8"
               style={{ fontFamily: "Tanker, sans-serif" }}
             >
-              {storeInfo.name}
+              {activeName}
             </h3>
 
             {/* Info Items */}
@@ -116,7 +136,7 @@ export default function StoreLocation() {
                     className="text-white text-base md:text-lg"
                     style={{ fontFamily: "Inter Display, sans-serif" }}
                   >
-                    {storeInfo.address}
+                    {activeAddress}
                   </p>
                 </div>
               </div>
@@ -146,11 +166,11 @@ export default function StoreLocation() {
                     Phone
                   </p>
                   <a
-                    href={`tel:${storeInfo.phone.replace(/\s/g, "")}`}
+                    href={`tel:${activePhone.replace(/\s/g, "")}`}
                     className="text-white text-base md:text-lg hover:text-[#F16D34] transition-colors"
                     style={{ fontFamily: "Inter Display, sans-serif" }}
                   >
-                    {storeInfo.phone}
+                    {activePhone}
                   </a>
                 </div>
               </div>
@@ -183,7 +203,7 @@ export default function StoreLocation() {
                     className="text-white text-base md:text-lg"
                     style={{ fontFamily: "Inter Display, sans-serif" }}
                   >
-                    {storeInfo.hours}
+                    {activeHours}
                   </p>
                 </div>
               </div>

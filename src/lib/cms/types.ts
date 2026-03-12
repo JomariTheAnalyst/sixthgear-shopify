@@ -177,3 +177,25 @@ export interface SanityClientTestimonials {
   sectionDescription: string | null
   testimonials: SanityTestimonialItem[] | null
 }
+
+export interface SanityStoreLocation {
+  storeName: string | null
+  address: string | null
+  phone: string | null
+  hours: string | null
+  googleMapsUrl: string | null
+}
+
+export interface SanityCtaBanner {
+  preTitle: string | null
+  headline: string | null
+  headlineHighlight: string | null
+  buttonLabel: string | null
+  buttonLink: string | null
+  footerTagline: string | null
+  socialLinks: {
+    instagram: string | null
+    facebook: string | null
+    tiktok: string | null
+  } | null
+}

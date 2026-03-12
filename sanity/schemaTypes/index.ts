@@ -25,6 +25,8 @@ import teamMember from './team-member'
 import ourTeamSection from './our-team-section'
 import testimonialItem from './testimonial-item'
 import clientTestimonials from './client-testimonials'
+import storeLocation from './store-location'
+import ctaBanner from './cta-banner'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -52,6 +54,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     ourTeamSection,
     testimonialItem,
     clientTestimonials,
+    storeLocation,
+    ctaBanner,
 
     homepage,
   ],

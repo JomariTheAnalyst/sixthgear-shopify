@@ -29,7 +29,6 @@ import {
 } from "@lib/strapi/home-with-fallbacks"
 import { getShopByBrandsWithFallbacks } from "@lib/strapi/shop-by-brands"
 import { getClientStoriesWithFallbacks } from "@lib/strapi/client-stories"
-import { getCTABannerWithFallbacks } from "@lib/strapi/cta-banner"
 import {
   getHomepageAbout,
   getHomepageCategories,
@@ -43,6 +42,8 @@ import {
   getFranchiseSection,
   getOurTeamSection,
   getClientTestimonials,
+  getStoreLocation,
+  getCtaBanner,
 } from "@lib/cms/client"
 
 export const revalidate = 60
@@ -96,6 +97,8 @@ export default async function Home(props: {
     franchiseSection,
     ourTeamSection,
     clientTestimonialsData,
+    storeLocation,
+    ctaBanner,
     featuredProductsResp,
     collections,
     newArrivalsResp,
@@ -112,6 +115,8 @@ export default async function Home(props: {
     getFranchiseSection(),
     getOurTeamSection(),
     getClientTestimonials(),
+    getStoreLocation(),
+    getCtaBanner(),
     getProducts({ first: 8, query: 'tag:featured' }),
     getCollections(8),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
@@ -152,7 +157,6 @@ export default async function Home(props: {
   const aboutContent = await getAboutWithFallbacks(homeContent)
   const shopByBrandsContent = getShopByBrandsWithFallbacks(homeContent)
   const clientStoriesContent = getClientStoriesWithFallbacks(homeContent)
-  const ctaBannerContent = getCTABannerWithFallbacks(homeContent)
 
   console.log("[HomePage] About content with fallbacks:", aboutContent)
   console.log(
@@ -428,17 +432,58 @@ export default async function Home(props: {
         stories={clientStoriesContent.stories}
       />
 
-      {ctaBannerContent.isEnabled && (
-        <CTABanner
-          title={ctaBannerContent.title}
-          description={ctaBannerContent.description}
-          backgroundImage={ctaBannerContent.backgroundImage}
-          openingHours={ctaBannerContent.openingHours}
-          socialLinks={ctaBannerContent.socialLinks}
-        />
-      )}
+      <CTABanner
+        preTitle={
+          ctaBanner?.preTitle
+          ?? undefined}
+        headline={
+          ctaBanner?.headline
+          ?? undefined}
+        headlineHighlight={
+          ctaBanner?.headlineHighlight
+          ?? undefined}
+        buttonLabel={
+          ctaBanner?.buttonLabel
+          ?? undefined}
+        buttonLink={
+          ctaBanner?.buttonLink
+          ?? undefined}
+        footerTagline={
+          ctaBanner?.footerTagline
+          ?? undefined}
+        socialLinks={
+          ctaBanner?.socialLinks
+            ? {
+                instagram:
+                  ctaBanner.socialLinks
+                    .instagram ?? undefined,
+                facebook:
+                  ctaBanner.socialLinks
+                    .facebook ?? undefined,
+                tiktok:
+                  ctaBanner.socialLinks
+                    .tiktok ?? undefined,
+              }
+            : undefined}
+      />
 
-      <StoreLocation />
+      <StoreLocation
+        storeName={
+          storeLocation?.storeName 
+          ?? undefined}
+        address={
+          storeLocation?.address 
+          ?? undefined}
+        phone={
+          storeLocation?.phone 
+          ?? undefined}
+        hours={
+          storeLocation?.hours 
+          ?? undefined}
+        googleMapsUrl={
+          storeLocation?.googleMapsUrl 
+          ?? undefined}
+      />
 
       <PopupAds popups={marketing.popups} />
     </>

@@ -270,16 +270,8 @@ export default async function PreviewPage(props: {
           stories={clientStoriesContent.stories}
         />
 
-        {/* CTA Banner - Opening Hours */}
-        {ctaBannerContent.isEnabled && (
-          <CTABanner
-            title={ctaBannerContent.title}
-            description={ctaBannerContent.description}
-            backgroundImage={ctaBannerContent.backgroundImage}
-            openingHours={ctaBannerContent.openingHours}
-            socialLinks={ctaBannerContent.socialLinks}
-          />
-        )}
+        {/* CTA Banner */}\r
+        <CTABanner />
 
         {/* Store Location */}
         <StoreLocation />

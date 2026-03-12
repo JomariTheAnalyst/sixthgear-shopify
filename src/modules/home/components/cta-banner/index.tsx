@@ -1,172 +1,183 @@
 "use client"
 
-/**
- * CTA Banner Section
- * Opening Hours + Social Media Links
- * Hero-style background with gradient overlays
- */
-
-import Image from "next/image"
+import Link from "next/link"
+import { TextRoll } from "components/ui/text-roll"
 
 interface CTABannerProps {
-  title?: string
-  description?: string
-  backgroundImage?: string
-  openingHours?: string
+  preTitle?: string | null
+  headline?: string | null
+  headlineHighlight?: string | null
+  buttonLabel?: string | null
+  buttonLink?: string | null
+  footerTagline?: string | null
   socialLinks?: {
-    facebook?: string
-    instagram?: string
-    tiktok?: string
-  }
+    facebook?: string | null
+    instagram?: string | null
+    tiktok?: string | null
+  } | null
 }
 
 export default function CTABanner({
-  title = "VISIT US\nTODAY",
-  description = "Your one-stop destination for premium motorcycle gear, parts, and great coffee",
-  backgroundImage = "/images/cta-placeholder.jpg",
-  openingHours = "Open Monday - Friday | 9:00 AM - 8:00 PM",
-  socialLinks = {
-    facebook: "https://www.facebook.com/camille.sixthgear",
-    instagram: "https://www.instagram.com/sixthgear_moto_supply/",
-    tiktok: "https://www.tiktok.com/@sixthgear.moto.su",
-  },
+  preTitle,
+  headline,
+  headlineHighlight,
+  buttonLabel,
+  buttonLink,
+  footerTagline,
+  socialLinks,
 }: CTABannerProps) {
-  // Parse title to handle line breaks
-  const titleLines = title.split("\n")
+  const activePreTitle = preTitle || "Ready to upgrade your ride?"
+  const activeHeadline = headline || "We've got\nthe gear\nwaiting for you."
+  const activeHighlight = headlineHighlight || "for you."
+  const activeButtonLabel = buttonLabel || "Shop Now"
+  const activeButtonLink = buttonLink || "/store"
 
-  // Filter out empty social links
+  const activeFooterTagline = footerTagline || "Sixth Gear Moto Supply® is a premium service center. Based in Makati City, Working nationwide."
+
+  const activeSocialLinks = {
+    instagram: socialLinks?.instagram || "https://www.instagram.com/sixthgear_moto_supply/",
+    facebook: socialLinks?.facebook || "https://www.facebook.com/camille.sixthgear",
+    tiktok: socialLinks?.tiktok || "https://www.tiktok.com/@sixthgear.moto.su",
+  }
+
   const activeSocials = [
-    socialLinks.facebook && {
-      name: "Facebook",
-      url: socialLinks.facebook,
-      icon: (
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-        </svg>
-      ),
-    },
-    socialLinks.instagram && {
-      name: "Instagram",
-      url: socialLinks.instagram,
-      icon: (
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
-        </svg>
-      ),
-    },
-    socialLinks.tiktok && {
-      name: "TikTok",
-      url: socialLinks.tiktok,
-      icon: (
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
-        </svg>
-      ),
-    },
+    activeSocialLinks.instagram && { name: "Instagram", url: activeSocialLinks.instagram },
+    activeSocialLinks.facebook && { name: "Facebook", url: activeSocialLinks.facebook },
+    activeSocialLinks.tiktok && { name: "TikTok", url: activeSocialLinks.tiktok },
   ].filter(Boolean)
 
-  return (
-    <section className="px-3 md:px-6 lg:px-8 py-8 md:py-12">
-      <div className="relative w-full h-[500px] md:h-[550px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
-        {/* Background Image */}
-        <img
-          src={backgroundImage}
-          alt="Sixthgear Store"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+  // Split headline into lines (preserving newlines as <br/>)
+  // Then within each line, split by highlight text (case-insensitive)
+  const renderHeadline = () => {
+    const lines = activeHeadline.split("\n")
 
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+    return lines.map((line, lineIdx) => {
+      // Case-insensitive find of the highlight within this line
+      const highlightLower = activeHighlight.toLowerCase()
+      const lineLower = line.toLowerCase()
+      const matchIndex = lineLower.indexOf(highlightLower)
 
-        {/* Decorative Elements */}
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-[#F16D34]/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl" />
-
-        {/* Main Content */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6 z-10">
-          {/* Main Title */}
-          <h2
-            className="text-white text-4xl md:text-6xl lg:text-7xl xl:text-8xl leading-[0.9] font-bold uppercase tracking-tight"
-            style={{
-              fontFamily: "Tanker, sans-serif",
-              textShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
-            }}
-          >
-            {titleLines.map((line, index) => (
-              <span key={index}>
-                {index === 1 ? (
-                  <span className="text-[#F16D34]">{line}</span>
-                ) : (
-                  line
-                )}
-                {index < titleLines.length - 1 && <br />}
+      return (
+        <span key={lineIdx}>
+          {matchIndex === -1 ? (
+            // No match in this line — render entire line white
+            line
+          ) : (
+            <>
+              {line.slice(0, matchIndex)}
+              <span className="text-[#F16D34]">
+                {line.slice(matchIndex, matchIndex + activeHighlight.length)}
               </span>
-            ))}
-          </h2>
-
-          {/* Subtitle */}
-          <p
-            className="text-white/80 text-sm md:text-base lg:text-lg mt-6 tracking-wide max-w-lg"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
-          >
-            {description}
-          </p>
-
-          {/* Social Media Section - Only show if there are active socials */}
-          {activeSocials.length > 0 && (
-            <div className="mt-10 md:mt-12">
-              <p
-                className="text-white/60 text-xs md:text-sm uppercase tracking-widest mb-4"
-                style={{ fontFamily: "Inter Display, sans-serif" }}
-              >
-                Follow us on our socials
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                {activeSocials.map((social: any) => (
-                  <a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-white/80 hover:bg-[#F16D34] hover:border-[#F16D34] hover:text-white transition-all duration-300 hover:scale-110"
-                    aria-label={`Follow us on ${social.name}`}
-                  >
-                    {social.icon}
-                  </a>
-                ))}
-              </div>
-            </div>
+              {line.slice(matchIndex + activeHighlight.length)}
+            </>
           )}
-        </div>
+          {lineIdx < lines.length - 1 && <br />}
+        </span>
+      )
+    })
+  }
 
-        {/* Bottom Opening Hours Badge */}
-        {openingHours && (
-          <div className="absolute bottom-6 left-6 right-6 flex justify-center z-10">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-[#F16D34] rounded-full">
-              <svg
-                className="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+  return (
+    <section className="w-full px-4 md:px-6 lg:px-8 py-8 md:py-12">
+      <div className="w-full bg-[#111111] rounded-[2rem] px-6 py-10 md:p-14 lg:px-20 lg:py-16 flex flex-col justify-between relative overflow-hidden min-h-[650px] md:min-h-[450px]">
+        {/* Subtle Orange Gradient Accent (Minimal) */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F16D34]/15 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+        
+        {/* Top/Main Container */}
+        <div className="flex flex-col md:flex-row justify-between items-start z-10 w-full mb-12 md:mb-16">
+          
+          {/* Left Side: Headlines & Button */}
+          <div className="max-w-2xl w-full">
+            <p 
+              className="text-white/90 text-[15px] md:text-lg font-bold mb-4 md:mb-6 tracking-tight" 
+              style={{ fontFamily: "'Inter', sans-serif" }}
+            >
+              <span className="text-[#F16D34] mr-1">Not sure where to start?</span> {activePreTitle}
+            </p>
+
+            <h2 
+              className="text-white text-[3.25rem] leading-[0.95] tracking-[-0.03em] md:text-[5.5rem] lg:text-[6.5rem] md:leading-[0.9] md:tracking-[-0.04em] font-bold mb-8 md:mb-10"
+              style={{ fontFamily: "'Inter Display', sans-serif" }}
+            >
+              {renderHeadline()}
+            </h2>
+
+            {/* Buttons Area */}
+            <div className="flex items-center gap-3">
+              <Link 
+                href={activeButtonLink}
+                className="px-8 py-3.5 md:py-4 bg-[#F2F2F2] text-[#111] text-sm md:text-[15px] font-bold rounded-[2rem] transition-all hover:bg-[#F16D34] hover:text-white"
+                style={{ fontFamily: "'Inter', sans-serif" }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span
-                className="text-white text-sm md:text-base font-semibold tracking-wide"
-                style={{ fontFamily: "Inter Display, sans-serif" }}
+                {activeButtonLabel}
+              </Link>
+              <Link
+                href={activeButtonLink}
+                className="w-12 h-12 md:w-14 md:h-14 bg-[#F2F2F2] text-[#111] rounded-full flex items-center justify-center transition-all hover:bg-[#F16D34] hover:text-white"
               >
-                {openingHours}
-              </span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 17l9.2-9.2M17 17V7H7" />
+                </svg>
+              </Link>
             </div>
           </div>
-        )}
+
+          {/* Right Side: Social Links (Desktop) */}
+          <div className="hidden md:flex flex-col gap-[2px] items-end pt-2">
+            {activeSocials.map((social: any) => (
+              <a 
+                key={social.name}
+                href={social.url} 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-white text-base font-bold hover:text-[#F16D34] transition-colors"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                <TextRoll center={false}>{social.name}</TextRoll>
+              </a>
+            ))}
+          </div>
+
+        </div>
+
+        {/* Mobile Spacer / Layout Divider element  */}
+        <div className="flex-grow" />
+
+        {/* Social Links (Mobile) */}
+        <div className="md:hidden flex flex-col gap-1 items-start mt-8 w-full z-10 mb-12">
+          {activeSocials.map((social: any) => (
+            <a 
+              key={social.name}
+              href={social.url} 
+              target="_blank" 
+              rel="noreferrer"
+              className="text-white text-[1.4rem] font-bold hover:text-[#F16D34] transition-colors tracking-tight"
+              style={{ fontFamily: "'Inter Display', sans-serif" }}
+            >
+              <TextRoll center={false}>{social.name}</TextRoll>
+            </a>
+          ))}
+        </div>
+
+        {/* Bottom Footer Section */}
+        <div className="w-full relative z-10">
+          {/* Divider line spanning main content area (Desktop only) */}
+          <div className="hidden md:flex justify-between items-center mb-6">
+             <div className="w-[85%] h-[1px] bg-white/20" />
+             <p className="text-white/80 font-bold text-[11px] text-right" style={{ fontFamily: "'Inter', sans-serif" }}>
+                @sixthgearmoto, All Right Reserved
+             </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 md:gap-4">
+            <p className="text-white font-bold text-xs md:text-[13px] leading-snug md:leading-normal" style={{ fontFamily: "'Inter', sans-serif" }}>
+              {activeFooterTagline}
+            </p>
+          </div>
+        </div>
+
       </div>
     </section>
   )
 }
+

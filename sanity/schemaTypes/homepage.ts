@@ -71,5 +71,15 @@ export default defineType({
       title: 'Client Testimonials',
       type: 'clientTestimonials',
     }),
+    defineField({
+      name: 'storeLocation',
+      title: 'Store Location',
+      type: 'storeLocation',
+    }),
+    defineField({
+      name: 'ctaBanner',
+      title: 'CTA Banner',
+      type: 'ctaBanner',
+    }),
   ],
 })
