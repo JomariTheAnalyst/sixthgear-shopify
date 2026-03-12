@@ -38,6 +38,110 @@ export default function ServicesListTemplate({
         }} 
       />
 
+      {/* Expertise Stats Section */}
+      <section className="bg-white py-20 md:py-32 w-full border-b border-[#EAEAEA]">
+        <div className="w-full lg:max-w-[95%] xl:max-w-[1500px] mx-auto px-6 md:px-12 lg:px-16">
+          <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+            
+            {/* Left Content */}
+            <div className="flex-1 w-full text-left lg:pr-12">
+              <h2 
+                className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.25rem] text-[#111] leading-[1.1] mb-6 font-semibold"
+                style={{ 
+                  fontFamily: "'Inter Display', sans-serif", 
+                  letterSpacing: "-0.03em"
+                }}
+              >
+                Comprehensive Care for<br className="hidden sm:block" /> Premium Motorcycles
+              </h2>
+              
+              <p 
+                className="text-[#111]/80 text-base md:text-lg lg:text-xl leading-relaxed mb-10 font-normal lg:max-w-[90%]"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                From routine maintenance to performance upgrades and emergency recovery, we provide end-to-end solutions. Our expert technicians combine advanced diagnostics with quality parts to keep your ride at its peak.
+              </p>
+              
+              <Link 
+                href={`/${countryCode}/contact`}
+                className="inline-flex items-center justify-center px-8 py-3.5 lg:px-10 lg:py-4 border border-[#111] rounded-md bg-transparent text-[#111] font-medium text-sm md:text-base transition-colors hover:bg-[#111] hover:text-white"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                Book a Service
+              </Link>
+            </div>
+
+            {/* Right Grid (2x2 ratio, pure black text, larger cards) */}
+            <div className="w-full lg:w-[50%] grid grid-cols-2 gap-5 md:gap-8">
+              {/* Card 1 */}
+              <div className="bg-white rounded-[1.25rem] p-8 md:p-12 border border-[#EAEAEA] shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300">
+                <span 
+                  className="text-[#111] text-[4rem] md:text-[5rem] leading-none font-bold mb-3 tracking-tighter"
+                  style={{ fontFamily: "'Inter Display', sans-serif" }}
+                >
+                  8
+                </span>
+                <span 
+                  className="text-[#111] text-sm md:text-base font-medium leading-snug"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Core Service<br />Categories
+                </span>
+              </div>
+              
+              {/* Card 2 */}
+              <div className="bg-white rounded-[1.25rem] p-8 md:p-12 border border-[#EAEAEA] shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300">
+                <span 
+                  className="text-[#111] text-[4rem] md:text-[5rem] leading-none font-bold mb-3 tracking-tighter"
+                  style={{ fontFamily: "'Inter Display', sans-serif" }}
+                >
+                  45+
+                </span>
+                <span 
+                  className="text-[#111] text-sm md:text-base font-medium leading-snug"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Specialized<br />Procedures
+                </span>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-[1.25rem] p-8 md:p-12 border border-[#EAEAEA] shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300">
+                <span 
+                  className="text-[#111] text-[4rem] md:text-[5rem] leading-none font-bold mb-3 tracking-tighter"
+                  style={{ fontFamily: "'Inter Display', sans-serif" }}
+                >
+                  100%
+                </span>
+                <span 
+                  className="text-[#111] text-sm md:text-base font-medium leading-snug"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Precision<br />& Quality
+                </span>
+              </div>
+
+              {/* Card 4 */}
+              <div className="bg-white rounded-[1.25rem] p-8 md:p-12 border border-[#EAEAEA] shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300">
+                <span 
+                  className="text-[#111] text-[4rem] md:text-[5rem] leading-none font-bold mb-3 tracking-tighter"
+                  style={{ fontFamily: "'Inter Display', sans-serif" }}
+                >
+                  24/7
+                </span>
+                <span 
+                  className="text-[#111] text-sm md:text-base font-medium leading-snug"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  Roadside<br />Recovery
+                </span>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+
       {/* Services List - Landscape Cards */}
       <section className="bg-[#FAFAFA] py-16 md:py-24">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
