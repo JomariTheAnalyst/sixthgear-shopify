@@ -1,34 +1,68 @@
 // STUB for migration — wires product functions to Shopify
 import { getProducts, getProduct } from "@lib/shopify"
 
-// Shared mapper: Shopify card → Medusa-like shape
 function mapShopifyCard(p: any) {
+  const price = p.priceRange?.minVariantPrice || p.variants?.edges?.[0]?.node?.price
+  const compareAtPrice = p.compareAtPriceRange?.minVariantPrice || p.variants?.edges?.[0]?.node?.compareAtPrice
+
+  // Map all images
+  const images = p.images?.edges?.map((e: any) => ({ url: e.node.url })) || []
+  if (images.length === 0 && p.featuredImage) {
+    images.push({ url: p.featuredImage.url })
+  }
+
+  // Map all variants
+  const variants = p.variants?.edges?.map((edge: any) => {
+    const node = edge.node
+    const variantPrice = node.price || price
+    const variantCompare = node.compareAtPrice || compareAtPrice
+
+    return {
+      id: node.id,
+      title: node.title || node.selectedOptions?.map((o: any) => o.value).join(" / ") || "Default Title",
+      allow_backorder: false,
+      manage_inventory: true,
+      inventory_quantity: node.availableForSale !== false ? 10 : 0,
+      options: node.selectedOptions?.map((o: any) => ({
+        value: o.value,
+        option: { title: o.name }
+      })) || [],
+      calculated_price: {
+        calculated_amount: variantPrice ? parseFloat(variantPrice.amount) : null,
+        original_amount: variantCompare ? parseFloat(variantCompare.amount) : null,
+        currency_code: variantPrice?.currencyCode || "php"
+      },
+      image: node.image ? { url: node.image.url } : null,
+      thumbnail: node.image?.url || null,
+    }
+  }) || [
+    {
+      id: p.id,
+      allow_backorder: false,
+      manage_inventory: true,
+      inventory_quantity: p.availableForSale ? 10 : 0,
+      calculated_price: {
+        calculated_amount: price ? parseFloat(price.amount) : null,
+        original_amount: compareAtPrice ? parseFloat(compareAtPrice.amount) : null,
+        currency_code: price?.currencyCode || "php"
+      }
+    }
+  ]
+
   return {
     id: p.id,
     title: p.title,
     handle: p.handle,
-    thumbnail: p.featuredImage?.url,
-    images: p.featuredImage ? [{ url: p.featuredImage.url }] : [],
-    collection: { title: p.vendor },
+    thumbnail: p.featuredImage?.url || images[0]?.url,
+    images,
+    collection: { title: p.vendor || "Sixthgear" },
     tags: p.tags?.map((t: string) => ({ value: t })) || [],
     options: p.options?.map((opt: any) => ({
       id: opt.id,
       title: opt.name,
       values: opt.values?.map((v: string) => ({ id: v, value: v })) || []
     })) || [],
-    variants: [
-      {
-        id: p.id,
-        allow_backorder: false,
-        manage_inventory: true,
-        inventory_quantity: p.availableForSale ? 10 : 0,
-        calculated_price: {
-          calculated_amount: p.priceRange?.minVariantPrice ? parseFloat(p.priceRange.minVariantPrice.amount) : null,
-          original_amount: p.compareAtPriceRange?.minVariantPrice ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount) : null,
-          currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php"
-        }
-      }
-    ]
+    variants
   } as any;
 }
 

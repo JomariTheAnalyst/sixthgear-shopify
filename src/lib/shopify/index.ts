@@ -159,6 +159,19 @@ export async function getCollection(
   );
 }
 
+export async function getCollectionProductsByHandle(
+  handle: string,
+  first: number = 4
+): Promise<ShopifyProductCard[]> {
+  const collection = await getCollection(handle, { first });
+  
+  if (!collection || !collection.products?.edges) {
+    return [];
+  }
+  
+  return collection.products.edges.map(edge => edge.node);
+}
+
 export async function getCollections(first: number = 20): Promise<ShopifyCollection[]> {
   const key = cacheKey("collections", "all");
 

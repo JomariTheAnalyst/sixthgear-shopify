@@ -78,6 +78,13 @@ export default function ActiveFilterPills({
     });
   }
 
+  if (activeState.onSale) {
+    pills.push({
+      label: "On Sale",
+      onRemove: () => onRemove({ ...activeState, onSale: false }),
+    });
+  }
+
   if (pills.length === 0) return null;
 
   const hasMultiple = pills.length > 1;
@@ -112,6 +119,7 @@ export default function ActiveFilterPills({
               variantOptions: [],
               priceRange: null,
               available: false,
+              onSale: false,
             })
           }
           className="text-xs font-medium text-gray-400 hover:text-red-500 transition-colors ml-1"

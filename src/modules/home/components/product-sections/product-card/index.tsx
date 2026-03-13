@@ -8,14 +8,12 @@
 import { useState } from "react"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
-import { Check, Loader2, ShoppingCart, Flame, Truck, Plus } from "lucide-react"
-import { toast } from "sonner"
+import { ShoppingCart, Flame, Truck, Plus } from "lucide-react"
 
-import { addToCart } from "@lib/data/cart"
-import { useCartStore } from "@lib/cart"
 import { getProductPricing } from "@lib/util/get-product-pricing"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import WishlistButton from "@modules/wishlist/components/wishlist-button"
+import QuickShopModal from "@modules/common/components/quick-shop-modal"
 
 export type BadgeMode = "discount" | "rank" | "new" | "hot"
 
@@ -59,8 +57,7 @@ export default function ProductCard({
   countryCode,
   inventoryMap,
 }: ProductCardProps) {
-  const [isAdding, setIsAdding] = useState(false)
-  const [added, setAdded] = useState(false)
+  const [showQuickShop, setShowQuickShop] = useState(false)
 
   const pricing = getProductPricing(product)
   const imageUrl = product.thumbnail || product.images?.[0]?.url
@@ -98,43 +95,10 @@ export default function ProductCard({
     return false
   })()
 
-  const setCart = useCartStore((state) => state.setCart)
-  const setCartStoreId = useCartStore((state) => state.setCartId)
-
-  const handleAddToCart = async (event: React.MouseEvent) => {
+  const openQuickShop = (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
-
-    if (!canAddToCart || isAdding || !isInStock || !firstVariant) {
-      return
-    }
-
-    setIsAdding(true)
-
-    try {
-      const updatedCart = await addToCart({
-        variantId: firstVariant.id,
-        quantity: 1,
-        countryCode: resolvedCountryCode,
-      })
-
-      if (updatedCart) {
-        setCart(updatedCart as any)
-        setCartStoreId(updatedCart.id)
-        setAdded(true)
-
-        toast.success("Added to Cart", {
-          description: `${brandName} ${product.title}`,
-        })
-
-        window.setTimeout(() => setAdded(false), 2200)
-      }
-    } catch (error) {
-      console.error("Failed to add to cart:", error)
-      toast.error("Failed to add to cart")
-    } finally {
-      setIsAdding(false)
-    }
+    setShowQuickShop(true)
   }
 
   // Fallback to checking the product's tags directly if no specific section badge mode was provided
@@ -316,35 +280,35 @@ export default function ProductCard({
             )}
           </div>
 
-          {/* Minimal Add to Cart Icon - Cart Plus Style */}
+          {/* Quick Shop Trigger Icon */}
           <button
             type="button"
-            onClick={handleAddToCart}
-            disabled={isAdding || !canAddToCart || !isInStock}
-            aria-label={added ? "Added to cart" : "Add to cart"}
+            onClick={openQuickShop}
+            disabled={!canAddToCart || !isInStock}
+            aria-label="Quick shop"
             className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-all duration-200 rounded-sm ${
-              added
-                ? "text-emerald-500 fill-none"
-                : isInStock && canAddToCart
+              isInStock && canAddToCart
                 ? "text-[#111] hover:bg-[#f0f0f0]"
                 : "text-[#dcdcdc] cursor-not-allowed"
             }`}
           >
-            {isAdding ? (
-               <Loader2 className="w-5 h-5 animate-spin" />
-            ) : added ? (
-               <Check className="w-6 h-6 stroke-[3]" />
-            ) : (
-               <div className="relative">
-                 <ShoppingCart className="w-5 h-5 stroke-[2.5]" fill="none" />
-                 <span className="absolute -bottom-1 -right-1 bg-white text-[#111] rounded-full">
-                   <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                 </span>
-               </div>
-            )}
+            <div className="relative">
+              <ShoppingCart className="w-5 h-5 stroke-[2.5]" fill="none" />
+              <span className="absolute -bottom-1 -right-1 bg-white text-[#111] rounded-full">
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              </span>
+            </div>
           </button>
         </div>
       </div>
+
+      {/* QuickShop Modal */}
+      <QuickShopModal
+        product={product}
+        countryCode={resolvedCountryCode}
+        isOpen={showQuickShop}
+        onClose={() => setShowQuickShop(false)}
+      />
     </article>
   )
 }

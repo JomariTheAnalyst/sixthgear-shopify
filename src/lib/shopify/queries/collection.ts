@@ -77,7 +77,14 @@ export const getCollectionWithFiltersQuery = `
             compareAtPriceRange {
               minVariantPrice { ...MoneyFragment }
             }
-            variants(first: 1) {
+            images(first: 10) {
+              edges {
+                node {
+                  ...ImageFragment
+                }
+              }
+            }
+            variants(first: 50) {
               edges {
                 node {
                   id
@@ -85,6 +92,7 @@ export const getCollectionWithFiltersQuery = `
                   price { ...MoneyFragment }
                   compareAtPrice { ...MoneyFragment }
                   selectedOptions { name value }
+                  image { ...ImageFragment }
                 }
               }
             }

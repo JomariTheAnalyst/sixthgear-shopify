@@ -220,3 +220,55 @@ export const ctaBannerQuery = groq`
     }
   }
 `
+
+export const marketingQuery = groq`
+  *[_type == "marketing" && _id == "marketing"][0]{
+    announcementBar {
+      isActive,
+      backgroundColor,
+      rotationSpeed,
+      messages[] {
+        text,
+        link,
+        isActive
+      }
+    },
+    "activePopup": activePopup->{
+      _id,
+      campaignName,
+      enabled,
+      startDate,
+      endDate,
+      "imageUrl": image.asset->url,
+      imageLink,
+      heading,
+      buttonLabel,
+      buttonLink,
+      delay
+    },
+    "featuredCollections": coalesce(featuredCollections[] {
+      isActive,
+      internalName,
+      position,
+      layout,
+      contentPosition,
+      collectionHandle,
+      heading,
+      subtext,
+      ctaLabel,
+      "bannerImageUrl": bannerImage.asset->url
+    }, []),
+    "promoBanners": coalesce(promoBanners[] {
+      isActive,
+      internalName,
+      position,
+      heading,
+      buttonLabel,
+      buttonLink,
+      buttonPosition,
+      "imageUrl": image.asset->url
+    }, [])
+  }
+`
+
+

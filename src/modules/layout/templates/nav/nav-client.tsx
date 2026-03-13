@@ -134,7 +134,7 @@ const NavClient = ({
               </div>
 
               {/* Center: Logo - Single Line */}
-              <div className="flex-1 flex justify-center px-2">
+              <div className="flex-none flex justify-center px-1 md:px-2 z-10 transition-transform scale-90 sm:scale-100">
                 <LocalizedClientLink
                   href="/"
                   className="flex items-center justify-center whitespace-nowrap"
@@ -144,11 +144,11 @@ const NavClient = ({
               </div>
 
               {/* Right: Account + Cart Icons - Always visible */}
-              <div className="flex-1 flex justify-end items-center gap-2 md:gap-4">
+              <div className="flex-1 flex justify-end items-center gap-1 sm:gap-2 md:gap-4">
                 {/* Wishlist Icon */}
                 <LocalizedClientLink
                   href="/wishlist"
-                  className="hover:text-[#F16D34] transition-colors text-gray-900 p-2 md:p-0 relative"
+                  className="hover:text-[#F16D34] transition-colors text-gray-900 p-1 sm:p-1.5 md:p-0 relative flex items-center"
                   title="Wishlist"
                 >
                   <svg
@@ -157,7 +157,7 @@ const NavClient = ({
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-5 h-5 md:w-6 md:h-6"
+                    className="w-[22px] h-[22px] md:w-6 md:h-6"
                   >
                     <path
                       strokeLinecap="round"
@@ -167,7 +167,7 @@ const NavClient = ({
                   </svg>
                   {/* Wishlist Count Badge */}
                   {displayWishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-4 h-4 md:w-5 md:h-5 bg-[#F16D34] text-white text-[10px] md:text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-[18px] h-[18px] md:w-5 md:h-5 bg-[#F16D34] text-white text-[10px] md:text-xs font-bold rounded-full flex items-center justify-center">
                       {displayWishlistCount > 9 ? "9+" : displayWishlistCount}
                     </span>
                   )}
@@ -176,7 +176,7 @@ const NavClient = ({
                 {/* Track Order Icon */}
                 <LocalizedClientLink
                   href="/track-order"
-                  className="hover:text-[#F16D34] transition-colors text-gray-900 p-2 md:p-0"
+                  className="hover:text-[#F16D34] transition-colors text-gray-900 p-1 sm:p-1.5 md:p-0 flex items-center"
                   title="Track Order"
                 >
                   <svg
@@ -185,7 +185,7 @@ const NavClient = ({
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-5 h-5 md:w-6 md:h-6"
+                    className="w-[22px] h-[22px] md:w-6 md:h-6"
                   >
                     <path
                       strokeLinecap="round"
@@ -198,10 +198,10 @@ const NavClient = ({
                 {/* Account Icon */}
                 <LocalizedClientLink
                   href={customer ? "/account" : "/login"}
-                  className="hover:text-[#F16D34] transition-colors text-gray-900 p-2 md:p-0"
+                  className="hover:text-[#F16D34] transition-colors text-gray-900 p-1 sm:p-1.5 md:p-0 flex items-center"
                 >
                   {customer ? (
-                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#F16D34] flex items-center justify-center text-white font-bold text-xs tracking-widest">
+                    <div className="w-[26px] h-[26px] md:w-8 md:h-8 rounded-full bg-[#F16D34] flex items-center justify-center text-white font-bold text-[10px] md:text-xs tracking-widest">
                       {getInitials()}
                     </div>
                   ) : (
@@ -211,7 +211,7 @@ const NavClient = ({
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
                       stroke="currentColor"
-                      className="w-5 h-5 md:w-6 md:h-6"
+                      className="w-[22px] h-[22px] md:w-6 md:h-6"
                     >
                       <path
                         strokeLinecap="round"
@@ -223,7 +223,7 @@ const NavClient = ({
                 </LocalizedClientLink>
 
                 {/* Cart Icon */}
-                <div className="hover:text-[#F16D34] transition-colors text-gray-900">
+                <div className="hover:text-[#F16D34] transition-colors text-gray-900 p-1 sm:p-1.5 md:p-0 flex items-center">
                   <CartDropdown cart={cart} />
                 </div>
               </div>

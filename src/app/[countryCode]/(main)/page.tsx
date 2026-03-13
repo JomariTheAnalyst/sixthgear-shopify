@@ -17,6 +17,10 @@ import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
 import ShopByBrands from "@modules/home/components/shop-by-brands"
+import FeaturedCollectionBanner from "@modules/home/components/featured-collection-banner"
+import PromoBanner from "@modules/home/components/promo-banner"
+import PopupAd from "@modules/home/components/popup-ad"
+import type { SanityFeaturedCollectionItem, SanityPromoBanner } from "@lib/cms/types"
 import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
 import { getProducts, getCollections } from "@lib/shopify"
@@ -44,6 +48,7 @@ import {
   getClientTestimonials,
   getStoreLocation,
   getCtaBanner,
+  getMarketingData,
 } from "@lib/cms/client"
 
 export const revalidate = 60
@@ -99,6 +104,7 @@ export default async function Home(props: {
     clientTestimonialsData,
     storeLocation,
     ctaBanner,
+    marketingData,
     featuredProductsResp,
     collections,
     newArrivalsResp,
@@ -117,6 +123,7 @@ export default async function Home(props: {
     getClientTestimonials(),
     getStoreLocation(),
     getCtaBanner(),
+    getMarketingData(),
     getProducts({ first: 8, query: 'tag:featured' }),
     getCollections(8),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
@@ -164,9 +171,25 @@ export default async function Home(props: {
     shopByBrandsContent
   )
 
+  const getFeatured = (position: string): SanityFeaturedCollectionItem | null =>
+    marketingData.featuredCollections.find(
+      (f) => f.isActive && f.position === position
+    ) ?? null
+
+  const getPromo = (position: string): SanityPromoBanner | null =>
+    marketingData.promoBanners.find(
+      (b) => b.isActive && b.position === position
+    ) ?? null
+
   return (
     <>
+      {marketingData.activePopup && (
+        <PopupAd data={marketingData.activePopup} />
+      )}
+
       <Hero data={homepageHero} />
+      <FeaturedCollectionBanner data={getFeatured("after_hero")} />
+      <PromoBanner data={getPromo("after_hero")} />
 
       <ShopByBrands
         data={homepageShopByBrands}
@@ -192,8 +215,12 @@ export default async function Home(props: {
         imageBottom={aboutContent.imageBottom}
         videoUrl={aboutContent.videoUrl}
       />
+      <FeaturedCollectionBanner data={getFeatured("after_about")} />
+      <PromoBanner data={getPromo("after_about")} />
 
       <ShopByCategories data={homepageCategories} />
+      <FeaturedCollectionBanner data={getFeatured("after_categories")} />
+      <PromoBanner data={getPromo("after_categories")} />
 
       <Suspense fallback={<ProductSectionSkeleton />}>
         {featuredProducts.length > 0 && (
@@ -265,8 +292,12 @@ export default async function Home(props: {
           })) ?? undefined
         }
       />
+      <FeaturedCollectionBanner data={getFeatured("after_coffee")} />
+      <PromoBanner data={getPromo("after_coffee")} />
 
       <OurServices data={homepageServices} />
+      <FeaturedCollectionBanner data={getFeatured("after_services")} />
+      <PromoBanner data={getPromo("after_services")} />
 
       <ProjectsSection
         sectionTitle={
@@ -289,6 +320,8 @@ export default async function Home(props: {
             })) ?? undefined
         }
       />
+      <FeaturedCollectionBanner data={getFeatured("after_projects")} />
+      <PromoBanner data={getPromo("after_projects")} />
 
       <Brands
         sectionTitle={
@@ -306,6 +339,8 @@ export default async function Home(props: {
               link: brand.link ?? null,
             })) ?? undefined}
       />
+      <FeaturedCollectionBanner data={getFeatured("after_brands")} />
+      <PromoBanner data={getPromo("after_brands")} />
 
       <SatisfiedCustomers
         sectionTitle={
@@ -344,6 +379,8 @@ export default async function Home(props: {
           )
         })()}
       />
+      <FeaturedCollectionBanner data={getFeatured("after_satisfied")} />
+      <PromoBanner data={getPromo("after_satisfied")} />
 
       <Franchise
         mainTitle={
@@ -371,6 +408,8 @@ export default async function Home(props: {
           franchiseSection?.rightImageUrl 
           ?? undefined}
       />
+      <FeaturedCollectionBanner data={getFeatured("after_franchise")} />
+      <PromoBanner data={getPromo("after_franchise")} />
 
       <OurTeam
         sectionTitle={
@@ -403,6 +442,8 @@ export default async function Home(props: {
               },
             })) ?? undefined}
       />
+      <FeaturedCollectionBanner data={getFeatured("after_team")} />
+      <PromoBanner data={getPromo("after_team")} />
 
       <ClientTestimonials
         sectionTitle={
@@ -425,6 +466,8 @@ export default async function Home(props: {
               avatar: "",
             })) ?? undefined}
       />
+      <FeaturedCollectionBanner data={getFeatured("after_testimonials")} />
+      <PromoBanner data={getPromo("after_testimonials")} />
 
       <ClientStories
         sectionTitle={clientStoriesContent.sectionTitle}

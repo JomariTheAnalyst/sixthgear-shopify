@@ -13,7 +13,7 @@ import type { SanityCategoriesSection } from "@lib/cms/types"
 
 const FALLBACK_CATEGORIES_SECTION = {
   title: "Product Categories",
-  watermarkText: "ACCESSORIES",
+  watermarkText: "CATEGORIES",
   viewAllLabel: "VIEW ALL",
   viewAllLink: "/store",
   items: [

@@ -1,7 +1,7 @@
 import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId } from '../../../sanity/env'
-import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery } from './queries'
+import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery } from './queries'
 import type {
   SanityAboutSection,
   SanityCategoriesSection,
@@ -18,6 +18,7 @@ import type {
   SanityClientTestimonials,
   SanityStoreLocation,
   SanityCtaBanner,
+  SanityMarketingData,
 } from './types'
 
 export const client = createClient({
@@ -412,3 +413,35 @@ export async function getCtaBanner(): Promise<SanityCtaBanner | null> {
     return null
   }
 }
+
+export async function getMarketingData(): Promise<SanityMarketingData> {
+  try {
+    const result = await client.fetch<SanityMarketingData | null>(
+      marketingQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return {
+      announcementBar: result?.announcementBar ?? null,
+      activePopup: result?.activePopup ?? null,
+      featuredCollections: result?.featuredCollections ?? [],
+      promoBanners: result?.promoBanners ?? [],
+    }
+  } catch (error) {
+    console.error('[Sanity] getMarketingData failed:', error)
+    return {
+      announcementBar: null,
+      activePopup: null,
+      featuredCollections: [],
+      promoBanners: [],
+    }
+  }
+}
+
+

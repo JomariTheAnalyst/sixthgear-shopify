@@ -199,3 +199,70 @@ export interface SanityCtaBanner {
     tiktok: string | null
   } | null
 }
+
+export interface SanityPopupAd {
+  _id: string
+  campaignName: string
+  enabled: boolean
+  startDate: string | null
+  endDate: string | null
+  imageUrl: string | null
+  imageLink: string | null
+  heading: string | null
+  buttonLabel: string | null
+  buttonLink: string | null
+  delay: number | null
+}
+
+export interface SanityFeaturedCollectionItem {
+  isActive: boolean
+  internalName: string | null
+  position: string | null
+  layout: 'image_left' | 'image_right' | null
+  contentPosition: 'bottom-left' | 'bottom-center' | 'bottom-right' | null
+  bannerImageUrl: string | null
+  collectionHandle: string | null
+  heading: string | null
+  subtext: string | null
+  ctaLabel: string | null
+}
+
+export interface SanityAnnouncementMessage {
+  text: string
+  link: string | null
+  isActive: boolean
+}
+
+export interface SanityAnnouncementBar {
+  isActive: boolean
+  backgroundColor: 'orange' | 'black' | 'white' | null
+  rotationSpeed: number | null
+  messages: SanityAnnouncementMessage[] | null
+}
+
+export interface SanityPromoBanner {
+  isActive: boolean
+  internalName: string | null
+  position: string | null
+  imageUrl: string | null
+  heading: string | null
+  buttonLabel: string | null
+  buttonLink: string | null
+  buttonPosition:
+    | 'top_left'
+    | 'top_center'
+    | 'top_right'
+    | 'bottom_left'
+    | 'bottom_center'
+    | 'bottom_right'
+    | null
+}
+
+export interface SanityMarketingData {
+  announcementBar: SanityAnnouncementBar | null
+  activePopup: SanityPopupAd | null
+  featuredCollections: SanityFeaturedCollectionItem[]
+  promoBanners: SanityPromoBanner[]
+}
+
+

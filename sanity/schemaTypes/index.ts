@@ -27,6 +27,11 @@ import testimonialItem from './testimonial-item'
 import clientTestimonials from './client-testimonials'
 import storeLocation from './store-location'
 import ctaBanner from './cta-banner'
+import popupAd from './popup-ad'
+import featuredCollection from './featured-collection'
+import promoBanner from './promo-banner'
+import announcementBar from './announcement-bar'
+import marketing from './marketing'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -56,6 +61,11 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     clientTestimonials,
     storeLocation,
     ctaBanner,
+    popupAd,
+    featuredCollection,
+    promoBanner,
+    announcementBar,
+    marketing,
 
     homepage,
   ],

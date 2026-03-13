@@ -11,7 +11,7 @@ export const redis = isServer
   : (null as unknown as Redis)
 
 const ENV = isServer && serverEnv.NODE_ENV === "production" ? "prod" : "dev"
-const PREFIX = `sixthgear:${ENV}`
+const PREFIX = `sixthgear:v2:${ENV}`
 
 export function cacheKey(resource: string, ...parts: string[]): string {
   return `${PREFIX}:${resource}:${parts.join(":")}`

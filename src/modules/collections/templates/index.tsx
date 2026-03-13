@@ -15,6 +15,7 @@ import { serializeFilterState } from "@lib/util/filterParams"
 import FilterBar from "@modules/collections/components/FilterBar"
 import SortSelector from "@modules/collections/components/SortSelector"
 import ActiveFilterPills from "@modules/collections/components/ActiveFilterPills"
+import MobileFilterDrawer from "@modules/collections/components/MobileFilterDrawer"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ProductCard, {
   getBadgesFromTags,
@@ -47,12 +48,57 @@ function mapShopifyProductToSharedCard(
   const compareAtPrice = product.compareAtPriceRange?.minVariantPrice
   const firstVariant = product.variants?.edges?.[0]?.node
 
+  // Map all gallery images (or fallback to featuredImage)
+  const images = product.images?.edges?.map((e: any) => ({ url: e.node.url })) || []
+  if (images.length === 0 && product.featuredImage) {
+    images.push({ url: product.featuredImage.url })
+  }
+
+  // Map all variants that came through the connection
+  const variants = product.variants?.edges?.map((edge: any) => {
+    const node = edge.node
+    const variantPrice = node.price || price
+    const variantCompare = node.compareAtPrice || compareAtPrice
+
+    return {
+      id: node.id,
+      title: node.selectedOptions?.map((o: any) => o.value).join(" / ") || "Default Title",
+      allow_backorder: false,
+      manage_inventory: true,
+      inventory_quantity: node.availableForSale !== false ? 10 : 0, // Fallback logic
+      options: node.selectedOptions?.map((o: any) => ({
+        value: o.value,
+        option: { title: o.name }
+      })) || [],
+      calculated_price: {
+        calculated_amount: variantPrice ? parseFloat(variantPrice.amount) : null,
+        original_amount: variantCompare ? parseFloat(variantCompare.amount) : null,
+        currency_code: variantPrice?.currencyCode || "php",
+      },
+      // Pass down variant image through a custom field or standard Medusa field
+      image: node.image ? { url: node.image.url } : null,
+      thumbnail: node.image?.url || null,
+    }
+  }) || [
+    {
+      id: product.id,
+      allow_backorder: false,
+      manage_inventory: true,
+      inventory_quantity: product.availableForSale ? 10 : 0,
+      calculated_price: {
+        calculated_amount: price ? parseFloat(price.amount) : null,
+        original_amount: compareAtPrice ? parseFloat(compareAtPrice.amount) : null,
+        currency_code: price?.currencyCode || "php",
+      },
+    }
+  ]
+
   return {
     id: product.id,
     title: product.title,
     handle: product.handle,
     thumbnail: product.featuredImage?.url,
-    images: product.featuredImage ? [{ url: product.featuredImage.url }] : [],
+    images,
     collection: { title: product.vendor || "Sixthgear" },
     tags: product.tags?.map((t: string) => ({ value: t })) || [],
     options: product.options?.map((opt: any) => ({
@@ -60,21 +106,7 @@ function mapShopifyProductToSharedCard(
       title: opt.name,
       values: opt.values?.map((v: string) => ({ id: v, value: v })) || []
     })) || [],
-    variants: [
-      {
-        id: firstVariant?.id || product.id,
-        allow_backorder: false,
-        manage_inventory: true,
-        inventory_quantity: product.availableForSale ? 10 : 0,
-        calculated_price: {
-          calculated_amount: price ? parseFloat(price.amount) : null,
-          original_amount: compareAtPrice
-            ? parseFloat(compareAtPrice.amount)
-            : null,
-          currency_code: price?.currencyCode || "php",
-        },
-      },
-    ],
+    variants,
   } as unknown as HttpTypes.StoreProduct
 }
 
@@ -95,6 +127,8 @@ export default function CollectionTemplate({
     useState<FilterState>(initialFilterState)
   const [isPending, startTransition] = useTransition()
 
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+
   const applyFilters = useCallback(
     (nextState: FilterState) => {
       setFilterState(nextState)
@@ -113,6 +147,28 @@ export default function CollectionTemplate({
     },
     [filterState, applyFilters]
   )
+
+  // Calculate total active filters for indicator
+  const activeCount =
+    filterState.vendors.length +
+    filterState.productTypes.length +
+    filterState.tags.length +
+    filterState.variantOptions.length +
+    (filterState.priceRange ? 1 : 0) +
+    (filterState.available ? 1 : 0) +
+    (filterState.onSale ? 1 : 0)
+
+  const displayProducts = filterState.onSale
+    ? products.filter((p) => {
+        const minOriginal = p.compareAtPriceRange?.minVariantPrice?.amount;
+        const minCalculated = p.priceRange?.minVariantPrice?.amount;
+        return (
+          minOriginal &&
+          minCalculated &&
+          parseFloat(minOriginal) > parseFloat(minCalculated)
+        );
+      })
+    : products;
 
   return (
     <div className="min-h-screen bg-white">
@@ -185,39 +241,70 @@ export default function CollectionTemplate({
               )}
             </ol>
           </nav>
-
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
-              {products.length} product{products.length !== 1 ? "s" : ""}
-            </p>
-          </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-12 lg:py-8">
         
+        {/* Mobile Filter Drawer */}
+        <MobileFilterDrawer
+          isOpen={isMobileFilterOpen}
+          onClose={() => setIsMobileFilterOpen(false)}
+          filters={sidebarFilters}
+          activeState={filterState}
+          onChange={applyFilters}
+          collectionsMenu={collectionsMenu}
+          productCount={displayProducts.length}
+        />
+
         {/* Unified Filter & Sort Bar */}
-        <div className={`mt-2 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-y border-gray-200 py-3 relative z-30 transition-opacity duration-200 ${
+        <div className={`mt-2 mb-6 border-y border-gray-200 py-3 relative z-30 transition-opacity duration-200 ${
           isPending ? "opacity-40 pointer-events-none" : ""
         }`}>
-          <div className="flex-1 min-w-0">
-            <FilterBar
-              filters={sidebarFilters}
-              activeState={filterState}
-              onChange={applyFilters}
-              collectionsMenu={collectionsMenu}
-            />
-          </div>
-
-          <div className="flex items-center justify-between md:justify-end gap-6 flex-shrink-0">
-            <span className="text-[12px] md:text-[13px] text-gray-500 whitespace-nowrap hidden sm:block">
-               Showing <span className="font-bold text-[#111]">{products.length}</span> products
-            </span>
+          {/* Mobile Top Row */}
+          <div className="flex items-center justify-between md:hidden">
+            <button 
+              onClick={() => setIsMobileFilterOpen(true)}
+              className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-[#111]"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h8" />
+              </svg>
+              Filters
+              {activeCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-black text-white text-[10px] flex items-center justify-center font-bold ml-0.5">
+                  {activeCount}
+                </span>
+              )}
+            </button>
             <SortSelector
               currentSortKey={filterState.sortKey}
               currentReverse={filterState.reverse}
               onChange={handleSortChange}
             />
+          </div>
+
+          {/* Desktop Row */}
+          <div className="hidden md:flex flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <FilterBar
+                filters={sidebarFilters}
+                activeState={filterState}
+                onChange={applyFilters}
+                collectionsMenu={collectionsMenu}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-6 flex-shrink-0">
+              <span className="text-[13px] text-gray-500 whitespace-nowrap">
+                 Showing <span className="font-bold text-[#111]">{displayProducts.length}</span> products
+              </span>
+              <SortSelector
+                currentSortKey={filterState.sortKey}
+                currentReverse={filterState.reverse}
+                onChange={handleSortChange}
+              />
+            </div>
           </div>
         </div>
 
@@ -225,7 +312,7 @@ export default function CollectionTemplate({
 
         <div>
           <div className="mt-4">
-            {isPending || products.length > 0 ? (
+            {isPending || displayProducts.length > 0 ? (
               <>
                 <div
                   className="grid grid-cols-2 gap-y-10 gap-x-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-12"
@@ -233,13 +320,13 @@ export default function CollectionTemplate({
                   aria-label={isPending ? "Loading products" : `${products.length} products`}
                 >
                   {isPending ? (
-                    Array.from({ length: products.length || 12 }).map((_, i) => (
+                    Array.from({ length: displayProducts.length || 12 }).map((_, i) => (
                       <div role="listitem" className="h-full" key={i}>
                         <SkeletonProductCard />
                       </div>
                     ))
                   ) : (
-                    products.map((product) => (
+                    displayProducts.map((product) => (
                       <PLPProductCard
                         key={product.id}
                         product={product}
@@ -316,6 +403,7 @@ export default function CollectionTemplate({
                       variantOptions: [],
                       priceRange: null,
                       available: false,
+                      onSale: false,
                     })
                   }
                   className="rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800"

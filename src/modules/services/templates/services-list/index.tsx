@@ -11,6 +11,77 @@ import { useParams } from "next/navigation"
 import { ServiceCategory } from "@lib/services-data"
 import CTABanner from "@modules/home/components/cta-banner"
 import ServiceHero from "../service-hero"
+import { TextRoll } from "components/ui/text-roll"
+import BrandsWeService from "../../components/brands-we-service"
+
+// Hardware-coded services for modern grid display
+const HARDCODED_SERVICES = [
+  {
+    title: "Service & Preventive Maintenance",
+    description: "Keep your motorcycle running at peak performance with comprehensive periodic maintenance and seasonal care.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 9.36l-7.1 7.1a1 1 0 0 1-1.41 0l-1.42-1.41a1 1 0 0 1 0-1.42l7.1-7.1a6 6 0 0 1 9.36-7.94l-3.76 3.76z"></path></svg>
+    ),
+    slug: "preventive-maintenance"
+  },
+  {
+    title: "Repairs & Diagnostics",
+    description: "Advanced diagnostic equipment and expert technicians to identify and fix any issue with precision.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+    ),
+    slug: "repairs-diagnostics"
+  },
+  {
+    title: "Accessories & Custom Setup",
+    description: "Transform your ride with professional accessory installation, lighting upgrades, and luggage systems.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg>
+    ),
+    slug: "accessories-installation"
+  },
+  {
+    title: "Wheels & Drivetrain",
+    description: "Expert care for your wheels and drivetrain. Proper alignment and balanced wheels for the ultimate ride.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+    ),
+    slug: "wheels-drivetrain"
+  },
+  {
+    title: "Detailing & Protection",
+    description: "Keep your motorcycle looking showroom-fresh with our professional detailing and ceramic coating.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+    ),
+    slug: "detailing-protection"
+  },
+  {
+    title: "Performance Upgrades",
+    description: "Unlock your motorcycle's full potential with performance upgrades, exhaust systems, and tuning.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+    ),
+    slug: "performance-upgrades"
+  },
+  {
+    title: "Roadside Assistance & Recovery",
+    description: "Stranded on the road? Our emergency recovery team is ready to help. Fast response times and professional handling of your motorcycle.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+    ),
+    slug: "roadside-assistance"
+  },
+  {
+    title: "Rider Support & Convenience",
+    description: "Beyond repairs, we offer comprehensive rider support services. From pre-purchase inspections to warranty assistance, we've got you covered.",
+    icon: (
+       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+    ),
+    slug: "rider-support"
+  }
+]
+
 
 interface ServicesListTemplateProps {
   services: ServiceCategory[]
@@ -44,12 +115,12 @@ export default function ServicesListTemplate({
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
             
             {/* Left Content */}
-            <div className="flex-1 w-full text-left lg:pr-12">
+            <div className="flex-1 w-full text-left">
               <h2 
-                className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.25rem] text-[#111] leading-[1.1] mb-6 font-semibold"
+                className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.25rem] text-[#111] leading-tight mb-8 font-semibold"
                 style={{ 
                   fontFamily: "'Inter Display', sans-serif", 
-                  letterSpacing: "-0.03em"
+                  letterSpacing: "normal"
                 }}
               >
                 Comprehensive Care for<br className="hidden sm:block" /> Premium Motorcycles
@@ -142,125 +213,56 @@ export default function ServicesListTemplate({
         </div>
       </section>
 
-      {/* Services List - Landscape Cards */}
-      <section className="bg-[#FAFAFA] py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <div className="flex flex-col gap-10 md:gap-14">
-            {services.map((service, index) => {
-              const rotation = index % 2 === 0 ? "-1.5deg" : "1.5deg"
-              // Use heroImage if available, fallback to image
-              const serviceImage = service.heroImage || service.image
+      <BrandsWeService />
 
-              return (
-                <Link
-                  key={service.id}
-                  href={`/${countryCode}/services/${service.slug}`}
-                  className="group block"
+      {/* Modern Services Grid Section */}
+      <section className="bg-white py-24 md:py-32 w-full">
+        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16">
+          <div className="text-center md:text-left mb-16 md:mb-20">
+            <h2 
+              className="text-[2.5rem] md:text-5xl lg:text-6xl text-[#111] leading-[1.1] tracking-[-0.03em] font-semibold"
+              style={{ fontFamily: "'Inter Display', sans-serif" }}
+            >
+              Complete care for your ride
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {HARDCODED_SERVICES.map((service, index) => (
+              <Link
+                key={index}
+                href={`/${countryCode}/services/${service.slug}`}
+                className="group flex flex-col bg-[#F9F9F9] rounded-[1.5rem] p-8 lg:p-10 transition-colors duration-300 hover:bg-[#F2F2F2] h-full"
+              >
+                {/* Icon */}
+                <div className="text-[#111] mb-8">
+                  {service.icon}
+                </div>
+                
+                {/* Title */}
+                <h3 
+                  className="text-xl md:text-[22px] text-[#111] leading-[1.2] font-semibold mb-4"
+                  style={{ fontFamily: "'Inter Display', sans-serif", letterSpacing: "-0.01em" }}
                 >
-                  <div
-                    className="relative bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-500 ease-out group-hover:shadow-2xl"
-                    style={{
-                      transform: `rotate(${rotation})`,
-                      transition:
-                        "transform 0.5s ease-out, box-shadow 0.5s ease-out",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform =
-                        "rotate(0deg) translateY(-4px)"
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = `rotate(${rotation})`
-                    }}
-                  >
-                    {/* Card Layout - Responsive */}
-                    <div className="flex flex-col md:flex-row">
-                      {/* Content - Left Side */}
-                      <div className="flex-1 p-6 md:p-8 lg:p-10 order-2 md:order-1">
-                        {/* Title with accent word */}
-                        <h3
-                          className="text-xl md:text-2xl lg:text-3xl text-[#1a1a1a] uppercase leading-tight mb-4"
-                          style={{ fontFamily: "Tanker, sans-serif" }}
-                        >
-                          {service.title.split(" ").map((word, i) => (
-                            <span
-                              key={i}
-                              className={i === 0 ? "text-[#F16D34]" : ""}
-                            >
-                              {word}{" "}
-                            </span>
-                          ))}
-                        </h3>
-
-                        {/* Full Description */}
-                        <p
-                          className="text-gray-600 text-sm md:text-base leading-relaxed mb-6"
-                          style={{ fontFamily: "Inter Display, sans-serif" }}
-                        >
-                          {service.description}
-                        </p>
-
-                        {/* Service Tags */}
-                        <div className="mb-6">
-                          <span
-                            className="text-xs text-gray-400 uppercase tracking-wider mb-3 block"
-                            style={{ fontFamily: "Inter Display, sans-serif" }}
-                          >
-                            Ideal For:
-                          </span>
-                          <div className="flex flex-wrap gap-2">
-                            {service.items.slice(0, 6).map((item, i) => (
-                              <span
-                                key={i}
-                                className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full border border-gray-200"
-                                style={{
-                                  fontFamily: "Inter Display, sans-serif",
-                                }}
-                              >
-                                {item}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Arrow Button */}
-                        <div className="flex items-center justify-end">
-                          <div className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center transition-all duration-300 group-hover:bg-[#F16D34]">
-                            <svg
-                              className="w-5 h-5 text-white transition-transform duration-300 group-hover:translate-x-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M17 8l4 4m0 0l-4 4m4-4H3"
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Image - Right Side (16:9 aspect ratio) */}
-                      {serviceImage && (
-                        <div className="relative w-full md:w-2/5 lg:w-[45%] aspect-video md:aspect-auto order-1 md:order-2">
-                          <Image
-                            src={serviceImage}
-                            alt={service.title}
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bottom Accent Bar */}
-                    <div className="h-1.5 bg-[#F16D34]" />
-                  </div>
-                </Link>
-              )
-            })}
+                  {service.title}
+                </h3>
+                
+                {/* Description */}
+                <p 
+                  className="text-[#111]/70 text-[15px] md:text-base leading-relaxed mb-10 flex-1"
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  {service.description}
+                </p>
+                
+                {/* Learn More TextRoll Button */}
+                <div className="mt-auto flex items-center gap-2 text-[#111] font-medium text-sm md:text-base">
+                  <TextRoll className="font-semibold" transition={{ duration: 0.3 }}>
+                    Learn More
+                  </TextRoll>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

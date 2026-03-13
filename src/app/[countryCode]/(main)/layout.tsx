@@ -12,6 +12,8 @@ import CartDrawerWrapper from "@modules/cart/components/cart-drawer-wrapper"
 import CartCleanup from "@modules/cart/components/cart-cleanup"
 import { MarketingProvider } from "@modules/marketing"
 import PreviewBanner from "@modules/marketing/components/preview-banner"
+import AnnouncementBar from "@modules/layout/components/announcement-bar"
+import { getMarketingData } from "@lib/cms/client"
 import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
 
@@ -27,6 +29,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
 
   // Fetch marketing content for the layout (strip only at this level)
   const marketing = await getMarketingForPath("/")
+  const sanityMarketing = await getMarketingData()
 
   return (
     <CartLimitModalProvider>
@@ -36,6 +39,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
           <CartCleanup cartId={cart?.id} />
 
           <MarketingProvider marketing={marketing}>
+            <AnnouncementBar data={sanityMarketing.announcementBar} />
             <Nav />
 
             {props.children}

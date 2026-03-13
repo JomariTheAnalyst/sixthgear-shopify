@@ -40,10 +40,31 @@ export const PRODUCT_CARD_FRAGMENT = `
       name
       values
     }
-    variants(first: 1) {
+    images(first: 10) {
+      edges {
+        node {
+          ...ImageFragment
+        }
+      }
+    }
+    variants(first: 50) {
       edges {
         node {
           id
+          availableForSale
+          price {
+            ...MoneyFragment
+          }
+          compareAtPrice {
+            ...MoneyFragment
+          }
+          selectedOptions {
+            name
+            value
+          }
+          image {
+            ...ImageFragment
+          }
         }
       }
     }

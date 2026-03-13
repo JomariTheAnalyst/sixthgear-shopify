@@ -125,7 +125,10 @@ export default function FilterBar({
   };
 
   const handleOnSaleToggle = () => {
-    onChange({ ...activeState, available: !activeState.available });
+    onChange({
+      ...activeState,
+      onSale: !activeState.onSale,
+    });
   };
 
   // ── Active counts ──
@@ -136,7 +139,8 @@ export default function FilterBar({
     activeState.tags.length +
     activeState.variantOptions.length +
     (activeState.priceRange ? 1 : 0) +
-    (activeState.available ? 1 : 0);
+    (activeState.available ? 1 : 0) +
+    (activeState.onSale ? 1 : 0);
 
   const getGroupActiveCount = (filter: ShopifyFilter): number => {
     if (filter.type === "PRICE_RANGE") {
@@ -411,7 +415,7 @@ export default function FilterBar({
         <button
           onClick={handleOnSaleToggle}
           className={`inline-flex items-center px-2 py-0.5 text-[13px] font-bold uppercase tracking-wide transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
-            activeState.available
+            activeState.onSale
               ? "text-orange-500 opacity-100"
               : "text-[#111] hover:opacity-70"
           }`}

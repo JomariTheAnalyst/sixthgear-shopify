@@ -57,10 +57,20 @@ export interface ShopifyProductCard {
   tags: string[];
   vendor: string;
   options?: ShopifyProductOption[];
+  images?: {
+    edges: {
+      node: ShopifyImage;
+    }[];
+  };
   variants?: {
     edges: {
       node: {
         id: string;
+        availableForSale?: boolean;
+        price?: ShopifyMoney;
+        compareAtPrice?: ShopifyMoney | null;
+        selectedOptions?: { name: string; value: string }[];
+        image?: ShopifyImage;
       };
     }[];
   };
@@ -318,6 +328,7 @@ export type FilterState = {
   variantOptions: { name: string; value: string }[];
   priceRange: ActivePriceRange | null;
   available: boolean;
+  onSale: boolean;
   sortKey: ProductCollectionSortKeys;
   reverse: boolean;
 };
