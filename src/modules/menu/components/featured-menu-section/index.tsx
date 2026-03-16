@@ -2,57 +2,131 @@
 
 import React, { useState } from "react"
 
-const CATEGORIES = ["Mexican", "Japanese", "Italian", "Drinks"]
+const CATEGORIES = ["Coffee Drinks", "Non-Coffee Drinks", "Snacks"]
 
 const MENU_ITEMS = [
+  // Coffee Drinks
   {
     id: 1,
-    category: "Drinks",
+    category: "Coffee Drinks",
     image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800",
     name: "ESPRESSO SHOT",
-    rating: 5,
     description: "Rich, bold, and freshly extracted. Pure intensity in every concentrated sip.",
-    price: "$35.00"
+    price: "₱120.00"
   },
   {
     id: 2,
-    category: "Drinks",
+    category: "Coffee Drinks",
     image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800",
     name: "CARAMEL LATTE",
-    rating: 5,
     description: "Silky steamed milk with caramel sweetness. A creamy delight that warms every moment.",
-    price: "$40.00"
+    price: "₱160.00"
   },
   {
     id: 3,
-    category: "Drinks",
+    category: "Coffee Drinks",
     image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=800",
     name: "MOCHA BLISS",
-    rating: 5,
     description: "Chocolate and coffee in perfect harmony. Smooth, sweet, and deeply satisfying.",
-    price: "$30.00"
+    price: "₱175.00"
+  },
+  {
+    id: 4,
+    category: "Coffee Drinks",
+    image: "https://images.unsplash.com/photo-1517701604599-bb24b5e50741?q=80&w=800",
+    name: "VIETNAMESE COFFEE",
+    description: "Authentic dark roast with condensed milk. Strong, sweet, and incredibly bold.",
+    price: "₱150.00"
+  },
+  // Non-Coffee Drinks
+  {
+    id: 5,
+    category: "Non-Coffee Drinks",
+    image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=800",
+    name: "MATCHA LATTE",
+    description: "Premium ceremonial grade matcha with creamy steamed milk. Earthy and soothing.",
+    price: "₱165.00"
+  },
+  {
+    id: 6,
+    category: "Non-Coffee Drinks",
+    image: "https://images.unsplash.com/photo-1544145945-f904253d0c71?q=80&w=800",
+    name: "BERRY ICED TEA",
+    description: "Freshly brewed tea infused with wild berries. Refreshing and naturally sweet.",
+    price: "₱140.00"
+  },
+  {
+    id: 7,
+    category: "Non-Coffee Drinks",
+    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800",
+    name: "ORANGE SUNRISE",
+    description: "Freshly squeezed oranges with a hint of grenadine. A bright start to your day.",
+    price: "₱155.00"
+  },
+  {
+    id: 8,
+    category: "Non-Coffee Drinks",
+    image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=800",
+    name: "CHOCOLATE FRAPPER",
+    description: "Rich dark chocolate blended with ice and topped with whipped cream.",
+    price: "₱180.00"
+  },
+  // Snacks
+  {
+    id: 9,
+    category: "Snacks",
+    image: "https://images.unsplash.com/photo-1550617931-e17a7b70dce2?q=80&w=800",
+    name: "BLUEBERRY MUFFIN",
+    description: "Freshly baked muffin bursting with real blueberries and a crumbly top layer.",
+    price: "₱95.00"
+  },
+  {
+    id: 10,
+    category: "Snacks",
+    image: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?q=80&w=800",
+    name: "CHOCOLATE CROISSANT",
+    description: "Flaky, buttery pastry filled with premium dark chocolate. Best served warm.",
+    price: "₱110.00"
+  },
+  {
+    id: 11,
+    category: "Snacks",
+    image: "https://images.unsplash.com/photo-1582298538104-fe2e74c27f59?q=80&w=800",
+    name: "AVOCADO TOAST",
+    description: "Sourdough bread topped with mashed avocado, chili flakes, and a poached egg.",
+    price: "₱220.00"
+  },
+  {
+    id: 12,
+    category: "Snacks",
+    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800",
+    name: "CHEESECAKE SLICE",
+    description: "New York style creamy cheesecake with a graham cracker crust and berry coulis.",
+    price: "₱145.00"
   }
 ]
 
-const StarRating = ({ count }: { count: number }) => {
-  return (
-    <div className="flex justify-center gap-1 my-3">
-      {[...Array(5)].map((_, i) => (
-        <svg
-          key={i}
-          className={`w-4 h-4 ${i < count ? "text-[#F3B748]" : "text-gray-300"}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-    </div>
-  )
-}
-
 const FeaturedMenuSection = () => {
-  const [activeCategory, setActiveCategory] = useState("Italian")
+  const [activeCategory, setActiveCategory] = useState("Coffee Drinks")
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category)
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ left: 0, behavior: "smooth" })
+    }
+  }
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current
+      const scrollAmount = clientWidth
+      scrollRef.current.scrollTo({
+        left: direction === "left" ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        behavior: "smooth"
+      })
+    }
+  }
 
   return (
     <section className="bg-[#222222] relative py-20 lg:py-28 overflow-hidden z-10 w-full">
@@ -85,7 +159,7 @@ const FeaturedMenuSection = () => {
           {CATEGORIES.map((category) => (
             <button
               key={category}
-              onClick={() => setActiveCategory(category)}
+              onClick={() => handleCategoryChange(category)}
               className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 border ${
                 activeCategory === category 
                   ? "bg-[#F3B748] text-[#222222] border-[#F3B748]" 
@@ -98,66 +172,82 @@ const FeaturedMenuSection = () => {
           ))}
         </div>
 
-        {/* Menu Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {MENU_ITEMS.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl overflow-hidden flex flex-col shadow-xl">
-              {/* Product Image */}
-              <div className="relative h-[250px] w-full bg-gray-200">
-                <img 
-                  src={item.image} 
-                  alt={item.name}
-                  className="w-full h-full object-cover object-center"
-                />
-              </div>
+        {/* Menu Items Carousel */}
+        <div className="relative group">
+          <div 
+            ref={scrollRef}
+            className="flex overflow-x-auto gap-6 lg:gap-8 min-h-[400px] no-scrollbar scroll-smooth"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            {MENU_ITEMS.filter(item => item.category === activeCategory).map((item) => (
+              <div 
+                key={item.id} 
+                className="flex-none w-[280px] sm:w-[320px] lg:w-[calc(33.333%-22px)] bg-white rounded-2xl overflow-hidden flex flex-col shadow-xl"
+              >
+                {/* Product Image */}
+                <div className="relative h-[250px] w-full bg-gray-200">
+                  <img 
+                    src={item.image} 
+                    alt={item.name}
+                    className="w-full h-full object-cover object-center"
+                  />
+                </div>
 
-              {/* Product Details */}
-              <div className="p-6 flex flex-col flex-1 text-center bg-white">
-                <h3 
-                  className="text-[#222222] text-lg sm:text-xl font-black uppercase tracking-wide"
-                  style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-                >
-                  {item.name}
-                </h3>
-                
-                <StarRating count={item.rating} />
-                
-                <p 
-                  className="text-[#222222]/70 text-sm leading-relaxed mb-6 font-medium mt-1 flex-1 px-2"
-                  style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                >
-                  {item.description}
-                </p>
-
-                {/* Price & Action Row */}
-                <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
-                  <span 
-                    className="text-[#222222] text-xl font-black"
+                {/* Product Details */}
+                <div className="p-6 flex flex-col flex-1 text-center bg-white">
+                  <h3 
+                    className="text-[#222222] text-lg sm:text-xl font-black uppercase tracking-wide mb-3"
                     style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
                   >
-                    {item.price}
-                  </span>
+                    {item.name}
+                  </h3>
                   
-                  <button 
-                    className="bg-[#F3B748] text-[#222222] text-[11px] font-bold tracking-wider uppercase px-5 py-2.5 rounded-lg border-2 border-[#222222] hover:bg-[#222222] hover:text-[#F3B748] transition-colors"
-                    style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                  <p 
+                    className="text-[#222222]/70 text-sm leading-relaxed mb-6 font-medium mt-1 flex-1 px-2"
+                    style={{ fontFamily: "var(--font-inter), sans-serif" }}
                   >
-                    ADD TO CART
-                  </button>
+                    {item.description}
+                  </p>
+
+                  {/* Price Row */}
+                  <div className="flex items-center justify-center pt-4 border-t border-gray-100">
+                    <span 
+                      className="text-[#222222] text-2xl font-black"
+                      style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
+                    >
+                      {item.price}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          
+          <style jsx>{`
+            .no-scrollbar::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
         </div>
 
-        {/* Pagination Dots / Arrows */}
+        {/* Pagination / Navigation Footer */}
         <div className="flex justify-center items-center gap-3 mt-12 sm:mt-16">
-          <button className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#222222] hover:bg-gray-100 transition-colors shadow-sm">
+          <button 
+            onClick={() => scroll("left")}
+            className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#222222] hover:bg-gray-100 transition-colors shadow-sm"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <button className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#222222] hover:bg-gray-100 transition-colors shadow-sm">
+          <button 
+            onClick={() => scroll("right")}
+            className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#222222] hover:bg-gray-100 transition-colors shadow-sm"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
             </svg>

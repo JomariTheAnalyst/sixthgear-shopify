@@ -39,8 +39,10 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
           <CartCleanup cartId={cart?.id} />
 
           <MarketingProvider marketing={marketing}>
-            <AnnouncementBar data={sanityMarketing.announcementBar} />
-            <Nav />
+            <div className="sticky top-0 z-[60] bg-white">
+              <AnnouncementBar data={sanityMarketing.announcementBar} />
+              <Nav />
+            </div>
 
             {props.children}
             <Footer />

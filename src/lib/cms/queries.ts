@@ -12,6 +12,11 @@ export const homepageQuery = groq`
       secondaryLink,
       slides[]{
         "imageUrl": image.asset->url,
+        "hotspot": image.hotspot,
+        "mobileImageUrl": mobileImage.asset->url,
+        "mobileImageRef": mobileImage.asset->_ref,
+        "mobileCrop": mobileImage.crop,
+        "mobileHotspot": mobileImage.hotspot,
         imageAlt,
         contentAlignment
       }
@@ -270,5 +275,3 @@ export const marketingQuery = groq`
     }, [])
   }
 `
-
-

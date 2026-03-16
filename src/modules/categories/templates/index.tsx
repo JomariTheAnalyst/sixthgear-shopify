@@ -5,7 +5,6 @@ import InteractiveLink from "@modules/common/components/interactive-link"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import PaginatedProducts from "@modules/store/templates/paginated-products"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 
@@ -84,12 +83,9 @@ export default function CategoryTemplate({
             />
           }
         >
-          <PaginatedProducts
-            sortBy={sort}
-            page={pageNumber}
-            categoryId={category.id}
-            countryCode={countryCode}
-          />
+          <div className="text-sm text-gray-500" data-testid="category-products-placeholder">
+            Category products are not available in this template right now.
+          </div>
         </Suspense>
       </div>
     </div>

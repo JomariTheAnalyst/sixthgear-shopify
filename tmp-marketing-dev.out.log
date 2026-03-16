@@ -1,0 +1,108 @@
+✓ Environment variable check disabled during Shopify migration
+✓ Environment variable check disabled during Shopify migration
+   ▲ Next.js 15.5.12
+   - Local:        http://localhost:7001
+   - Network:      http://172.31.112.1:7001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1985ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 680ms (114 modules)
+ ○ Compiling /[countryCode] ...
+ ✓ Compiled /[countryCode] in 10.4s (2456 modules)
+ ✓ Compiled in 1148ms (833 modules)
+Fetching homepage hero from Sanity...
+Fetching homepage shopByBrands from Sanity...
+Fetching homepage about from Sanity...
+Fetching homepage categories from Sanity...
+Fetching homepage services from Sanity...
+Fetching homepage coffee showcase from Sanity...
+Fetching homepage space and experiences from Sanity...
+Fetching homepage service brands section from Sanity...
+Fetching homepage satisfied customers from Sanity...
+Fetching homepage franchise section from Sanity...
+Fetching homepage our team section from Sanity...
+Fetching homepage client testimonials from Sanity...
+Fetching homepage store location from Sanity...
+Fetching homepage CTA banner from Sanity...
+marketing data: {"activePopup":null,"announcementBar":{"backgroundColor":"black","isActive":true,"messages":[{"isActive":true,"link":null,"text":"test"},{"isActive":true,"link":null,"text":"test1"},{"isActive":true,"link":null,"text":"sdwqwe"}],"rotationSpeed":4},"featuredCollections":[{"bannerImageUrl":"https://cdn.sanity.io/images/7u0u561g/production/bdd178294a91d74b68ee3668d7d6307fa6a90524-1760x2400.png","collectionHandle":"sec-moto","contentPosition":"bottom-center","ctaLabel":"SHOP NOW","heading":"JUST DROPPED EARLIER","internalName":"SEC moto Drop","isActive":true,"layout":"image_left","position":"after_categories","subtext":null}],"promoBanners":[{"buttonLabel":"shop now","buttonLink":"/store","buttonPosition":"bottom_right","heading":null,"imageUrl":"https://cdn.sanity.io/images/7u0u561g/production/e494aefb7e4610ecb94456fd32e541d851df34ef-1920x580.png","internalName":"moto banner","isActive":true,"position":"after_categories"}]}
+marketing data: {"activePopup":null,"announcementBar":{"backgroundColor":"black","isActive":true,"messages":[{"isActive":true,"link":null,"text":"test"},{"isActive":true,"link":null,"text":"test1"},{"isActive":true,"link":null,"text":"sdwqwe"}],"rotationSpeed":4},"featuredCollections":[{"bannerImageUrl":"https://cdn.sanity.io/images/7u0u561g/production/bdd178294a91d74b68ee3668d7d6307fa6a90524-1760x2400.png","collectionHandle":"sec-moto","contentPosition":"bottom-center","ctaLabel":"SHOP NOW","heading":"JUST DROPPED EARLIER","internalName":"SEC moto Drop","isActive":true,"layout":"image_left","position":"after_categories","subtext":null}],"promoBanners":[{"buttonLabel":"shop now","buttonLink":"/store","buttonPosition":"bottom_right","heading":null,"imageUrl":"https://cdn.sanity.io/images/7u0u561g/production/e494aefb7e4610ecb94456fd32e541d851df34ef-1920x580.png","internalName":"moto banner","isActive":true,"position":"after_categories"}]}
+[extractShopByBrands] No blocks found in homeContent
+[ShopByBrands] No CMS data, using all fallbacks
+[extractClientStories] No blocks found in homeContent
+[ClientStories] No CMS data, using all fallbacks
+[HomePage] About content with fallbacks: {
+  kicker: 'About Us',
+  title: 'We Offer Complete Diagnostics for Your Motorcycle',
+  description: 'Sixth Gear Moto Supply Café + Lounge is a rider-built motorcycle hub combining professional workshop service, premium accessories, riding gear, detailing, performance upgrades, and a relaxed café experience powered by First Gear Coffee.',
+  highlights: [
+    'Motorcycle Service and Advanced Diagnostics',
+    'Parts Accessories Luggage and Communications',
+    'Helmets Riding Gear and Apparel',
+    'Café Lounge and Rider Community'
+  ],
+  primaryCta: { text: 'More About Us', link: '/about' },
+  imageTop: '/images/homepage/about/about_bg.png',
+  imageBottom: '/images/homepage/about/about-small.png',
+  videoUrl: null
+}
+[HomePage] Shop by brands content with fallbacks: {
+  sectionTitle: 'BRANDS WE ARE PARTNER WITH',
+  brands: [
+    {
+      id: 1,
+      name: 'AKRAPOVIC',
+      imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      link: '/store?brand=akrapovic',
+      buttonText: 'SHOP NOW'
+    },
+    {
+      id: 2,
+      name: 'SEC MOTO',
+      imageUrl: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&h=600&fit=crop',
+      link: '/store?brand=sec-moto',
+      buttonText: 'SHOP NOW'
+    },
+    {
+      id: 3,
+      name: 'MOTOHUB',
+      imageUrl: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&h=600&fit=crop',
+      link: '/store?brand=motohub',
+      buttonText: 'SHOP NOW'
+    },
+    {
+      id: 4,
+      name: 'MOTUL',
+      imageUrl: 'https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800&h=600&fit=crop',
+      link: '/store?brand=motul',
+      buttonText: 'SHOP NOW'
+    }
+  ],
+  isSectionEnabled: true,
+  showNavDesktop: false
+}
+ GET /ph 200 in 15728ms
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++hero+%7B%0A++++++useCustomHero%2C%0A++++++heading%2C%0A++++++description%2C%0A++++++primaryLabel%2C%0A++++++primaryLink%2C%0A++++++secondaryLabel%2C%0A++++++secondaryLink%2C%0A++++++slides%5B%5D%7B%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++contentAlignment%0A++++++%7D%0A++++%7D%2C%0A++++shopByBrands+%7B%0A++++++useCustomShopByBrands%2C%0A++++++sectionTitle%2C%0A++++++showNavDesktop%2C%0A++++++brands%5B%5D%7B%0A++++++++name%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++link%2C%0A++++++++buttonText%0A++++++%7D%2C%0A++++++stats%5B%5D%7B%0A++++++++%22iconUrl%22%3A+iconImage.asset-%3Eurl%2C%0A++++++++title%2C%0A++++++++description%0A++++++%7D%0A++++%7D%2C%0A++++about+%7B%0A++++++useCustomAbout%2C%0A++++++kicker%2C%0A++++++title%2C%0A++++++description%2C%0A++++++highlights%2C%0A++++++primaryCta%2C%0A++++++%22imageTop%22%3A+imageTop.asset-%3Eurl%2C%0A++++++%22imageBottom%22%3A+imageBottom.asset-%3Eurl%2C%0A++++++videoUrl%0A++++%7D%2C%0A++++categories+%7B%0A++++++useCustomCategories%2C%0A++++++title%2C%0A++++++watermarkText%2C%0A++++++viewAllLabel%2C%0A++++++viewAllLink%2C%0A++++++items%5B%5D%7B%0A++++++++name%2C%0A++++++++slug%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%2C%0A++++services+%7B%0A++++++useCustomServices%2C%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++services%5B%5D%7B%0A++++++++_key%2C%0A++++++++title%2C%0A++++++++description%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%2C%0A++++++++slug%2C%0A++++++++link%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 292ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++hero+%7B%0A++++++useCustomHero%2C%0A++++++heading%2C%0A++++++description%2C%0A++++++primaryLabel%2C%0A++++++primaryLink%2C%0A++++++secondaryLabel%2C%0A++++++secondaryLink%2C%0A++++++slides%5B%5D%7B%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++contentAlignment%0A++++++%7D%0A++++%7D%2C%0A++++shopByBrands+%7B%0A++++++useCustomShopByBrands%2C%0A++++++sectionTitle%2C%0A++++++showNavDesktop%2C%0A++++++brands%5B%5D%7B%0A++++++++name%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++link%2C%0A++++++++buttonText%0A++++++%7D%2C%0A++++++stats%5B%5D%7B%0A++++++++%22iconUrl%22%3A+iconImage.asset-%3Eurl%2C%0A++++++++title%2C%0A++++++++description%0A++++++%7D%0A++++%7D%2C%0A++++about+%7B%0A++++++useCustomAbout%2C%0A++++++kicker%2C%0A++++++title%2C%0A++++++description%2C%0A++++++highlights%2C%0A++++++primaryCta%2C%0A++++++%22imageTop%22%3A+imageTop.asset-%3Eurl%2C%0A++++++%22imageBottom%22%3A+imageBottom.asset-%3Eurl%2C%0A++++++videoUrl%0A++++%7D%2C%0A++++categories+%7B%0A++++++useCustomCategories%2C%0A++++++title%2C%0A++++++watermarkText%2C%0A++++++viewAllLabel%2C%0A++++++viewAllLink%2C%0A++++++items%5B%5D%7B%0A++++++++name%2C%0A++++++++slug%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%2C%0A++++services+%7B%0A++++++useCustomServices%2C%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++services%5B%5D%7B%0A++++++++_key%2C%0A++++++++title%2C%0A++++++++description%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%2C%0A++++++++slug%2C%0A++++++++link%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 286ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++hero+%7B%0A++++++useCustomHero%2C%0A++++++heading%2C%0A++++++description%2C%0A++++++primaryLabel%2C%0A++++++primaryLink%2C%0A++++++secondaryLabel%2C%0A++++++secondaryLink%2C%0A++++++slides%5B%5D%7B%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++contentAlignment%0A++++++%7D%0A++++%7D%2C%0A++++shopByBrands+%7B%0A++++++useCustomShopByBrands%2C%0A++++++sectionTitle%2C%0A++++++showNavDesktop%2C%0A++++++brands%5B%5D%7B%0A++++++++name%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++link%2C%0A++++++++buttonText%0A++++++%7D%2C%0A++++++stats%5B%5D%7B%0A++++++++%22iconUrl%22%3A+iconImage.asset-%3Eurl%2C%0A++++++++title%2C%0A++++++++description%0A++++++%7D%0A++++%7D%2C%0A++++about+%7B%0A++++++useCustomAbout%2C%0A++++++kicker%2C%0A++++++title%2C%0A++++++description%2C%0A++++++highlights%2C%0A++++++primaryCta%2C%0A++++++%22imageTop%22%3A+imageTop.asset-%3Eurl%2C%0A++++++%22imageBottom%22%3A+imageBottom.asset-%3Eurl%2C%0A++++++videoUrl%0A++++%7D%2C%0A++++categories+%7B%0A++++++useCustomCategories%2C%0A++++++title%2C%0A++++++watermarkText%2C%0A++++++viewAllLabel%2C%0A++++++viewAllLink%2C%0A++++++items%5B%5D%7B%0A++++++++name%2C%0A++++++++slug%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%2C%0A++++services+%7B%0A++++++useCustomServices%2C%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++services%5B%5D%7B%0A++++++++_key%2C%0A++++++++title%2C%0A++++++++description%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%2C%0A++++++++slug%2C%0A++++++++link%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 285ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++hero+%7B%0A++++++useCustomHero%2C%0A++++++heading%2C%0A++++++description%2C%0A++++++primaryLabel%2C%0A++++++primaryLink%2C%0A++++++secondaryLabel%2C%0A++++++secondaryLink%2C%0A++++++slides%5B%5D%7B%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++contentAlignment%0A++++++%7D%0A++++%7D%2C%0A++++shopByBrands+%7B%0A++++++useCustomShopByBrands%2C%0A++++++sectionTitle%2C%0A++++++showNavDesktop%2C%0A++++++brands%5B%5D%7B%0A++++++++name%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++link%2C%0A++++++++buttonText%0A++++++%7D%2C%0A++++++stats%5B%5D%7B%0A++++++++%22iconUrl%22%3A+iconImage.asset-%3Eurl%2C%0A++++++++title%2C%0A++++++++description%0A++++++%7D%0A++++%7D%2C%0A++++about+%7B%0A++++++useCustomAbout%2C%0A++++++kicker%2C%0A++++++title%2C%0A++++++description%2C%0A++++++highlights%2C%0A++++++primaryCta%2C%0A++++++%22imageTop%22%3A+imageTop.asset-%3Eurl%2C%0A++++++%22imageBottom%22%3A+imageBottom.asset-%3Eurl%2C%0A++++++videoUrl%0A++++%7D%2C%0A++++categories+%7B%0A++++++useCustomCategories%2C%0A++++++title%2C%0A++++++watermarkText%2C%0A++++++viewAllLabel%2C%0A++++++viewAllLink%2C%0A++++++items%5B%5D%7B%0A++++++++name%2C%0A++++++++slug%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%2C%0A++++services+%7B%0A++++++useCustomServices%2C%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++services%5B%5D%7B%0A++++++++_key%2C%0A++++++++title%2C%0A++++++++description%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%2C%0A++++++++slug%2C%0A++++++++link%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 284ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++hero+%7B%0A++++++useCustomHero%2C%0A++++++heading%2C%0A++++++description%2C%0A++++++primaryLabel%2C%0A++++++primaryLink%2C%0A++++++secondaryLabel%2C%0A++++++secondaryLink%2C%0A++++++slides%5B%5D%7B%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++contentAlignment%0A++++++%7D%0A++++%7D%2C%0A++++shopByBrands+%7B%0A++++++useCustomShopByBrands%2C%0A++++++sectionTitle%2C%0A++++++showNavDesktop%2C%0A++++++brands%5B%5D%7B%0A++++++++name%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++++imageAlt%2C%0A++++++++link%2C%0A++++++++buttonText%0A++++++%7D%2C%0A++++++stats%5B%5D%7B%0A++++++++%22iconUrl%22%3A+iconImage.asset-%3Eurl%2C%0A++++++++title%2C%0A++++++++description%0A++++++%7D%0A++++%7D%2C%0A++++about+%7B%0A++++++useCustomAbout%2C%0A++++++kicker%2C%0A++++++title%2C%0A++++++description%2C%0A++++++highlights%2C%0A++++++primaryCta%2C%0A++++++%22imageTop%22%3A+imageTop.asset-%3Eurl%2C%0A++++++%22imageBottom%22%3A+imageBottom.asset-%3Eurl%2C%0A++++++videoUrl%0A++++%7D%2C%0A++++categories+%7B%0A++++++useCustomCategories%2C%0A++++++title%2C%0A++++++watermarkText%2C%0A++++++viewAllLabel%2C%0A++++++viewAllLink%2C%0A++++++items%5B%5D%7B%0A++++++++name%2C%0A++++++++slug%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%2C%0A++++services+%7B%0A++++++useCustomServices%2C%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++services%5B%5D%7B%0A++++++++_key%2C%0A++++++++title%2C%0A++++++++description%2C%0A++++++++%22image%22%3A+image.asset-%3Eurl%2C%0A++++++++slug%2C%0A++++++++link%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 283ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++coffeeShowcase+%7B%0A++++++mainHeadingLine1%2C%0A++++++highlightedWord%2C%0A++++++mainHeadingLine2%2C%0A++++++descriptionText%2C%0A++++++buttonText%2C%0A++++++buttonLink%2C%0A++++++coffeeItems%5B%5D%7B%0A++++++++name%2C%0A++++++++description%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 281ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++spaceExperiences+%7B%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++items%5B%5D%7B%0A++++++++title%2C%0A++++++++description%2C%0A++++++++isEnabled%2C%0A++++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 279ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++serviceBrandsSection+%7B%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++brands%5B%5D%7B%0A++++++++name%2C%0A++++++++link%2C%0A++++++++%22logoUrl%22%3A+logo.asset-%3Eurl%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 279ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++satisfiedCustomers+%7B%0A++++++sectionTitle%2C%0A++++++customers%5B%5D%7B%0A++++++++name%2C%0A++++++++%22photoUrl%22%3A+photo.asset-%3Eurl%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 277ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++franchiseSection+%7B%0A++++++mainTitle%2C%0A++++++subtitle%2C%0A++++++badge1Text%2C%0A++++++badge2Text%2C%0A++++++ctaLabel%2C%0A++++++ctaLink%2C%0A++++++%22leftImageUrl%22%3A+leftImage.asset-%3Eurl%2C%0A++++++%22rightImageUrl%22%3A+rightImage.asset-%3Eurl%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 276ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++ourTeamSection+%7B%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++teamMembers%5B%5D%7B%0A++++++++name%2C%0A++++++++role%2C%0A++++++++title%2C%0A++++++++description%2C%0A++++++++%22photoUrl%22%3A+photo.asset-%3Eurl%2C%0A++++++++socialLinks+%7B%0A++++++++++facebook%2C%0A++++++++++instagram%2C%0A++++++++++tiktok%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 276ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++clientTestimonials+%7B%0A++++++sectionTitle%2C%0A++++++sectionDescription%2C%0A++++++testimonials%5B%5D%7B%0A++++++++name%2C%0A++++++++role%2C%0A++++++++quote%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 275ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++storeLocation+%7B%0A++++++storeName%2C%0A++++++address%2C%0A++++++phone%2C%0A++++++hours%2C%0A++++++googleMapsUrl%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 274ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22homepage%22%5D%5B0%5D%7B%0A++++ctaBanner+%7B%0A++++++preTitle%2C%0A++++++headline%2C%0A++++++headlineHighlight%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++footerTagline%2C%0A++++++socialLinks+%7B%0A++++++++instagram%2C%0A++++++++facebook%2C%0A++++++++tiktok%0A++++++%7D%0A++++%7D%0A++%7D%0A&returnQuery=false 200 in 270ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22marketing%22+%26%26+_id+%3D%3D+%22marketing%22%5D%5B0%5D%7B%0A++++announcementBar+%7B%0A++++++isActive%2C%0A++++++backgroundColor%2C%0A++++++rotationSpeed%2C%0A++++++messages%5B%5D+%7B%0A++++++++text%2C%0A++++++++link%2C%0A++++++++isActive%0A++++++%7D%0A++++%7D%2C%0A++++%22activePopup%22%3A+activePopup-%3E%7B%0A++++++_id%2C%0A++++++campaignName%2C%0A++++++enabled%2C%0A++++++startDate%2C%0A++++++endDate%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++imageLink%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++delay%0A++++%7D%2C%0A++++%22featuredCollections%22%3A+coalesce%28featuredCollections%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++layout%2C%0A++++++contentPosition%2C%0A++++++collectionHandle%2C%0A++++++heading%2C%0A++++++subtext%2C%0A++++++ctaLabel%2C%0A++++++%22bannerImageUrl%22%3A+bannerImage.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%2C%0A++++%22promoBanners%22%3A+coalesce%28promoBanners%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++buttonPosition%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%0A++%7D%0A&returnQuery=false 200 in 271ms (cache hit)
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22marketing%22+%26%26+_id+%3D%3D+%22marketing%22%5D%5B0%5D%7B%0A++++announcementBar+%7B%0A++++++isActive%2C%0A++++++backgroundColor%2C%0A++++++rotationSpeed%2C%0A++++++messages%5B%5D+%7B%0A++++++++text%2C%0A++++++++link%2C%0A++++++++isActive%0A++++++%7D%0A++++%7D%2C%0A++++%22activePopup%22%3A+activePopup-%3E%7B%0A++++++_id%2C%0A++++++campaignName%2C%0A++++++enabled%2C%0A++++++startDate%2C%0A++++++endDate%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++imageLink%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++delay%0A++++%7D%2C%0A++++%22featuredCollections%22%3A+coalesce%28featuredCollections%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++layout%2C%0A++++++contentPosition%2C%0A++++++collectionHandle%2C%0A++++++heading%2C%0A++++++subtext%2C%0A++++++ctaLabel%2C%0A++++++%22bannerImageUrl%22%3A+bannerImage.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%2C%0A++++%22promoBanners%22%3A+coalesce%28promoBanners%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++buttonPosition%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%0A++%7D%0A&returnQuery=false 200 in 65ms (cache hit)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 1812ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 495ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ ✓ Compiled in 48ms
+ ✓ Compiled in 2.8s (833 modules)
+ ✓ Compiled in 554ms (833 modules)

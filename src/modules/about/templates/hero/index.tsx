@@ -2,11 +2,12 @@
 
 /**
  * About Us Hero Section
- * Premium hero with background image and overlay
+ * Premium hero with background image and overlay, matching the homepage/services layout
  * Displays main tagline and introduction
  */
 
 import Image from "next/image"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 interface AboutHeroProps {
   badgeText: string
@@ -17,89 +18,63 @@ interface AboutHeroProps {
 }
 
 export default function AboutHero({
-  badgeText,
   title,
   subtitle,
   backgroundImage,
-  overlayStrength,
 }: AboutHeroProps) {
-  // Calculate overlay opacity (0-100 to 0-1)
-  const overlayOpacity = overlayStrength / 100
+  // Use requested fallback image if backgroundImage isn't available
+  const imageSrc = backgroundImage || "/images/sixthgearleftsideimg.jpg"
 
   return (
-    <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <Image
-          src={backgroundImage || "/images/sixthgearleftsideimg.jpg"}
-          alt="Sixthgear Workshop"
-          fill
-          className="object-cover"
-          priority
-        />
-        {/* Dynamic Gradient Overlays based on overlayStrength */}
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-black via-black to-black"
-          style={{
-            opacity: overlayOpacity * 0.7,
-          }}
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black"
-          style={{
-            opacity: overlayOpacity * 0.4,
-          }}
-        />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 md:px-8 text-center">
-        {/* Badge */}
-        {badgeText && (
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#F16D34]/20 backdrop-blur-sm rounded-full border border-[#F16D34]/30 mb-8">
-            <span
-              className="text-[#F16D34] text-sm md:text-base font-medium tracking-wide"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
-            >
-              {badgeText}
-            </span>
-          </div>
-        )}
-
-        {/* Main Title */}
-        <h1
-          className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl text-white uppercase leading-[0.95] tracking-tight mb-6"
-          style={{
-            fontFamily: "Tanker, sans-serif",
-            textShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
-          }}
-        >
-          {title.split(" ").map((word, index) => (
-            <span key={index}>
-              {index === title.split(" ").length - 1 ? (
-                <span className="text-[#F16D34]">{word}</span>
-              ) : (
-                word
-              )}{" "}
-            </span>
-          ))}
-        </h1>
-
-        {/* Subtitle */}
-        <p
-          className="text-white/80 text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed"
-          style={{ fontFamily: "Inter Display, sans-serif" }}
-        >
-          {subtitle}
-        </p>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-8 h-12 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-            <div className="w-1.5 h-3 bg-[#F16D34] rounded-full animate-pulse" />
-          </div>
+    <div className="relative w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[640px]">
+      {/* Background Image Container */}
+      <div className="absolute inset-0 z-0 bg-black">
+        <div className="absolute inset-0 opacity-100 z-10">
+          <Image
+            src={imageSrc}
+            alt={title}
+            fill
+            quality={100}
+            className="object-cover object-center"
+            sizes="100vw"
+            priority
+          />
+          {/* Subtle gradient overlay to ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         </div>
       </div>
-    </section>
+
+      {/* Content Container (Matches Homepage/Services Hero padding and layout) */}
+      <div className="absolute inset-0 z-20 w-full h-full flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20 lg:pb-24 items-start">
+        <div className="w-full max-w-4xl text-left">
+          
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 mb-4 text-xs sm:text-sm">
+            <LocalizedClientLink
+              href="/"
+              className="text-white/60 hover:text-white transition-colors uppercase tracking-widest font-semibold"
+            >
+              Home
+            </LocalizedClientLink>
+            <span className="text-white/40">/</span>
+            <span className="text-white font-bold uppercase tracking-widest">About</span>
+          </nav>
+
+          {/* Title */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4 text-white uppercase tracking-tight line-clamp-1">
+            {title}
+          </h1>
+
+          {/* Description */}
+          {subtitle && (
+            <p className="text-gray-200 text-sm sm:text-base leading-relaxed max-w-xl">
+              {subtitle}
+            </p>
+          )}
+
+        </div>
+      </div>
+    </div>
   )
 }
+

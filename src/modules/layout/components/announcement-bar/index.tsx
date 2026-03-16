@@ -81,7 +81,7 @@ export default function AnnouncementBar({ data }: AnnouncementBarProps) {
   const msg = active[idx]
 
   return (
-    <div className={`w-full ${styles.bg} relative z-50`}>
+    <div className={`w-full ${styles.bg}`}>
       <div className="max-w-[1440px] mx-auto px-10 md:px-12 py-1.5 md:py-2 flex items-center justify-center min-h-[36px] relative">
         {/* Message */}
         {msg?.link ? (

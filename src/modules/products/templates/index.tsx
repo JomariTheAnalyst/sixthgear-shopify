@@ -7,6 +7,7 @@ import ProductReviews from "@modules/products/components/product-reviews"
 import YouMayLike from "@modules/products/components/you-may-like"
 import StarRating from "@modules/products/components/star-rating"
 import Breadcrumb from "@modules/products/components/breadcrumb"
+import RecentlyViewedTracker from "@modules/products/components/recently-viewed-tracker"
 import { notFound } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 import { parseRatingSummaryFromMetafields } from "@lib/data/reviews"
@@ -33,8 +34,23 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
     product.metafields as any
   )
 
+  // Use the first variant's calculated price if available, fallback to empty string
+  // Format price assuming PHP, fallback for simplicity if not available
+  const variant = product.variants?.[0]
+  const calculatedAmount = variant?.calculated_price?.calculated_amount
+  const currencyCode = variant?.calculated_price?.currency_code || "PHP"
+  const formattedPrice = calculatedAmount 
+    ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: currencyCode }).format(calculatedAmount)
+    : "Price Unavailable"
+
   return (
     <div className="min-h-screen bg-white">
+      <RecentlyViewedTracker 
+        handle={product.handle || ""}
+        title={product.title || ""}
+        price={formattedPrice}
+        image={images?.[0]?.url || ""}
+      />
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-6 lg:pb-10">
         {/* Breadcrumb */}
         <Breadcrumb product={product} />

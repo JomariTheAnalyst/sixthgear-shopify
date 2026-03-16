@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import { buildSanityImageUrl, getObjectPosition } from "@lib/util/sanity-image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import type { SanityHeroSection } from "@lib/cms/types"
 
@@ -9,23 +10,32 @@ const FALLBACK_HERO: SanityHeroSection = {
   useCustomHero: false,
   heading: "Best Bike\nRepair & Service",
   description: "Professional servicing, repairs, detailing & performance upgrades. Trusted by riders for precision and care.",
-  primaryLabel: "More About Us",
-  primaryLink: "/about",
+  primaryLabel: "Shop Now",
+  primaryLink: "/store",
   secondaryLabel: "View Services",
   secondaryLink: "/services",
   slides: [
     {
       imageUrl: "/images/homepage/slideshow-hero/slideshow4.png",
+      mobileImageUrl: null,
+      mobileCrop: null,
+      mobileHotspot: null,
       imageAlt: "SixthgearMoto hero background 1",
       contentAlignment: "left",
     },
     {
       imageUrl: "/images/homepage/slideshow-hero/slideshow5.png",
+      mobileImageUrl: null,
+      mobileCrop: null,
+      mobileHotspot: null,
       imageAlt: "SixthgearMoto hero background 2",
       contentAlignment: "left",
     },
     {
       imageUrl: "/images/homepage/slideshow-hero/sixthgear-hero.png",
+      mobileImageUrl: null,
+      mobileCrop: null,
+      mobileHotspot: null,
       imageAlt: "SixthgearMoto hero background 3",
       contentAlignment: "left",
     },
@@ -50,7 +60,10 @@ const Hero = ({ data }: HeroProps) => {
         primaryLink: data.primaryLink ?? FALLBACK_HERO.primaryLink,
         secondaryLabel: data.secondaryLabel ?? FALLBACK_HERO.secondaryLabel,
         secondaryLink: data.secondaryLink ?? FALLBACK_HERO.secondaryLink,
-        slides: data.slides && data.slides.length > 0 ? data.slides : (FALLBACK_HERO.slides || [])
+        slides:
+          data.slides && data.slides.length > 0
+            ? data.slides
+            : FALLBACK_HERO.slides || [],
       }
 
   const headingText = mergedHero.heading || "Sixthgear Moto"
@@ -73,10 +86,31 @@ const Hero = ({ data }: HeroProps) => {
   }, [slides.length])
 
   return (
-    <div className="relative w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[640px]">
+    <div className="relative w-full overflow-hidden min-h-[85vh] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[90vh] lg:max-h-[640px]">
       {/* Background Image Slideshow */}
       <div className="absolute inset-0 z-0 bg-black">
         {slides.map((slide, idx) => (
+          (() => {
+            const mobileImageSrc =
+              buildSanityImageUrl(
+                slide.mobileImageRef
+                  ? {
+                      asset: { _ref: slide.mobileImageRef },
+                      crop: slide.mobileCrop ?? null,
+                      hotspot: slide.mobileHotspot ?? null,
+                    }
+                  : null,
+                { width: 900, height: 1400 }
+              ) ||
+              slide.mobileImageUrl ||
+              slide.imageUrl
+
+            const desktopObjectPosition = getObjectPosition(slide.hotspot)
+            const mobileObjectPosition = getObjectPosition(
+              slide.mobileHotspot ?? slide.hotspot
+            )
+
+            return (
           <div 
             key={slide.imageUrl + idx} 
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -88,38 +122,53 @@ const Hero = ({ data }: HeroProps) => {
               alt={slide.imageAlt || `Hero Background slide ${idx + 1}`}
               fill
               quality={100}
-              className="object-cover object-center"
+              className="hidden md:block object-cover object-right sm:object-center"
+              style={{ objectPosition: desktopObjectPosition }}
               sizes="100vw"
               priority={idx === 0}
             />
 
-            {/* Content Container (Now scoped uniquely per-slide) */}
-            <div className={`absolute inset-0 z-20 w-full h-full flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20 lg:pb-24 transition-all duration-700 ${
+            <Image
+              src={mobileImageSrc}
+              alt={slide.imageAlt || `Hero Background slide ${idx + 1}`}
+              fill
+              quality={100}
+              className="block md:hidden object-cover"
+              style={{ objectPosition: mobileObjectPosition }}
+              sizes="100vw"
+              priority={idx === 0}
+            />
+
+            {/* Mobile Gradient Overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10 z-10 pointer-events-none block sm:hidden" />
+
+            {/* Content Container */}
+            <div className={`absolute inset-0 z-20 w-full h-full flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-28 sm:pb-20 lg:pb-24 transition-all duration-700 ${
               slide.contentAlignment === "right" ? "items-end" : "items-start"
             }`}>
               <div className={`w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-1000 ${
                 slide.contentAlignment === "right" ? "text-right" : "text-left"
               }`}>
                 {/* Title */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4 text-white uppercase tracking-tight line-clamp-1">
+                <h1 className="text-[32px] leading-[1.1] sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-4 text-white uppercase tracking-tight break-words sm:line-clamp-1 drop-shadow-md sm:drop-shadow-none">
                   {singleLineHeading}
                 </h1>
 
-                {/* Description */}
+                {/* Description - Hidden on Mobile */}
                 {mergedHero.description && (
-                  <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-6 max-w-xl">
+                  <p className="hidden sm:block text-gray-200 text-sm sm:text-base leading-relaxed mb-6 max-w-xl">
                     {mergedHero.description}
                   </p>
                 )}
 
-                {/* CTA Buttons */}
-                <div className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 transition-all duration-700 ${
+                {/* CTA Buttons - Large & Stacked on Mobile */}
+                <div className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 transition-all duration-700 w-full sm:w-auto ${
                   slide.contentAlignment === "right" ? "items-end sm:justify-end" : "items-start sm:justify-start"
                 }`}>
                   {mergedHero.primaryLink && mergedHero.primaryLabel && (
                     <LocalizedClientLink
                       href={mergedHero.primaryLink}
-                      className="w-full sm:w-auto px-6 py-3 bg-white text-black font-bold text-center rounded-md hover:bg-gray-100 transition-all uppercase tracking-wide text-xs sm:text-sm"
+                      className="flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-white text-black font-bold text-center rounded-md hover:bg-gray-100 transition-all uppercase tracking-wide text-sm"
                     >
                       {mergedHero.primaryLabel}
                     </LocalizedClientLink>
@@ -128,7 +177,7 @@ const Hero = ({ data }: HeroProps) => {
                   {mergedHero.secondaryLabel && mergedHero.secondaryLink && (
                     <LocalizedClientLink
                       href={mergedHero.secondaryLink}
-                      className="w-full sm:w-auto px-6 py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-xs sm:text-sm"
+                      className="flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-sm"
                     >
                       {mergedHero.secondaryLabel}
                     </LocalizedClientLink>
@@ -137,27 +186,64 @@ const Hero = ({ data }: HeroProps) => {
               </div>
             </div>
           </div>
+            )
+          })()
         ))}
       </div>
 
-      {/* Carousel Navigation Dots */}
+      {/* Carousel Navigation */}
       {slides.length > 1 && (
-        <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-          {slides.map((_, idx) => (
+        <>
+          {/* Desktop Pagination Dots */}
+          <div className="hidden sm:flex absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-30 items-center gap-2">
+            {slides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${
+                  idx === currentSlide ? "bg-white" : "bg-white/30 hover:bg-white/50"
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Mobile Navigation (Arrows + Progress Dots) */}
+          <div className="flex sm:hidden absolute bottom-6 left-6 right-6 z-30 items-center justify-between gap-4">
             <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${
-                idx === currentSlide ? "bg-white" : "bg-white/30 hover:bg-white/50"
-              }`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
-        </div>
+              onClick={() => setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+              className="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+              aria-label="Previous slide"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-1.5 flex-1 justify-center">
+              {slides.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`h-0.5 rounded-full transition-all duration-300 ${
+                    idx === currentSlide ? "w-8 bg-white" : "w-4 bg-white/40"
+                  }`}
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+              className="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+              aria-label="Next slide"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </>
       )}
     </div>
   )
 }
 
 export default Hero
-

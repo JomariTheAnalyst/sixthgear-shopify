@@ -79,7 +79,7 @@ const RecentSearches = ({ onSearchClick }: RecentSearchesProps) => {
     <div>
       <div className="space-y-1">
         {searches.map((query) => (
-          <button
+          <div
             key={query}
             onClick={() => onSearchClick(query)}
             className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left group"
@@ -94,7 +94,7 @@ const RecentSearches = ({ onSearchClick }: RecentSearchesProps) => {
             >
               <X className="w-3 h-3 text-gray-500" />
             </button>
-          </button>
+          </div>
         ))}
       </div>
       {searches.length > 0 && (

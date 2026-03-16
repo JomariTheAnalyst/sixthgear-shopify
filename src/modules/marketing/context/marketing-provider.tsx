@@ -2,7 +2,6 @@
 
 import { createContext, useContext, ReactNode } from "react"
 import { MarketingResponse, MarketingItem } from "../../../types/marketing"
-import MarqueeStrip from "../components/announcement-strip/marquee-strip"
 import PopupAds from "../components/popup-ads"
 
 interface MarketingContextValue {
@@ -34,9 +33,6 @@ export function MarketingProvider({
 }: MarketingProviderProps) {
   return (
     <MarketingContext.Provider value={marketing}>
-      {/* Marquee Announcement Strip - Always rendered */}
-      <MarqueeStrip />
-
       {/* Main Content */}
       {children}
 

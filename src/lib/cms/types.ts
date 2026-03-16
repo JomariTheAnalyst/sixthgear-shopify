@@ -8,6 +8,26 @@ export interface SanityHeroSection {
   secondaryLink: string | null
   slides: {
     imageUrl: string
+    hotspot?: {
+      x: number
+      y: number
+      width: number
+      height: number
+    } | null
+    mobileImageUrl: string | null
+    mobileImageRef?: string | null
+    mobileCrop?: {
+      top: number
+      bottom: number
+      left: number
+      right: number
+    } | null
+    mobileHotspot?: {
+      x: number
+      y: number
+      width: number
+      height: number
+    } | null
     imageAlt: string
     contentAlignment?: "left" | "right" | null
   }[] | null
@@ -264,5 +284,3 @@ export interface SanityMarketingData {
   featuredCollections: SanityFeaturedCollectionItem[]
   promoBanners: SanityPromoBanner[]
 }
-
-

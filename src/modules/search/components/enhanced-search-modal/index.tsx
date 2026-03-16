@@ -2,13 +2,14 @@
 
 import { Fragment, useState, useEffect } from "react"
 import { Dialog, Transition } from "@headlessui/react"
-import { X, Search, Clock, TrendingUp, Flame } from "lucide-react"
+import { X, Search, Clock, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import RecentSearches, { addRecentSearch } from "../recent-searches"
 import PopularSuggestions from "../popular-suggestions"
 import HotDealsProducts from "../hot-deals-products"
 import SearchResults from "../search-results"
 import AutocompleteSuggestions from "../autocomplete-suggestions"
+import YouMayLike from "../you-may-like"
 
 interface EnhancedSearchModalProps {
   isOpen: boolean
@@ -37,16 +38,10 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
     return () => window.removeEventListener("keydown", handleEsc)
   }, [onClose])
 
-  const handleSearch = (searchQuery: string) => {
-    setQuery(searchQuery)
-  }
-
   const handleSearchSubmit = () => {
     if (query.trim()) {
       // Save to recent searches
       addRecentSearch(query)
-      // Track search
-      trackSearch(query)
       // Navigate to store page with query
       router.push(`/store?query=${encodeURIComponent(query.trim())}`)
       // Close modal
@@ -64,36 +59,16 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
     setQuery(suggestion)
     // Save to recent searches
     addRecentSearch(suggestion)
-    // Track search
-    trackSearch(suggestion)
   }
 
   const handleProductClick = (handle: string) => {
-    // Track search if there's a query
+    // Save search if there's a query
     if (query.trim()) {
       addRecentSearch(query)
-      trackSearch(query)
     }
     // Navigate to product
     router.push(`/products/${handle}`)
     onClose()
-  }
-
-  const trackSearch = async (searchQuery: string) => {
-    try {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/search/track`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ query: searchQuery }),
-        }
-      )
-    } catch (error) {
-      console.error("Failed to track search:", error)
-    }
   }
 
   const isSearching = query.trim().length > 0
@@ -200,14 +175,11 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
                         />
                       </div>
                     ) : (
-                      <div className="p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Flame className="w-4 h-4 text-orange-500" />
-                          <h3 className="text-sm font-medium text-gray-700">
-                            Hot Right Now
-                          </h3>
+                      <div className="flex flex-col">
+                        <YouMayLike onClose={onClose} />
+                        <div className="p-4 border-t border-gray-100">
+                          <HotDealsProducts onProductClick={handleProductClick} />
                         </div>
-                        <HotDealsProducts onProductClick={handleProductClick} />
                       </div>
                     )}
                   </div>

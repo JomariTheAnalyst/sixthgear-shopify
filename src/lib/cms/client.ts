@@ -443,5 +443,3 @@ export async function getMarketingData(): Promise<SanityMarketingData> {
     }
   }
 }
-
-

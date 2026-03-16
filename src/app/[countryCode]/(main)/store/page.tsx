@@ -7,6 +7,7 @@ import {
   buildShopifyFilters,
   listCollections,
 } from "@lib/data/collections";
+import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
 import { getCollectionHero } from "@lib/cms/client";
 import CollectionTemplate from "@modules/collections/templates";
@@ -22,6 +23,25 @@ export const dynamic = "force-dynamic";
 // Shopify filters only work inside collection.products() queries,
 // so we must route through a collection handle.
 const STORE_COLLECTION_HANDLE = "all-products";
+
+function mapSearchSort(
+  sortKey: string | undefined
+): { sortKey: "RELEVANCE" | "PRICE"; reverse: boolean } {
+  switch (sortKey) {
+    case "PRICE_ASC":
+      return { sortKey: "PRICE", reverse: false };
+    case "PRICE_DESC":
+      return { sortKey: "PRICE", reverse: true };
+    case "RELEVANCE":
+      return { sortKey: "RELEVANCE", reverse: false };
+    case "COLLECTION_DEFAULT":
+    case "CREATED_AT":
+    case "TITLE_ASC":
+    case "TITLE_DESC":
+    default:
+      return { sortKey: "RELEVANCE", reverse: false };
+  }
+}
 
 type Params = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -42,13 +62,61 @@ export default async function StorePage(props: Params) {
     }
   });
 
+  // Detect search mode
+  const searchQuery = urlParams.get("query")?.trim() || "";
+
   // Parse filter state from URL
   const filterState = parseSearchParams(urlParams);
 
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
 
-  // Parallel fetches: Shopify filtered products, sidebar filters, collections menu, CMS hero
+  // --- SEARCH MODE ---
+  if (searchQuery) {
+    const searchSort = mapSearchSort(filterState.sortKey);
+    const [searchResult, sidebarFilters, { collections }, storeHero] =
+      await Promise.all([
+        searchProducts(searchQuery, {
+          first: 24,
+          sortKey: searchSort.sortKey,
+        }),
+        getCollectionFilters(STORE_COLLECTION_HANDLE),
+        listCollections({ limit: 100 }),
+        getCollectionHero(STORE_COLLECTION_HANDLE),
+      ]);
+
+    const searchProductsForView = searchSort.reverse
+      ? [...searchResult.products].reverse()
+      : searchResult.products;
+
+    const collectionsMenu = collections.map((c: any) => ({
+      handle: c.handle,
+      title: c.title,
+    }));
+
+    const searchCollection = {
+      id: "search-results",
+      handle: "search-results",
+      title: `Results for "${searchQuery}"`,
+      description: `${searchResult.totalCount} product${searchResult.totalCount !== 1 ? "s" : ""} found`,
+    };
+
+    return (
+      <CollectionTemplate
+        collection={searchCollection}
+        products={searchProductsForView}
+        filters={[]}
+        sidebarFilters={sidebarFilters}
+        pageInfo={searchResult.pageInfo}
+        initialFilterState={filterState}
+        countryCode={params.countryCode}
+        collectionsMenu={collectionsMenu}
+        heroData={storeHero}
+      />
+    );
+  }
+
+  // --- BROWSE MODE (existing logic) ---
   const [result, sidebarFilters, { collections }, storeHero] = await Promise.all([
     getFilteredCollection(STORE_COLLECTION_HANDLE, {
       filters: shopifyFilters,
