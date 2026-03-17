@@ -6,6 +6,8 @@
  * Allows zoom/pan with marker staying at coordinates
  */
 
+import { inter, montserrat } from "@lib/fonts"
+
 interface StoreLocationProps {
   storeName?: string | null
   address?: string | null
@@ -59,14 +61,12 @@ export default function StoreLocation({
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2
-            className="text-4xl md:text-6xl lg:text-7xl text-gray-900"
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`${montserrat.className} text-4xl md:text-6xl lg:text-7xl tracking-[0.025em] text-gray-900`}
           >
             Store Location
           </h2>
           <p
-            className="text-gray-600 text-base md:text-lg mt-4 max-w-2xl mx-auto"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
+            className={`${inter.className} text-gray-600 text-base md:text-lg mt-4 max-w-2xl mx-auto`}
           >
             Visit us at our store in Makati City for premium motorcycle gear,
             professional services, and great coffee.
@@ -94,8 +94,7 @@ export default function StoreLocation({
           <div className="lg:col-span-1 bg-[#1a1a1a] rounded-3xl lg:rounded-l-none p-8 md:p-12 flex flex-col justify-center text-white min-h-[450px] md:min-h-[550px] lg:min-h-[600px]">
             {/* Store Name */}
             <h3
-              className="text-3xl md:text-4xl lg:text-5xl text-[#F16D34] mb-8"
-              style={{ fontFamily: "Tanker, sans-serif" }}
+              className={`${montserrat.className} text-3xl md:text-4xl lg:text-5xl tracking-[0.035em] text-[#F16D34] mb-8`}
             >
               {activeName}
             </h3>
@@ -127,14 +126,12 @@ export default function StoreLocation({
                 </div>
                 <div>
                   <p
-                    className="text-white/60 text-sm uppercase tracking-wider mb-1"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${inter.className} text-white/60 text-sm uppercase tracking-wider mb-1`}
                   >
                     Address
                   </p>
                   <p
-                    className="text-white text-base md:text-lg"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${inter.className} text-white text-base md:text-lg`}
                   >
                     {activeAddress}
                   </p>
@@ -160,15 +157,13 @@ export default function StoreLocation({
                 </div>
                 <div>
                   <p
-                    className="text-white/60 text-sm uppercase tracking-wider mb-1"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${inter.className} text-white/60 text-sm uppercase tracking-wider mb-1`}
                   >
                     Phone
                   </p>
                   <a
                     href={`tel:${activePhone.replace(/\s/g, "")}`}
-                    className="text-white text-base md:text-lg hover:text-[#F16D34] transition-colors"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${inter.className} text-white text-base md:text-lg hover:text-[#F16D34] transition-colors`}
                   >
                     {activePhone}
                   </a>
@@ -194,14 +189,12 @@ export default function StoreLocation({
                 </div>
                 <div>
                   <p
-                    className="text-white/60 text-sm uppercase tracking-wider mb-1"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${inter.className} text-white/60 text-sm uppercase tracking-wider mb-1`}
                   >
                     Store Hours
                   </p>
                   <p
-                    className="text-white text-base md:text-lg"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${inter.className} text-white text-base md:text-lg`}
                   >
                     {activeHours}
                   </p>
@@ -212,8 +205,7 @@ export default function StoreLocation({
             {/* Get Directions Button */}
             <button
               onClick={handleGetDirections}
-              className="mt-10 w-full flex items-center justify-center gap-3 px-8 py-5 bg-[#F16D34] text-white text-lg font-semibold uppercase tracking-wider rounded-full transition-all duration-300 hover:bg-white hover:text-[#1a1a1a] hover:scale-[1.02] group"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
+              className={`${montserrat.className} mt-10 w-full flex items-center justify-center gap-3 px-8 py-5 bg-[#F16D34] text-white text-lg font-semibold uppercase tracking-wider rounded-full transition-all duration-300 hover:bg-white hover:text-[#1a1a1a] hover:scale-[1.02] group`}
             >
               <svg
                 className="w-5 h-5"

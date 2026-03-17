@@ -5,6 +5,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import { getProductsInventory } from "@lib/data/products"
+import { inter, montserrat } from "@lib/fonts"
 import ProductCard, { BadgeMode } from "../product-card"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -35,16 +36,13 @@ export default async function ProductSection({
   // Fetch inventory for all products
   const productIds = displayProducts.map((p) => p.id)
   const inventoryByProduct = await getProductsInventory(productIds)
-
   return (
     <section className="py-10 md:py-12 lg:py-16 bg-white">
       <div className="max-w-[1400px] mx-auto">
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-6 md:mb-8 px-4 md:px-8 lg:px-12">
-          {/* Dominating Title */}
+        <div className="flex items-end justify-between mb-6 md:mb-8 px-4 md:px-8 lg:px-12">
           <h2
-            className="text-2xl md:text-3xl lg:text-5xl font-black text-gray-900 uppercase tracking-tight"
-            style={{ fontFamily: "BRHendrix, sans-serif" }}
+            className={`${montserrat.className} text-2xl md:text-3xl lg:text-5xl font-black text-gray-900 uppercase tracking-[0.025em]`}
           >
             {title}
           </h2>
@@ -53,8 +51,7 @@ export default async function ProductSection({
           {viewAllLink && (
             <LocalizedClientLink
               href={viewAllLink}
-              className="inline-flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-900 text-white text-xs md:text-sm font-semibold uppercase tracking-wide hover:bg-[#F16D34] transition-colors duration-300"
-              style={{ fontFamily: "BRHendrix, sans-serif" }}
+              className={`${montserrat.className} inline-flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 bg-gray-900 text-white text-xs md:text-sm font-semibold uppercase tracking-[0.06em] hover:bg-[#F16D34] transition-colors duration-300`}
             >
               <span className="hidden sm:inline">Shop the Collection</span>
               <span className="sm:hidden">Shop</span>

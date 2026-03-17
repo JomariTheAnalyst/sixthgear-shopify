@@ -3,6 +3,7 @@ import Link from "next/link"
 import { HttpTypes } from "@medusajs/types"
 import type { SanityFeaturedCollectionItem } from "@lib/cms/types"
 import type { ShopifyProductCard } from "@lib/shopify/types"
+import { inter, montserrat } from "@lib/fonts"
 import ProductCard from "@modules/home/components/product-sections/product-card"
 import { getCollectionProductsByHandle } from "@lib/shopify"
 
@@ -122,7 +123,7 @@ export default async function FeaturedCollectionItem({
   }
 
   return (
-    <div className="w-full px-4 md:px-6 lg:px-8">
+    <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 items-stretch overflow-hidden min-h-[400px]">
         {/* ── Image Panel (50%) ── */}
         <div
@@ -145,15 +146,15 @@ export default async function FeaturedCollectionItem({
           <div
             className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-6 md:px-8 py-8 md:py-10 z-10 flex flex-col ${alignClass}`}
           >
-            <h2 className="text-white font-black text-2xl lg:text-3xl xl:text-4xl leading-tight mb-1 font-['Tanker',sans-serif]">
+            <h2 className={`${montserrat.className} text-white font-black text-2xl lg:text-3xl xl:text-4xl leading-tight tracking-[0.02em] mb-1`}>
               {heading}
             </h2>
             {subtext && (
-              <p className="text-white/70 text-sm mb-3">{subtext}</p>
+              <p className={`${inter.className} text-white/70 text-sm mb-3`}>{subtext}</p>
             )}
             <Link
               href={url}
-              className="mt-3 inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-100 text-black text-sm font-bold uppercase tracking-wider transition-colors"
+              className={`${montserrat.className} mt-3 inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-100 text-black text-sm font-bold uppercase tracking-[0.06em] transition-colors`}
             >
               {cta}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,14 +166,14 @@ export default async function FeaturedCollectionItem({
 
         {/* ── Products Panel (50%) ── */}
         <div
-          className={`p-8 md:p-12 lg:p-16 flex flex-col justify-center items-center ${
+          className={`px-2 py-5 sm:px-6 sm:py-8 md:p-12 lg:p-16 flex flex-col justify-center items-center ${
             isImageRight
               ? "order-2 lg:order-1"
               : "order-2 lg:order-2"
           }`}
         >
           {/* Product grid — 2x2 with generous spacing, constrained max-width to make items smaller */}
-          <div className="w-full max-w-[480px] grid grid-cols-2 gap-4 md:gap-x-8 md:gap-y-6 featured-collection-grid">
+          <div className="w-full max-w-none sm:max-w-[520px] lg:max-w-[540px] grid grid-cols-2 gap-2.5 sm:gap-4 md:gap-x-8 md:gap-y-6 featured-collection-grid">
             {products.slice(0, 4).map((product) => (
               <ProductCard
                 key={product.id}

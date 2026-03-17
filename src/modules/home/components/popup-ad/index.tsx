@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import type { SanityPopupAd } from "@lib/cms/types"
+import { interDisplay, lato } from "@lib/fonts"
 
 interface PopupAdProps {
   data: SanityPopupAd | null
@@ -88,7 +89,7 @@ export default function PopupAd({ data }: PopupAdProps) {
         {/* Heading */}
         {data.heading && (
           <div className="px-4 pt-4 pb-2 md:px-5 md:pt-5 md:pb-3">
-            <p className="text-gray-900 font-black text-lg md:text-xl leading-tight font-['Tanker',sans-serif]">
+            <p className={`${lato.className} text-gray-900 font-black text-lg md:text-xl leading-tight`}>
               {data.heading}
             </p>
           </div>
@@ -112,7 +113,7 @@ export default function PopupAd({ data }: PopupAdProps) {
             <Link
               href={data.buttonLink || data.imageLink || "#"}
               onClick={dismiss}
-              className="w-full block bg-white text-gray-900 font-bold text-sm uppercase tracking-widest py-4 px-6 text-center border-t border-gray-200 hover:bg-gray-50 transition-colors"
+              className={`${interDisplay.className} w-full block bg-white text-gray-900 font-bold text-sm uppercase tracking-widest py-4 px-6 text-center border-t border-gray-200 hover:bg-gray-50 transition-colors`}
             >
               {data.buttonLabel}
             </Link>

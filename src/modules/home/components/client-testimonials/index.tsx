@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import { inter, montserrat } from "@lib/fonts"
 
 /**
  * Client Testimonials Section
@@ -145,8 +146,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
 
     {/* Quote text */}
     <p
-      className="text-gray-700 text-sm md:text-base leading-relaxed flex-grow mb-6 italic text-center"
-      style={{ fontFamily: "Inter, sans-serif" }}
+      className={`${inter.className} text-gray-700 text-sm md:text-base leading-relaxed flex-grow mb-6 italic text-center`}
     >
       &quot;{testimonial.quote}&quot;
     </p>
@@ -158,12 +158,11 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
     <div className="flex flex-col items-center text-center mt-auto">
 
       <span
-        className="text-gray-900 text-base font-bold mb-1"
-        style={{ fontFamily: "Inter Display, sans-serif" }}
+        className={`${montserrat.className} text-gray-900 text-base font-bold mb-1`}
       >
         {testimonial.name}
       </span>
-      <span className="text-black/60 text-xs uppercase tracking-wider font-semibold">
+      <span className={`${inter.className} text-black/60 text-xs uppercase tracking-wider font-semibold`}>
         {testimonial.role}
       </span>
     </div>
@@ -199,46 +198,18 @@ export default function ClientTestimonials({
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
 
         {/* Header row */}
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 md:mb-16 gap-6">
-          <div className="text-left max-w-2xl">
-            <span
-              className="text-[#F16D34] text-xs uppercase tracking-[0.2em] font-bold mb-3 block"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
-            >
-              Customer Reviews
-            </span>
+        <div className="mb-12 md:mb-16">
+          <div className="text-center max-w-2xl mx-auto">
             <h2
-              className="text-gray-900 text-4xl md:text-5xl lg:text-6xl font-bold mb-3 leading-tight"
-              style={{ fontFamily: "Tanker, sans-serif" }}
+              className={`${montserrat.className} text-gray-900 text-4xl md:text-5xl lg:text-6xl font-bold tracking-[0.025em] mb-3 leading-tight`}
             >
               {activeTitle}
             </h2>
-            <p className="text-gray-500 text-base md:text-lg font-medium">
+            <p className={`${inter.className} text-gray-500 text-base md:text-lg font-medium`}>
               {activeDescription}
             </p>
           </div>
 
-          {/* Navigation arrows */}
-          <div className="flex gap-3 flex-shrink-0">
-            <button
-              onClick={() => scroll("left")}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-100 hover:bg-[#F16D34] hover:text-white text-gray-900 transition-all duration-300"
-              aria-label="Previous testimonial"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-100 hover:bg-[#F16D34] hover:text-white text-gray-900 transition-all duration-300"
-              aria-label="Next testimonial"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
         </div>
 
         {/* Testimonials carousel */}
@@ -254,8 +225,29 @@ export default function ClientTestimonials({
           ))}
         </div>
 
+        <div className="flex justify-center gap-3 mt-2 md:mt-4">
+          <button
+            onClick={() => scroll("left")}
+            className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
+            aria-label="Previous testimonial"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
+            aria-label="Next testimonial"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
         {/* Scroll hint on mobile */}
-        <p className="text-gray-400 text-xs text-center mt-4 md:hidden" style={{ fontFamily: "Inter, sans-serif" }}>
+        <p className={`${inter.className} text-gray-400 text-xs text-center mt-4 md:hidden`}>
           Swipe to read more reviews
         </p>
 

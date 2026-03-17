@@ -8,7 +8,6 @@
 import { ServiceCategory } from "@lib/services-data"
 import ServiceHero from "../service-hero"
 import ServiceItems from "../service-items"
-import ServiceCTA from "../service-cta"
 import CTABanner from "@modules/home/components/cta-banner"
 import OtherServices from "../other-services"
 

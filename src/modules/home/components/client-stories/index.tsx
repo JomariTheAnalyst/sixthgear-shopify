@@ -1,13 +1,7 @@
 "use client"
 
 import { useRef } from "react"
-import Image from "next/image"
-
-/**
- * Client Stories (Rider Stories) Section
- * Displays rider stories and garage notes.
- * Now connected to Strapi CMS with field-level fallbacks.
- */
+import { inter, montserrat } from "@lib/fonts"
 
 interface Story {
   id: number
@@ -32,14 +26,51 @@ export default function ClientStories({
 }: ClientStoriesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Don't render if no stories
   if (!stories || stories.length === 0) {
     return null
   }
 
+  const placeholderStories: Story[] = [
+    {
+      id: 10001,
+      title: "Workshop Story Coming Soon",
+      excerpt: "More rider stories, service notes, and garage insights will be added here soon.",
+      author: "Sixthgear Moto",
+      date: "Coming Soon",
+      category: "Update",
+      image:
+        "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=900&h=1200&fit=crop",
+    },
+    {
+      id: 10002,
+      title: "Next Rider Feature In Progress",
+      excerpt: "We are preparing another story from the workshop floor and the riding community.",
+      author: "Sixthgear Moto",
+      date: "Coming Soon",
+      category: "Feature",
+      image:
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&h=1200&fit=crop",
+    },
+    {
+      id: 10003,
+      title: "Fresh Garage Note On The Way",
+      excerpt: "A new round of motorcycle care insights and rider-focused updates will be published here.",
+      author: "Sixthgear Moto",
+      date: "Coming Soon",
+      category: "News",
+      image:
+        "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=900&h=1200&fit=crop",
+    },
+  ]
+
+  const displayStories =
+    stories.length >= 6
+      ? stories.slice(0, 6)
+      : [...stories, ...placeholderStories.slice(0, 6 - stories.length)]
+
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 320
+      const scrollAmount = window.innerWidth >= 1024 ? 360 : 320
       scrollContainerRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -48,177 +79,147 @@ export default function ClientStories({
   }
 
   return (
-    <section className="py-12 md:py-16 lg:py-24 bg-gray-50">
-      <div className="max-w-[1440px] mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8 md:mb-12 lg:mb-16 px-4 md:px-8">
+    <section className="relative py-14 md:py-18 lg:py-24 bg-white overflow-hidden">
+      <div className="relative max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="text-center mb-10 md:mb-14 lg:mb-16">
           <h2
-            className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 md:mb-4"
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`${montserrat.className} inline-block text-black text-2xl md:text-4xl lg:text-5xl font-bold uppercase tracking-[0.02em]`}
           >
             {sectionTitle}
           </h2>
-          <p className="text-base md:text-lg lg:text-xl text-gray-500 max-w-2xl mx-auto">
+          <p
+            className={`${inter.className} mt-4 text-base md:text-lg lg:text-xl text-gray-500 max-w-3xl mx-auto`}
+          >
             {sectionDescription}
           </p>
         </div>
 
-        {/* Mobile/Tablet: Horizontal Scroll */}
-        <div className="lg:hidden">
-          <div
-            ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide px-4 md:px-8"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
-            {stories.map((story) => (
-              <article
-                key={story.id}
-                className="group flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-[45vw] bg-white rounded-2xl overflow-hidden shadow-sm snap-center"
-              >
-                {/* Image */}
-                <div className="relative h-44 sm:h-52 overflow-hidden">
-                  <img
-                    src={story.image}
-                    alt={story.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Category Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-[#fca311] text-black text-xs font-semibold px-3 py-1 rounded-full">
-                      {story.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-                    {story.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2">
-                    {story.excerpt}
-                  </p>
-
-                  {/* Author & Date */}
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-700 font-medium">
-                      {story.author}
-                    </span>
-                    <span className="text-gray-400">{story.date}</span>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {/* Navigation Arrows - Mobile/Tablet */}
-          <div className="flex justify-center gap-3 mt-6 px-4">
-            <button
-              onClick={() => scroll("left")}
-              className="w-11 h-11 bg-[#fca311] hover:bg-[#e5940e] rounded-lg flex items-center justify-center transition-colors active:scale-95"
-              aria-label="Previous"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="black"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-11 h-11 bg-[#fca311] hover:bg-[#e5940e] rounded-lg flex items-center justify-center transition-colors active:scale-95"
-              aria-label="Next"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="black"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Desktop: Grid Layout */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-8 px-4 md:px-8">
-          {stories.map((story) => (
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {displayStories.map((story) => (
             <article
               key={story.id}
-              className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+              className="flex-shrink-0 w-[82vw] sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-gray-200 bg-white p-3 md:p-4"
             >
-              {/* Image */}
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative aspect-[4/5] overflow-hidden border border-gray-200">
                 <img
                   src={story.image}
                   alt={story.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
-                {/* Category Badge */}
-                <div className="absolute top-4 left-4">
-                  <span className="bg-[#fca311] text-black text-xs font-semibold px-3 py-1 rounded-full">
-                    {story.category}
-                  </span>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-[#fca311] transition-colors">
-                  {story.title}
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
-                  {story.excerpt}
-                </p>
-
-                {/* Author & Date */}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700 font-medium">
+                <div className="absolute top-3 left-3">
+                  <span className={`${inter.className} inline-flex items-center gap-2 bg-black/45 px-3 py-1.5 text-white text-xs font-medium backdrop-blur-sm`}>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 13c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3Z" />
+                      <path d="M19.5 10.5c0 6-7.5 11-7.5 11s-7.5-5-7.5-11a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
                     {story.author}
                   </span>
-                  <span className="text-gray-400">{story.date}</span>
                 </div>
+                <button
+                  type="button"
+                  className="absolute bottom-3 right-3 w-12 h-12 rounded-full bg-[#1c1c1c] text-white flex items-center justify-center shadow-lg"
+                  aria-label={`Open ${story.title}`}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="pt-4 md:pt-5">
+                <div className="flex items-center gap-2 text-[#ff5000] mb-3">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M8 2v4M16 2v4M3 10h18" />
+                    <rect width="18" height="18" x="3" y="4" rx="2" />
+                  </svg>
+                  <span className={`${inter.className} text-xs md:text-sm font-semibold uppercase tracking-[0.06em]`}>
+                    {story.date}
+                  </span>
+                </div>
+
+                <h3 className={`${montserrat.className} text-xl md:text-2xl lg:text-[24px] font-bold tracking-[0.005em] text-[#111111] leading-[1.12] mb-3`}>
+                  {story.title}
+                </h3>
+                <p className={`${inter.className} text-gray-600 text-sm md:text-base leading-relaxed line-clamp-3`}>
+                  {story.excerpt}
+                </p>
               </div>
             </article>
           ))}
         </div>
 
-        {/* View All Button */}
-        <div className="mt-10 md:mt-12 text-center px-4">
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 bg-[#fca311] hover:bg-[#e5940e] text-black font-semibold px-6 md:px-8 py-3 rounded-full transition-colors"
+        <div className="mt-8 flex justify-center gap-3">
+          <button
+            onClick={() => scroll("left")}
+            className="w-12 h-12 bg-[#ff5000] hover:bg-[#e54800] rounded-full flex items-center justify-center transition-colors active:scale-95 text-white"
+            aria-label="Previous"
           >
-            View All Stories
             <svg
               width="20"
               height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M5 12h14M12 5l7 7-7 7" />
+              <path d="M15 18l-6-6 6-6" />
             </svg>
-          </a>
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            className="w-12 h-12 bg-[#ff5000] hover:bg-[#e54800] rounded-full flex items-center justify-center transition-colors active:scale-95 text-white"
+            aria-label="Next"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
         </div>
       </div>
     </section>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useRef } from "react"
-import Image from "next/image"
+import { inter, montserrat } from "@lib/fonts"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface TeamMember {
   id: number
@@ -23,24 +24,6 @@ interface OurTeamProps {
   teamMembers?: TeamMember[] | null
 }
 
-const FacebookIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-  </svg>
-)
-
-const InstagramIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
-  </svg>
-)
-
-const TiktokIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
-  </svg>
-)
-
 const teamMembersFallback: TeamMember[] = [
   {
     id: 1,
@@ -50,7 +33,7 @@ const teamMembersFallback: TeamMember[] = [
     description:
       "Experienced motorcycle technician specializing in diagnostics, repairs, and performance upgrades for big bikes and premium motorcycles.",
     image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=face",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop&crop=face",
     socialLinks: {},
   },
   {
@@ -61,7 +44,7 @@ const teamMembersFallback: TeamMember[] = [
     description:
       "Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.",
     image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=500&fit=crop&crop=face",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=800&fit=crop&crop=face",
     socialLinks: {},
   },
   {
@@ -72,7 +55,18 @@ const teamMembersFallback: TeamMember[] = [
     description:
       "Your point of contact for service consultations, job updates, and ensuring a smooth workshop experience from start to finish.",
     image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&crop=face",
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop&crop=face",
+    socialLinks: {},
+  },
+  {
+    id: 4,
+    name: "SARAH",
+    role: "Lead Barista",
+    title: "First Gear Coffee",
+    description:
+      "Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&h=800&fit=crop&crop=face",
     socialLinks: {},
   },
 ]
@@ -84,13 +78,21 @@ export default function OurTeam({
 }: OurTeamProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  const activeTitle = sectionTitle || "Our Team"
-  const activeDescription = sectionDescription || "Riders, Technicians, and Professionals Who Care About Your Bike"
-  const activeMembers = teamMembers && teamMembers.length > 0 ? teamMembers : teamMembersFallback
+  const activeTitle = sectionTitle || "Our  Team"
+  const activeDescription =
+    sectionDescription ||
+    "Riders, Technicians, and Professionals Who Care About Your Bike"
+
+  const activeMembers =
+    teamMembers && teamMembers.length >= 4 ? teamMembers.slice(0, 4) : teamMembersFallback
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 320
+      const isMobile = window.innerWidth < 768
+      const scrollAmount = isMobile 
+        ? scrollContainerRef.current.clientWidth 
+        : scrollContainerRef.current.clientWidth / 3
+        
       scrollContainerRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -101,36 +103,59 @@ export default function OurTeam({
   return (
     <section className="relative">
       {/* Top Paper Cut */}
-      <div className="w-full -mb-1">
+      <div className="w-full -mb-1 relative z-10">
         <img
           src="/images/polaroid-marquee/top.svg"
           alt=""
-          className="w-full h-auto"
+          className="w-full h-auto block"
         />
       </div>
 
       {/* Main Section */}
       <div className="bg-[#0A0A0A] relative overflow-hidden">
-        <div className="py-12 md:py-16 lg:py-24">
-          <div className="max-w-[1440px] mx-auto">
+        <div className="py-16 md:py-24 lg:py-28">
+          <div className="max-w-[1240px] mx-auto px-4 md:px-8">
+            
             {/* Header */}
-            <div className="text-center mb-8 md:mb-12 lg:mb-16 px-4 md:px-8">
+            <div className="text-center mb-12 md:mb-16">
+              <div className="flex justify-center mb-4">
+              </div>
               <h2
-                className="text-3xl md:text-5xl lg:text-7xl text-white mb-3 md:mb-4"
-                style={{ fontFamily: "Tanker, sans-serif" }}
+                className={`${montserrat.className} text-3xl md:text-4xl lg:text-[42px] font-bold tracking-tight text-white mb-4`}
               >
                 {activeTitle}
               </h2>
-              <p className="text-base md:text-lg lg:text-xl text-gray-400 max-w-2xl mx-auto">
+              <p
+                className={`${inter.className} text-sm md:text-base text-gray-300 max-w-2xl mx-auto font-medium leading-relaxed whitespace-pre-line`}
+              >
                 {activeDescription}
               </p>
             </div>
 
-            {/* Mobile/Tablet: Horizontal Scroll */}
-            <div className="lg:hidden">
+            {/* Carousel Container */}
+            <div className="relative group">
+              {/* Left Arrow */}
+              <button
+                onClick={() => scroll("left")}
+                className="absolute -left-4 md:-left-6 top-[40%] text-[#0A0A0A] -translate-y-1/2 z-10 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              {/* Right Arrow */}
+              <button
+                onClick={() => scroll("right")}
+                className="absolute -right-4 md:-right-6 top-[40%] text-[#0A0A0A] -translate-y-1/2 z-10 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              {/* Scroll Area */}
               <div
                 ref={scrollContainerRef}
-                className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide px-4 md:px-8"
+                className="flex gap-6 overflow-x-auto pb-8 pt-4 snap-x snap-mandatory scrollbar-hide px-2"
                 style={{
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
@@ -140,217 +165,61 @@ export default function OurTeam({
                 {activeMembers.map((member) => (
                   <div
                     key={member.id}
-                    className="group flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-[45vw] bg-[#141414] rounded-2xl overflow-hidden border border-gray-800 snap-center"
+                    className="snap-center flex-shrink-0 w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
                   >
-                    {/* Image Container */}
-                    <div className="relative h-64 sm:h-72 overflow-hidden">
-                      <img
-                        src={member.image}
-                        alt={member.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80" />
-                      {/* Decorative Elements */}
-                      <div className="absolute top-3 left-3 w-8 h-8 border-l-2 border-t-2 border-[#fca311]/40" />
-                      <div className="absolute top-3 right-3 w-8 h-8 border-r-2 border-t-2 border-[#fca311]/40" />
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5 text-center">
-                      <h3
-                        className="text-xl font-bold text-white mb-1"
-                        style={{ fontFamily: "Inter Display, sans-serif" }}
-                      >
-                        {member.name}
-                      </h3>
-                      <p className="text-[#fca311] font-semibold text-xs uppercase tracking-wider mb-1">
-                        {member.role}
-                      </p>
-                      <p className="text-gray-500 text-xs font-medium mb-3">
-                        {member.title}
-                      </p>
-                      <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {member.description}
-                      </p>
-
-                      {/* Social Icons */}
-                      <div className="flex justify-center gap-3">
-                        {member.socialLinks.facebook && (
-                          <a
-                            href={member.socialLinks.facebook}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 text-gray-400"
-                            aria-label={`${member.name}'s Facebook`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FacebookIcon />
-                          </a>
-                        )}
-                        {member.socialLinks.instagram && (
-                          <a
-                            href={member.socialLinks.instagram}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 text-gray-400"
-                            aria-label={`${member.name}'s Instagram`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <InstagramIcon />
-                          </a>
-                        )}
-                        {member.socialLinks.tiktok && (
-                          <a
-                            href={member.socialLinks.tiktok}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 text-gray-400"
-                            aria-label={`${member.name}'s TikTok`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <TiktokIcon />
-                          </a>
-                        )}
+                    <div className="bg-white rounded-3xl overflow-hidden h-full flex flex-col group/card shadow-lg hover:shadow-2xl hover:shadow-[#fca311]/5 border border-transparent hover:border-[#fca311]/10 transition-all duration-500">
+                      
+                      {/* Image Container */}
+                      <div className="relative aspect-[4/5] overflow-hidden bg-gray-200">
+                        <img
+                          src={member.image}
+                          alt={member.name}
+                          className="absolute inset-0 w-full h-full object-cover grayscale opacity-95 transition-all duration-700 group-hover/card:scale-105"
+                        />
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/80 via-black/20 to-transparent mix-blend-multiply" />
+                        <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/40 to-transparent" />
                       </div>
+
+                      {/* Content Section (White Bottom Card) */}
+                      <div className="px-6 py-8 md:py-10 text-center bg-white flex flex-col flex-grow items-center justify-center -mt-2 relative z-10 rounded-t-3xl">
+                        <h3
+                          className={`${montserrat.className} text-[22px] font-bold tracking-tight text-[#111111] mb-1.5`}
+                        >
+                          {member.name}
+                        </h3>
+                        <p
+                          className={`${inter.className} text-[#555555] font-semibold text-[15px] mb-4`}
+                        >
+                          {member.role}
+                        </p>
+                        <p
+                          className={`${inter.className} text-sm font-medium text-gray-500 mb-2 leading-relaxed`}
+                        >
+                          {member.title}
+                        </p>
+                        <p
+                          className={`${inter.className} text-[13px] text-gray-400 leading-relaxed max-w-[260px] line-clamp-3`}
+                        >
+                          {member.description}
+                        </p>
+                      </div>
+
                     </div>
                   </div>
                 ))}
               </div>
-
-              {/* Navigation Arrows - Mobile/Tablet */}
-              <div className="flex justify-center gap-3 mt-6 px-4">
-                <button
-                  onClick={() => scroll("left")}
-                  className="w-11 h-11 bg-[#fca311] hover:bg-[#e5940e] rounded-lg flex items-center justify-center transition-colors active:scale-95"
-                  aria-label="Previous"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="black"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => scroll("right")}
-                  className="w-11 h-11 bg-[#fca311] hover:bg-[#e5940e] rounded-lg flex items-center justify-center transition-colors active:scale-95"
-                  aria-label="Next"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="black"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Desktop: Grid Layout */}
-            <div className="hidden lg:grid lg:grid-cols-3 gap-8 px-4 md:px-8">
-              {activeMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="group bg-[#141414] rounded-2xl overflow-hidden border border-gray-800 hover:border-[#fca311]/50 transition-all duration-500 transform hover:-translate-y-2"
-                >
-                  {/* Image Container - Taller */}
-                  <div className="relative h-80 md:h-96 overflow-hidden">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="33vw"
-                      unoptimized
-                    />
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80" />
-                    {/* Decorative Elements */}
-                    <div className="absolute top-4 left-4 w-12 h-12 border-l-2 border-t-2 border-[#fca311]/40" />
-                    <div className="absolute top-4 right-4 w-12 h-12 border-r-2 border-t-2 border-[#fca311]/40" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6 text-center">
-                    <h3
-                      className="text-2xl font-bold text-white mb-1"
-                      style={{ fontFamily: "Inter Display, sans-serif" }}
-                    >
-                      {member.name}
-                    </h3>
-                    <p className="text-[#fca311] font-semibold text-sm uppercase tracking-wider mb-1">
-                      {member.role}
-                    </p>
-                    <p className="text-gray-500 text-sm font-medium mb-4">
-                      {member.title}
-                    </p>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                      {member.description}
-                    </p>
-
-                    {/* Social Icons */}
-                    <div className="flex justify-center gap-4">
-                      {member.socialLinks.facebook && (
-                        <a
-                          href={member.socialLinks.facebook}
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-[#fca311] hover:text-black transition-all duration-300 transform hover:scale-110"
-                          aria-label={`${member.name}'s Facebook`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <FacebookIcon />
-                        </a>
-                      )}
-                      {member.socialLinks.instagram && (
-                        <a
-                          href={member.socialLinks.instagram}
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-[#fca311] hover:text-black transition-all duration-300 transform hover:scale-110"
-                          aria-label={`${member.name}'s Instagram`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <InstagramIcon />
-                        </a>
-                      )}
-                      {member.socialLinks.tiktok && (
-                        <a
-                          href={member.socialLinks.tiktok}
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-[#fca311] hover:text-black transition-all duration-300 transform hover:scale-110"
-                          aria-label={`${member.name}'s TikTok`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <TiktokIcon />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bottom Accent */}
-                  <div className="h-1 w-0 bg-[#fca311] group-hover:w-full transition-all duration-500" />
-                </div>
-              ))}
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Paper Cut */}
-      <div className="w-full -mt-1">
+      <div className="w-full -mt-1 relative z-10">
         <img
           src="/images/polaroid-marquee/bottom.svg"
           alt=""
-          className="w-full h-auto"
+          className="w-full h-auto block"
         />
       </div>
     </section>

@@ -1,6 +1,7 @@
 "use client"
 
 import { CustomerItem } from "./rows.data"
+import { handwritten } from "@lib/fonts"
 import styles from "./polaroid.module.css"
 
 interface PolaroidCardProps {
@@ -36,9 +37,8 @@ export default function PolaroidCard({
       {/* Label area - larger bottom like classic polaroid */}
       <div className="px-2 md:px-3 py-4 md:py-5 text-center">
         <span
-          className="text-gray-700 text-sm md:text-base"
+          className={`${handwritten.className} text-gray-700 text-sm md:text-base`}
           style={{
-            fontFamily: "'Caveat', 'Segoe Script', cursive",
             fontSize: "1.1rem",
           }}
         >

@@ -15,6 +15,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { interDisplay, lato } from "@lib/fonts"
 
 // ── Gear decorative SVG ──────────────────────────────────────────────────────
 const GearShape = () => (
@@ -96,9 +97,8 @@ export default function Franchise({
         {/* Text content */}
         <div className="px-5 pb-4 text-center">
           <h2
-            className="text-5xl sm:text-6xl uppercase leading-[0.88] tracking-tight"
+            className={`${lato.className} text-5xl sm:text-6xl uppercase leading-[0.88] tracking-[0.045em]`}
             style={{
-              fontFamily: "Tanker, sans-serif",
               color: "transparent",
               WebkitTextStroke: "2px #3D2314",
             }}
@@ -106,8 +106,7 @@ export default function Franchise({
             {activeTitle}
           </h2>
           <p
-            className="text-[#3D2314]/70 text-sm sm:text-base mt-5 leading-relaxed max-w-sm mx-auto"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
+            className={`${interDisplay.className} text-[#3D2314]/70 text-sm sm:text-base mt-5 leading-relaxed max-w-sm mx-auto`}
           >
             {activeSubtitle}
           </p>
@@ -115,8 +114,7 @@ export default function Franchise({
           {/* CTA */}
           <a
             href={activeCtaLink}
-            className="mt-7 inline-flex items-center gap-2 px-7 py-4 bg-[#F16D34] text-white text-sm font-semibold uppercase tracking-wider rounded-full transition-colors duration-300 hover:bg-[#3D2314]"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
+            className={`${interDisplay.className} mt-7 inline-flex items-center gap-2 px-7 py-4 bg-[#F16D34] text-white text-sm font-semibold uppercase tracking-wider rounded-full transition-colors duration-300 hover:bg-[#3D2314]`}
           >
             {activeCtaLabel}
             <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -129,16 +127,14 @@ export default function Franchise({
         <div className="flex flex-col sm:flex-row gap-3 px-5 pb-10 pt-2">
           <div className="bg-[#F16D34] text-white px-4 py-2 rounded-lg shadow-md flex-1">
             <p
-              className="text-[11px] font-bold uppercase tracking-wide leading-snug text-center"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
+              className={`${interDisplay.className} text-[11px] font-bold uppercase tracking-wide leading-snug text-center`}
             >
               {activeBadge1}
             </p>
           </div>
           <div className="bg-[#FFD700] text-[#3D2314] px-4 py-2 rounded-lg shadow-md flex-1">
             <p
-              className="text-[11px] font-bold uppercase tracking-wide leading-snug text-center"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
+              className={`${interDisplay.className} text-[11px] font-bold uppercase tracking-wide leading-snug text-center`}
             >
               {activeBadge2}
             </p>
@@ -234,8 +230,7 @@ export default function Franchise({
         >
           <div className="bg-[#F16D34] text-white px-4 py-2 xl:px-5 xl:py-3 rounded-sm rotate-[-4deg] shadow-lg">
             <p
-              className="text-xs xl:text-sm font-bold uppercase tracking-wide leading-snug"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
+              className={`${interDisplay.className} text-xs xl:text-sm font-bold uppercase tracking-wide leading-snug`}
             >
               {activeBadge1}
             </p>
@@ -254,8 +249,7 @@ export default function Franchise({
         >
           <div className="bg-[#FFD700] text-[#3D2314] px-4 py-2 xl:px-5 xl:py-3 rounded-sm rotate-[3deg] shadow-lg">
             <p
-              className="text-xs xl:text-sm font-bold uppercase tracking-wide leading-snug"
-              style={{ fontFamily: "Inter Display, sans-serif" }}
+              className={`${interDisplay.className} text-xs xl:text-sm font-bold uppercase tracking-wide leading-snug`}
             >
               {activeBadge2}
             </p>
@@ -276,9 +270,8 @@ export default function Franchise({
             {/* Title — dual-layer fill animation */}
             <div className="relative inline-block">
               <h2
-                className="text-7xl xl:text-8xl 2xl:text-9xl uppercase leading-[0.88] tracking-tight"
+                className={`${lato.className} text-7xl xl:text-8xl 2xl:text-9xl uppercase leading-[0.88] tracking-[0.045em]`}
                 style={{
-                  fontFamily: "Tanker, sans-serif",
                   color: "transparent",
                   WebkitTextStroke: "2px #3D2314",
                 }}
@@ -286,9 +279,8 @@ export default function Franchise({
                 {activeTitle}
               </h2>
               <h2
-                className="absolute inset-0 text-7xl xl:text-8xl 2xl:text-9xl uppercase leading-[0.88] tracking-tight overflow-hidden"
+                className={`${lato.className} absolute inset-0 text-7xl xl:text-8xl 2xl:text-9xl uppercase leading-[0.88] tracking-[0.045em] overflow-hidden`}
                 style={{
-                  fontFamily: "Tanker, sans-serif",
                   color: "#F16D34",
                   clipPath: isHovered ? "inset(0 0 0 0)" : "inset(100% 0 0 0)",
                   transition: "clip-path 0.8s cubic-bezier(0.65, 0, 0.35, 1)",
@@ -301,11 +293,10 @@ export default function Franchise({
             {/* Subtitle */}
             <p
               className={`
-                text-[#3D2314]/70 text-base xl:text-lg mt-8 leading-relaxed mx-auto max-w-sm
+                ${interDisplay.className} text-[#3D2314]/70 text-base xl:text-lg mt-8 leading-relaxed mx-auto max-w-sm
                 transition-opacity duration-500 ease-out
                 ${isHovered ? "opacity-100" : "opacity-70"}
               `}
-              style={{ fontFamily: "Inter Display, sans-serif" }}
             >
               {activeSubtitle}
             </p>
@@ -320,8 +311,7 @@ export default function Franchise({
             >
               <a
                 href={activeCtaLink}
-                className="inline-flex items-center gap-3 px-8 py-4 bg-[#F16D34] text-white text-sm xl:text-base font-semibold uppercase tracking-wider rounded-full transition-all duration-300 hover:bg-[#3D2314] hover:scale-105"
-                style={{ fontFamily: "Inter Display, sans-serif" }}
+                className={`${interDisplay.className} inline-flex items-center gap-3 px-8 py-4 bg-[#F16D34] text-white text-sm xl:text-base font-semibold uppercase tracking-wider rounded-full transition-all duration-300 hover:bg-[#3D2314] hover:scale-105`}
               >
                 {activeCtaLabel}
                 <svg

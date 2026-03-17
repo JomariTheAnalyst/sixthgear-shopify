@@ -36,3 +36,39 @@ export const hendrix = localFont({
     variable: "--font-hendrix",
     display: "swap",
 })
+
+export const lato = localFont({
+    src: [
+        {
+            path: "../../public/fonts/halden_solid-webfont.woff2",
+            weight: "600",
+            style: "normal",
+        },
+    ],
+    variable: "--font-lato",
+    display: "swap",
+})
+
+export const interDisplay = localFont({
+    src: [
+        {
+            path: "../../public/fonts/BngMUXZYTXPIvIBgJJSb6ufN5qU.woff2",
+            weight: "400",
+            style: "normal",
+        },
+    ],
+    variable: "--font-inter-display",
+    display: "swap",
+})
+
+export const handwritten = localFont({
+    src: [
+        {
+            path: "../../public/fonts/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIWpYQ.woff2",
+            weight: "400",
+            style: "normal",
+        },
+    ],
+    variable: "--font-handwritten",
+    display: "swap",
+})

@@ -1,10 +1,7 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import {
-  getService,
-  getAllServices,
-  getAllServiceSlugs,
-} from "@lib/strapi/services"
+import { getService, getAllServiceSlugs } from "@lib/strapi/services"
+import { getServiceDetailData } from "@lib/data/service-detail"
 import ServiceDetailTemplate from "@modules/services/templates/service-detail"
 
 interface ServicePageProps {
@@ -75,26 +72,18 @@ export default async function ServicePage({ params }: ServicePageProps) {
   try {
     const { slug } = await params
 
-    // Fetch service data with error handling
-    const service = await getService(slug)
+    const data = await getServiceDetailData(slug)
 
-    if (!service) {
+    if (!data) {
       console.log(`[Services] Service not found: ${slug}`)
       notFound()
     }
 
-    // Fetch other services with error handling
-    let otherServices = await getAllServices()
-
-    // Filter out current service and handle empty array
-    if (otherServices && Array.isArray(otherServices)) {
-      otherServices = otherServices.filter((s) => s.slug !== slug)
-    } else {
-      otherServices = []
-    }
-
     return (
-      <ServiceDetailTemplate service={service} otherServices={otherServices} />
+      <ServiceDetailTemplate
+        service={data.service}
+        otherServices={data.otherServices}
+      />
     )
   } catch (error) {
     console.error("[Services] Error rendering service page:", error)

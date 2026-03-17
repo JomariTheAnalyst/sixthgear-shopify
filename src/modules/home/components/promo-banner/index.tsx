@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import type { SanityPromoBanner } from "@lib/cms/types"
+import { interDisplay, lato } from "@lib/fonts"
 
 interface PromoBannerProps {
   data: SanityPromoBanner | null
@@ -39,7 +40,7 @@ export default function PromoBanner({ data }: PromoBannerProps) {
         {/* Heading */}
         {data.heading && (
           <div className="absolute bottom-8 left-4 md:bottom-12 md:left-8 z-10 pointer-events-none">
-            <span className="text-white/80 font-black text-[4rem] md:text-[6rem] lg:text-[8rem] leading-none tracking-tight font-['Tanker',sans-serif]">
+            <span className={`${lato.className} text-white/80 font-black text-[4rem] md:text-[6rem] lg:text-[8rem] leading-none tracking-[0.04em]`}>
               {data.heading}
             </span>
           </div>
@@ -49,7 +50,7 @@ export default function PromoBanner({ data }: PromoBannerProps) {
         {data.buttonLabel && data.buttonLink && (
           <Link
             href={data.buttonLink}
-            className={`absolute z-10 ${btnPos} inline-block bg-white text-gray-900 font-bold text-sm md:text-base uppercase tracking-wider px-6 py-3 md:px-8 md:py-4 hover:bg-gray-100 transition-colors duration-200`}
+            className={`${interDisplay.className} absolute z-10 ${btnPos} inline-block bg-white text-gray-900 font-bold text-sm md:text-base uppercase tracking-wider px-6 py-3 md:px-8 md:py-4 hover:bg-gray-100 transition-colors duration-200`}
           >
             {data.buttonLabel}
           </Link>

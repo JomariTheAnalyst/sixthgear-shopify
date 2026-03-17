@@ -8,8 +8,8 @@
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
-import { Plus } from "lucide-react"
 import type { SanityCategoriesSection } from "@lib/cms/types"
+import { inter, montserrat } from "@lib/fonts"
 
 const FALLBACK_CATEGORIES_SECTION = {
   title: "Product Categories",
@@ -66,17 +66,17 @@ function CategoryCard({
     >
       <div className="relative z-10 flex flex-col h-full w-full p-6 lg:p-8 text-black">
         {/* Top Header Block */}
-        <div className="flex flex-col items-start gap-4 relative z-20 w-[60%] md:w-[50%]">
-          <h3 className="font-black italic uppercase tracking-wider text-[15px] md:text-[17px] text-black leading-tight drop-shadow-sm">
+        <div className="flex flex-col items-start gap-4 relative z-20 w-[60%] md:w-[52%]">
+          <h3 className={`${montserrat.className} font-black uppercase tracking-[0.035em] text-[16px] sm:text-[17px] md:text-[19px] lg:text-[20px] text-black leading-[1.05] drop-shadow-sm`}>
             {name}
           </h3>
+        </div>
 
-          {/* Plus Button */}
-          <div className="mt-2">
-             <button className="relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#111] text-white transition-colors z-10 group-hover:bg-[#ff4e00] shadow-sm">
-               <Plus size={18} strokeWidth={3} />
-             </button>
-          </div>
+        {/* Bottom-left CTA */}
+        <div className="mt-auto relative z-20">
+          <span className={`${montserrat.className} inline-flex items-center justify-center border border-black px-3 py-2 md:px-3.5 md:py-2 text-[10px] md:text-[11px] font-medium tracking-[0.08em] uppercase text-black transition-colors duration-300 group-hover:bg-black group-hover:text-white`}>
+            Shop Now
+          </span>
         </div>
 
         {/* Floating Product Image - Increased width constraint and base scale for larger visual presence */}
@@ -117,7 +117,7 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
   return (
     <section className="relative w-full bg-[#fafafa] pt-12 pb-20 overflow-hidden">
       {/* Absolute Background Watermark Text - Fixed scale and opacity for legibility */}
-      <div className="absolute top-0 left-0 w-full h-full flex items-start justify-center pt-8 md:pt-12 pointer-events-none overflow-hidden select-none z-0">
+      <div className="hidden md:flex absolute top-0 left-0 w-full h-full items-start justify-center pt-8 md:pt-12 pointer-events-none overflow-hidden select-none z-0">
         <h1 className="font-black italic text-[11vw] sm:text-[11vw] lg:text-[12vw] uppercase tracking-normal leading-none text-center transform whitespace-nowrap text-gray-200/60 drop-shadow-sm max-w-[100vw]">
           {watermarkText}
         </h1>
@@ -126,7 +126,7 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 md:px-8 mt-12 md:mt-24">
         {/* Section Header */}
         <div className="text-center mb-16 flex flex-col items-center">
-          <h2 className="text-[#ff4e00] font-black italic uppercase text-3xl md:text-4xl lg:text-[2.75rem] tracking-normal drop-shadow-sm">
+          <h2 className={`${montserrat.className} text-[#ff4e00] font-black uppercase text-[2.8rem] sm:text-[3.3rem] md:text-[4rem] lg:text-[4.65rem] tracking-[0.05em] leading-[0.92] drop-shadow-sm`}>
             {title}
           </h2>
         </div>
@@ -142,7 +142,7 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
         <div className="flex justify-center mt-16 md:mt-20">
           <LocalizedClientLink
             href={viewAllLink}
-            className="group relative inline-flex items-center justify-center px-16 py-4 bg-[#ff4e00] text-white font-bold text-[13px] tracking-[0.2em] uppercase overflow-hidden shadow-[0_8px_20px_rgba(255,78,0,0.2)] hover:shadow-[0_12px_25px_rgba(255,78,0,0.3)] transition-all duration-300"
+            className={`${montserrat.className} group relative inline-flex items-center justify-center px-16 py-4 bg-[#ff4e00] text-white font-medium text-[13px] tracking-[0.1em] uppercase overflow-hidden shadow-[0_8px_20px_rgba(255,78,0,0.2)] hover:shadow-[0_12px_25px_rgba(255,78,0,0.3)] transition-all duration-300`}
           >
             {/* Dark triangle cutout on bottom right visual effect */}
             <div className="absolute bottom-0 right-0 w-4 h-4 bg-[#fafafa] clip-triangle transform rotate-180 transition-transform group-hover:scale-110" />

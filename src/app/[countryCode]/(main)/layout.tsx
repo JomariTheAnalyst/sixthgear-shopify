@@ -21,7 +21,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
 
-export default async function PageLayout(props: { children: React.ReactNode }) {
+export default async function PageLayout(props: {
+  children: React.ReactNode
+  overlay: React.ReactNode
+}) {
   const customer = await retrieveCustomer()
   const shopifyCart = await retrieveCart()
   const cart = mapShopifyCartToStoreCart(shopifyCart)
@@ -45,6 +48,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
             </div>
 
             {props.children}
+            {props.overlay}
             <Footer />
 
             {/* Preview Mode Banner */}

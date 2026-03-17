@@ -1,7 +1,7 @@
 import { groq } from 'next-sanity'
 
 export const homepageQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     hero {
       useCustomHero,
       heading,
@@ -88,7 +88,7 @@ export const collectionHeroQuery = groq`
 `
 
 export const coffeeShowcaseQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     coffeeShowcase {
       mainHeadingLine1,
       highlightedWord,
@@ -106,7 +106,7 @@ export const coffeeShowcaseQuery = groq`
 `
 
 export const spaceExperiencesQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     spaceExperiences {
       sectionTitle,
       sectionDescription,
@@ -121,7 +121,7 @@ export const spaceExperiencesQuery = groq`
 `
 
 export const serviceBrandsSectionQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     serviceBrandsSection {
       sectionTitle,
       sectionDescription,
@@ -135,7 +135,7 @@ export const serviceBrandsSectionQuery = groq`
 `
 
 export const satisfiedCustomersQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     satisfiedCustomers {
       sectionTitle,
       customers[]{
@@ -147,7 +147,7 @@ export const satisfiedCustomersQuery = groq`
 `
 
 export const franchiseSectionQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     franchiseSection {
       mainTitle,
       subtitle,
@@ -162,7 +162,7 @@ export const franchiseSectionQuery = groq`
 `
 
 export const ourTeamSectionQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     ourTeamSection {
       sectionTitle,
       sectionDescription,
@@ -183,7 +183,7 @@ export const ourTeamSectionQuery = groq`
 `
 
 export const clientTestimonialsQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     clientTestimonials {
       sectionTitle,
       sectionDescription,
@@ -197,7 +197,7 @@ export const clientTestimonialsQuery = groq`
 `
 
 export const storeLocationQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     storeLocation {
       storeName,
       address,
@@ -209,7 +209,7 @@ export const storeLocationQuery = groq`
 `
 
 export const ctaBannerQuery = groq`
-  *[_type == "homepage"][0]{
+  *[_type == "homepage" && _id == "homepage"][0]{
     ctaBanner {
       preTitle,
       headline,

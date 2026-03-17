@@ -3,11 +3,14 @@
 import { useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
 import type {
   SanityServiceItem,
   SanityServicesSection,
 } from "@lib/cms/types"
+import { inter, montserrat } from "@lib/fonts"
+import { TextRoll } from "components/ui/text-roll"
 
 export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
   useCustomServices: false,
@@ -141,6 +144,9 @@ export default function OurServices({
   services,
 }: OurServicesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const params = useParams()
+  const countryCode =
+    typeof params?.countryCode === "string" ? params.countryCode : null
 
   const isCMSDisabled = data?.useCustomServices === false
   const fallbackCards = FALLBACK_SERVICES_SECTION.services || []
@@ -211,53 +217,15 @@ export default function OurServices({
     <section className="py-16 md:py-20 bg-white overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-4 md:gap-6">
-          <div className="flex-1 text-center lg:text-left w-full lg:w-auto">
+          <div className="flex-1 text-center w-full">
             <h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2"
-              style={{ fontFamily: "Tanker, sans-serif" }}
+              className={`${montserrat.className} text-3xl md:text-4xl lg:text-5xl font-black tracking-[0.01em] text-black mb-2`}
             >
               {content.title}
             </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-gray-500 font-medium">
+            <p className={`${inter.className} text-lg md:text-xl lg:text-2xl text-gray-500 font-medium`}>
               {content.description}
             </p>
-          </div>
-
-          <div className="hidden lg:flex gap-3">
-            <button
-              onClick={() => scroll("left")}
-              className="w-12 h-12 flex items-center justify-center rounded-lg bg-[#fca311] hover:bg-[#e5940e] text-black transition-all hover:scale-105"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-12 h-12 flex items-center justify-center rounded-lg bg-[#fca311] hover:bg-[#e5940e] text-black transition-all hover:scale-105"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
           </div>
         </div>
 
@@ -272,7 +240,12 @@ export default function OurServices({
           {content.cards.map((service, index) => {
             const fallbackService = fallbackCards[index]
             const linkHref =
-              service.link || (service.slug ? `/services/${service.slug}` : "#")
+              service.link ||
+              (service.slug
+                ? countryCode
+                  ? `/${countryCode}/services/${service.slug}`
+                  : `/services/${service.slug}`
+                : "#")
             const isClickable = !!(service.link || service.slug)
             const cardKey =
               service.slug ||
@@ -291,32 +264,35 @@ export default function OurServices({
                   unoptimized
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-85" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 transform transition-transform duration-300">
                   <h3
-                    className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-3"
-                    style={{ fontFamily: "Inter Display, sans-serif" }}
+                    className={`${montserrat.className} text-xl md:text-2xl font-bold tracking-[0.03em] text-white mb-4 md:mb-5 max-w-[16ch]`}
                   >
                     {service.title}
                   </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed mb-3 md:mb-4 line-clamp-3 group-hover:line-clamp-none transition-all">
-                    {service.description}
-                  </p>
-                  <div className="h-1 w-12 bg-[#fca311] rounded-full group-hover:w-full transition-all duration-500" />
+                  {isClickable ? (
+                    <Link
+                      href={linkHref}
+                      className={`${montserrat.className} inline-flex items-center border border-white/80 px-4 py-2.5 text-xs md:text-sm font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-white hover:text-black`}
+                    >
+                      <TextRoll className="inline-flex items-center" transition={{ duration: 0.35 }}>
+                        Learn More
+                      </TextRoll>
+                    </Link>
+                  ) : (
+                    <span
+                      className={`${montserrat.className} inline-flex items-center border border-white/60 px-4 py-2.5 text-xs md:text-sm font-semibold uppercase tracking-[0.08em] text-white/80`}
+                    >
+                      Learn More
+                    </span>
+                  )}
                 </div>
               </>
             )
 
-            return isClickable ? (
-              <Link
-                key={cardKey}
-                href={linkHref}
-                className="relative flex-shrink-0 w-[75vw] sm:w-[60vw] md:w-[350px] lg:w-[400px] h-[400px] md:h-[450px] lg:h-[500px] snap-center rounded-2xl overflow-hidden group cursor-pointer"
-              >
-                {cardContent}
-              </Link>
-            ) : (
+            return (
               <div
                 key={cardKey}
                 className="relative flex-shrink-0 w-[75vw] sm:w-[60vw] md:w-[350px] lg:w-[400px] h-[400px] md:h-[450px] lg:h-[500px] snap-center rounded-2xl overflow-hidden group"
@@ -327,10 +303,10 @@ export default function OurServices({
           })}
         </div>
 
-        <div className="flex lg:hidden justify-center gap-3 mt-6">
+        <div className="flex justify-center gap-3 mt-6 md:mt-8">
           <button
             onClick={() => scroll("left")}
-            className="w-11 h-11 flex items-center justify-center rounded-lg bg-[#fca311] hover:bg-[#e5940e] text-black transition-all active:scale-95"
+            className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-lg bg-[#FF5000] hover:bg-[#e54800] text-white transition-all hover:scale-105 active:scale-95"
           >
             <svg
               width="22"
@@ -347,7 +323,7 @@ export default function OurServices({
           </button>
           <button
             onClick={() => scroll("right")}
-            className="w-11 h-11 flex items-center justify-center rounded-lg bg-[#fca311] hover:bg-[#e5940e] text-black transition-all active:scale-95"
+            className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-lg bg-[#FF5000] hover:bg-[#e54800] text-white transition-all hover:scale-105 active:scale-95"
           >
             <svg
               width="22"

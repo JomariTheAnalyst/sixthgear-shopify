@@ -3,6 +3,7 @@
 import { useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { inter, montserrat } from "@lib/fonts"
 
 interface ExperienceItem {
   id: number
@@ -101,14 +102,13 @@ const ProjectsSection = ({
 
           {/* Heading */}
           <h2
-            className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-4"
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`${montserrat.className} text-2xl md:text-4xl lg:text-5xl font-bold tracking-[0.025em] text-white mb-3 md:mb-4`}
           >
             {activeTitle}
           </h2>
 
           {/* Subheading */}
-          <p className="text-gray-400 text-sm md:text-base lg:text-lg max-w-2xl mx-auto">
+          <p className={`${inter.className} text-gray-400 text-sm md:text-base lg:text-lg max-w-2xl mx-auto`}>
             {activeDesc}
           </p>
         </div>
@@ -145,10 +145,10 @@ const ProjectsSection = ({
 
                 {/* Content */}
                 <div className="p-5">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                  <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold tracking-[0.03em] text-white mb-2`}>
                     {item.title}
                   </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
+                  <p className={`${inter.className} text-gray-400 text-sm leading-relaxed`}>
                     {item.description}
                   </p>
                 </div>
@@ -298,10 +298,10 @@ const ProjectsSection = ({
 
                         {/* Content */}
                         <div className="p-6">
-                          <h3 className="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-[#F97316] transition-colors">
+                          <h3 className={`${montserrat.className} text-xl md:text-2xl font-bold tracking-[0.03em] text-white mb-3 group-hover:text-[#F97316] transition-colors`}>
                             {item.title}
                           </h3>
-                          <p className="text-gray-400 text-sm md:text-base leading-relaxed">
+                          <p className={`${inter.className} text-gray-400 text-sm md:text-base leading-relaxed`}>
                             {item.description}
                           </p>
                         </div>
@@ -351,10 +351,10 @@ const ProjectsSection = ({
 
                   {/* Content */}
                   <div className="p-6">
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-3 group-hover:text-[#F97316] transition-colors">
+                    <h3 className={`${montserrat.className} text-xl md:text-2xl font-bold tracking-[0.03em] text-white mb-3 group-hover:text-[#F97316] transition-colors`}>
                       {item.title}
                     </h3>
-                    <p className="text-gray-400 text-sm md:text-base leading-relaxed">
+                    <p className={`${inter.className} text-gray-400 text-sm md:text-base leading-relaxed`}>
                       {item.description}
                     </p>
                   </div>
@@ -368,7 +368,7 @@ const ProjectsSection = ({
             <div className="flex justify-center mt-12">
               <Link
                 href="/experiences"
-                className="bg-[#F97316] hover:bg-[#EA580C] text-white font-bold px-8 py-4 rounded-lg transition-all duration-300 inline-flex items-center gap-3 text-lg hover:scale-105"
+                className={`${montserrat.className} bg-[#F97316] hover:bg-[#EA580C] text-white font-bold px-8 py-4 rounded-lg transition-all duration-300 inline-flex items-center gap-3 text-lg hover:scale-105`}
               >
                 <span>View All {totalItems} Experiences</span>
                 <svg

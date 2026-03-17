@@ -62,6 +62,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [
             {
@@ -76,7 +77,7 @@ const nextConfig = {
   async headers() {
     // Strapi Cloud domain for preview iframe embedding
     const strapiCloudDomain = "https://rational-peace-7a8493cc74.strapiapp.com"
-    
+
     return [
       {
         // CRITICAL: Allow ONLY /ph/preview (and other locale variants) to be embedded by Strapi Cloud

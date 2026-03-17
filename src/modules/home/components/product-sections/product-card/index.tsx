@@ -36,12 +36,6 @@ export function getBadgesFromTags(tags: string[] = []): BadgeMode[] {
   }
 
   if (
-    normalized.some((tag) => tag === "bestseller" || tag === "bestsellers")
-  ) {
-    badges.push("rank")
-  }
-
-  if (
     normalized.some((tag) => tag === "newarrival" || tag === "newarrivals")
   ) {
     badges.push("new")
@@ -134,11 +128,16 @@ export default function ProductCard({
   const getBadgeElement = (mode: BadgeMode, keyItem: string) => {
     switch (mode) {
       case "new":
-        return <span key={keyItem} className="bg-[#111] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 leading-none rounded-sm block">New</span>
+        return (
+          <span
+            key={keyItem}
+            className="inline-flex max-w-full items-center bg-[#111] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] px-2 py-1 sm:px-2.5 leading-none rounded-sm whitespace-nowrap"
+          >
+            New
+          </span>
+        )
       case "hot":
         return null
-      case "rank":
-        return <span key={keyItem} className="bg-[#111] text-[#fff] text-[11px] font-bold uppercase tracking-wider px-2 py-1 leading-none rounded-sm block">Best Seller</span>
       default:
         return null
     }
@@ -150,9 +149,9 @@ export default function ProductCard({
       <div className="relative w-full aspect-square bg-[#f5f5f5] overflow-hidden rounded-sm group-hover:bg-[#f2f2f2] transition-colors">
         
         {/* Badges Overlay (Stackable vertically, padded from edge) */}
-        <div className="absolute left-3 top-3 z-30 flex flex-col gap-1 items-start">
+        <div className="absolute left-2.5 right-12 top-2.5 z-30 flex flex-col gap-1.5 items-start pointer-events-none sm:left-3 sm:right-14 sm:top-3">
           {pricing.isOnSale && (
-            <span className="bg-[#e62020] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 leading-none rounded-sm block">
+            <span className="inline-flex max-w-full items-center bg-[#e62020] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] px-2 py-1 sm:px-2.5 leading-none rounded-sm whitespace-nowrap">
               Sale
             </span>
           )}

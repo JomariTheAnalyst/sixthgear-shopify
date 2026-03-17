@@ -3,6 +3,7 @@
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import type { SanityAboutSection } from "@lib/cms/types"
+import { inter, montserrat } from "@lib/fonts"
 
 const FALLBACK_ABOUT_SECTION: SanityAboutSection = {
   useCustomAbout: false,
@@ -147,35 +148,19 @@ const AboutSection = ({
         {/* Right Column: Content */}
         <div className="flex flex-col gap-6 z-10">
           {/* Tagline */}
-          <div className="flex items-center gap-2 text-[#F97316] font-bold uppercase tracking-wider text-sm md:text-base">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-              <circle cx="7" cy="17" r="2" />
-              <path d="M9 17h6" />
-              <circle cx="17" cy="17" r="2" />
-            </svg>
-            <span>{mergedContent.kicker}</span>
-          </div>
+          <span className={`${inter.className} block text-[#F97316] text-sm md:text-base font-semibold uppercase tracking-[0.08em]`}>
+            {mergedContent.kicker}
+          </span>
 
           {/* Heading */}
           <h2
-            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white font-tanker"
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`${montserrat.className} text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-[0.02em] text-white`}
           >
             {mergedContent.title}
           </h2>
 
           {/* Description */}
-          <p className="text-gray-400 text-lg leading-relaxed">
+          <p className={`${inter.className} text-gray-400 text-lg leading-relaxed`}>
             {mergedContent.description}
           </p>
 
@@ -198,7 +183,7 @@ const AboutSection = ({
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   </div>
-                  <span className="text-white text-base md:text-lg">
+                  <span className={`${inter.className} text-white text-base md:text-lg`}>
                     {feature}
                   </span>
                 </div>
@@ -211,7 +196,7 @@ const AboutSection = ({
             <div className="mt-8">
               <LocalizedClientLink
                 href={mergedContent.primaryCta.link}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#D97706] to-[#EA580C] text-white font-bold rounded-lg hover:shadow-lg hover:to-[#D97706] transition-all transform hover:-translate-y-1"
+                className={`${montserrat.className} inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#D97706] to-[#EA580C] text-white font-medium rounded-lg hover:shadow-lg hover:to-[#D97706] transition-all transform hover:-translate-y-1`}
               >
                 {mergedContent.primaryCta.text}
               </LocalizedClientLink>

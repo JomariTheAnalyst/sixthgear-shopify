@@ -8,6 +8,7 @@
 
 import PolaroidCard from "./PolaroidCard"
 import styles from "./polaroid.module.css"
+import { lato } from "@lib/fonts"
 
 interface CustomerItem {
   id: number
@@ -91,8 +92,7 @@ export default function SatisfiedCustomers({
           {/* Header */}
           <div className="text-center mb-12 md:mb-16 px-4">
             <h2
-              className="text-4xl md:text-6xl lg:text-7xl text-white"
-              style={{ fontFamily: "Tanker, sans-serif" }}
+              className={`${lato.className} text-4xl md:text-6xl lg:text-7xl tracking-[0.04em] text-white`}
             >
               {activeTitle}
             </h2>

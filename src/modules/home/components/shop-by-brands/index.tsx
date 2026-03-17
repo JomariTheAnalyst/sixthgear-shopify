@@ -1,6 +1,7 @@
 import Image from "next/image"
 
 import type { SanityShopByBrandsSection } from "@lib/cms/types"
+import { inter, montserrat } from "@lib/fonts"
 import { TextRoll } from "components/ui/text-roll"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -131,14 +132,14 @@ function BrandCard({
 
       <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6 lg:p-8">
         <div className="flex-1 flex items-center justify-center px-3 text-center">
-          <h3 className="text-white text-[22px] font-black uppercase tracking-[0.08em] sm:text-[26px] md:text-[28px] lg:text-[34px]">
+          <h3 className={`${montserrat.className} text-white text-[22px] font-black uppercase tracking-[0.055em] sm:text-[26px] md:text-[28px] lg:text-[34px]`}>
             {brand.name}
           </h3>
         </div>
 
         <div className="flex justify-start">
-          <span className="inline-flex items-center gap-3 border border-white/20 bg-white/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white backdrop-blur-md transition-colors duration-300 group-hover:bg-white/20 group-hover:text-white sm:text-sm rounded-none">
-            <TextRoll className="font-bold tracking-[0.14em] uppercase">
+          <span className={`${montserrat.className} inline-flex items-center gap-3 border border-white/20 bg-white/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white backdrop-blur-md transition-colors duration-300 group-hover:bg-white/20 group-hover:text-white sm:text-sm rounded-none`}>
+            <TextRoll className={`${montserrat.className} font-bold tracking-[0.08em] uppercase`}>
               {brand.buttonText}
             </TextRoll>
             <svg
@@ -248,7 +249,7 @@ export default function ShopByBrands({
   return (
     <section className="w-full bg-white py-8 md:py-12">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <h2 className="mb-5 text-left text-[28px] font-black uppercase tracking-[0.04em] text-[#161616] sm:text-[34px] md:mb-8 md:text-[42px]">
+        <h2 className={`${montserrat.className} mb-5 text-left text-[28px] font-black uppercase tracking-[0.035em] text-[#161616] sm:text-[34px] md:mb-8 md:text-[42px]`}>
           {resolvedSectionTitle}
         </h2>
 
@@ -294,10 +295,10 @@ export default function ShopByBrands({
                   </div>
                 </div>
 
-                <h3 className="text-sm font-black uppercase tracking-[0.08em] text-[#111111] md:text-[15px]">
+                <h3 className={`${montserrat.className} text-sm font-black uppercase tracking-[0.05em] text-[#111111] md:text-[15px]`}>
                   {stat.title}
                 </h3>
-                <p className="mt-1 text-sm leading-6 text-[#4f4b46]">
+                <p className={`${inter.className} mt-1 text-sm leading-6 text-[#4f4b46]`}>
                   {stat.description}
                 </p>
               </div>

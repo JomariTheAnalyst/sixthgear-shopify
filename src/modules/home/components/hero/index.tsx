@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { buildSanityImageUrl, getObjectPosition } from "@lib/util/sanity-image"
+import { inter, montserrat } from "@lib/fonts"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import type { SanityHeroSection } from "@lib/cms/types"
 
@@ -149,14 +150,16 @@ const Hero = ({ data }: HeroProps) => {
               <div className={`w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-1000 ${
                 slide.contentAlignment === "right" ? "text-right" : "text-left"
               }`}>
+               
+
                 {/* Title */}
-                <h1 className="text-[32px] leading-[1.1] sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-4 text-white uppercase tracking-tight break-words sm:line-clamp-1 drop-shadow-md sm:drop-shadow-none">
+                <h1 className={`${montserrat.className} text-[32px] leading-[1.1] sm:text-4xl lg:text-5xl font-bold mb-6 sm:mb-4 text-white uppercase tracking-[0.02em] break-words sm:line-clamp-1 drop-shadow-md sm:drop-shadow-none`}>
                   {singleLineHeading}
                 </h1>
 
                 {/* Description - Hidden on Mobile */}
                 {mergedHero.description && (
-                  <p className="hidden sm:block text-gray-200 text-sm sm:text-base leading-relaxed mb-6 max-w-xl">
+                  <p className={`${inter.className} hidden sm:block text-gray-200 text-sm sm:text-base leading-relaxed mb-6 max-w-xl`}>
                     {mergedHero.description}
                   </p>
                 )}
@@ -168,7 +171,7 @@ const Hero = ({ data }: HeroProps) => {
                   {mergedHero.primaryLink && mergedHero.primaryLabel && (
                     <LocalizedClientLink
                       href={mergedHero.primaryLink}
-                      className="flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-white text-black font-bold text-center rounded-md hover:bg-gray-100 transition-all uppercase tracking-wide text-sm"
+                      className={`${montserrat.className} flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-white text-black font-medium text-center rounded-md hover:bg-gray-100 transition-all uppercase tracking-[0.04em] text-sm`}
                     >
                       {mergedHero.primaryLabel}
                     </LocalizedClientLink>
@@ -177,7 +180,7 @@ const Hero = ({ data }: HeroProps) => {
                   {mergedHero.secondaryLabel && mergedHero.secondaryLink && (
                     <LocalizedClientLink
                       href={mergedHero.secondaryLink}
-                      className="flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-sm"
+                      className={`${montserrat.className} flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-transparent border-2 border-white text-white font-medium text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-[0.04em] text-sm`}
                     >
                       {mergedHero.secondaryLabel}
                     </LocalizedClientLink>
