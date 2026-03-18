@@ -58,7 +58,10 @@ export const homepageQuery = groq`
       items[]{
         name,
         slug,
-        "image": image.asset->url
+        "image": image.asset->url,
+        imageAlt,
+        buttonLabel,
+        buttonLink
       }
     },
     services {
@@ -90,16 +93,14 @@ export const collectionHeroQuery = groq`
 export const coffeeShowcaseQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     coffeeShowcase {
-      mainHeadingLine1,
-      highlightedWord,
-      mainHeadingLine2,
+      sectionHeading,
+      "coffeeIconUrl": coffeeIcon.asset->url,
       descriptionText,
       buttonText,
       buttonLink,
       coffeeItems[]{
-        name,
-        description,
-        "imageUrl": image.asset->url
+        "imageUrl": image.asset->url,
+        imageAlt
       }
     }
   }

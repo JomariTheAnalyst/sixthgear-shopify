@@ -2,46 +2,52 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'categoriesSection',
-  title: 'Categories Section',
+  title: 'Homepage Categories Section',
   type: 'object',
   fields: [
     defineField({
       name: 'useCustomCategories',
-      title: 'Enable Custom Categories section',
+      title: 'Use this Categories section',
       type: 'boolean',
-      description: 'Toggle OFF to show the default hardcoded static section instead.',
+      description:
+        'Turn this on to use the content below on the website. Turn it off if you want the website to use its built-in default version instead.',
       initialValue: true,
     }),
     defineField({
       name: 'title',
-      title: 'Section Title',
+      title: 'Section heading',
       type: 'string',
-      description: 'e.g., "Product Categories"',
+      description:
+        'Main title shown above the category cards. Example: Product Categories',
     }),
     defineField({
       name: 'watermarkText',
-      title: 'Background Watermark Text',
+      title: 'Large background word',
       type: 'string',
-      description: 'The large faded text in the background (e.g., "ACCESSORIES")',
+      description:
+        'Large faded word shown behind the section heading on desktop screens. Example: CATEGORIES',
     }),
     defineField({
       name: 'viewAllLabel',
-      title: 'View All Button Label',
+      title: 'Bottom button text',
       type: 'string',
-      description: 'e.g., "VIEW ALL"',
+      description:
+        'Text shown on the button at the bottom of this section. Example: View All',
     }),
     defineField({
       name: 'viewAllLink',
-      title: 'View All Button Link',
+      title: 'Bottom button link',
       type: 'string',
-      description: 'e.g., "/store"',
+      description:
+        'Where the bottom button should go when clicked. Example: /store',
     }),
     defineField({
       name: 'items',
-      title: 'Category Items',
+      title: 'Category cards',
       type: 'array',
       of: [{ type: 'categoryItem' }],
-      description: 'The grid of category links',
+      description:
+        'These are the cards shown in the Categories section. Add one card for each product group you want to highlight.',
     }),
   ],
 })

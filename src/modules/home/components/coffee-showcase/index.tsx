@@ -6,16 +6,13 @@ import { interDisplay, lato } from "@lib/fonts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface CoffeeItem {
-  id: number
-  name: string
-  description: string
   image: string | null
+  imageAlt?: string | null
 }
 
 interface CoffeeShowcaseProps {
-  mainHeadingLine1?: string
-  highlightedWord?: string
-  mainHeadingLine2?: string
+  sectionHeading?: string | null
+  coffeeIconUrl?: string | null
   descriptionText?: string
   buttonText?: string
   buttonLink?: string
@@ -23,9 +20,8 @@ interface CoffeeShowcaseProps {
 }
 
 export default function CoffeeShowcase({
-  mainHeadingLine1,
-  highlightedWord,
-  mainHeadingLine2,
+  sectionHeading,
+  coffeeIconUrl,
   descriptionText,
   buttonText = "Explore Our Product",
   buttonLink = "/first-gear",
@@ -35,10 +31,9 @@ export default function CoffeeShowcase({
   const [visibleImage, setVisibleImage] = useState(0)
   const [isImageVisible, setIsImageVisible] = useState(true)
 
-  const mainHeading =
-    mainHeadingLine1 && highlightedWord && mainHeadingLine2
-      ? `${mainHeadingLine1}\n${highlightedWord}\n${mainHeadingLine2}`
-      : "More Than Riding Gear\nWe Serve Great Coffee Too"
+  const activeHeading =
+    sectionHeading?.trim() ||
+    "More Than Riding Gear\nWe Serve Great Coffee Too"
 
   const topDescription =
     descriptionText ||
@@ -154,15 +149,15 @@ export default function CoffeeShowcase({
 
             <div className="flex flex-col items-center text-center lg:px-8">
               <img
-                src="/images/firstgear-coffee/download.svg"
+                src={coffeeIconUrl || "/images/firstgear-coffee/download.svg"}
                 alt="First Gear Coffee icon"
-                className="w-24 md:w-28 h-auto mb-8"
+                className="w-32 md:w-40 h-auto mb-8"
               />
 
               <h2
                 className={`${lato.className} text-[#fff6ef] text-2xl md:text-3xl lg:text-[38px] font-bold uppercase tracking-[0.05em] leading-[1.18] whitespace-pre-line max-w-md mb-6`}
               >
-                {mainHeading}
+                {activeHeading}
               </h2>
 
               <p

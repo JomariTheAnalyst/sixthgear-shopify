@@ -20,15 +20,15 @@ export default function ProductPrice({
     return <div className="block w-32 h-9 bg-slate-200 animate-pulse rounded" />
   }
 
-  const isOnSale = selectedPrice.price_type === "sale"
+  const isOnSale = selectedPrice.original_price_number && selectedPrice.original_price_number > selectedPrice.calculated_price_number
 
   return (
-    <div className="flex items-baseline gap-3 flex-wrap">
+    <div className="flex flex-col gap-1 my-4">
       {/* Current/Sale Price */}
       <span
         className={cn(
-          "text-3xl font-bold text-slate-900",
-          isOnSale && "text-slate-900"
+          "text-[32px] font-bold leading-tight",
+          isOnSale ? "text-red-600" : "text-slate-900"
         )}
         data-testid="product-price"
         data-value={selectedPrice.calculated_price_number}
@@ -37,22 +37,22 @@ export default function ProductPrice({
         {selectedPrice.calculated_price}
       </span>
 
-      {/* Original Price (strikethrough) */}
+      {/* Original Price & Discount Row */}
       {isOnSale && selectedPrice.original_price && (
-        <span
-          className="text-lg text-slate-500 line-through"
-          data-testid="original-product-price"
-          data-value={selectedPrice.original_price_number}
-        >
-          {selectedPrice.original_price}
-        </span>
-      )}
-
-      {/* Save badge */}
-      {isOnSale && selectedPrice.percentage_diff && (
-        <span className="px-2 py-1 text-sm font-semibold bg-red-100 text-red-700 rounded">
-          Save {selectedPrice.percentage_diff}%
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className="text-base text-gray-500 line-through"
+            data-testid="original-product-price"
+            data-value={selectedPrice.original_price_number}
+          >
+            {selectedPrice.original_price}
+          </span>
+          {selectedPrice.percentage_diff && (
+            <span className="text-sm font-bold text-red-600 border border-red-200 bg-red-50 px-2 py-0.5 rounded-md">
+              -{selectedPrice.percentage_diff}%
+            </span>
+          )}
+        </div>
       )}
     </div>
   )

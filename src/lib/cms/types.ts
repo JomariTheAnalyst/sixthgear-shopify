@@ -77,6 +77,9 @@ export interface SanityCategoriesSection {
     name: string
     slug: string
     image: string
+    imageAlt?: string | null
+    buttonLabel?: string | null
+    buttonLink?: string | null
   }[] | null
 }
 
@@ -105,16 +108,13 @@ export interface SanityCollectionHero {
 }
 
 export interface SanityCoffeeItem {
-  id?: number
-  name: string
-  description: string
   imageUrl: string | null
+  imageAlt?: string | null
 }
 
 export interface SanityCoffeeShowcase {
-  mainHeadingLine1?: string | null
-  highlightedWord?: string | null
-  mainHeadingLine2?: string | null
+  sectionHeading?: string | null
+  coffeeIconUrl?: string | null
   descriptionText?: string | null
   buttonText?: string | null
   buttonLink?: string | null

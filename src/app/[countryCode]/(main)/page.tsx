@@ -265,14 +265,11 @@ export default async function Home(props: {
       </Suspense>
 
       <CoffeeShowcase
-        mainHeadingLine1={
-          coffeeShowcase?.mainHeadingLine1 ?? undefined
+        sectionHeading={
+          coffeeShowcase?.sectionHeading ?? undefined
         }
-        highlightedWord={
-          coffeeShowcase?.highlightedWord ?? undefined
-        }
-        mainHeadingLine2={
-          coffeeShowcase?.mainHeadingLine2 ?? undefined
+        coffeeIconUrl={
+          coffeeShowcase?.coffeeIconUrl ?? undefined
         }
         descriptionText={
           coffeeShowcase?.descriptionText ?? undefined
@@ -285,10 +282,8 @@ export default async function Home(props: {
         }
         coffeeItems={
           coffeeShowcase?.coffeeItems?.map((item, index) => ({
-            id: index + 1,
-            name: item.name,
-            description: item.description,
             image: item.imageUrl,
+            imageAlt: item.imageAlt ?? null,
           })) ?? undefined
         }
       />

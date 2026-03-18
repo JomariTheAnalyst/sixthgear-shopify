@@ -2,65 +2,74 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'teamMember',
-  title: 'Team Member',
+  title: 'Team Member Card',
   type: 'object',
   fields: [
     defineField({
       name: 'name',
-      title: 'Name',
+      title: 'Team member name',
       type: 'string',
       validation: (Rule) => Rule.required(),
-      description: 'Full name in uppercase. Example: MARTIE',
+      description:
+        'Name shown on the card. Example: MARTIE or Sarah Cruz',
     }),
     defineField({
       name: 'role',
-      title: 'Role',
+      title: 'Main role',
       type: 'string',
       validation: (Rule) => Rule.required(),
-      description: 'Short role label shown in gold text. Example: Lead Technician',
+      description:
+        'Main job role shown under the name. Example: Lead Technician, Service Advisor, Lead Barista',
     }),
     defineField({
       name: 'title',
-      title: 'Title / Specialization',
+      title: 'Second line under the role',
       type: 'string',
-      description: 'More specific title shown in gray. Example: Workshop Head',
+      description:
+        'Optional extra line for a more specific job title or specialization. Example: Workshop Head',
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'Short introduction',
       type: 'text',
       rows: 3,
-      description: 'Short bio shown on the card. Keep under 180 characters.',
+      description:
+        'Short description shown on the card. Keep this brief so it stays easy to read.',
     }),
     defineField({
       name: 'photo',
-      title: 'Photo',
+      title: 'Team member photo',
       type: 'image',
-      description: 'Team member photo. Portrait ratio 4:5 recommended. Face should be centered.',
+      description:
+        'Portrait photo shown on the card. Use a clear photo of the person. A vertical image works best.',
       options: {
         hotspot: true,
       },
     }),
     defineField({
       name: 'socialLinks',
-      title: 'Social Links',
+      title: 'Social media links',
       type: 'object',
-      description: 'Leave any field empty to hide that social icon on the card.',
+      description:
+        'Optional. These links are not shown in the current homepage team card design, but they can be kept here for future use.',
       fields: [
         defineField({
           name: 'facebook',
-          title: 'Facebook URL',
+          title: 'Facebook link',
           type: 'url',
+          description: 'Paste the full Facebook profile or page link.',
         }),
         defineField({
           name: 'instagram',
-          title: 'Instagram URL',
+          title: 'Instagram link',
           type: 'url',
+          description: 'Paste the full Instagram profile link.',
         }),
         defineField({
           name: 'tiktok',
-          title: 'TikTok URL',
+          title: 'TikTok link',
           type: 'url',
+          description: 'Paste the full TikTok profile link.',
         }),
       ],
     }),

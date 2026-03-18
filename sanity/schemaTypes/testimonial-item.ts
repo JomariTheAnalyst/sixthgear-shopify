@@ -2,29 +2,32 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'testimonialItem',
-  title: 'Testimonial',
+  title: 'Review Card',
   type: 'object',
   fields: [
     defineField({
       name: 'name',
-      title: 'Customer Name',
+      title: 'Customer name',
       type: 'string',
       validation: (Rule) => Rule.required(),
-      description: 'Full name of the customer. Example: Jones Charles',
+      description:
+        'Name shown at the bottom of the review card. Example: Jones Charles',
     }),
     defineField({
       name: 'role',
-      title: 'Role or Bike Type',
+      title: 'Short label under the name',
       type: 'string',
-      description: 'Short label shown below the name. Example: Big Bike Owner, Adventure Rider, Daily Rider',
+      description:
+        'A short line shown below the customer name. Example: Big Bike Owner, Adventure Rider, Daily Rider',
     }),
     defineField({
       name: 'quote',
-      title: 'Quote',
+      title: 'Customer review',
       type: 'text',
       rows: 4,
       validation: (Rule) => Rule.required(),
-      description: 'The customer review text. Do not include quotation marks — they are added automatically.',
+      description:
+        'The review text shown on the card. Do not add quotation marks because the website adds them automatically.',
     }),
   ],
 })

@@ -21,31 +21,49 @@ const FALLBACK_CATEGORIES_SECTION = {
     name: "BAGS AND LUGGAGE",
     slug: "bags-and-luggage",
     image: "/images/product-categories/bags-and-boxes (1).png",
+    imageAlt: "Black motorcycle top box and luggage case",
+    buttonLabel: "Shop Now",
+    buttonLink: "/collections/bags-and-luggage",
   },
   {
     name: "COMMUNICATIONS",
     slug: "communications",
     image: "/images/product-categories/intercom.png",
+    imageAlt: "Motorcycle intercom communication device",
+    buttonLabel: "Shop Now",
+    buttonLink: "/collections/communications",
   },
   {
     name: "HELMETS",
     slug: "helmets",
     image: "/images/product-categories/helmets.png",
+    imageAlt: "Black off-road motorcycle helmet",
+    buttonLabel: "Shop Now",
+    buttonLink: "/collections/helmets",
   },
   {
     name: "PARTS AND ACCESSORIES",
     slug: "parts-and-accessories",
     image: "/images/product-categories/exhaust.png", // Using the closest placeholder we have
+    imageAlt: "Motorcycle exhaust accessory",
+    buttonLabel: "Shop Now",
+    buttonLink: "/collections/parts-and-accessories",
   },
   {
     name: "RIDING GEAR",
     slug: "riding-gear",
     image: "/images/product-categories/shoes.png",
+    imageAlt: "Pair of black riding boots",
+    buttonLabel: "Shop Now",
+    buttonLink: "/collections/riding-gear",
   },
   {
     name: "APPAREL",
     slug: "apparel",
     image: "/images/product-categories/apparel.png",
+    imageAlt: "Black motorcycle riding jacket",
+    buttonLabel: "Shop Now",
+    buttonLink: "/collections/apparel",
   },
 ]
 }
@@ -54,16 +72,22 @@ function CategoryCard({
   name,
   slug,
   image,
+  imageAlt,
+  buttonLabel,
+  buttonLink,
 }: {
   name: string
   slug: string
   image: string
+  imageAlt?: string | null
+  buttonLabel?: string | null
+  buttonLink?: string | null
 }) {
+  const href = buttonLink || (slug ? `/store?category=${slug}` : "#")
+  const ctaLabel = buttonLabel || "Shop Now"
+
   return (
-    <LocalizedClientLink
-      href={`/store?category=${slug}`}
-      className="group relative block bg-white hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 w-full overflow-hidden h-[240px] md:h-[260px] shadow-sm rounded-md border border-gray-50"
-    >
+    <div className="group relative block bg-white hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 w-full overflow-hidden h-[240px] md:h-[260px] shadow-sm rounded-md border border-gray-50">
       <div className="relative z-10 flex flex-col h-full w-full p-6 lg:p-8 text-black">
         {/* Top Header Block */}
         <div className="flex flex-col items-start gap-4 relative z-20 w-[60%] md:w-[52%]">
@@ -74,9 +98,12 @@ function CategoryCard({
 
         {/* Bottom-left CTA */}
         <div className="mt-auto relative z-20">
-          <span className={`${montserrat.className} inline-flex items-center justify-center border border-black px-3 py-2 md:px-3.5 md:py-2 text-[10px] md:text-[11px] font-medium tracking-[0.08em] uppercase text-black transition-colors duration-300 group-hover:bg-black group-hover:text-white`}>
-            Shop Now
-          </span>
+          <LocalizedClientLink
+            href={href}
+            className={`${montserrat.className} inline-flex items-center justify-center border border-black px-3 py-2 md:px-3.5 md:py-2 text-[10px] md:text-[11px] font-medium tracking-[0.08em] uppercase text-black transition-colors duration-300 hover:bg-black hover:text-white`}
+          >
+            {ctaLabel}
+          </LocalizedClientLink>
         </div>
 
         {/* Floating Product Image - Increased width constraint and base scale for larger visual presence */}
@@ -84,14 +111,14 @@ function CategoryCard({
           <div className="relative w-full h-[100%]">
             <Image
               src={image}
-              alt={name}
+              alt={imageAlt || name}
               fill
               className="object-contain object-right md:object-right-bottom origin-bottom-right transition-transform duration-700 ease-out group-hover:scale-[1.10] drop-shadow-[0_15px_20px_rgba(0,0,0,0.12)] scale-[1.05]"
             />
           </div>
         </div>
       </div>
-    </LocalizedClientLink>
+    </div>
   )
 }
 

@@ -29,105 +29,115 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
     return notFound()
   }
 
-  // Parse aggregate rating from metafields (synchronous, no API call)
   const ratingSummary = parseRatingSummaryFromMetafields(
     product.metafields as any
   )
 
-  // Use the first variant's calculated price if available, fallback to empty string
-  // Format price assuming PHP, fallback for simplicity if not available
   const variant = product.variants?.[0]
   const calculatedAmount = variant?.calculated_price?.calculated_amount
   const currencyCode = variant?.calculated_price?.currency_code || "PHP"
-  const formattedPrice = calculatedAmount 
-    ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: currencyCode }).format(calculatedAmount)
+  const formattedPrice = calculatedAmount
+    ? new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: currencyCode,
+      }).format(calculatedAmount)
     : "Price Unavailable"
 
   return (
     <div className="min-h-screen bg-white">
-      <RecentlyViewedTracker 
+      <RecentlyViewedTracker
         handle={product.handle || ""}
         title={product.title || ""}
         price={formattedPrice}
         image={images?.[0]?.url || ""}
       />
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 pt-28 pb-6 lg:pb-10">
-        {/* Breadcrumb */}
-        <Breadcrumb product={product} />
 
-        {/* Above the Fold: Gallery + Info */}
+      <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6 lg:pb-12">
+        {/* Breadcrumb - Placed at the top */}
+        <div className="mb-4">
+          <Breadcrumb product={product} />
+        </div>
+
+        {/* Above the Fold – Gallery + Product Info */}
         <section
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-16"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8"
           data-testid="product-container"
         >
-          {/* Left Column — Gallery (sticky on desktop) */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
+          {/* Left Column — Gallery */}
+          <div>
             <ImageGallery images={images} />
           </div>
 
           {/* Right Column — Product Info */}
-          <div className="space-y-6">
-            {/* Vendor & Title */}
+          <div className="lg:sticky lg:top-24 lg:self-start space-y-4">
+            {/* Title & Brand */}
             <div>
               {product.collection?.title && (
-                <p className="text-sm text-slate-500 uppercase tracking-wide mb-2">
+                <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                   {product.collection.title}
-                </p>
+                </span>
               )}
               <h1
-                className="text-2xl lg:text-3xl font-bold text-slate-900 mb-3"
+                className="text-xl lg:text-2xl font-bold text-black leading-tight"
                 data-testid="product-title"
               >
                 {product.title}
               </h1>
-
-              {/* Star Rating + Review Count (from Shopify metafields) */}
-              <a
-                href="#reviews"
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              >
-                {ratingSummary && ratingSummary.count > 0 ? (
-                  <>
-                    <StarRating rating={ratingSummary.average} size="sm" />
-                    <span className="text-sm text-gray-500">
-                      ({ratingSummary.count})
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <StarRating rating={0} size="sm" />
-                    <span className="text-sm text-gray-400">
-                      No reviews yet
-                    </span>
-                  </>
-                )}
-              </a>
             </div>
 
-            {/* Variant Selection & Add to Cart (includes Price, Options, Qty, Buttons) */}
-            <ProductActions product={product} region={region} />
+            {/* Rating Row */}
+            <a
+              href="#reviews"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity mt-2"
+            >
+              {ratingSummary && ratingSummary.count > 0 ? (
+                <>
+                  <StarRating rating={ratingSummary.average} size="sm" />
+                  <span className="text-sm text-gray-900 font-bold">
+                    {ratingSummary.average.toFixed(1)}
+                  </span>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-sm text-gray-700 font-medium">
+                    {ratingSummary.count} Reviews
+                  </span>
+                </>
+              ) : (
+                <>
+                  <StarRating rating={0} size="sm" />
+                  <span className="text-sm text-gray-700 font-medium ml-1">No reviews yet</span>
+                </>
+              )}
+            </a>
 
-            {/* Collapsible Content Sections */}
-            <ProductTabs product={product} />
+            {/* Product Actions (Price, Variants, Qty, CTA) */}
+            <ProductActions product={product} region={region} />
           </div>
         </section>
 
-        {/* Reviews Section — Judge.me powered */}
-        <ProductReviews
-          productHandle={product.handle || ""}
-          productTitle={product.title || ""}
-          metafields={product.metafields as any}
-        />
+        {/* Tabs + Reviews Section */}
+        <section className="border-t border-gray-100 pt-8 mt-4" id="details-tab">
+          <ProductTabs product={product} />
+
+          {/* Reviews Section */}
+          <ProductReviews
+            productHandle={product.handle || ""}
+            productTitle={product.title || ""}
+            metafields={product.metafields as any}
+          />
+        </section>
 
         {/* You May Like (Related Products) */}
-        <section className="mb-16">
+        <section className="mb-16 mt-16">
           <Suspense
             fallback={
               <div className="animate-pulse">
-                <div className="h-8 bg-slate-200 rounded w-48 mb-6" />
+                <div className="h-8 bg-gray-100 rounded w-48 mb-6" />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="bg-slate-100 aspect-square rounded-xl" />
+                    <div
+                      key={i}
+                      className="bg-gray-50 aspect-square rounded-xl"
+                    />
                   ))}
                 </div>
               </div>

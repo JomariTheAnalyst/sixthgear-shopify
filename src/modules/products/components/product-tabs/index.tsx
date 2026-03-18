@@ -2,20 +2,13 @@
 
 import { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { ChevronDown } from "lucide-react"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
 }
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
-  const [openItems, setOpenItems] = useState<string[]>([])
-
-  const toggleItem = (id: string) => {
-    setOpenItems((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    )
-  }
+  const [activeTab, setActiveTab] = useState<string>("description")
 
   const tabs = [
     {
@@ -23,11 +16,13 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
       title: "Description",
       content: product.description ? (
         <div
-          className="prose prose-slate prose-sm max-w-none mb-4"
+          className="prose prose-sm max-w-none text-gray-600 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       ) : (
-        <p className="text-sm text-slate-400 italic mb-4">No description available.</p>
+        <p className="text-sm text-gray-400 italic">
+          No description available.
+        </p>
       ),
     },
     {
@@ -36,95 +31,137 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
       content: <ProductInfoContent product={product} />,
     },
     {
-      id: "fitment",
-      title: "Fitment & Compatibility",
-      content: <FitmentContent />,
-    }
+      id: "size_guide",
+      title: "Size Guide",
+      content: <SizeGuideContent />,
+    },
+    {
+      id: "shipping",
+      title: "Shipping & Returns",
+      content: <ShippingAndReturnsContent />,
+    },
   ]
+
+  const activeContent = tabs.find((tab) => tab.id === activeTab)?.content
 
   return (
     <div className="flex flex-col w-full">
-      {tabs.map((item, index) => {
-        const isOpen = openItems.includes(item.id)
-        return (
-          <div key={item.id} className="border-b border-gray-100 last:border-b">
-            <button
-              onClick={() => toggleItem(item.id)}
-              className="w-full py-5 flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-900 group"
-              aria-expanded={isOpen}
-              aria-controls={`accordion-content-${item.id}`}
-              id={`accordion-header-${item.id}`}
-            >
-              <span className="text-[15px] font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
-                {item.title}
-              </span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
-                  isOpen ? "rotate-180" : ""
+      {/* Tabs Navigation */}
+      <div className="flex overflow-x-auto border-b border-gray-200 hide-scrollbar">
+        <div className="flex gap-8">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-3 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 focus:outline-none ${
+                  isActive
+                    ? "border-orange-500 text-black"
+                    : "border-transparent text-gray-400 hover:text-gray-600"
                 }`}
-                aria-hidden="true"
-              />
-            </button>
-            <div
-              id={`accordion-content-${item.id}`}
-              role="region"
-              aria-labelledby={`accordion-header-${item.id}`}
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-              }`}
-            >
-              <div className="text-slate-600 pb-5">{item.content}</div>
-            </div>
-          </div>
-        )
-      })}
+                aria-selected={isActive}
+                role="tab"
+              >
+                {tab.title}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="py-6">{activeContent}</div>
     </div>
   )
 }
 
-/* ─── Specifications (Details) ─── */
+/* ─── Specifications ─── */
 const ProductInfoContent = ({ product }: ProductTabsProps) => {
-  const hasDetails =
-    product.material ||
-    product.origin_country ||
-    product.type ||
-    product.weight
+  const p = product as any
 
-  if (!hasDetails) {
+  // Label map covering both `shopify` taxonomy keys and `custom` keys
+  const METAFIELD_LABELS: Record<string, string> = {
+    // shopify namespace (Category metafields shown in admin)
+    color:              "Color",
+    accessory_size:     "Size",
+    handwear_material:  "Material",
+    material:           "Material",
+    age_group:          "Age Group",
+    target_gender:      "Target Gender",
+    gender:             "Gender",
+    size:               "Size",
+    // custom namespace
+    weight:             "Weight",
+    dimensions:         "Dimensions",
+    height:             "Height",
+    width:              "Width",
+    length:             "Length",
+    brand:              "Brand",
+    country_of_origin:  "Country of Origin",
+    protection_level:   "Protection Level",
+    certification:      "Certification",
+  }
+
+  const specs: { label: string; value: string }[] = []
+
+  // Skip these — review data, not spec fields
+  const SKIP_KEYS = new Set(["care_instructions", "size_guide", "rating", "rating_count"])
+  const SKIP_NAMESPACES = new Set(["reviews"])
+
+  // Shopify stores list-type values as JSON arrays e.g. ["Black","navy green"]
+  function parseValue(raw: string): string {
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) return parsed.map((v: unknown) => String(v)).join(", ")
+      return String(parsed)
+    } catch {
+      return raw
+    }
+  }
+
+  const seenLabels = new Set<string>()
+
+  // Read all metafields across shopify + custom namespaces
+  if (Array.isArray(p.shopifyMetafields)) {
+    for (const mf of p.shopifyMetafields) {
+      if (SKIP_NAMESPACES.has(mf.namespace)) continue
+      if (SKIP_KEYS.has(mf.key)) continue
+      if (!mf.value) continue
+      const label = METAFIELD_LABELS[mf.key]
+      if (!label) continue
+      if (seenLabels.has(label)) continue  // deduplicate same label from different namespaces
+      seenLabels.add(label)
+      specs.push({ label, value: parseValue(mf.value) })
+    }
+  }
+
+  if (specs.length === 0) {
     return (
-      <p className="text-sm text-slate-400 italic mb-4">
-        No additional specifications available.
+      <p className="text-sm text-gray-400 italic">
+        No specifications available for this product.
       </p>
     )
   }
 
-  const specs: Record<string, string> = {}
-  if (product.material) specs["Material"] = product.material
-  if (product.origin_country) specs["Country of Origin"] = product.origin_country
-  if (product.type) specs["Type"] = product.type.value
-  if (product.weight) specs["Weight"] = `${product.weight} g`
-  if (product.length && product.width && product.height) {
-    specs["Dimensions"] = `${product.length}L x ${product.width}W x ${product.height}H`
-  }
-
-  const entries = Object.entries(specs)
-
   return (
-    <div className="border border-slate-100 rounded-lg overflow-hidden mb-4">
+    <div className="border border-gray-100 rounded-lg overflow-hidden">
       <table className="w-full text-sm">
         <tbody>
-          {entries.map(([key, value], index) => (
+          {specs.map(({ label, value }, index) => (
             <tr
-              key={key}
-              className={index % 2 === 0 ? "bg-slate-50/50" : "bg-white"}
+              key={label}
+              className={index % 2 === 0 ? "bg-gray-50/50" : "bg-white"}
             >
               <th
                 scope="row"
-                className="px-4 py-3 text-left font-semibold text-slate-900 w-1/3"
+                className="px-4 py-3 text-left font-semibold text-black w-1/3 whitespace-nowrap"
               >
-                {key}
+                {label}
               </th>
-              <td className="px-4 py-3 text-slate-600 border-l border-slate-100">{value}</td>
+              <td className="px-4 py-3 text-gray-600 border-l border-gray-100">
+                {value}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -133,16 +170,45 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
   )
 }
 
-/* ─── Fitment & Compatibility ─── */
-const FitmentContent = () => (
-  <div className="text-sm text-slate-600 mb-4">
-    <p>
-      Please check the manufacturer's manual or contact our support team at{" "}
-      <a href="mailto:support@sixthgearmoto.com" className="text-orange-500 hover:text-orange-600 underline underline-offset-2">
-        support@sixthgearmoto.com
-      </a>{" "}
-      if you are unsure whether this part fits your motorcycle.
+/* ─── Size Guide ─── */
+const SizeGuideContent = () => (
+  <div className="text-sm text-gray-600">
+    <p className="mb-4 leading-relaxed">
+      Please refer to the specific sizing chart provided in the product images or description above. 
+      Riding gear sizing can vary significantly between brands and models.
     </p>
+    <p className="leading-relaxed">
+      If you are unsure about your size, we recommend taking your measurements 
+      (chest, waist, and inseam) and contacting our support team for guidance before placing your order. 
+      For protective gear, a snug but comfortable fit is essential for safety.
+    </p>
+  </div>
+)
+
+/* ─── Shipping & Returns ─── */
+const ShippingAndReturnsContent = () => (
+  <div className="space-y-6">
+    <div>
+      <h3 className="text-base font-semibold text-black mb-3 text-left">
+        Shipping Details
+      </h3>
+      <ul className="text-sm text-gray-600 space-y-2 list-inside list-disc">
+        <li>Standard Delivery: 3-5 business days</li>
+        <li>Provincial Delivery: 5-7 business days</li>
+        <li>Cash on Delivery (COD) available nationwide</li>
+        <li>Tracking link provided via email/SMS for all orders</li>
+      </ul>
+    </div>
+    <div className="pt-6 border-t border-gray-100">
+      <h3 className="text-base font-semibold text-black mb-3 text-left">
+        Return Policy
+      </h3>
+      <ul className="text-sm text-gray-600 space-y-2 list-inside list-disc">
+        <li>Easy returns accepted for defective or incorrect items</li>
+        <li>Item must be unused, unwashed, and in its original packaging with tags intact</li>
+        <li>Please contact support within 7 days of successful delivery</li>
+      </ul>
+    </div>
   </div>
 )
 

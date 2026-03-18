@@ -4,7 +4,7 @@ import {
   buildWriteReviewUrl,
 } from "@lib/data/reviews"
 import StarRating from "@modules/products/components/star-rating"
-import { Star, PenLine, BadgeCheck } from "lucide-react"
+import { Star, PenLine, BadgeCheck, ThumbsUp, ThumbsDown } from "lucide-react"
 import type { JudgeMeReview } from "@lib/shopify/types"
 
 interface ProductReviewsProps {
@@ -37,17 +37,24 @@ export default async function ProductReviews({
   return (
     <section
       id="reviews"
-      className="mt-16 pt-10 border-t border-gray-200"
+      className="mt-10 pt-8"
       aria-label="Customer reviews"
     >
-      {/* Section A — Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Customer Reviews</h2>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-xl font-bold text-black">Reviews</h2>
+          {ratingSummary && ratingSummary.count > 0 && (
+            <p className="text-sm text-gray-400 mt-1">
+              Showing {reviews.length} from {ratingSummary.count} reviews
+            </p>
+          )}
+        </div>
         <a
           href={writeReviewUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
         >
           <PenLine className="w-3.5 h-3.5" />
           Write a Review
@@ -55,48 +62,35 @@ export default async function ProductReviews({
       </div>
 
       {hasReviews ? (
-        <>
-          {/* Section B — Rating Summary */}
-          {ratingSummary && ratingSummary.count > 0 && (
-            <RatingSummaryBlock
-              ratingSummary={ratingSummary}
-              reviews={reviews}
-            />
-          )}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">
+          {/* Left — Reviews List */}
+          <div className="space-y-0 divide-y divide-gray-100">
+            {reviews
+              .filter((r) => r.published && !r.hidden)
+              .map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+          </div>
 
-          {/* Section C — Reviews List */}
-          {reviews.length > 0 && (
-            <div className="space-y-5 mt-8">
-              {reviews
-                .filter((r) => r.published && !r.hidden)
-                .map((review) => (
-                  <ReviewCard key={review.id} review={review} />
-                ))}
+          {/* Right — Rating Summary */}
+          {ratingSummary && ratingSummary.count > 0 && (
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <RatingSummaryBlock
+                ratingSummary={ratingSummary}
+                reviews={reviews}
+              />
             </div>
           )}
-
-          {/* Load more note */}
-          {reviewsData && reviewsData.total_pages > 1 && (
-            <p className="text-center text-sm text-gray-400 mt-6">
-              Showing {reviews.length} of {reviewsData.total_count} reviews.{" "}
-              <a
-                href={writeReviewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-orange-500 hover:underline"
-              >
-                Write a review
-              </a>
-            </p>
-          )}
-        </>
+        </div>
       ) : (
-        /* Section D — Empty State */
-        <div className="bg-white rounded-xl border border-gray-200 p-10 text-center">
-          <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center mx-auto">
-            <Star className="w-6 h-6 text-orange-500" />
+        /* Empty State */
+        <div className="bg-gray-50 rounded-2xl p-12 text-center">
+          <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mx-auto">
+            <Star className="w-7 h-7 text-orange-500" />
           </div>
-          <p className="text-gray-900 font-semibold mt-4">No reviews yet</p>
+          <p className="text-black font-semibold mt-5 text-lg">
+            No reviews yet
+          </p>
           <p className="text-sm text-gray-500 mt-2 max-w-xs mx-auto">
             Be the first to share your experience with this product.
           </p>
@@ -104,10 +98,27 @@ export default async function ProductReviews({
             href={writeReviewUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-[#0a0a0a] text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
           >
             <PenLine className="w-3.5 h-3.5" />
             Write the First Review
+          </a>
+        </div>
+      )}
+
+      {/* Load more */}
+      {reviewsData && reviewsData.total_pages > 1 && (
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+          <p className="text-sm text-gray-400">
+            Showing {reviews.length} of {reviewsData.total_count} reviews
+          </p>
+          <a
+            href={writeReviewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-orange-500 hover:underline"
+          >
+            Show all reviews
           </a>
         </div>
       )}
@@ -123,8 +134,13 @@ function RatingSummaryBlock({
   ratingSummary: { average: number; count: number }
   reviews: JudgeMeReview[]
 }) {
-  // Compute distribution from the fetched reviews (approximate for paginated)
-  const distribution: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  const distribution: Record<number, number> = {
+    5: 0,
+    4: 0,
+    3: 0,
+    2: 0,
+    1: 0,
+  }
   reviews.forEach((r) => {
     const rounded = Math.round(r.rating)
     if (rounded >= 1 && rounded <= 5) {
@@ -134,46 +150,50 @@ function RatingSummaryBlock({
   const totalShown = reviews.length || 1
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      {/* Left — Large average */}
-      <div className="text-center">
-        <p className="text-6xl font-bold text-gray-900 leading-none">
-          {ratingSummary.average.toFixed(1)}
-        </p>
-        <div className="flex justify-center mt-2">
-          <StarRating rating={ratingSummary.average} size="lg" />
+    <div className="bg-gray-50 rounded-2xl p-6">
+      {/* Large Rating */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <StarRating rating={ratingSummary.average} size="md" />
+          <p className="text-sm text-gray-400 mt-1">
+            {ratingSummary.count} review
+            {ratingSummary.count !== 1 ? "s" : ""}
+          </p>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
-          {ratingSummary.count} review{ratingSummary.count !== 1 ? "s" : ""}
+        <p className="text-4xl font-bold text-black leading-none">
+          {ratingSummary.average.toFixed(1)}
         </p>
       </div>
 
-      {/* Right — Distribution bars */}
+      {/* Distribution bars */}
       <div className="space-y-2">
         {[5, 4, 3, 2, 1].map((star) => {
           const count = distribution[star] || 0
           const pct = Math.round((count / totalShown) * 100)
           return (
             <div key={star} className="flex items-center gap-2">
-              <span className="text-xs text-gray-600 w-6 text-right">
-                {star} ★
+              <span className="text-xs text-gray-500 w-3 text-right font-medium">
+                {star}
               </span>
-              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-2.5 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-orange-500 rounded-full"
+                  className="h-full bg-orange-500 rounded-full transition-all"
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-xs text-gray-500 w-4">{count}</span>
+              <span className="text-xs text-gray-400 w-6 text-right">
+                {count}
+              </span>
             </div>
           )
         })}
-        {ratingSummary.count > reviews.length && (
-          <p className="text-[10px] text-gray-400 mt-1">
-            Showing distribution for displayed reviews
-          </p>
-        )}
       </div>
+
+      {ratingSummary.count > reviews.length && (
+        <p className="text-[10px] text-gray-400 mt-3">
+          Distribution based on displayed reviews
+        </p>
+      )}
     </div>
   )
 }
@@ -193,46 +213,37 @@ function ReviewCard({ review }: { review: JudgeMeReview }) {
   )
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      {/* Top row */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
-          {/* Avatar */}
-          <div className="w-9 h-9 rounded-full bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">{initials}</span>
+    <div className="py-5">
+      {/* Top row — avatar, name, stars */}
+      <div className="flex items-start gap-3">
+        {/* Avatar */}
+        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+          <span className="text-gray-600 text-sm font-bold">{initials}</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm font-semibold text-black">{name}</p>
+            {review.verified === "verified_buyer" && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-600">
+                <BadgeCheck className="w-3 h-3" />
+                Verified
+              </span>
+            )}
           </div>
-          {/* Name + Date */}
-          <div>
-            <p className="text-sm font-semibold text-gray-900">{name}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{dateFormatted}</p>
+          <div className="mt-1">
+            <StarRating rating={review.rating} size="sm" />
           </div>
         </div>
-        <StarRating rating={review.rating} size="sm" />
       </div>
 
-      {/* Verified buyer badge */}
-      {review.verified === "verified_buyer" && (
-        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-700 bg-green-50 border border-green-100 px-2 py-0.5 rounded-full mt-2">
-          <BadgeCheck className="w-3 h-3" />
-          Verified Buyer
-        </span>
-      )}
-
-      {/* Title */}
-      {review.title && (
-        <p className="text-sm font-semibold text-gray-900 mt-3">
-          {review.title}
-        </p>
-      )}
-
       {/* Body */}
-      <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+      <p className="text-sm text-gray-600 mt-3 leading-relaxed pl-[52px]">
         {review.body}
       </p>
 
       {/* Photos */}
       {review.picture_urls && review.picture_urls.length > 0 && (
-        <div className="flex gap-2 mt-3 flex-wrap">
+        <div className="flex gap-2 mt-3 flex-wrap pl-[52px]">
           {review.picture_urls.map((url, i) => (
             <img
               key={i}
@@ -244,6 +255,11 @@ function ReviewCard({ review }: { review: JudgeMeReview }) {
           ))}
         </div>
       )}
+
+      {/* Bottom row — Reply, likes */}
+      <div className="flex items-center gap-4 mt-3 pl-[52px]">
+        <span className="text-xs text-gray-400">{dateFormatted}</span>
+      </div>
     </div>
   )
 }

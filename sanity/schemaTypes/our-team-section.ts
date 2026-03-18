@@ -2,27 +2,30 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'ourTeamSection',
-  title: 'Our Team',
+  title: 'Homepage Our Team Section',
   type: 'object',
   fields: [
     defineField({
       name: 'sectionTitle',
-      title: 'Section Title',
+      title: 'Main heading',
       type: 'string',
-      description: 'Heading text. Default: Our Team',
+      description:
+        'The large title shown at the top of the team section. Example: Our Team',
     }),
     defineField({
       name: 'sectionDescription',
-      title: 'Section Description',
+      title: 'Small heading under the title',
       type: 'string',
-      description: 'Subtitle below heading. Default: Riders, Technicians, and Professionals Who Care About Your Bike',
+      description:
+        'A short supporting line shown below the main heading. Keep this short and easy to read.',
     }),
     defineField({
       name: 'teamMembers',
-      title: 'Team Members',
+      title: 'Team member cards',
       type: 'array',
       of: [{ type: 'teamMember' }],
-      description: 'Team member cards to display. Leave empty to use the 3 hardcoded default members. Desktop always shows 3 per row.',
+      description:
+        'Add the team member cards shown in this section. You can drag items to change their order. If left empty, the website will use its built-in default team members.',
     }),
   ],
 })

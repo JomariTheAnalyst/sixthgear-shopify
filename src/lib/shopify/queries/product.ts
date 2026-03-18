@@ -66,9 +66,33 @@ export const getProductQuery = `
         ...SeoFragment
       }
       metafields(identifiers: [
+        # Shopify Standard Product Taxonomy (Category metafields)
+        {namespace: "shopify", key: "color"},
+        {namespace: "shopify", key: "accessory_size"},
+        {namespace: "shopify", key: "material"},
+        {namespace: "shopify", key: "age_group"},
+        {namespace: "shopify", key: "target_gender"},
+        # Also try common taxonomy aliases
+        {namespace: "shopify", key: "handwear_material"},
+        {namespace: "shopify", key: "size"},
+        {namespace: "shopify", key: "gender"},
+        # Custom namespace fields
         {namespace: "custom", key: "care_instructions"},
         {namespace: "custom", key: "size_guide"},
         {namespace: "custom", key: "material"},
+        {namespace: "custom", key: "weight"},
+        {namespace: "custom", key: "dimensions"},
+        {namespace: "custom", key: "height"},
+        {namespace: "custom", key: "width"},
+        {namespace: "custom", key: "length"},
+        {namespace: "custom", key: "color"},
+        {namespace: "custom", key: "gender"},
+        {namespace: "custom", key: "age_group"},
+        {namespace: "custom", key: "brand"},
+        {namespace: "custom", key: "country_of_origin"},
+        {namespace: "custom", key: "protection_level"},
+        {namespace: "custom", key: "certification"},
+        # Reviews
         {namespace: "reviews", key: "rating"},
         {namespace: "reviews", key: "rating_count"}
       ]) {

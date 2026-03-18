@@ -2,32 +2,38 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'servicesSection',
-  title: 'Services Section',
+  title: 'Homepage Services Section',
   type: 'object',
   fields: [
     defineField({
       name: 'useCustomServices',
-      title: 'Use CMS Services Section',
+      title: 'Use this Services section',
       type: 'boolean',
-      description: 'If disabled, the site renders the hardcoded fallback services section.',
+      description:
+        'Turn this on to use the content below on the homepage. Turn it off if you want the website to use its built-in default Services section instead.',
       initialValue: true,
     }),
     defineField({
       name: 'sectionTitle',
-      title: 'Section Title',
+      title: 'Main heading',
       type: 'string',
+      description:
+        'The large title shown at the top of the Services section. Example: Motorcycle Services',
     }),
     defineField({
       name: 'sectionDescription',
-      title: 'Section Description',
+      title: 'Small heading under the title',
       type: 'string',
+      description:
+        'A short supporting line shown under the main heading. Keep this short and easy to read.',
     }),
     defineField({
       name: 'services',
-      title: 'Services',
+      title: 'Service cards',
       type: 'array',
       of: [{ type: 'serviceItem' }],
-      description: 'Editors can add, remove, and reorder service cards here.',
+      description:
+        'Add the service cards shown in the homepage carousel here. You can drag items to change their order.',
     }),
   ],
 })

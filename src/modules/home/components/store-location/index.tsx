@@ -6,6 +6,7 @@
  * Allows zoom/pan with marker staying at coordinates
  */
 
+import { useState } from "react"
 import { inter, montserrat } from "@lib/fonts"
 
 interface StoreLocationProps {
@@ -35,6 +36,7 @@ export default function StoreLocation({
   hours,
   googleMapsUrl,
 }: StoreLocationProps) {
+  const [isDetailsOpen, setIsDetailsOpen] = useState(true)
   const activeName = storeName || storeInfo.name
   const activeAddress = address || storeInfo.address
   const activePhone = phone || storeInfo.phone
@@ -57,11 +59,10 @@ export default function StoreLocation({
 
   return (
     <section className="py-16 md:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
-        {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
+      <div className="mb-12 md:mb-16 max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
+        <div className="text-center">
           <h2
-            className={`${montserrat.className} text-4xl md:text-6xl lg:text-7xl tracking-[0.025em] text-gray-900`}
+            className={`${montserrat.className} text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.015em] text-black`}
           >
             Store Location
           </h2>
@@ -72,77 +73,94 @@ export default function StoreLocation({
             professional services, and great coffee.
           </p>
         </div>
+      </div>
 
-        {/* Map and Info Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-0 items-stretch">
-          {/* Map Container - Interactive with built-in marker */}
-          <div className="lg:col-span-2 relative rounded-3xl lg:rounded-r-none overflow-hidden shadow-2xl min-h-[450px] md:min-h-[550px] lg:min-h-[600px]">
-            <iframe
-              src="https://maps.google.com/maps?q=14.554651468423817,121.00262199651827&z=17&output=embed"
-              width="100%"
-              height="100%"
-              style={{ border: 0, minHeight: "450px" }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Sixthgear Store Location"
-              className="absolute inset-0"
-            />
-          </div>
+      <div className="relative overflow-hidden border-y border-black/10 shadow-2xl min-h-[520px] md:min-h-[620px] lg:min-h-[720px] bg-[#e8efe6]">
+        <iframe
+          src="https://maps.google.com/maps?q=14.554651468423817,121.00262199651827&z=15&output=embed"
+          width="100%"
+          height="100%"
+          style={{ border: 0, minHeight: "520px" }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Sixthgear Store Location"
+          className="absolute inset-0 h-full w-full"
+        />
 
-          {/* Info Card */}
-          <div className="lg:col-span-1 bg-[#1a1a1a] rounded-3xl lg:rounded-l-none p-8 md:p-12 flex flex-col justify-center text-white min-h-[450px] md:min-h-[550px] lg:min-h-[600px]">
-            {/* Store Name */}
-            <h3
-              className={`${montserrat.className} text-3xl md:text-4xl lg:text-5xl tracking-[0.035em] text-[#F16D34] mb-8`}
-            >
-              {activeName}
-            </h3>
+        <div className="pointer-events-none absolute inset-0 bg-black/5" />
 
-            {/* Info Items */}
-            <div className="space-y-6">
-              {/* Address */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-[#F16D34]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 text-[#F16D34]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
+        <div className="pointer-events-none relative z-10 p-4 md:p-6 lg:p-8 h-full flex items-start">
+          {isDetailsOpen ? (
+            <div className="pointer-events-auto relative w-full max-w-[680px] bg-[#f7f2e9]/95 backdrop-blur-sm border border-black/10 shadow-[0_24px_60px_rgba(0,0,0,0.16)] px-6 py-7 md:px-10 md:py-9 lg:px-12 lg:py-10">
+              <button
+                type="button"
+                onClick={() => setIsDetailsOpen(false)}
+                aria-label="Close store details"
+                className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center border border-black/15 bg-white/80 text-[#142224] transition-colors hover:text-[#F16D34] md:right-5 md:top-5"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.25}
+                    d="M6 6l12 12M18 6L6 18"
+                  />
+                </svg>
+              </button>
+
+              <h3
+                className={`${montserrat.className} pr-14 text-[34px] leading-none md:text-[52px] lg:text-[64px] font-black uppercase tracking-[-0.03em] text-[#142224]`}
+              >
+                Sixthgear Moto Supply
+              </h3>
+
+              <div className="mt-8 grid gap-6 md:grid-cols-[1.2fr_0.9fr] md:gap-10">
                 <div>
                   <p
-                    className={`${inter.className} text-white/60 text-sm uppercase tracking-wider mb-1`}
-                  >
-                    Address
-                  </p>
-                  <p
-                    className={`${inter.className} text-white text-base md:text-lg`}
+                    className={`${inter.className} text-[#102229] text-xl md:text-[2rem] leading-[1.35]`}
                   >
                     {activeAddress}
                   </p>
                 </div>
+
+                <div className="space-y-5">
+                  <div>
+                    <p
+                      className={`${inter.className} text-[#102229] text-lg md:text-[1.15rem] leading-relaxed`}
+                    >
+                      <span className="font-semibold">Tel:</span> {activePhone}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      className={`${inter.className} text-[#102229] text-lg md:text-[1.15rem] leading-relaxed`}
+                    >
+                      <span className="font-semibold">Hours:</span> {activeHours}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      className={`${inter.className} text-[#102229] text-base md:text-lg leading-relaxed`}
+                    >
+                      {activeName}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Phone */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-[#F16D34]/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="mt-8 md:mt-10">
+                <button
+                  onClick={handleGetDirections}
+                  className={`${montserrat.className} inline-flex items-center gap-3 text-[#102229] text-base md:text-lg font-semibold uppercase tracking-[-0.01em] transition-colors hover:text-[#F16D34]`}
+                >
                   <svg
-                    className="w-6 h-6 text-[#F16D34]"
+                    className="h-5 w-5 md:h-6 md:w-6 text-[#F16D34]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -150,65 +168,22 @@ export default function StoreLocation({
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      strokeWidth={2.25}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
                     />
                   </svg>
-                </div>
-                <div>
-                  <p
-                    className={`${inter.className} text-white/60 text-sm uppercase tracking-wider mb-1`}
-                  >
-                    Phone
-                  </p>
-                  <a
-                    href={`tel:${activePhone.replace(/\s/g, "")}`}
-                    className={`${inter.className} text-white text-base md:text-lg hover:text-[#F16D34] transition-colors`}
-                  >
-                    {activePhone}
-                  </a>
-                </div>
-              </div>
-
-              {/* Hours */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-[#F16D34]/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-6 h-6 text-[#F16D34]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p
-                    className={`${inter.className} text-white/60 text-sm uppercase tracking-wider mb-1`}
-                  >
-                    Store Hours
-                  </p>
-                  <p
-                    className={`${inter.className} text-white text-base md:text-lg`}
-                  >
-                    {activeHours}
-                  </p>
-                </div>
+                  View on Google Maps
+                </button>
               </div>
             </div>
-
-            {/* Get Directions Button */}
+          ) : (
             <button
-              onClick={handleGetDirections}
-              className={`${montserrat.className} mt-10 w-full flex items-center justify-center gap-3 px-8 py-5 bg-[#F16D34] text-white text-lg font-semibold uppercase tracking-wider rounded-full transition-all duration-300 hover:bg-white hover:text-[#1a1a1a] hover:scale-[1.02] group`}
+              type="button"
+              onClick={() => setIsDetailsOpen(true)}
+              className={`${montserrat.className} pointer-events-auto inline-flex items-center gap-3 border border-black/15 bg-[#f7f2e9]/95 px-5 py-4 text-sm md:text-base font-semibold uppercase tracking-[-0.01em] text-[#142224] shadow-[0_18px_36px_rgba(0,0,0,0.16)] backdrop-blur-sm transition-colors hover:text-[#F16D34]`}
             >
               <svg
-                className="w-5 h-5"
+                className="h-4 w-4 md:h-5 md:w-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -216,26 +191,13 @@ export default function StoreLocation({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                  strokeWidth={2.25}
+                  d="M12 5v14m7-7H5"
                 />
               </svg>
-              Get Directions
-              <svg
-                className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
+              Show Store Details
             </button>
-          </div>
+          )}
         </div>
       </div>
     </section>

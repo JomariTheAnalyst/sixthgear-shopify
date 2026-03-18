@@ -1,55 +1,55 @@
 import { defineType, defineField } from 'sanity'
 
-// Controls the First Gear Coffee section on the homepage. The heading is split into three parts because each part renders in a different color — orange, white, and amber.
 export default defineType({
   name: 'coffeeShowcase',
   title: 'Coffee Showcase',
   type: 'object',
   fields: [
     defineField({
-      name: 'mainHeadingLine1',
-      title: 'Heading — Part 1 (Orange)',
-      type: 'string',
-      description: 'Renders in orange. Default: Sixthgear',
+      name: 'sectionHeading',
+      type: 'text',
+      title: 'Main Heading',
+      rows: 3,
+      description: `The large bold title shown above the description. You can write it on two lines - just press Enter between the lines and each line will appear separately on the website. Example:
+
+More Than Riding Gear
+We Serve Great Coffee Too
+
+Tip: keep each line short so it fits nicely on all screen sizes.`,
     }),
     defineField({
-      name: 'highlightedWord',
-      title: 'Heading — Part 2 (White)',
-      type: 'string',
-      description: 'Renders in white immediately after Part 1 on the same line. Default: fuels more than rides.',
-    }),
-    defineField({
-      name: 'mainHeadingLine2',
-      title: 'Heading — Part 3 (Amber)',
-      type: 'string',
-      description: 'Renders in amber on the second line. Default: We serve coffee too.',
+      name: 'coffeeIcon',
+      type: 'image',
+      title: 'Coffee Section Icon',
+      options: { hotspot: false },
+      description: `The small illustrated icon shown above the main heading on the right side of this section. Upload a PNG or SVG file. If you leave this empty the website will automatically use the default coffee icon. Recommended size: at least 200x200 pixels. Use a transparent background.`,
     }),
     defineField({
       name: 'descriptionText',
       title: 'Description',
       type: 'text',
       rows: 3,
-      description: 'Paragraph shown below the drink cards. Keep it under 200 characters.',
+      description: 'Main paragraph shown beside the image gallery. Keep it short and easy to read.',
     }),
     defineField({
       name: 'buttonText',
-      title: 'CTA Button Label',
+      title: 'Button text',
       type: 'string',
-      description: 'Text on the button. Only shown when there are 6 or fewer drinks. Default: View Full Menu',
+      description: 'Text shown on the button under the description. Example: Explore Our Product',
     }),
     defineField({
       name: 'buttonLink',
-      title: 'CTA Button Link',
+      title: 'Button link',
       type: 'url',
-      description: 'Where the button links to. Default: /menu — note: for internal links like /menu you can type the path directly.',
+      description: 'Where the button should go when clicked. You can paste a full URL or use an internal link like /first-gear.',
       validation: (Rule) => Rule.uri({ allowRelative: true }),
     }),
     defineField({
       name: 'coffeeItems',
-      title: 'Coffee Drinks',
+      title: 'Gallery photos',
       type: 'array',
       of: [{ type: 'coffeeItem' }],
-      description: 'Featured drinks to display. Maximum 6 are shown. Leave empty to use the default hardcoded drinks.',
+      description: 'Upload the photos used in the coffee image slider. These are visual gallery images only. The website does not show drink names or drink descriptions here.',
       validation: (Rule) => Rule.max(8),
     }),
   ],

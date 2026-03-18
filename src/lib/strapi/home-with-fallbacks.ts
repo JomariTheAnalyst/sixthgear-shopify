@@ -51,9 +51,8 @@ const ABOUT_FALLBACKS: AboutContent = {
 }
 
 const COFFEE_FALLBACKS: CoffeeShowcaseContent = {
-  mainHeadingLine1: "Sixthgear",
-  highlightedWord: " fuels more than rides.",
-  mainHeadingLine2: "We serve coffee too.",
+  sectionHeading: "More Than Riding Gear\nWe Serve Great Coffee Too",
+  coffeeIconUrl: null,
   descriptionText:
     "More than a pit stop it's where riders refuel, relax, and reconnect. Handcrafted brews served with passion, right here at Sixthgear.",
   buttonText: "View Full Menu",

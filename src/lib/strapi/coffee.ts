@@ -6,9 +6,8 @@
  */
 
 export interface CoffeeShowcaseContent {
-  mainHeadingLine1: string
-  highlightedWord: string
-  mainHeadingLine2: string
+  sectionHeading: string
+  coffeeIconUrl?: string | null
   descriptionText: string
   buttonText: string
   buttonLink: string

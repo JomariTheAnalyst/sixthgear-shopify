@@ -2,27 +2,30 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'clientTestimonials',
-  title: 'Client Testimonials',
+  title: 'Homepage Client Testimonials',
   type: 'object',
   fields: [
     defineField({
       name: 'sectionTitle',
-      title: 'Section Title',
+      title: 'Main heading',
       type: 'string',
-      description: 'Main heading. Default: What Clients Say',
+      description:
+        'The large title shown at the top of this section. Example: What Clients Say',
     }),
     defineField({
       name: 'sectionDescription',
-      title: 'Section Description',
+      title: 'Small heading under the title',
       type: 'string',
-      description: 'Subtitle below heading. Default: Trusted Motorcycle Service, Gear & Rider Experience',
+      description:
+        'A short supporting line shown below the main heading. Keep this short and easy to read.',
     }),
     defineField({
       name: 'testimonials',
-      title: 'Testimonials',
+      title: 'Review cards',
       type: 'array',
       of: [{ type: 'testimonialItem' }],
-      description: 'Customer reviews to display in the carousel. Leave empty to show the 10 hardcoded default testimonials. No maximum limit.',
+      description:
+        'Add the customer reviews shown in the slider here. You can drag items to change their order. If left empty, the website will use its built-in default reviews.',
     }),
   ],
 })

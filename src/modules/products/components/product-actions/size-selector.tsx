@@ -26,12 +26,17 @@ export default function SizeSelector({
 
   return (
     <div className="flex flex-col gap-y-3">
-      <span className="text-sm font-semibold text-gray-900">
-        {option.title}{" "}
-        {current && (
-          <span className="font-normal text-gray-500">{current}</span>
-        )}
-      </span>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-900">
+          Select {option.title}{" "}
+          {current && (
+            <span className="font-normal text-gray-500">{current}</span>
+          )}
+        </span>
+        <button className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+          Size Guide
+        </button>
+      </div>
       <div
         className="flex flex-wrap gap-2"
         role="radiogroup"

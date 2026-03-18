@@ -2,40 +2,47 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'serviceItem',
-  title: 'Service Item',
+  title: 'Service Card',
   type: 'object',
   fields: [
     defineField({
       name: 'title',
-      title: 'Title',
+      title: 'Service title',
       type: 'string',
+      description:
+        'The name shown on the service card. Keep it short enough to fit on two lines.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'Extra notes about this service',
       type: 'text',
       rows: 4,
-      validation: (Rule) => Rule.required(),
+      description:
+        'This is not shown on the current homepage card design. You can use it as internal notes or future supporting copy if needed.',
     }),
     defineField({
       name: 'image',
-      title: 'Image',
+      title: 'Service photo',
       type: 'image',
       options: { hotspot: true },
+      description:
+        'Main image shown on the service card. Use a clear service-related photo that looks good in a tall card layout.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Service page name',
       type: 'string',
-      description: 'Used for links like /services/your-slug when no custom link is provided.',
+      description:
+        'Used to build the service page link automatically. Example: preventive-maintenance. Use lowercase letters and hyphens only.',
     }),
     defineField({
       name: 'link',
-      title: 'Link',
+      title: 'Custom button link',
       type: 'string',
-      description: 'Optional explicit link. If empty, the frontend falls back to the slug-based service URL.',
+      description:
+        'Optional. Add a full destination here if you want the Learn More button to go somewhere specific. If left empty, the website will automatically use the Service page name above.',
     }),
   ],
 })

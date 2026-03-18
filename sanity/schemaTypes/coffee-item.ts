@@ -2,32 +2,49 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'coffeeItem',
-  title: 'Coffee Item',
+  title: 'Gallery Photo',
   type: 'object',
   fields: [
     defineField({
       name: 'name',
-      title: 'Drink Name',
+      title: 'Old drink name field',
       type: 'string',
-      description: 'Name of the coffee drink shown on the card',
-      validation: (Rule) => Rule.required(),
+      description: 'This old field is no longer used on the website.',
+      readOnly: true,
+      hidden: true,
+      deprecated: {
+        reason: 'This field is no longer used. The section now works as an image gallery.',
+      },
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'Old drink description field',
       type: 'text',
       rows: 2,
-      description: 'Short description shown below the drink name. Keep it under 100 characters.',
-      validation: (Rule) => Rule.required(),
+      description: 'This old field is no longer used on the website.',
+      readOnly: true,
+      hidden: true,
+      deprecated: {
+        reason: 'This field is no longer used. The section now works as an image gallery.',
+      },
     }),
     defineField({
       name: 'image',
-      title: 'Drink Image',
+      title: 'Photo',
       type: 'image',
-      description: 'Photo of the drink. Use a portrait ratio image — 2:3 works best to match the card design.',
+      description:
+        'Upload one image for the coffee gallery slider. Landscape or square images work best for this section.',
       options: {
         hotspot: true,
       },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'imageAlt',
+      title: 'Image description',
+      type: 'string',
+      description:
+        'Short description of the photo for accessibility. Example: Close-up of roasted coffee beans',
     }),
   ],
 })

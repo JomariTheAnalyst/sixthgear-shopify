@@ -5,6 +5,7 @@ import {
   getColorHexForValue,
   isOptionValueAvailable,
 } from "@lib/util/variant-helpers"
+import Image from "next/image"
 
 type ColorSwatchProps = {
   option: HttpTypes.StoreProductOption
@@ -54,6 +55,12 @@ export default function ColorSwatch({
           // Determine if color is light (for border/check visibility)
           const isLightColor = colorHex ? isLightHex(colorHex) : false
 
+          // Find if there's a variant matching this option value with an image assigned
+          const variantImage = variants?.find((v) => {
+            const opt = v.options?.find((o: any) => o.option_id === option.id)
+            return opt?.value === colorValue && (v.image as any)?.url
+          })?.image as any
+
           return (
             <button
               key={colorValue}
@@ -61,7 +68,7 @@ export default function ColorSwatch({
               onClick={() => updateOption(option.id, colorValue)}
               disabled={disabled}
               className={`
-                relative w-10 h-10 rounded-full transition-all duration-200
+                relative w-12 h-12 rounded-lg transition-all duration-200
                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
                 ${isSelected ? "ring-2 ring-offset-2 ring-gray-900" : ""}
                 ${
@@ -72,7 +79,7 @@ export default function ColorSwatch({
                 ${disabled ? "cursor-not-allowed" : ""}
               `}
               style={{
-                backgroundColor: colorHex || "#E5E7EB",
+                backgroundColor: variantImage ? "#F3F4F6" : (colorHex || "#E5E7EB"),
               }}
               aria-label={`${colorValue}${
                 !isAvailable ? " (unavailable)" : ""
@@ -82,38 +89,26 @@ export default function ColorSwatch({
               title={colorValue}
               data-testid="color-swatch-button"
             >
-              {/* Border for light colors */}
-              {(isLightColor || !colorHex) && (
+              {/* Product Image Thumbnail */}
+              {variantImage && (
+                <Image
+                  src={variantImage.url}
+                  alt={variantImage.altText || colorValue}
+                  fill
+                  sizes="48px"
+                  className="object-contain rounded-lg p-1"
+                />
+              )}
+
+              {/* Border for light colors without images */}
+              {!variantImage && (isLightColor || !colorHex) && (
                 <span
-                  className="absolute inset-0 rounded-full border border-gray-300"
+                  className="absolute inset-0 rounded-lg border border-gray-300"
                   aria-hidden="true"
                 />
               )}
 
-              {/* Selected checkmark */}
-              {isSelected && (
-                <span
-                  className={`
-                    absolute inset-0 flex items-center justify-center
-                    ${isLightColor ? "text-gray-900" : "text-white"}
-                  `}
-                  aria-hidden="true"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </span>
-              )}
+
 
               {/* Unavailable strike-through */}
               {!isAvailable && (
@@ -133,15 +128,6 @@ export default function ColorSwatch({
           )
         })}
       </div>
-
-      {/* Fallback: Show color name if no hex available */}
-      {colorValues.some(
-        (v) => !getColorHexForValue(variants, option.id, v)
-      ) && (
-        <p className="text-xs text-gray-500">
-          Tip: Add color_hex to variant metadata for accurate swatches
-        </p>
-      )}
     </div>
   )
 }

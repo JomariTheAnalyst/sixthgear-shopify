@@ -214,9 +214,8 @@ export default async function PreviewPage(props: {
 
         {/* Coffee Showcase */}
         <CoffeeShowcase
-          mainHeadingLine1={coffeeContent.mainHeadingLine1}
-          highlightedWord={coffeeContent.highlightedWord}
-          mainHeadingLine2={coffeeContent.mainHeadingLine2}
+          sectionHeading={coffeeContent.sectionHeading}
+          coffeeIconUrl={coffeeContent.coffeeIconUrl}
           descriptionText={coffeeContent.descriptionText}
           buttonText={coffeeContent.buttonText}
           buttonLink={coffeeContent.buttonLink}

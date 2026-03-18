@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { getProduct } from "@lib/shopify"
+import { invalidatePattern } from "@lib/cache/redis"
 import { getRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product-detail"
@@ -43,11 +44,16 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
+  // Bust stale cache so updated metafield query runs
+  await invalidatePattern("product")
   const shopifyProduct = await getProduct(params.handle)
 
   if (!shopifyProduct) {
     notFound()
   }
+
+  // DEBUG: log raw metafields from Shopify to terminal
+  console.log("[PDP DEBUG] metafields for", params.handle, ":", JSON.stringify(shopifyProduct.metafields, null, 2))
 
   // Map Shopify product to the Medusa HttpTypes.StoreProduct format expected by the template
   const mappedProduct = {
@@ -95,13 +101,19 @@ export default async function ProductPage(props: Props) {
           calculated_amount: v.price ? parseFloat(v.price.amount) : null,
           original_amount: v.compareAtPrice ? parseFloat(v.compareAtPrice.amount) : null,
           currency_code: v.price?.currencyCode || "php"
-        }
+        },
+        image: v.image ? { url: v.image.url, altText: v.image.altText || "" } : null,
       }
     }),
     metadata: shopifyProduct.metafields?.reduce((acc: any, field: any) => {
       acc[field.key] = field.value;
       return acc;
-    }, {}) || {}
+    }, {}) || {},
+    // Pass raw Shopify fields for Specifications tab
+    shopifyMetafields: (shopifyProduct.metafields || []).filter(Boolean),
+    vendor: shopifyProduct.vendor,
+    productType: shopifyProduct.productType,
+    tags: shopifyProduct.tags,
   } as any;
 
   // Emulate getImagesForVariant functionality
