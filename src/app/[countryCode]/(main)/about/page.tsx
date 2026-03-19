@@ -1,18 +1,11 @@
 import { Metadata } from "next"
-import { draftMode } from "next/headers"
 import AboutTemplate from "@modules/about/templates"
-import { fetchAboutPageContent } from "@lib/strapi/about-page"
 import {
-  getHeroWithFallbacks,
-  getIntroWithFallbacks,
-  getWhatWeOfferWithFallbacks,
-  getCeoQuoteWithFallbacks,
-} from "@lib/strapi/about-page-with-fallbacks"
-
-// Dynamic revalidation - DISABLED for debugging
-// Set to 0 to always fetch fresh data
-export const revalidate = 0
-export const dynamic = "force-dynamic"
+  FALLBACK_ABOUT_HERO,
+  FALLBACK_ABOUT_MISSION,
+} from "@modules/about/constants"
+import { getAboutPage } from "@lib/cms/client"
+import { AboutStoryItem } from "@modules/about/types"
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -21,55 +14,34 @@ export const metadata: Metadata = {
 }
 
 export default async function AboutPage() {
-  // Check if draft mode is enabled
-  const draft = await draftMode()
-  const isDraftMode = draft.isEnabled
+  const aboutPage = await getAboutPage()
 
-  console.log("[AboutPage] ========================================")
-  console.log("[AboutPage] Draft mode:", isDraftMode ? "ENABLED" : "DISABLED")
-  console.log("[AboutPage] Timestamp:", new Date().toISOString())
-
-  // Disable caching in draft mode
-  if (isDraftMode) {
-    console.log("[AboutPage] Disabling cache for draft mode")
+  const heroContent = {
+    title: aboutPage?.hero?.title?.trim() || FALLBACK_ABOUT_HERO.title,
+    subtitle:
+      aboutPage?.hero?.description?.trim() || FALLBACK_ABOUT_HERO.subtitle,
+    backgroundImage:
+      aboutPage?.hero?.backgroundImageUrl || FALLBACK_ABOUT_HERO.backgroundImage,
   }
 
-  // Fetch About page content from Strapi CMS with field-level fallbacks
-  // Draft mode is automatically handled by fetchStrapi client
-  const aboutContent = await fetchAboutPageContent()
-
-  console.log("[AboutPage] Fetch result:", {
-    hasContent: !!aboutContent,
-    hasData: !!aboutContent?.data,
-    hasBlocks: !!aboutContent?.data?.blocks,
-    blocksCount: aboutContent?.data?.blocks?.length || 0,
-  })
-
-  const heroContent = await getHeroWithFallbacks(aboutContent)
-  const introContent = await getIntroWithFallbacks(aboutContent)
-  const whatWeOfferContent = await getWhatWeOfferWithFallbacks(aboutContent)
-  const ceoQuoteContent = await getCeoQuoteWithFallbacks(aboutContent)
-
-  // Debug logging
-  console.log("[AboutPage] Hero content:", {
-    title: heroContent.title,
-    subtitle: heroContent.subtitle,
-    hasImage: !!heroContent.backgroundImage,
-  })
-  console.log("[AboutPage] Intro content:", introContent ? "Present" : "null")
-  console.log(
-    "[AboutPage] What We Offer:",
-    whatWeOfferContent ? `${whatWeOfferContent.cards.length} cards` : "null"
-  )
-  console.log("[AboutPage] CEO Quote:", ceoQuoteContent ? "Present" : "null")
-  console.log("[AboutPage] ========================================")
+  const storyItems: AboutStoryItem[] | null =
+    aboutPage?.story && aboutPage.story.length > 0
+      ? aboutPage.story.map((item, index) => ({
+          id: item._key || `${index}-${item.heading || "story"}`,
+          heading: item.heading || "",
+          body: item.body || "",
+          image: {
+            src: item.imageUrl || "",
+            alt: item.imageAlt || "",
+          },
+        }))
+      : null
 
   return (
     <AboutTemplate
       heroContent={heroContent}
-      introContent={introContent}
-      whatWeOfferContent={whatWeOfferContent}
-      ceoQuoteContent={ceoQuoteContent}
+      storyItems={storyItems}
+      ceoQuoteContent={FALLBACK_ABOUT_MISSION}
     />
   )
 }

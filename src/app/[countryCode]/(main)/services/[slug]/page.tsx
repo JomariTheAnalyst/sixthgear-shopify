@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { getAllServicesCMS } from "@lib/cms/client"
 import { getService, getAllServiceSlugs } from "@lib/strapi/services"
 import { getServiceDetailData } from "@lib/data/service-detail"
 import ServiceDetailTemplate from "@modules/services/templates/service-detail"
@@ -14,6 +15,32 @@ interface ServicePageProps {
 // Use dynamic rendering with ISR for CMS-driven content
 // This prevents build failures when new services are added to Strapi
 export const dynamic = "force-dynamic"
+
+export async function generateStaticParams() {
+  try {
+    const [cmsServices, localSlugs] = await Promise.all([
+      getAllServicesCMS(),
+      getAllServiceSlugs(),
+    ])
+
+    const cmsSlugs = cmsServices
+      .map((service) => service.slug)
+      .filter((slug): slug is string => Boolean(slug))
+
+    const uniqueSlugs = Array.from(new Set([...localSlugs, ...cmsSlugs]))
+    const countryCodes = ["ph", "us", "sg", "my"]
+
+    return countryCodes.flatMap((countryCode) =>
+      uniqueSlugs.map((slug) => ({
+        countryCode,
+        slug,
+      }))
+    )
+  } catch (error) {
+    console.error("[Services] Error generating static params:", error)
+    return []
+  }
+}
 
 // OPTIONAL: If you want static generation, uncomment this and comment out dynamic/revalidate above
 // But this requires all slugs to exist at build time

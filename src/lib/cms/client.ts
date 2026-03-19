@@ -1,9 +1,10 @@
 import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId } from '../../../sanity/env'
-import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery } from './queries'
+import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery, servicesPageQuery, allServicesQuery, serviceBySlugQuery, aboutPageQuery } from './queries'
 import type {
   SanityAboutSection,
+  SanityAboutPage,
   SanityCategoriesSection,
   SanityCoffeeShowcase,
   SanityCollectionHero,
@@ -19,6 +20,8 @@ import type {
   SanityStoreLocation,
   SanityCtaBanner,
   SanityMarketingData,
+  SanityService,
+  SanityServicesPage,
 } from './types'
 
 export const client = createClient({
@@ -441,5 +444,85 @@ export async function getMarketingData(): Promise<SanityMarketingData> {
       featuredCollections: [],
       promoBanners: [],
     }
+  }
+}
+
+export async function getServicesPage(): Promise<SanityServicesPage | null> {
+  try {
+    const result = await client.fetch<SanityServicesPage | null>(
+      servicesPageQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return result ?? null
+  } catch (error) {
+    console.error('[Sanity] getServicesPage failed:', error)
+    return null
+  }
+}
+
+export async function getAboutPage(): Promise<SanityAboutPage | null> {
+  try {
+    const result = await client.fetch<SanityAboutPage | null>(
+      aboutPageQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return result ?? null
+  } catch (error) {
+    console.error('[Sanity] getAboutPage failed:', error)
+    return null
+  }
+}
+
+export async function getAllServicesCMS(): Promise<SanityService[]> {
+  try {
+    const result = await client.fetch<SanityService[] | null>(
+      allServicesQuery,
+      {},
+      {
+        next: {
+          revalidate: 300,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error('[Sanity] getAllServicesCMS failed:', error)
+    return []
+  }
+}
+
+export async function getServiceBySlug(slug: string): Promise<SanityService | null> {
+  try {
+    const result = await client.fetch<SanityService | null>(
+      serviceBySlugQuery,
+      { slug },
+      {
+        next: {
+          revalidate: 300,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return result ?? null
+  } catch (error) {
+    console.error('[Sanity] getServiceBySlug failed:', error)
+    return null
   }
 }

@@ -1,19 +1,17 @@
 "use client"
 
-/**
- * About Services Section
- * What We Offer - True Bento Grid Layout
- */
-
+import React, { useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { inter, montserrat } from "@lib/fonts"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface ServiceCard {
   id: number
   title: string
-  description: string
   backgroundImage: string | null
-  linkUrl?: string
+  linkUrl: string
+  buttonText: string
 }
 
 interface AboutServicesProps {
@@ -26,38 +24,34 @@ const defaultServices: ServiceCard[] = [
   {
     id: 1,
     title: "Motorcycle Service & Diagnostics",
-    description:
-      "PMS, repairs, detailing, and performance upgrades for big bikes and premium motorcycles.",
     backgroundImage:
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
     linkUrl: "/services",
+    buttonText: "DISCOVER",
   },
   {
     id: 2,
     title: "Parts, Accessories & Luggage",
-    description:
-      "Helmets, riding gear, bags, communications, parts, and accessories from trusted brands.",
     backgroundImage:
       "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80",
     linkUrl: "/store",
+    buttonText: "SHOP",
   },
   {
     id: 3,
     title: "Rider Apparel & Gear",
-    description:
-      "Protective riding gear and lifestyle apparel designed for comfort, safety, and style.",
     backgroundImage:
       "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80",
     linkUrl: "/store",
+    buttonText: "SHOP",
   },
   {
     id: 4,
     title: "Café & Rider Lounge",
-    description:
-      "Relax, connect, and refuel with First Gear Coffee in a space built for riders.",
     backgroundImage:
       "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
-    linkUrl: "/menu",
+    linkUrl: "/first-gear",
+    buttonText: "DISCOVER",
   },
 ]
 
@@ -66,96 +60,71 @@ export default function AboutServices({
   heading = "Complete Care for\nYour Ride",
   cards = defaultServices,
 }: AboutServicesProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  
   // Split heading by newline
   const headingParts = heading.split("\n")
 
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current
+      const offset = direction === "left" ? -clientWidth / 2 : clientWidth / 2
+      scrollRef.current.scrollBy({ left: offset, behavior: "smooth" })
+    }
+  }
+
   // Render a single card
-  const renderCard = (
-    service: ServiceCard,
-    className: string,
-    isLarge: boolean = false
-  ) => {
-    const CardContent = (
-      <>
+  const renderCard = (service: ServiceCard) => {
+    return (
+      <Link
+        key={service.id}
+        href={service.linkUrl || "#"}
+        className="group relative flex-none w-[85vw] sm:w-[400px] lg:w-[450px] xl:w-[480px] min-h-[500px] lg:min-h-[650px] snap-center overflow-hidden bg-black"
+      >
         <Image
           src={service.backgroundImage || "/images/placeholder.jpg"}
           alt={service.title}
           fill
+          quality={90}
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        {/* Darkening gradient to make text readable */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
 
-        {/* Content */}
-        <div
-          className={`absolute bottom-0 left-0 right-0 ${
-            isLarge ? "p-6" : "p-5"
-          }`}
-        >
+        {/* Content Centered at Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col items-center text-center">
           <h3
-            className={`${
-              isLarge ? "text-xl md:text-2xl" : "text-lg md:text-xl"
-            } text-white uppercase leading-tight ${isLarge ? "mb-2" : "mb-1"}`}
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`text-2xl md:text-3xl text-white font-black uppercase leading-tight mb-6 tracking-wide ${montserrat.className}`}
           >
             {service.title}
           </h3>
-          <p
-            className={`text-gray-${isLarge ? "300" : "400"} ${
-              isLarge ? "text-sm" : "text-xs md:text-sm"
-            } leading-relaxed ${isLarge ? "" : "line-clamp-2"} ${
-              isLarge ? "max-w-md" : ""
-            }`}
-            style={{ fontFamily: "Inter Display, sans-serif" }}
+          <button
+            className={`bg-white text-black text-xs md:text-sm font-bold uppercase tracking-[0.2em] px-8 py-3 w-fit hover:bg-gray-100 transition-colors ${inter.className}`}
           >
-            {service.description}
-          </p>
+            {service.buttonText}
+          </button>
         </div>
-      </>
-    )
-
-    // If linkUrl is provided and not empty, make it clickable
-    if (service.linkUrl && service.linkUrl.trim() !== "") {
-      return (
-        <Link
-          key={service.id}
-          href={service.linkUrl}
-          className={`group relative ${className} rounded-2xl overflow-hidden cursor-pointer`}
-        >
-          {CardContent}
-        </Link>
-      )
-    }
-
-    // Otherwise, render as a div
-    return (
-      <div
-        key={service.id}
-        className={`group relative ${className} rounded-2xl overflow-hidden`}
-      >
-        {CardContent}
-      </div>
+      </Link>
     )
   }
 
   return (
     <section className="bg-[#1a1a1a] py-20 md:py-28 lg:py-36 relative overflow-hidden">
       {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-16 relative z-10 w-full">
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
           <span
-            className="text-[#F16D34] text-sm md:text-base font-semibold uppercase tracking-widest"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
+            className={`text-[#F16D34] text-sm md:text-base font-semibold uppercase tracking-widest ${inter.className}`}
           >
             {sectionName}
           </span>
 
           <h2
-            className="text-4xl md:text-5xl lg:text-6xl text-white uppercase leading-[1.1] mt-4"
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`text-4xl md:text-5xl lg:text-6xl text-white font-bold uppercase leading-[1.1] mt-4 ${montserrat.className}`}
           >
             {headingParts.map((part, index) => (
               <span key={index}>
@@ -172,27 +141,30 @@ export default function AboutServices({
           </h2>
         </div>
 
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-          {/* Row 1 */}
-          {/* Service 1 - Large Left (spans 1 col, 2 rows) */}
-          {cards[0] &&
-            renderCard(
-              cards[0],
-              "md:row-span-2 min-h-[300px] md:min-h-[500px]",
-              true
-            )}
+        {/* Carousel Container */}
+        <div 
+          ref={scrollRef}
+          className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-8 scrollbar-hide"
+        >
+          {cards.map((card) => renderCard(card))}
+        </div>
 
-          {/* Service 2 - Top Right */}
-          {cards[1] && renderCard(cards[1], "min-h-[240px]")}
-
-          {/* Service 3 - Top Far Right */}
-          {cards[2] && renderCard(cards[2], "min-h-[240px]")}
-
-          {/* Row 2 */}
-          {/* Service 4 - Bottom Right (spans 2 cols) */}
-          {cards[3] &&
-            renderCard(cards[3], "md:col-span-2 min-h-[240px]", true)}
+        {/* Navigation Buttons (Centered at Bottom) */}
+        <div className="flex justify-center gap-6 mt-12">
+          <button 
+            onClick={() => scroll("left")}
+            className="p-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all"
+            aria-label="Previous"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button 
+            onClick={() => scroll("right")}
+            className="p-4 border border-white/20 text-white hover:bg-white hover:text-black transition-all"
+            aria-label="Next"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
       </div>
     </section>

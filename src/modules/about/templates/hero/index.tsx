@@ -10,11 +10,9 @@ import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 interface AboutHeroProps {
-  badgeText: string
   title: string
   subtitle: string
   backgroundImage: string | null
-  overlayStrength: number
 }
 
 export default function AboutHero({

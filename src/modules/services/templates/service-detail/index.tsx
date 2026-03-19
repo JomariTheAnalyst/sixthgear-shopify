@@ -6,7 +6,7 @@
  */
 
 import { ServiceCategory } from "@lib/services-data"
-import ServiceHero from "../service-hero"
+import ServiceHero from "@modules/services/components/service-hero"
 import ServiceItems from "../service-items"
 import CTABanner from "@modules/home/components/cta-banner"
 import OtherServices from "../other-services"

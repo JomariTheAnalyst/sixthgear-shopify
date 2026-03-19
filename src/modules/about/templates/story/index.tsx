@@ -2,160 +2,102 @@
 
 /**
  * About Story Section
- * Main narrative about Sixthgear
+ * Main narrative about Sixthgear with alternating image/text rows
  */
 
 import React from "react"
 import Image from "next/image"
-import BlocksRenderer from "@lib/strapi/blocks-renderer"
+import { inter, montserrat } from "@lib/fonts"
+import { AboutStoryItem } from "@modules/about/types"
 
-interface AboutStoryProps {
-  image?: string
-  badgeText?: string
-  badgePosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
-  heading?: string
-  highlightedText?: string
-  bodyText?: any[]
+const FALLBACK_ABOUT_STORY: AboutStoryItem[] = [
+  {
+    id: 1,
+    heading: "At Our Core, We Are Riders",
+    body: "When we built Sixth Gear, we didn't just want to open another shop. We wanted a place we'd actually want to hang out in ourselves. A true hub where serious riders could get professional, no-compromise servicing for their big bikes—whether it's routine PMS, tough repairs, or dialing in that perfect performance upgrade. We treat every machine rolling into our bays with the exact same precision and respect we give our own bikes.",
+    image: {
+      src: "/images/sixthgear-workshop.jpg",
+      alt: "Sixthgear Workshop"
+    }
+  },
+  {
+    id: 2,
+    heading: "No Shortcuts On Quality",
+    body: "Riding isn't just transport; it's a lifestyle. That's why we stock only the gear, parts, and accessories that we personally trust and use on the open road. If we won't bet our own safety on a helmet or throw a specific brand of luggage on our own touring rigs, you won't find it on our shelves. We're committed to bringing you the absolute highest standard of rider apparel because we know exactly what is at stake when you twist the throttle.",
+    image: {
+      src: "/images/firstgear.jpg",
+      alt: "Quality riding gear and accessories"
+    }
+  },
+  {
+    id: 3,
+    heading: "Fueling The Community",
+    body: "A great ride always starts or ends with great coffee. That's the reason we integrated First Gear Coffee right into our space. It's more than just an espresso machine in a waiting area—it's a sanctuary for the riding community. We organize events, foster real friendships, and provide a place where you can grab a solid cup of coffee, talk shop, and swap stories with people who share the exact same passion for two wheels.",
+    image: {
+      src: "/images/sixthgear-image1.jpg",
+      alt: "First Gear Coffee and Rider Lounge"
+    }
+  }
+]
+
+export interface AboutStoryProps {
+  items?: AboutStoryItem[] | null
 }
 
-export default function AboutStory({
-  image = "/images/sixthgear-workshop.jpg",
-  badgeText = "100%\nRider Focused",
-  badgePosition = "bottom-right",
-  heading = "More Than a Shop,\nA Rider's Space",
-  highlightedText = "A Rider's Space",
-  bodyText,
-}: AboutStoryProps) {
-  // Map badge position to CSS classes
-  const badgePositionClasses = {
-    "top-left": "-top-6 -left-6 md:top-8 md:-left-8",
-    "top-right": "-top-6 -right-6 md:top-8 md:-right-8",
-    "bottom-left": "-bottom-6 -left-6 md:bottom-8 md:-left-8",
-    "bottom-right": "-bottom-6 -right-6 md:bottom-8 md:-right-8",
-  }
-
-  // Split badge text by newline for multi-line display
-  const badgeLines = badgeText.split("\n")
-
-  // Split heading to find highlighted text
-  const headingParts = heading.split("\n")
+export default function AboutStory({ items }: AboutStoryProps) {
+  const displayItems =
+    items && items.length > 0 ? items : FALLBACK_ABOUT_STORY
 
   return (
-    <section className="bg-[#FAFAFA] py-20 md:py-28 lg:py-36">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Left - Image */}
-          <div className="relative">
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
+    <section className="bg-[#FAFAFA] w-full flex flex-col">
+      {displayItems.map((item, index) => {
+        // Alternating layout: index 0 -> image left, index 1 -> image right
+        const isImageLeft = index % 2 === 0
+
+        return (
+          <div 
+            key={item.id}
+            className="flex flex-col md:flex-row w-full"
+          >
+            {/* Image Column */}
+            <div 
+              className={`relative w-full md:w-1/2 min-h-[500px] md:min-h-[700px] lg:min-h-[800px] xl:min-h-[900px] overflow-hidden ${
+                isImageLeft ? "md:order-1" : "md:order-2"
+              } order-1`}
+            >
               <Image
-                src={image}
-                alt="Sixthgear Workshop"
+                src={item.image.src}
+                alt={item.image.alt}
                 fill
-                className="object-cover"
+                quality={100}
+                className="object-cover transition-transform duration-700 hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
-            {/* Floating Badge - Only render if badgeText is not empty */}
-            {badgeText && badgeText.trim() !== "" && (
-              <div
-                className={`absolute ${badgePositionClasses[badgePosition]} bg-[#F16D34] text-white px-6 py-4 rounded-2xl shadow-xl`}
-              >
-                {badgeLines.map((line, index) => (
-                  <p
-                    key={index}
-                    className={
-                      index === 0
-                        ? "text-3xl md:text-4xl font-bold"
-                        : "text-sm text-white/80"
-                    }
-                    style={{
-                      fontFamily:
-                        index === 0
-                          ? "Tanker, sans-serif"
-                          : "Inter Display, sans-serif",
-                    }}
-                  >
-                    {line}
-                  </p>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* Right - Content */}
-          <div>
-            <h2
-              className="text-3xl md:text-4xl lg:text-5xl text-[#1a1a1a] uppercase leading-[1.1] mt-4 mb-8"
-              style={{ fontFamily: "Tanker, sans-serif" }}
+            {/* Text Column */}
+            <div 
+              className={`w-full md:w-1/2 flex flex-col justify-center px-8 py-16 md:px-16 lg:px-24 xl:px-32 bg-[#FAFAFA] ${
+                isImageLeft ? "md:order-2" : "md:order-1"
+              } order-2`}
             >
-              {headingParts.map((part, index) => {
-                // Check if this part contains the highlighted text
-                const isHighlighted =
-                  highlightedText && part.includes(highlightedText)
-
-                if (isHighlighted) {
-                  // Split by highlighted text and wrap it
-                  const parts = part.split(highlightedText)
-                  return (
-                    <React.Fragment key={index}>
-                      {parts[0]}
-                      <span className="text-[#F16D34]">{highlightedText}</span>
-                      {parts[1]}
-                      {index < headingParts.length - 1 && <br />}
-                    </React.Fragment>
-                  )
-                }
-
-                return (
-                  <React.Fragment key={index}>
-                    {part}
-                    {index < headingParts.length - 1 && <br />}
-                  </React.Fragment>
-                )
-              })}
-            </h2>
-
-            {/* Body Text - Use BlocksRenderer if available, otherwise fallback */}
-            {bodyText && bodyText.length > 0 ? (
-              <BlocksRenderer
-                content={bodyText}
-                className="space-y-6 text-[#4a4a4a] text-base md:text-lg text-justify leading-relaxed"
-              />
-            ) : (
-              <div
-                className="space-y-6 text-[#4a4a4a] text-base md:text-lg text-justify leading-relaxed"
-                style={{ fontFamily: "Inter Display, sans-serif" }}
+              {/* Heading */}
+              <h2
+                className={`text-4xl md:text-5xl lg:text-6xl font-black text-[#1a1a1a] mb-8 uppercase leading-tight ${montserrat.className}`}
               >
-                <p>
-                  <strong className="text-[#1a1a1a]">
-                    Sixth Gear Moto Supply Café + Lounge
-                  </strong>{" "}
-                  is built by riders, for riders. We are a premium motorcycle
-                  service hub that combines professional workshop expertise with
-                  a relaxed café and lounge experience, powered by First Gear
-                  Coffee.
-                </p>
+                {item.heading}
+              </h2>
 
-                <p>
-                  From routine PMS to advanced diagnostics, repairs, and
-                  performance upgrades, our workshop is equipped to handle big
-                  bikes and premium motorcycles with precision, care, and
-                  attention to detail. We believe proper maintenance is not just
-                  about fixing issues, but about ensuring safety, reliability,
-                  and riding confidence.
-                </p>
-
-                <p>
-                  Beyond servicing, Sixth Gear offers a curated selection of
-                  quality motorcycle accessories, riding gear, helmets, and
-                  performance parts. We also provide professional bike wash,
-                  detailing, and cosmetic restoration to keep your motorcycle
-                  looking and performing at its best.
-                </p>
-              </div>
-            )}
+              {/* Body Paragraph */}
+              <p
+                className={`text-base md:text-lg text-gray-600 leading-relaxed md:leading-[1.8] text-justify ${inter.className}`}
+              >
+                {item.body}
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
+        )
+      })}
     </section>
   )
 }

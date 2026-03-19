@@ -9,53 +9,40 @@ import AboutHero from "./hero"
 import AboutStory from "./story"
 import AboutServices from "./services"
 import AboutMission from "./mission"
+import OurValues from "@modules/about/components/our-values"
+import WhyChooseUs from "@modules/about/components/why-choose-us"
 import CTABanner from "@modules/home/components/cta-banner"
 import {
-  HeroSectionContent,
-  IntroSectionContent,
-  WhatWeOfferContent,
-  CeoQuoteContent,
-} from "@lib/strapi/about-page"
+  AboutHeroContent,
+  AboutMissionContent,
+  AboutStoryItem,
+} from "@modules/about/types"
 
 interface AboutTemplateProps {
-  heroContent: HeroSectionContent
-  introContent: IntroSectionContent | null
-  whatWeOfferContent: WhatWeOfferContent | null
-  ceoQuoteContent: CeoQuoteContent | null
+  heroContent: AboutHeroContent
+  storyItems?: AboutStoryItem[] | null
+  ceoQuoteContent: AboutMissionContent | null
 }
 
 export default function AboutTemplate({
   heroContent,
-  introContent,
-  whatWeOfferContent,
+  storyItems,
   ceoQuoteContent,
 }: AboutTemplateProps) {
   return (
     <>
       <AboutHero
-        badgeText={heroContent.badgeText}
         title={heroContent.title}
         subtitle={heroContent.subtitle}
         backgroundImage={heroContent.backgroundImage}
-        overlayStrength={heroContent.overlayStrength}
       />
-      {introContent && (
-        <AboutStory
-          image={introContent.image ?? undefined}
-          badgeText={introContent.badgeText}
-          badgePosition={introContent.badgePosition}
-          heading={introContent.heading}
-          highlightedText={introContent.highlightedText}
-          bodyText={introContent.bodyText}
-        />
-      )}
-      {whatWeOfferContent && (
-        <AboutServices
-          sectionName={whatWeOfferContent.sectionName}
-          heading={whatWeOfferContent.heading}
-          cards={whatWeOfferContent.cards}
-        />
-      )}
+      <div className="h-20 sm:h-28 md:h-36 lg:h-48 bg-white" />
+      <AboutStory items={storyItems} />
+      <div className="h-16 md:h-24 lg:h-32 bg-[#FAFAFA]" />
+      <AboutServices />
+      <div className="h-12 md:h-20 bg-white" />
+      <OurValues />
+      <WhyChooseUs />
       {ceoQuoteContent && (
         <AboutMission
           quoteText={ceoQuoteContent.quoteText}

@@ -99,6 +99,87 @@ export interface SanityServicesSection {
   services?: SanityServiceItem[] | null
 }
 
+export interface SanityServicesHero {
+  title?: string | null
+  shortTitle?: string | null
+  description?: string | null
+  heroImageUrl?: string | null
+  imageUrl?: string | null
+}
+
+export interface SanityServicesExpertiseStat {
+  number?: string | null
+  label?: string | null
+}
+
+export interface SanityServicesExpertiseStats {
+  sectionHeading?: string | null
+  sectionDescription?: string | null
+  buttonText?: string | null
+  buttonLink?: string | null
+  stats?: SanityServicesExpertiseStat[] | null
+}
+
+export interface SanityServicesBrandItem {
+  name?: string | null
+  logoUrl?: string | null
+}
+
+export interface SanityServicesBrandsWeService {
+  sectionHeading?: string | null
+  brands?: SanityServicesBrandItem[] | null
+}
+
+export interface SanityServiceFeature {
+  text: string | null
+}
+
+export interface SanityService {
+  _id: string
+  title: string | null
+  slug: string | null
+  icon: string | null
+  shortDescription: string | null
+  fullDescription: string | null
+  heroImageUrl: string | null
+  features: SanityServiceFeature[] | null
+  ctaLabel: string | null
+  ctaLink: string | null
+  displayOrder: number | null
+}
+
+export interface SanityServicesGrid {
+  sectionHeading?: string | null
+  useCustomServices?: boolean | null
+  featuredServices?: SanityService[] | null
+}
+
+export interface SanityServicesPage {
+  hero?: SanityServicesHero | null
+  expertiseStats?: SanityServicesExpertiseStats | null
+  brandsWeService?: SanityServicesBrandsWeService | null
+  servicesGrid?: SanityServicesGrid | null
+}
+
+export interface SanityAboutPageHero {
+  title?: string | null
+  description?: string | null
+  backgroundImageUrl?: string | null
+}
+
+export interface SanityAboutPageStoryItem {
+  _key?: string | null
+  heading?: string | null
+  body?: string | null
+  imageUrl?: string | null
+  imageAlt?: string | null
+}
+
+export interface SanityAboutPage {
+  hero?: SanityAboutPageHero | null
+  story?: SanityAboutPageStoryItem[] | null
+}
+
 export interface SanityCollectionHero {
   handle: string
   heading: string

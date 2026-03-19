@@ -32,6 +32,9 @@ import featuredCollection from './featured-collection'
 import promoBanner from './promo-banner'
 import announcementBar from './announcement-bar'
 import marketing from './marketing'
+import servicesPage from './services-page'
+import aboutPage from './about-page'
+import service from './service'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -66,6 +69,9 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     promoBanner,
     announcementBar,
     marketing,
+    servicesPage,
+    aboutPage,
+    service,
 
     homepage,
   ],

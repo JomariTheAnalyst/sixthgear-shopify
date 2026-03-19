@@ -1,5 +1,33 @@
 import { groq } from 'next-sanity'
 
+export const allServicesQuery = groq`
+  *[_type == "service"] | order(displayOrder asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    icon,
+    shortDescription,
+    displayOrder,
+    "heroImageUrl": heroImage.asset->url
+  }
+`
+
+export const serviceBySlugQuery = groq`
+  *[_type == "service" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    icon,
+    shortDescription,
+    fullDescription,
+    "heroImageUrl": heroImage.asset->url,
+    features[]{text},
+    ctaLabel,
+    ctaLink,
+    displayOrder
+  }
+`
+
 export const homepageQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     hero {
@@ -274,5 +302,64 @@ export const marketingQuery = groq`
       buttonPosition,
       "imageUrl": image.asset->url
     }, [])
+  }
+`
+
+export const servicesPageQuery = groq`
+  *[_type == "servicesPage" && _id == "servicesPage"][0]{
+    hero {
+      title,
+      shortTitle,
+      description,
+      "heroImageUrl": heroImage.asset->url,
+      "imageUrl": image.asset->url
+    },
+    expertiseStats {
+      sectionHeading,
+      sectionDescription,
+      buttonText,
+      buttonLink,
+      stats[] {
+        number,
+        label
+      }
+    },
+    brandsWeService {
+      sectionHeading,
+      brands[] {
+        name,
+        "logoUrl": logo.asset->url
+      }
+    },
+    servicesGrid {
+      sectionHeading,
+      useCustomServices,
+      "featuredServices": featuredServices[]->{
+        _id,
+        title,
+        "slug": slug.current,
+        icon,
+        shortDescription,
+        displayOrder,
+        "heroImageUrl": heroImage.asset->url
+      }
+    }
+  }
+`
+
+export const aboutPageQuery = groq`
+  *[_type == "aboutPage" && _id == "aboutPage"][0]{
+    hero {
+      title,
+      description,
+      "backgroundImageUrl": backgroundImage.asset->url
+    },
+    "story": story[]{
+      _key,
+      heading,
+      body,
+      "imageUrl": image.asset->url,
+      imageAlt
+    }
   }
 `
