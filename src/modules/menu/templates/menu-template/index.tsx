@@ -362,11 +362,6 @@ export default function MenuTemplate({
 }) {
   // Log props on mount for debugging
   useEffect(() => {
-    console.log("==========================================================")
-    console.log("[MenuTemplate] CLIENT-SIDE PROPS RECEIVED:")
-    console.log("[MenuTemplate] heroData:", heroData)
-    console.log("[MenuTemplate] categories count:", categories?.length || 0)
-    console.log("==========================================================")
   }, [heroData, categories])
 
   // Use CMS data if available, otherwise fallback to hardcoded data

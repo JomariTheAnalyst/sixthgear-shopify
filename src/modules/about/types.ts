@@ -14,10 +14,70 @@ export interface AboutStoryItem {
   }
 }
 
+export interface AboutServicesCard {
+  id: string | number
+  title: string
+  backgroundImage: string | null
+  linkUrl: string
+  buttonText: string
+}
+
+export interface AboutServicesContent {
+  sectionName?: string | null
+  heading?: string | null
+  cards?: AboutServicesCard[] | null
+}
+
+export type AboutValueIconKey =
+  | "wrench"
+  | "users"
+  | "shield"
+  | "coffee"
+  | "energy"
+  | "award"
+
+export interface AboutValueCard {
+  id: string | number
+  title: string
+  description: string
+  icon: AboutValueIconKey | string
+}
+
+export interface AboutValuesContent {
+  heading?: string | null
+  description?: string | null
+  cards?: AboutValueCard[] | null
+}
+
+export type AboutWhyChooseUsIconKey = "wrench" | "shield" | "users" | "coffee"
+
+export interface AboutWhyChooseUsItem {
+  id: string | number
+  title: string
+  description: string
+  icon: AboutWhyChooseUsIconKey | string
+}
+
+export interface AboutWhyChooseUsContent {
+  sectionLabel?: string | null
+  heading?: string | null
+  subtitle?: string | null
+  items?: AboutWhyChooseUsItem[] | null
+  topImage?: {
+    src: string | null
+    alt: string
+  } | null
+  bottomImage?: {
+    src: string | null
+    alt: string
+  } | null
+}
+
 export interface AboutMissionContent {
   quoteText: string
   highlightedPhrase: string
   ceoName: string
   ceoTitle: string
-  ceoPhoto: string | null
+  ceoPhoto: string
+  ceoPhotoDescription: string
 }

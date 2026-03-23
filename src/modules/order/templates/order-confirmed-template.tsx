@@ -15,15 +15,6 @@ export default function OrderConfirmedTemplate({
   countryCode,
 }: OrderConfirmedTemplateProps) {
   // Extensive debugging
-  console.log("[Template] Full order object:", order)
-  console.log("[Template] Order items:", order.items)
-  console.log("[Template] Items length:", order.items?.length)
-  console.log("[Template] Shipping total raw:", order.shipping_total)
-  console.log("[Template] Payment collections:", order.payment_collections)
-  console.log(
-    "[Template] Payment provider:",
-    order.payment_collections?.[0]?.payment_sessions?.[0]?.provider_id
-  )
 
   // Helper to extract numeric value from BigNumber or regular number
   const getNumericValue = (value: any): number => {

@@ -1,4 +1,4 @@
-# Enhancement Auth Prompt — Step 1 Audit Findings
+# Enhancement Auth Prompt â€” Step 1 Audit Findings
 
 Below is the complete audit of the requested files and configurations before proceeding with the customer authentication enhancements.
 
@@ -66,9 +66,9 @@ useEffect(() => {
 
 ## 2. Account Invite Email Template (Manual Step Instructions)
 
-**MANUAL STEP — Shopify Admin Email Template**
+**MANUAL STEP â€” Shopify Admin Email Template**
 
-1. Go to **Shopify Admin → Settings → Notifications**
+1. Go to **Shopify Admin â†’ Settings â†’ Notifications**
 2. Scroll to the **Customer notifications** section.
 3. Open the **Customer account invite** (or **Customer account activation**) template and click **Edit code**.
 4. Find the link that generates the activation URL:
@@ -155,7 +155,7 @@ export async function middleware(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname
 
-    // ── MAINTENANCE MODE (Production only) ──────────────────────────────
+    // â”€â”€ MAINTENANCE MODE (Production only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (
       MAINTENANCE_MODE &&
       IS_PRODUCTION &&
@@ -174,7 +174,7 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
-    // ── Skip static assets and API routes ───────────────────────────────
+    // â”€â”€ Skip static assets and API routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (
       pathname.startsWith("/_next/") ||
       pathname.startsWith("/api/") ||
@@ -183,14 +183,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // ── Parse country code ──────────────────────────────────────────────
+    // â”€â”€ Parse country code â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const urlSegments = pathname.split("/").filter(Boolean)
     const potentialCountryCode = urlSegments[0]?.toLowerCase()
     const hasCountryCode =
       potentialCountryCode && potentialCountryCode.length === 2
     const countryCode = hasCountryCode ? potentialCountryCode : DEFAULT_REGION
 
-    // ── Routes without country code — redirect to add it ────────────────
+    // â”€â”€ Routes without country code â€” redirect to add it â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (!hasCountryCode) {
       if (pathname === "/" || pathname === "") {
         return NextResponse.redirect(
@@ -206,7 +206,7 @@ export async function middleware(request: NextRequest) {
       )
     }
 
-    // ── AUTH: Protect /account/* routes ──────────────────────────────────
+    // â”€â”€ AUTH: Protect /account/* routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const pathAfterCountry = "/" + urlSegments.slice(1).join("/")
     const customerToken = request.cookies.get(CUSTOMER_TOKEN_COOKIE)?.value
 
@@ -218,7 +218,7 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // ── AUTH: Redirect logged-in users away from auth pages ─────────────
+    // â”€â”€ AUTH: Redirect logged-in users away from auth pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (pathAfterCountry === "/login" || pathAfterCountry === "/register") {
       if (customerToken) {
         return NextResponse.redirect(
@@ -229,7 +229,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (error) {
-    console.warn(
+    console.error(
       "Middleware: Error occurred, allowing request through:",
       error instanceof Error ? error.message : "Unknown error"
     )
@@ -258,7 +258,7 @@ In the prompt screenshot, the form renders:
 `<span class="text-sm text-red-600">Account exists but needs activation. Check your email.</span>`
 
 **Root Cause:**
-Shopify defaults all headless registrations into a `CUSTOMER_DISABLED` confirmation state to verify the email via an activation link. When the mutation returns `CUSTOMER_DISABLED`, the `signup` Server Action translates this into an error string to display in the UI. When `useActionState` receives a string message, it assumes failure—which prevents your `router.push('/ph/register/success')` lifecycle hook from firing.
+Shopify defaults all headless registrations into a `CUSTOMER_DISABLED` confirmation state to verify the email via an activation link. When the mutation returns `CUSTOMER_DISABLED`, the `signup` Server Action translates this into an error string to display in the UI. When `useActionState` receives a string message, it assumes failureâ€”which prevents your `router.push('/ph/register/success')` lifecycle hook from firing.
 
 **Required Fix Request:**
 We must update `src/lib/data/customer.ts` to capture the `"CUSTOMER_DISABLED"` case inside the `signup` function, treat it as a **success state**, and return `null` (or a redirect flag) so the `RegisterForm` hook resolves it into a successful redirect to the new confirmation page.

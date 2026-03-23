@@ -135,7 +135,15 @@ export async function getCollection(
     reverse?: boolean;
   }
 ): Promise<ShopifyCollection | null> {
-  const key = cacheKey("collection", handle);
+  const key = cacheKey(
+    "collection",
+    handle,
+    String(options?.first || 20),
+    options?.after || "page-1",
+    options?.sortKey || "default",
+    String(options?.reverse || false),
+    JSON.stringify(options?.filters || [])
+  );
 
   return getCached(
     key,

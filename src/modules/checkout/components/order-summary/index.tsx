@@ -61,13 +61,6 @@ const OrderSummary = ({ cart, className = "" }: OrderSummaryProps) => {
     const calculatedTotal =
       selectedSubtotal - discountTotal + shippingTotal + taxTotal
 
-    console.log("[Order Summary] Calculating total...")
-    console.log("[Order Summary] Selected items:", displayItems.length)
-    console.log("[Order Summary] Selected subtotal:", selectedSubtotal)
-    console.log("[Order Summary] Discount:", discountTotal)
-    console.log("[Order Summary] Shipping:", shippingTotal)
-    console.log("[Order Summary] Tax:", taxTotal)
-    console.log("[Order Summary] Final total:", calculatedTotal)
 
     return calculatedTotal
   }, [subtotal, discountTotal, shippingTotal, taxTotal, displayItems.length])

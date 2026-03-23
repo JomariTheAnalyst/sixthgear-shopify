@@ -44,7 +44,6 @@ export default async function YouMayLike({
   countryCode,
   region,
 }: YouMayLikeProps) {
-  console.log(`[YouMayLike Component] Fetching recommendations for: ${productId}`)
 
   let shopifyProducts: any[] = []
 
@@ -54,7 +53,6 @@ export default async function YouMayLike({
     
     // 2. Fallback: If no recommendations generated yet by Shopify AI, fetch recent products
     if (!shopifyProducts || shopifyProducts.length === 0) {
-      console.log(`[YouMayLike Component] AI recommendations empty. Fetching fallback products...`)
       const fallback = await getProducts({ first: 4 })
       
       // Filter out the current product from the fallback list just in case

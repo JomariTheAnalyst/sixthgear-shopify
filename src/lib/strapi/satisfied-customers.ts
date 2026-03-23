@@ -189,7 +189,6 @@ export function extractSatisfiedCustomersContent(
   homeContent: any
 ): SatisfiedCustomersContent | null {
   if (!homeContent?.data?.blocks) {
-    console.log("[extractSatisfiedCustomers] No blocks found in homeContent")
     return null
   }
 
@@ -200,26 +199,14 @@ export function extractSatisfiedCustomersContent(
   )
 
   if (!customersBlock) {
-    console.log(
-      "[extractSatisfiedCustomers] No satisfied-customers block found"
-    )
     return null
   }
 
   // Check if section is enabled (if enabled field exists and is false, return null to trigger fallback)
   if (customersBlock.enabled === false) {
-    console.log(
-      "[extractSatisfiedCustomers] Section disabled in CMS (enabled=false), using fallback"
-    )
     return null
   }
 
-  console.log("[extractSatisfiedCustomers] Found customers block:", {
-    section_title: customersBlock.section_title,
-    enabled: customersBlock.enabled,
-    row1Count: customersBlock.customers?.length || 0,
-    row2Count: customersBlock.row2_customers?.length || 0,
-  })
 
   // Transform both rows with fallbacks
   const row1 = transformCustomerItems(
@@ -241,10 +228,6 @@ export function extractSatisfiedCustomersContent(
     row2,
   }
 
-  console.log("[extractSatisfiedCustomers] Returning result:", {
-    row1Count: row1.length,
-    row2Count: row2.length,
-  })
 
   return result
 }
@@ -265,15 +248,9 @@ export function getSatisfiedCustomersWithFallbacks(
     const cmsContent = extractSatisfiedCustomersContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[SatisfiedCustomers] No CMS data, using all fallbacks")
       return SATISFIED_CUSTOMERS_FALLBACKS
     }
 
-    console.log("[SatisfiedCustomers] Applied fallbacks:", {
-      usedCmsTitle: !!cmsContent.sectionTitle,
-      row1Count: cmsContent.row1.length,
-      row2Count: cmsContent.row2.length,
-    })
 
     return cmsContent
   } catch (error) {

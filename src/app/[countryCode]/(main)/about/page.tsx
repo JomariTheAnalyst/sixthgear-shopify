@@ -2,10 +2,15 @@ import { Metadata } from "next"
 import AboutTemplate from "@modules/about/templates"
 import {
   FALLBACK_ABOUT_HERO,
-  FALLBACK_ABOUT_MISSION,
 } from "@modules/about/constants"
 import { getAboutPage } from "@lib/cms/client"
-import { AboutStoryItem } from "@modules/about/types"
+import {
+  AboutMissionContent,
+  AboutWhyChooseUsContent,
+  AboutServicesContent,
+  AboutStoryItem,
+  AboutValuesContent,
+} from "@modules/about/types"
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -37,11 +42,84 @@ export default async function AboutPage() {
         }))
       : null
 
+  const whatWeOfferContent: AboutServicesContent | null = aboutPage?.whatWeOffer
+    ? {
+        sectionName: aboutPage.whatWeOffer.sectionName,
+        heading: aboutPage.whatWeOffer.heading,
+        cards:
+          aboutPage.whatWeOffer.cards && aboutPage.whatWeOffer.cards.length > 0
+            ? aboutPage.whatWeOffer.cards.map((item, index) => ({
+                id: item._key || `${index}-${item.title || "offer"}`,
+                title: item.title || "",
+                backgroundImage: item.backgroundImageUrl || "",
+                linkUrl: item.linkUrl || "#",
+                buttonText: item.buttonText || "",
+              }))
+            : null,
+      }
+    : null
+
+  const ourValuesContent: AboutValuesContent | null = aboutPage?.ourValues
+    ? {
+        heading: aboutPage.ourValues.heading,
+        description: aboutPage.ourValues.description,
+        cards:
+          aboutPage.ourValues.cards && aboutPage.ourValues.cards.length > 0
+            ? aboutPage.ourValues.cards.map((item, index) => ({
+                id: item._key || `${index}-${item.title || "value"}`,
+                title: item.title || "",
+                description: item.description || "",
+                icon: item.icon || "wrench",
+              }))
+            : null,
+      }
+    : null
+
+  const whyChooseUsContent: AboutWhyChooseUsContent | null =
+    aboutPage?.whyChooseUs
+      ? {
+          sectionLabel: aboutPage.whyChooseUs.sectionLabel,
+          heading: aboutPage.whyChooseUs.heading,
+          subtitle: aboutPage.whyChooseUs.subtitle,
+          items:
+            aboutPage.whyChooseUs.items && aboutPage.whyChooseUs.items.length > 0
+              ? aboutPage.whyChooseUs.items.map((item, index) => ({
+                  id: item._key || `${index}-${item.title || "reason"}`,
+                  title: item.title || "",
+                  description: item.description || "",
+                  icon: item.icon || "wrench",
+                }))
+              : null,
+          topImage: {
+            src: aboutPage.whyChooseUs.topImageUrl || null,
+            alt: aboutPage.whyChooseUs.topImageAlt || "",
+          },
+          bottomImage: {
+            src: aboutPage.whyChooseUs.bottomImageUrl || null,
+            alt: aboutPage.whyChooseUs.bottomImageAlt || "",
+          },
+        }
+      : null
+
+  const ceoQuoteContent: AboutMissionContent | null = aboutPage?.ceoQuote
+    ? {
+        quoteText: aboutPage.ceoQuote.quoteText || "",
+        highlightedPhrase: aboutPage.ceoQuote.highlightedPhrase || "",
+        ceoName: aboutPage.ceoQuote.ceoName || "",
+        ceoTitle: aboutPage.ceoQuote.ceoTitle || "",
+        ceoPhoto: aboutPage.ceoQuote.ceoPhotoUrl || "",
+        ceoPhotoDescription: aboutPage.ceoQuote.ceoPhotoDescription || "",
+      }
+    : null
+
   return (
     <AboutTemplate
       heroContent={heroContent}
       storyItems={storyItems}
-      ceoQuoteContent={FALLBACK_ABOUT_MISSION}
+      whatWeOfferContent={whatWeOfferContent}
+      ourValuesContent={ourValuesContent}
+      whyChooseUsContent={whyChooseUsContent}
+      ceoQuoteContent={ceoQuoteContent}
     />
   )
 }

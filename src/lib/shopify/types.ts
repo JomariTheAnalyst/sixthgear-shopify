@@ -322,6 +322,7 @@ export type ProductCollectionSortKeys =
   | "RELEVANCE";
 
 export type FilterState = {
+  collection?: string | null;
   vendors: string[];
   productTypes: string[];
   tags: string[];

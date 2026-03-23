@@ -21,7 +21,6 @@ export default function CartCleanup({ cartId }: { cartId?: string }) {
     // Remove shipping methods from cart when leaving checkout
     const cleanupCart = async () => {
       try {
-        console.log("[Cart Cleanup] Removing shipping methods from cart...")
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/carts/${cartId}`,
@@ -39,7 +38,6 @@ export default function CartCleanup({ cartId }: { cartId?: string }) {
         )
 
         if (response.ok) {
-          console.log("[Cart Cleanup] ✅ Shipping methods removed")
         }
       } catch (error) {
         console.error("[Cart Cleanup] Failed to cleanup cart:", error)

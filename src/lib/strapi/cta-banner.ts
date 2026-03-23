@@ -59,7 +59,6 @@ export function extractCTABannerContent(
   homeContent: any
 ): CTABannerContent | null {
   if (!homeContent?.data?.blocks) {
-    console.log("[extractCTABanner] No blocks found in homeContent")
     return null
   }
 
@@ -70,21 +69,15 @@ export function extractCTABannerContent(
   )
 
   if (!ctaBlock) {
-    console.log("[extractCTABanner] No CTA banner block found")
     return null
   }
 
   // Check if section is enabled
   const isEnabled = pickBool(ctaBlock.enable, true)
   if (!isEnabled) {
-    console.log("[extractCTABanner] CTA banner disabled in CMS")
     return null
   }
 
-  console.log("[extractCTABanner] Found CTA banner block:", {
-    title: ctaBlock.title,
-    hasBackgroundImage: !!ctaBlock.background_image,
-  })
 
   // Get background image URL
   const backgroundImageUrl = ctaBlock.background_image
@@ -114,11 +107,6 @@ export function extractCTABannerContent(
     isEnabled: true,
   }
 
-  console.log("[extractCTABanner] Returning result:", {
-    hasTitle: !!result.title,
-    hasBackgroundImage: !!result.backgroundImage,
-    socialLinksCount: Object.values(result.socialLinks).filter(Boolean).length,
-  })
 
   return result
 }
@@ -134,11 +122,9 @@ export function getCTABannerWithFallbacks(homeContent: any): CTABannerContent {
     const cmsContent = extractCTABannerContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[CTABanner] No CMS data, using all fallbacks")
       return CTA_BANNER_FALLBACKS
     }
 
-    console.log("[CTABanner] Using CMS content")
     return cmsContent
   } catch (error) {
     console.error("[CTABanner] Error fetching content, using fallbacks:", error)

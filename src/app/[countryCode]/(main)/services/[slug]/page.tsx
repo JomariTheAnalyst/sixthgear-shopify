@@ -58,7 +58,6 @@ export async function generateStaticParams() {
       }))
     )
     
-    console.log(`[Services] Generated ${params.length} static params`)
     return params
   } catch (error) {
     console.error("[Services] Error generating static params:", error)
@@ -102,7 +101,6 @@ export default async function ServicePage({ params }: ServicePageProps) {
     const data = await getServiceDetailData(slug)
 
     if (!data) {
-      console.log(`[Services] Service not found: ${slug}`)
       notFound()
     }
 

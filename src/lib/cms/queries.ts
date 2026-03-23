@@ -108,6 +108,16 @@ export const homepageQuery = groq`
   }
 `
 
+export const homepageCollectionSectionsQuery = groq`
+  *[_type == "homepage" && _id == "homepage"][0].productCollectionSections[]{
+    collectionHandle,
+    sectionTitle,
+    buttonLabel,
+    enabled,
+    displayOrder
+  }
+`
+
 export const collectionHeroQuery = groq`
   *[_type == "collectionHero" && handle.current == $handle][0]{
     "handle": handle.current,
@@ -360,6 +370,50 @@ export const aboutPageQuery = groq`
       body,
       "imageUrl": image.asset->url,
       imageAlt
+    },
+    whatWeOffer {
+      sectionName,
+      heading,
+      "cards": cards[]{
+        _key,
+        title,
+        "backgroundImageUrl": backgroundImage.asset->url,
+        linkUrl,
+        buttonText
+      }
+    },
+    ourValues {
+      heading,
+      description,
+      "cards": cards[]{
+        _key,
+        title,
+        description,
+        icon
+      }
+    },
+    whyChooseUs {
+      sectionLabel,
+      heading,
+      subtitle,
+      "items": items[]{
+        _key,
+        title,
+        description,
+        icon
+      },
+      "topImageUrl": topImage.asset->url,
+      topImageAlt,
+      "bottomImageUrl": bottomImage.asset->url,
+      bottomImageAlt
+    },
+    ceoQuote {
+      quoteText,
+      highlightedPhrase,
+      ceoName,
+      ceoTitle,
+      "ceoPhotoUrl": ceoPhoto.asset->url,
+      ceoPhotoDescription
     }
   }
 `

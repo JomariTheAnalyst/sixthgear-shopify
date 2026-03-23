@@ -36,14 +36,14 @@ export const useCartStore = create<CartStore>()((set, get) => ({
   addItem: async () => {
     // Cart operations are handled by Server Actions in src/lib/data/cart.ts
     // This method is kept for interface compat but should not be called directly.
-    console.warn("[CartStore] addItem is deprecated — use addToCart server action");
+    console.error("[CartStore] addItem is deprecated — use addToCart server action");
   },
 
   removeItem: async () => {
-    console.warn("[CartStore] removeItem is deprecated — use deleteLineItem server action");
+    console.error("[CartStore] removeItem is deprecated — use deleteLineItem server action");
   },
 
   updateItem: async () => {
-    console.warn("[CartStore] updateItem is deprecated — use updateLineItem server action");
+    console.error("[CartStore] updateItem is deprecated — use updateLineItem server action");
   },
 }));

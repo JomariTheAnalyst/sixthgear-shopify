@@ -5,22 +5,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-
-interface ServiceCard {
-  id: number
-  title: string
-  backgroundImage: string | null
-  linkUrl: string
-  buttonText: string
-}
+import { AboutServicesCard, AboutServicesContent } from "@modules/about/types"
 
 interface AboutServicesProps {
-  sectionName?: string
-  heading?: string
-  cards?: ServiceCard[]
+  data?: AboutServicesContent | null
 }
 
-const defaultServices: ServiceCard[] = [
+const FALLBACK_ABOUT_SERVICES: AboutServicesCard[] = [
   {
     id: 1,
     title: "Motorcycle Service & Diagnostics",
@@ -55,14 +46,16 @@ const defaultServices: ServiceCard[] = [
   },
 ]
 
-export default function AboutServices({
-  sectionName = "What We Offer",
-  heading = "Complete Care for\nYour Ride",
-  cards = defaultServices,
-}: AboutServicesProps) {
+export default function AboutServices({ data }: AboutServicesProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
-  
-  // Split heading by newline
+
+  const sectionName = data?.sectionName?.trim() || "What We Offer"
+  const heading = data?.heading?.trim() || "Complete Care for\nYour Ride"
+  const cards =
+    data?.cards && data.cards.length > 0
+      ? data.cards
+      : FALLBACK_ABOUT_SERVICES
+
   const headingParts = heading.split("\n")
 
   const scroll = (direction: "left" | "right") => {
@@ -74,7 +67,7 @@ export default function AboutServices({
   }
 
   // Render a single card
-  const renderCard = (service: ServiceCard) => {
+  const renderCard = (service: AboutServicesCard) => {
     return (
       <Link
         key={service.id}

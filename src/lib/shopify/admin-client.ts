@@ -18,7 +18,7 @@ export async function shopifyAdminGraphql<T>(
   const adminToken = "adminToken" in shopifyConfig ? shopifyConfig.adminToken : undefined
 
   if (!domain || !adminToken) {
-    console.warn("[shopifyAdminGraphql] Missing domain or admin token in env")
+    console.error("[shopifyAdminGraphql] Missing domain or admin token in env")
     return { data: null, errors: [{ message: "Missing admin credentials" }] }
   }
 

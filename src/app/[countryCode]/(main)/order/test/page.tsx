@@ -19,7 +19,6 @@ export default function TestOrderPage() {
     )
       .then((res) => res.json())
       .then((data) => {
-        console.log("RAW DATA:", data)
         setData(data)
       })
   }, [])

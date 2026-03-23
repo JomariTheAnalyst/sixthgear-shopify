@@ -22,7 +22,6 @@ export default function CartRefresh() {
     // Clear selected items from localStorage and sessionStorage
     clearAllSelections()
     sessionStorage.removeItem("checkoutSelectedItems")
-    console.log("[Cart Refresh] Cleared selected items after order completion")
 
     // Single refresh to update client-side cache
     // Cart cookie is already cleared server-side in success page

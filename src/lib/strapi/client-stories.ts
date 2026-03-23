@@ -109,7 +109,6 @@ export function extractClientStoriesContent(
   homeContent: any
 ): ClientStoriesContent | null {
   if (!homeContent?.data?.blocks) {
-    console.log("[extractClientStories] No blocks found in homeContent")
     return null
   }
 
@@ -120,27 +119,18 @@ export function extractClientStoriesContent(
   )
 
   if (!storiesBlock) {
-    console.log("[extractClientStories] No rider-stories block found")
     return null
   }
 
   // Check if section is enabled
   const isSectionEnabled = pickBool(storiesBlock.enable, true)
   if (!isSectionEnabled) {
-    console.log("[extractClientStories] Section disabled in CMS")
     return null
   }
 
-  console.log("[extractClientStories] Found stories block:", {
-    section_title: storiesBlock.section_title,
-    section_desc: storiesBlock.section_desc,
-    storiesCount: storiesBlock.rider_stories?.length || 0,
-    enable: storiesBlock.enable,
-  })
 
   // If no stories in CMS, return null to trigger fallback
   if (!storiesBlock.rider_stories || storiesBlock.rider_stories.length === 0) {
-    console.log("[extractClientStories] No stories in CMS, will use fallbacks")
     return {
       sectionTitle: pickText(
         storiesBlock.section_title,
@@ -158,12 +148,6 @@ export function extractClientStoriesContent(
   const stories = storiesBlock.rider_stories
     .filter((story) => {
       const isEnabled = pickBool(story.enable, true)
-      console.log(`[extractClientStories] Story "${story.story_title}":`, {
-        id: story.id,
-        enabled: story.enable,
-        isEnabled,
-        hasImage: !!story.image,
-      })
       return isEnabled
     })
     .map((story) => {
@@ -190,24 +174,16 @@ export function extractClientStoriesContent(
         image: imageUrl,
       }
 
-      console.log(`[extractClientStories] Mapped story:`, mappedStory)
 
       return mappedStory
     })
     .filter((story) => {
       const isValid = story.title && story.excerpt
       if (!isValid) {
-        console.log(
-          `[extractClientStories] Filtering out invalid story (missing title or excerpt):`,
-          story
-        )
       }
       return isValid
     })
 
-  console.log("[extractClientStories] Final enabled stories:", {
-    count: stories.length,
-  })
 
   // Transform to frontend format
   const result: ClientStoriesContent = {
@@ -222,11 +198,6 @@ export function extractClientStoriesContent(
     stories,
   }
 
-  console.log("[extractClientStories] Returning result:", {
-    sectionTitle: result.sectionTitle,
-    sectionDescription: result.sectionDescription,
-    storiesCount: stories.length,
-  })
   return result
 }
 
@@ -246,7 +217,6 @@ export function getClientStoriesWithFallbacks(
     const cmsContent = extractClientStoriesContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[ClientStories] No CMS data, using all fallbacks")
       return CLIENT_STORIES_FALLBACKS
     }
 
@@ -262,11 +232,6 @@ export function getClientStoriesWithFallbacks(
       stories: finalStories,
     }
 
-    console.log("[ClientStories] Applied fallbacks:", {
-      usedCmsTitle: !!cmsContent.sectionTitle,
-      usedCmsDescription: !!cmsContent.sectionDescription,
-      storiesCount: result.stories.length,
-    })
 
     return result
   } catch (error) {

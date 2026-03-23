@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
   const isValid = await validateShopifyHmac(body, hmacHeader, secret)
   if (!isValid) {
-    console.warn("[revalidate] Invalid HMAC signature")
+    console.error("[revalidate] Invalid HMAC signature")
     return Response.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
   ])
 
   const topic = request.headers.get("x-shopify-topic") ?? "unknown"
-  console.log(`[revalidate] Cache invalidated for topic: ${topic}`)
 
   return Response.json({ revalidated: true, topic })
 }

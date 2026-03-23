@@ -9,19 +9,21 @@ import React from "react"
 import Image from "next/image"
 
 interface AboutMissionProps {
-  quoteText?: string
+  quoteText: string
   highlightedPhrase?: string
-  ceoName?: string
-  ceoTitle?: string
-  ceoPhoto?: string
+  ceoName: string
+  ceoTitle: string
+  ceoPhoto: string
+  ceoPhotoDescription: string
 }
 
 export default function AboutMission({
-  quoteText = "More than a shop, Sixth Gear is a rider's space. A place to wrench, ride, refuel, and connect. Whether you're here for service, upgrades, or simply good coffee and conversation, you're always welcome at Sixth Gear.",
-  highlightedPhrase = "rider's space",
-  ceoName = "Cap. Gregory Nick Sevilla",
-  ceoTitle = "CEO & Founder, Sixthgear Motosupply",
-  ceoPhoto = "/images/ceo/capgreg.jpg",
+  quoteText,
+  highlightedPhrase,
+  ceoName,
+  ceoTitle,
+  ceoPhoto,
+  ceoPhotoDescription,
 }: AboutMissionProps) {
   // Function to highlight phrase within quote text
   const renderQuoteWithHighlight = () => {
@@ -84,7 +86,7 @@ export default function AboutMission({
             <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-4 border-[#F16D34]/20">
               <Image
                 src={ceoPhoto}
-                alt={ceoName}
+                alt={ceoPhotoDescription}
                 fill
                 className="object-cover"
               />

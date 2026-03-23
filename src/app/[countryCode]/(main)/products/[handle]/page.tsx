@@ -53,7 +53,6 @@ export default async function ProductPage(props: Props) {
   }
 
   // DEBUG: log raw metafields from Shopify to terminal
-  console.log("[PDP DEBUG] metafields for", params.handle, ":", JSON.stringify(shopifyProduct.metafields, null, 2))
 
   // Map Shopify product to the Medusa HttpTypes.StoreProduct format expected by the template
   const mappedProduct = {

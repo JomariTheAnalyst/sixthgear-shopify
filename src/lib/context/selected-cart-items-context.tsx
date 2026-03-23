@@ -37,16 +37,11 @@ export function SelectedItemsProvider({
       const sessionStored = sessionStorage.getItem("checkoutSelectedItems")
       if (sessionStored) {
         const parsed = JSON.parse(sessionStored)
-        console.log(
-          "Loading selected items from sessionStorage:",
-          parsed.length
-        )
 
         if (Array.isArray(parsed) && parsed.length > 0) {
           setSelectedItems(new Set(parsed))
           // Also save to localStorage for persistence
           localStorage.setItem("selectedCartItems", sessionStored)
-          console.log("Set selected items from sessionStorage:", parsed.length)
           setIsLoading(false)
           return
         }
@@ -54,15 +49,12 @@ export function SelectedItemsProvider({
 
       // Fallback to localStorage
       const stored = localStorage.getItem("selectedCartItems")
-      console.log("Loading selected items from localStorage:", stored)
 
       if (stored) {
         const parsed = JSON.parse(stored)
-        console.log("Parsed selected items:", parsed)
 
         if (Array.isArray(parsed) && parsed.length > 0) {
           setSelectedItems(new Set(parsed))
-          console.log("Set selected items:", parsed.length, "items")
         }
       }
     } catch (e) {
@@ -77,7 +69,6 @@ export function SelectedItemsProvider({
     if (!isLoading) {
       const itemsArray = Array.from(selectedItems)
       localStorage.setItem("selectedCartItems", JSON.stringify(itemsArray))
-      console.log("Saved selected items to localStorage:", itemsArray)
     }
   }, [selectedItems, isLoading])
 
@@ -116,7 +107,6 @@ export function SelectedItemsProvider({
     setSelectedItems(new Set())
     sessionStorage.removeItem("checkoutSelectedItems")
     localStorage.removeItem("selectedCartItems")
-    console.log("[Selected Items] Cleared all selections")
   }
 
   const isSelected = (itemId: string) => {

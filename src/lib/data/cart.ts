@@ -32,7 +32,7 @@ async function getCartId(): Promise<string | undefined> {
   // Guard: detect and reject corrupted Zustand state objects.
   // A valid Shopify cart ID starts with "gid://shopify/Cart/".
   if (!value.startsWith("gid://shopify/Cart/")) {
-    console.warn("[cart] Corrupted cart cookie detected — ignoring")
+    console.error("[cart] Corrupted cart cookie detected — ignoring")
     return undefined
   }
 
@@ -229,7 +229,7 @@ export async function associateBuyerIdentity(
     })
 
     if (result.userErrors.length > 0) {
-      console.warn(
+      console.error(
         "[cart] cartBuyerIdentityUpdate userErrors:",
         result.userErrors
       )
@@ -238,7 +238,7 @@ export async function associateBuyerIdentity(
 
     return result.cart
   } catch (error) {
-    console.warn("[cart] cartBuyerIdentityUpdate failed:", error)
+    console.error("[cart] cartBuyerIdentityUpdate failed:", error)
     return null
   }
 }

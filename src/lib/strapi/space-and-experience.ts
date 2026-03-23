@@ -80,7 +80,6 @@ export function extractSpaceAndExperienceContent(
   homeContent: any
 ): SpaceAndExperienceContent | null {
   if (!homeContent?.data?.blocks) {
-    console.log("[extractSpaceAndExperience] No blocks found in homeContent")
     return null
   }
 
@@ -91,38 +90,21 @@ export function extractSpaceAndExperienceContent(
   )
 
   if (!experienceBlock) {
-    console.log(
-      "[extractSpaceAndExperience] No space-and-experience block found"
-    )
     return null
   }
 
   // Check if section is enabled
   const isSectionEnabled = pickBool(experienceBlock.enable, true)
   if (!isSectionEnabled) {
-    console.log("[extractSpaceAndExperience] Section disabled in CMS")
     return null
   }
 
-  console.log("[extractSpaceAndExperience] Found experience block:", {
-    section_title: experienceBlock.section_title,
-    itemsCount: experienceBlock.experience?.length || 0,
-    rawExperience: experienceBlock.experience,
-  })
 
   // Filter and transform experience items (only enabled ones)
   const items =
     experienceBlock.experience
       ?.filter((item) => {
         const isEnabled = pickBool(item.enable, true)
-        console.log(
-          `[extractSpaceAndExperience] Item ${item.experience_title}:`,
-          {
-            enabled: isEnabled,
-            hasImage: !!item.experience_image,
-            imageCount: item.experience_image?.length || 0,
-          }
-        )
         return isEnabled
       })
       .map((item, index) => {
@@ -140,14 +122,6 @@ export function extractSpaceAndExperienceContent(
           imageUrl: "/images/homepage/projects/default.jpg",
         }
 
-        console.log(
-          `[extractSpaceAndExperience] Mapping item ${item.experience_title}:`,
-          {
-            id: item.id,
-            title: item.experience_title,
-            imageUrl: imageUrl || fallbackItem.imageUrl,
-          }
-        )
 
         return {
           id: item.id,
@@ -160,10 +134,6 @@ export function extractSpaceAndExperienceContent(
       .filter((item) => {
         const isValid = item.title && item.description
         if (!isValid) {
-          console.log(
-            `[extractSpaceAndExperience] Filtering out invalid item:`,
-            item
-          )
         }
         return isValid
       }) || []
@@ -182,10 +152,6 @@ export function extractSpaceAndExperienceContent(
     isSectionEnabled: true,
   }
 
-  console.log("[extractSpaceAndExperience] Returning result:", {
-    itemsCount: items.length,
-    items,
-  })
   return result
 }
 
@@ -205,7 +171,6 @@ export function getSpaceAndExperienceWithFallbacks(
     const cmsContent = extractSpaceAndExperienceContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[SpaceAndExperience] No CMS data, using all fallbacks")
       return {
         ...SPACE_AND_EXPERIENCE_FALLBACKS,
         isSectionEnabled: true,
@@ -225,10 +190,6 @@ export function getSpaceAndExperienceWithFallbacks(
       isSectionEnabled: cmsContent.isSectionEnabled,
     }
 
-    console.log("[SpaceAndExperience] Applied fallbacks:", {
-      usedCmsTitle: !!cmsContent.sectionTitle,
-      itemsCount: result.items.length,
-    })
 
     return result
   } catch (error) {

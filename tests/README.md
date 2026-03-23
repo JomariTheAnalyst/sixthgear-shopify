@@ -461,7 +461,6 @@ test.beforeEach(async ({ page }) => {
 ### 5. Add Console Logs
 
 ```typescript
-console.log("Step 1: Adding product to cart...")
 await addProductToCart(page)
 ```
 

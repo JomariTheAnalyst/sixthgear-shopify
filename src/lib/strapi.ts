@@ -9,17 +9,14 @@
 
 // Stub functions to prevent crashes
 export async function fetchAPI<T = any>(...args: any[]) {
-  console.warn("[Strapi] This client is deprecated. Use Payload CMS instead.")
   return null
 }
 
 export async function fetchStrapi<T = any>(...args: any[]) {
-  console.warn("[Strapi] This client is deprecated. Use Payload CMS instead.")
   return null
 }
 
 export async function fetchStrapiData<T = any>(...args: any[]) {
-  console.warn("[Strapi] This client is deprecated. Use Payload CMS instead.")
   return null
 }
 

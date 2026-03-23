@@ -20,10 +20,17 @@ import ShopByBrands from "@modules/home/components/shop-by-brands"
 import FeaturedCollectionBanner from "@modules/home/components/featured-collection-banner"
 import PromoBanner from "@modules/home/components/promo-banner"
 import PopupAd from "@modules/home/components/popup-ad"
-import type { SanityFeaturedCollectionItem, SanityPromoBanner } from "@lib/cms/types"
+import HomepageCollectionRail from "@modules/home/components/product-sections/homepage-collection-rail"
+import type {
+  HomepageCollectionSection,
+  SanityFeaturedCollectionItem,
+  SanityPromoBanner,
+} from "@lib/cms/types"
 import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
-import { getProducts, getCollections } from "@lib/shopify"
+import { getCollection, getProducts, getCollections } from "@lib/shopify"
+import type { ShopifyProductCard } from "@lib/shopify/types"
+import { HttpTypes } from "@medusajs/types"
 
 import { getMarketingForPath } from "@lib/data/marketing"
 import { BannerSlot, PopupAds } from "@modules/marketing"
@@ -48,6 +55,7 @@ import {
   getClientTestimonials,
   getStoreLocation,
   getCtaBanner,
+  getHomepageCollectionSections,
   getMarketingData,
 } from "@lib/cms/client"
 
@@ -105,6 +113,7 @@ export default async function Home(props: {
     storeLocation,
     ctaBanner,
     marketingData,
+    collectionSections,
     featuredProductsResp,
     collections,
     newArrivalsResp,
@@ -124,6 +133,7 @@ export default async function Home(props: {
     getStoreLocation(),
     getCtaBanner(),
     getMarketingData(),
+    getHomepageCollectionSections(),
     getProducts({ first: 8, query: 'tag:featured' }),
     getCollections(8),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
@@ -132,7 +142,9 @@ export default async function Home(props: {
   const featuredProducts = featuredProductsResp.products
   const newArrivals = newArrivalsResp.products
 
-  const mapShopifyToMedusa = (p: any) => ({
+  const mapShopifyToMedusa = (
+    p: ShopifyProductCard
+  ): HttpTypes.StoreProduct => ({
     id: p.id,
     title: p.title,
     handle: p.handle,
@@ -158,6 +170,40 @@ export default async function Home(props: {
     ],
   } as any)
 
+  type HomepageCollectionRailData = {
+    section: HomepageCollectionSection
+    title: string
+    buttonLabel?: string
+    products: HttpTypes.StoreProduct[]
+  }
+
+  const collectionRailResults: Array<HomepageCollectionRailData | null> =
+    await Promise.all(
+      collectionSections.map(async (section) => {
+        const collection = await getCollection(section.collectionHandle, {
+          first: 11,
+        })
+
+        const products =
+          collection?.products?.edges?.map((edge) => mapShopifyToMedusa(edge.node)) ?? []
+
+        if (!collection || products.length === 0) {
+          return null
+        }
+
+        return {
+          section,
+          title: section.sectionTitle || collection.title || section.collectionHandle,
+          buttonLabel: section.buttonLabel,
+          products,
+        }
+      })
+    )
+
+  const collectionRailData = collectionRailResults.filter(
+    (item): item is HomepageCollectionRailData => item !== null
+  )
+
   const marketing = await getMarketingForPath("/")
 
   const homeContent = await fetchHomeContent()
@@ -165,11 +211,6 @@ export default async function Home(props: {
   const shopByBrandsContent = getShopByBrandsWithFallbacks(homeContent)
   const clientStoriesContent = getClientStoriesWithFallbacks(homeContent)
 
-  console.log("[HomePage] About content with fallbacks:", aboutContent)
-  console.log(
-    "[HomePage] Shop by brands content with fallbacks:",
-    shopByBrandsContent
-  )
 
   const getFeatured = (position: string): SanityFeaturedCollectionItem | null =>
     marketingData.featuredCollections.find(
@@ -221,6 +262,16 @@ export default async function Home(props: {
       <ShopByCategories data={homepageCategories} />
       <FeaturedCollectionBanner data={getFeatured("after_categories")} />
       <PromoBanner data={getPromo("after_categories")} />
+
+      {collectionRailData.map((item) => (
+        <HomepageCollectionRail
+          key={item.section.collectionHandle}
+          title={item.title}
+          collectionHandle={item.section.collectionHandle}
+          buttonLabel={item.buttonLabel}
+          products={item.products}
+        />
+      ))}
 
       <Suspense fallback={<ProductSectionSkeleton />}>
         {featuredProducts.length > 0 && (

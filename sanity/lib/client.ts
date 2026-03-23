@@ -13,7 +13,6 @@ export const client = createClient({
 
 export async function getHomepageHero(): Promise<SanityHeroSection | null> {
   try {
-    console.log("Fetching homepage hero from Sanity...")
 
     const result = await client.fetch<{ hero: SanityHeroSection | null } | null>(
       homepageQuery,
@@ -27,7 +26,6 @@ export async function getHomepageHero(): Promise<SanityHeroSection | null> {
     )
 
     if (!result?.hero) {
-      console.warn("[Sanity] Homepage query returned:", JSON.stringify(result))
     }
 
     return result?.hero ?? null

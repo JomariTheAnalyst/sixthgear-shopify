@@ -108,7 +108,6 @@ export interface MenuCategoryUI {
  * Fetch Coffee Menu Page hero content from Strapi
  */
 export async function fetchCoffeeMenuPage(): Promise<CoffeeMenuPageContent | null> {
-  console.log(`[Coffee Menu] Fetching page content from Strapi`)
 
   return fetchStrapi<CoffeeMenuPageContent>("/api/coffee-menu-page", {
     params: {
@@ -121,7 +120,6 @@ export async function fetchCoffeeMenuPage(): Promise<CoffeeMenuPageContent | nul
  * Fetch Menu Categories with Items and Variants from Strapi
  */
 export async function fetchMenuCategories(): Promise<MenuCategoriesResponse | null> {
-  console.log(`[Coffee Menu] Fetching categories from Strapi`)
 
   return fetchStrapi<MenuCategoriesResponse>("/api/menu-categories", {
     params: {
@@ -164,31 +162,13 @@ function resolveImageUrl(url: string | null | undefined): string | null {
 export function transformCoffeeMenuHero(
   pageData: CoffeeMenuPageContent | null
 ): CoffeeMenuHero | null {
-  console.log("[Coffee Menu Hero] ==========================================")
-  console.log("[Coffee Menu Hero] Transform called")
-  console.log("[Coffee Menu Hero] Has pageData:", !!pageData)
-  console.log("[Coffee Menu Hero] Has pageData.data:", !!pageData?.data)
-  console.log("[Coffee Menu Hero] Has blocks:", !!pageData?.data?.blocks)
-  console.log(
-    "[Coffee Menu Hero] Blocks count:",
-    pageData?.data?.blocks?.length || 0
-  )
 
   if (!pageData?.data?.blocks || pageData.data.blocks.length === 0) {
-    console.log("[Coffee Menu Hero] ❌ No blocks found - using fallback")
-    console.log("[Coffee Menu Hero] ==========================================")
     return null
   }
 
   // Log all blocks for debugging
-  console.log("[Coffee Menu Hero] All blocks:")
   pageData.data.blocks.forEach((block: any, index: number) => {
-    console.log(`  Block ${index}:`, {
-      component: block.__component,
-      id: block.id,
-      is_active: block.is_active,
-      fields: Object.keys(block),
-    })
   })
 
   // Try to find the hero block - be flexible with component name
@@ -203,29 +183,12 @@ export function transformCoffeeMenuHero(
   ) as CoffeeMenuHeroBlock | undefined
 
   if (!heroBlock) {
-    console.log("[Coffee Menu Hero] ❌ No matching hero block found")
-    console.log(
-      "[Coffee Menu Hero] Available components:",
-      pageData.data.blocks.map((b: any) => b.__component)
-    )
-    console.log("[Coffee Menu Hero] ==========================================")
     return null
   }
 
-  console.log("[Coffee Menu Hero] ✅ Found hero block!")
-  console.log("[Coffee Menu Hero] Component:", heroBlock.__component)
-  console.log("[Coffee Menu Hero] is_active:", heroBlock.is_active)
-  console.log("[Coffee Menu Hero] heading:", heroBlock.heading)
-  console.log("[Coffee Menu Hero] subheading:", heroBlock.subheading)
-  console.log(
-    "[Coffee Menu Hero] background_image:",
-    heroBlock.background_image?.url
-  )
 
   // Check if is_active is explicitly false (not just undefined/null)
   if (heroBlock.is_active === false) {
-    console.log("[Coffee Menu Hero] ⚠️ Block is_active=false - using fallback")
-    console.log("[Coffee Menu Hero] ==========================================")
     return null
   }
 
@@ -237,12 +200,6 @@ export function transformCoffeeMenuHero(
     backgroundImage: resolveImageUrl(heroBlock.background_image?.url),
   }
 
-  console.log("[Coffee Menu Hero] ✅ Transformation successful!")
-  console.log("[Coffee Menu Hero] Final data:")
-  console.log("  pageTitle:", heroData.pageTitle)
-  console.log("  pageSubtitle:", heroData.pageSubtitle)
-  console.log("  backgroundImage:", heroData.backgroundImage)
-  console.log("[Coffee Menu Hero] ==========================================")
 
   return heroData
 }
@@ -253,13 +210,8 @@ export function transformCoffeeMenuHero(
 export function transformMenuCategories(
   categoriesData: MenuCategoriesResponse | null
 ): MenuCategoryUI[] {
-  console.log("[Coffee Menu Categories] Transform called with:", {
-    hasData: !!categoriesData?.data,
-    categoriesCount: categoriesData?.data?.length || 0,
-  })
 
   if (!categoriesData?.data) {
-    console.log("[Coffee Menu Categories] No categories data")
     return []
   }
 
@@ -274,13 +226,6 @@ export function transformMenuCategories(
     }))
     .filter((category) => category.items.length > 0) // Hide empty categories
 
-  console.log("[Coffee Menu Categories] Transformed:", {
-    totalCategories: transformedCategories.length,
-    categories: transformedCategories.map((c) => ({
-      name: c.name,
-      itemsCount: c.items.length,
-    })),
-  })
 
   return transformedCategories
 }
@@ -290,7 +235,6 @@ export function transformMenuCategories(
  */
 function transformMenuItems(items: MenuItemData[] | undefined): MenuItemUI[] {
   if (!items) {
-    console.log("[Coffee Menu Items] No items provided")
     return []
   }
 
@@ -306,14 +250,6 @@ function transformMenuItems(items: MenuItemData[] | undefined): MenuItemUI[] {
       variants: transformVariants(item.variants),
     }))
 
-  console.log("[Coffee Menu Items] Transformed:", {
-    totalItems: transformedItems.length,
-    items: transformedItems.map((i) => ({
-      name: i.name,
-      hasImage: !!i.image,
-      variantsCount: i.variants.length,
-    })),
-  })
 
   return transformedItems
 }

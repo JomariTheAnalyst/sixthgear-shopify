@@ -7,7 +7,6 @@
 
 function checkEnvVariables() {
   // Disabled during migration
-  console.log("✓ Environment variable check disabled during Shopify migration")
 }
 
 module.exports = checkEnvVariables

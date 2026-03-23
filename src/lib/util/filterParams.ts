@@ -2,6 +2,7 @@ import type { FilterState, ProductCollectionSortKeys } from "@lib/shopify/types"
 
 export function getDefaultFilterState(): FilterState {
   return {
+    collection: null,
     vendors: [],
     productTypes: [],
     tags: [],
@@ -16,6 +17,9 @@ export function getDefaultFilterState(): FilterState {
 
 export function parseSearchParams(params: URLSearchParams): FilterState {
   const state = getDefaultFilterState();
+
+  const collection = params.get("collection");
+  if (collection) state.collection = collection;
 
   const vendors = params.getAll("vendor");
   if (vendors.length) state.vendors = vendors;
@@ -66,6 +70,10 @@ export function parseSearchParams(params: URLSearchParams): FilterState {
 
 export function serializeFilterState(state: FilterState): URLSearchParams {
   const params = new URLSearchParams();
+
+  if (state.collection) {
+    params.set("collection", state.collection);
+  }
 
   state.vendors.forEach((v) => params.append("vendor", v));
   state.productTypes.forEach((t) => params.append("type", t));

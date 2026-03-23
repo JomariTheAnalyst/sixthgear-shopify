@@ -21,13 +21,6 @@ const ItemsPreviewTemplate = ({ cart }: ItemsTemplateProps) => {
   const items = allItems.filter((item) => selectedItems.has(item.id))
   const hasOverflow = items && items.length > 4
 
-  console.log("ItemsPreviewTemplate - isLoading:", isLoading)
-  console.log(
-    "ItemsPreviewTemplate - selectedItems:",
-    Array.from(selectedItems)
-  )
-  console.log("ItemsPreviewTemplate - allItems count:", allItems.length)
-  console.log("ItemsPreviewTemplate - filtered items count:", items.length)
 
   return (
     <div

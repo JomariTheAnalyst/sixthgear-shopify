@@ -19,9 +19,6 @@ export default function OrderConfirmedClient({
 
   // FORCE VISIBLE MARKER - Remove after testing
   useEffect(() => {
-    console.log("=== ORDER CONFIRMED CLIENT LOADED ===")
-    console.log("Order ID:", orderId)
-    console.log("Timestamp:", new Date().toISOString())
   }, [orderId])
 
   useEffect(() => {
@@ -31,7 +28,6 @@ export default function OrderConfirmedClient({
 
         const url = `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/orders/${orderId}?fields=*items,*items.product_title,*items.variant_title,*items.quantity,*items.unit_price,*items.total,*items.original_total,*items.thumbnail,*items.variant,*items.product,*shipping_address,*billing_address,*shipping_methods,*payment_collections,*payment_collections.payment_sessions,*payment_collections.payments`
 
-        console.log("[Order Confirmed] Fetching:", url)
 
         const response = await fetch(url, {
           credentials: "include",
@@ -42,7 +38,6 @@ export default function OrderConfirmedClient({
           },
         })
 
-        console.log("[Order Confirmed] Response status:", response.status)
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -52,20 +47,11 @@ export default function OrderConfirmedClient({
 
         const data = await response.json()
 
-        console.log(
-          "[Order Confirmed] RAW RESPONSE:",
-          JSON.stringify(data, null, 2)
-        )
 
         if (!data.order) {
           throw new Error("No order in response")
         }
 
-        console.log(
-          "[Order Confirmed] Items count:",
-          data.order.items?.length || 0
-        )
-        console.log("[Order Confirmed] Items:", data.order.items)
 
         setOrder(data.order)
       } catch (err: any) {

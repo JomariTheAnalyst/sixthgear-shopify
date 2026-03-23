@@ -98,7 +98,6 @@ export function extractShopByBrandsContent(
   homeContent: any
 ): ShopByBrandsContent | null {
   if (!homeContent?.data?.blocks) {
-    console.log("[extractShopByBrands] No blocks found in homeContent")
     return null
   }
 
@@ -109,26 +108,18 @@ export function extractShopByBrandsContent(
   )
 
   if (!brandsBlock) {
-    console.log("[extractShopByBrands] No shop-by-brands block found")
     return null
   }
 
   // Check if section is enabled
   const isSectionEnabled = pickBool(brandsBlock.enable, true)
   if (!isSectionEnabled) {
-    console.log("[extractShopByBrands] Section disabled in CMS")
     return null
   }
 
-  console.log("[extractShopByBrands] Found brands block:", {
-    section_title: brandsBlock.section_title,
-    brandsCount: brandsBlock.brands?.length || 0,
-    enable: brandsBlock.enable,
-  })
 
   // If no brands in CMS, return null to trigger fallback
   if (!brandsBlock.brands || brandsBlock.brands.length === 0) {
-    console.log("[extractShopByBrands] No brands in CMS, will use fallbacks")
     return {
       sectionTitle: pickText(
         brandsBlock.section_title,
@@ -144,16 +135,6 @@ export function extractShopByBrandsContent(
   const brands = brandsBlock.brands
     .filter((brand) => {
       const isEnabled = pickBool(brand.enabled, true)
-      console.log(`[extractShopByBrands] Brand "${brand.brand_name}":`, {
-        id: brand.id,
-        enabled: brand.enabled,
-        isEnabled,
-        hasImage: !!brand.brand_image,
-        imageCount: Array.isArray(brand.brand_image)
-          ? brand.brand_image.length
-          : 0,
-        imageData: brand.brand_image,
-      })
       return isEnabled
     })
     .map((brand) => {
@@ -163,10 +144,6 @@ export function extractShopByBrandsContent(
           ? brand.brand_image[0]
           : null
 
-      console.log(`[extractShopByBrands] Processing "${brand.brand_name}":`, {
-        firstImage,
-        hasUrl: !!firstImage?.url,
-      })
 
       const imageUrl = firstImage ? pickMediaUrl(firstImage, "") : ""
 
@@ -181,25 +158,16 @@ export function extractShopByBrandsContent(
         buttonText: pickText(brand.button_name, "SHOP NOW"),
       }
 
-      console.log(`[extractShopByBrands] Mapped brand:`, mappedBrand)
 
       return mappedBrand
     })
     .filter((brand) => {
       const isValid = brand.name && brand.imageUrl
       if (!isValid) {
-        console.log(
-          `[extractShopByBrands] Filtering out invalid brand (missing name or image):`,
-          brand
-        )
       }
       return isValid
     })
 
-  console.log("[extractShopByBrands] Final enabled brands:", {
-    count: brands.length,
-    brands,
-  })
 
   // Compute desktop nav visibility (show arrows only if > 4 brands)
   const showNavDesktop = brands.length > 4
@@ -215,11 +183,6 @@ export function extractShopByBrandsContent(
     showNavDesktop,
   }
 
-  console.log("[extractShopByBrands] Returning result:", {
-    sectionTitle: result.sectionTitle,
-    brandsCount: brands.length,
-    showNavDesktop,
-  })
   return result
 }
 
@@ -239,7 +202,6 @@ export function getShopByBrandsWithFallbacks(
     const cmsContent = extractShopByBrandsContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[ShopByBrands] No CMS data, using all fallbacks")
       return {
         ...SHOP_BY_BRANDS_FALLBACKS,
         isSectionEnabled: true,
@@ -260,11 +222,6 @@ export function getShopByBrandsWithFallbacks(
       showNavDesktop: finalBrands.length > 4,
     }
 
-    console.log("[ShopByBrands] Applied fallbacks:", {
-      usedCmsTitle: !!cmsContent.sectionTitle,
-      brandsCount: result.brands.length,
-      showNavDesktop: result.showNavDesktop,
-    })
 
     return result
   } catch (error) {

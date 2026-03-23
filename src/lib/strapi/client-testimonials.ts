@@ -142,7 +142,6 @@ export function extractClientTestimonialsContent(
   homeContent: any
 ): ClientTestimonialsContent | null {
   if (!homeContent?.data?.blocks) {
-    console.log("[extractClientTestimonials] No blocks found in homeContent")
     return null
   }
 
@@ -153,34 +152,21 @@ export function extractClientTestimonialsContent(
   )
 
   if (!testimonialsBlock) {
-    console.log(
-      "[extractClientTestimonials] No client-testimonials block found"
-    )
     return null
   }
 
   // Check if section is enabled
   const isSectionEnabled = pickBool(testimonialsBlock.enable, true)
   if (!isSectionEnabled) {
-    console.log("[extractClientTestimonials] Section disabled in CMS")
     return null
   }
 
-  console.log("[extractClientTestimonials] Found testimonials block:", {
-    section_title: testimonialsBlock.section_title,
-    section_desc: testimonialsBlock.section_desc,
-    testimonialsCount: testimonialsBlock.client_testimonials?.length || 0,
-    enable: testimonialsBlock.enable,
-  })
 
   // If no testimonials in CMS, return null to trigger fallback
   if (
     !testimonialsBlock.client_testimonials ||
     testimonialsBlock.client_testimonials.length === 0
   ) {
-    console.log(
-      "[extractClientTestimonials] No testimonials in CMS, will use fallbacks"
-    )
     return {
       sectionTitle: pickText(
         testimonialsBlock.section_title,
@@ -198,14 +184,6 @@ export function extractClientTestimonialsContent(
   const testimonials = testimonialsBlock.client_testimonials
     .filter((testimonial) => {
       const isEnabled = pickBool(testimonial.enable, true)
-      console.log(
-        `[extractClientTestimonials] Testimonial "${testimonial.client_name}":`,
-        {
-          id: testimonial.id,
-          enabled: testimonial.enable,
-          isEnabled,
-        }
-      )
       return isEnabled
     })
     .map((testimonial) => {
@@ -220,27 +198,16 @@ export function extractClientTestimonialsContent(
         avatar: generateAvatarUrl(testimonial.client_name || "default"),
       }
 
-      console.log(
-        `[extractClientTestimonials] Mapped testimonial:`,
-        mappedTestimonial
-      )
 
       return mappedTestimonial
     })
     .filter((testimonial) => {
       const isValid = testimonial.name && testimonial.quote
       if (!isValid) {
-        console.log(
-          `[extractClientTestimonials] Filtering out invalid testimonial (missing name or quote):`,
-          testimonial
-        )
       }
       return isValid
     })
 
-  console.log("[extractClientTestimonials] Final enabled testimonials:", {
-    count: testimonials.length,
-  })
 
   // Transform to frontend format
   const result: ClientTestimonialsContent = {
@@ -255,11 +222,6 @@ export function extractClientTestimonialsContent(
     testimonials,
   }
 
-  console.log("[extractClientTestimonials] Returning result:", {
-    sectionTitle: result.sectionTitle,
-    sectionDescription: result.sectionDescription,
-    testimonialsCount: testimonials.length,
-  })
   return result
 }
 
@@ -279,7 +241,6 @@ export function getClientTestimonialsWithFallbacks(
     const cmsContent = extractClientTestimonialsContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[ClientTestimonials] No CMS data, using all fallbacks")
       return CLIENT_TESTIMONIALS_FALLBACKS
     }
 
@@ -295,11 +256,6 @@ export function getClientTestimonialsWithFallbacks(
       testimonials: finalTestimonials,
     }
 
-    console.log("[ClientTestimonials] Applied fallbacks:", {
-      usedCmsTitle: !!cmsContent.sectionTitle,
-      usedCmsDescription: !!cmsContent.sectionDescription,
-      testimonialsCount: result.testimonials.length,
-    })
 
     return result
   } catch (error) {

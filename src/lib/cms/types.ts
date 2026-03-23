@@ -161,6 +161,14 @@ export interface SanityServicesPage {
   servicesGrid?: SanityServicesGrid | null
 }
 
+export interface HomepageCollectionSection {
+  collectionHandle: string
+  sectionTitle?: string
+  buttonLabel?: string
+  enabled: boolean
+  displayOrder: number
+}
+
 export interface SanityAboutPageHero {
   title?: string | null
   description?: string | null
@@ -175,9 +183,67 @@ export interface SanityAboutPageStoryItem {
   imageAlt?: string | null
 }
 
+export interface SanityAboutPageWhatWeOfferCard {
+  _key?: string | null
+  title?: string | null
+  backgroundImageUrl?: string | null
+  linkUrl?: string | null
+  buttonText?: string | null
+}
+
+export interface SanityAboutPageWhatWeOffer {
+  sectionName?: string | null
+  heading?: string | null
+  cards?: SanityAboutPageWhatWeOfferCard[] | null
+}
+
+export interface SanityAboutPageOurValueCard {
+  _key?: string | null
+  title?: string | null
+  description?: string | null
+  icon?: string | null
+}
+
+export interface SanityAboutPageOurValues {
+  heading?: string | null
+  description?: string | null
+  cards?: SanityAboutPageOurValueCard[] | null
+}
+
+export interface SanityAboutPageWhyChooseUsItem {
+  _key?: string | null
+  title?: string | null
+  description?: string | null
+  icon?: string | null
+}
+
+export interface SanityAboutPageWhyChooseUs {
+  sectionLabel?: string | null
+  heading?: string | null
+  subtitle?: string | null
+  items?: SanityAboutPageWhyChooseUsItem[] | null
+  topImageUrl?: string | null
+  topImageAlt?: string | null
+  bottomImageUrl?: string | null
+  bottomImageAlt?: string | null
+}
+
+export interface SanityAboutPageCeoQuote {
+  quoteText?: string | null
+  highlightedPhrase?: string | null
+  ceoName?: string | null
+  ceoTitle?: string | null
+  ceoPhotoUrl?: string | null
+  ceoPhotoDescription?: string | null
+}
+
 export interface SanityAboutPage {
   hero?: SanityAboutPageHero | null
   story?: SanityAboutPageStoryItem[] | null
+  whatWeOffer?: SanityAboutPageWhatWeOffer | null
+  ourValues?: SanityAboutPageOurValues | null
+  whyChooseUs?: SanityAboutPageWhyChooseUs | null
+  ceoQuote?: SanityAboutPageCeoQuote | null
 }
 
 export interface SanityCollectionHero {

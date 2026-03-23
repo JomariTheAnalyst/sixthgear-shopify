@@ -35,6 +35,7 @@ import marketing from './marketing'
 import servicesPage from './services-page'
 import aboutPage from './about-page'
 import service from './service'
+import homepageCollectionSection from './homepageCollectionSection'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
@@ -72,6 +73,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     servicesPage,
     aboutPage,
     service,
+    homepageCollectionSection,
 
     homepage,
   ],

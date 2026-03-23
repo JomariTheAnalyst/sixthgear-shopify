@@ -73,7 +73,7 @@ const Summary = ({ cart }: SummaryProps) => {
     try {
       targetUrl = await getCheckoutUrl()
     } catch (error) {
-      console.warn("[checkout] buyer identity association failed; using guest checkout", error)
+      console.error("[checkout] buyer identity association failed; using guest checkout", error)
       targetUrl = fallbackUrl
     }
 

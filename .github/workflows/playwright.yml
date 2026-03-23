@@ -1,0 +1,95 @@
+name: Playwright Smoke Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  deployment_status:
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Local smoke tests — push / PR
+  # ──────────────────────────────────────────────
+  smoke-local:
+    name: Smoke Tests (Local)
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: sixthgear-frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sixthgear-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run local smoke tests
+        run: npx playwright test tests/smoke
+        env:
+          CI: true
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-local
+          path: sixthgear-frontend/playwright-report/
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # Production smoke tests — deployment_status
+  # ──────────────────────────────────────────────
+  smoke-production:
+    name: Smoke Tests (Production)
+    if: >-
+      github.event_name == 'deployment_status' &&
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: sixthgear-frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sixthgear-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run production smoke tests
+        run: npx playwright test tests/smoke
+        env:
+          CI: true
+          TEST_ENV: production
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production
+          path: sixthgear-frontend/playwright-report/
+          retention-days: 14

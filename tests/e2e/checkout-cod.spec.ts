@@ -31,7 +31,6 @@ test.describe("Checkout with Cash on Delivery (COD)", () => {
     page,
   }) => {
     // Step 1: Add product to cart
-    console.log("Step 1: Adding product to cart...")
     await addProductToCart(page, "Medusa T-Shirt")
 
     // Take screenshot after adding to cart
@@ -41,7 +40,6 @@ test.describe("Checkout with Cash on Delivery (COD)", () => {
     })
 
     // Step 2: Go to checkout
-    console.log("Step 2: Going to checkout...")
     await goToCheckout(page)
 
     // Verify we're on checkout page
@@ -52,7 +50,6 @@ test.describe("Checkout with Cash on Delivery (COD)", () => {
     })
 
     // Step 3: Fill shipping address
-    console.log("Step 3: Filling shipping address...")
     await fillShippingAddress(page)
 
     await page.screenshot({
@@ -61,7 +58,6 @@ test.describe("Checkout with Cash on Delivery (COD)", () => {
     })
 
     // Step 4: Select shipping method
-    console.log("Step 4: Selecting shipping method...")
     await selectShippingMethod(page)
 
     await page.screenshot({
@@ -70,11 +66,9 @@ test.describe("Checkout with Cash on Delivery (COD)", () => {
     })
 
     // Step 5: Complete COD payment
-    console.log("Step 5: Selecting COD payment...")
     await completeCODPayment(page)
 
     // Step 6: Verify order confirmation
-    console.log("Step 6: Verifying order confirmation...")
     await verifyOrderConfirmation(page)
 
     // Take final screenshot
@@ -83,7 +77,6 @@ test.describe("Checkout with Cash on Delivery (COD)", () => {
       fullPage: true,
     })
 
-    console.log("✅ COD checkout test completed successfully!")
   })
 
   test("should display COD warning message on confirmation page", async ({

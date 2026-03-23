@@ -1,5 +1,6 @@
 import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
+import { ConsoleGuard } from "../components/console-guard"
 import { PreviewIndicator } from "../components/preview-indicator"
 import "styles/globals.css"
 
@@ -47,6 +48,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
       <body className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} font-sans`}>
+        <ConsoleGuard />
         <PreviewIndicator />
         <main className="relative">{props.children}</main>
         <Toaster position="bottom-right" richColors />

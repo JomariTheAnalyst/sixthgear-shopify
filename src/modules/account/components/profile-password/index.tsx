@@ -14,7 +14,6 @@ const ProfilePassword: React.FC<MyInformationProps> = ({ customer }) => {
 
   // TODO: Add support for password updates
   const updatePassword = async () => {
-    console.warn("[toast]:", "Password update is not implemented")
   }
 
   const clearState = () => {

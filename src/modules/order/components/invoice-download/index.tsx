@@ -22,11 +22,6 @@ export default function InvoiceDownload({ orderId }: InvoiceDownloadProps) {
 
       // Sanitize order ID - remove any whitespace/newlines and encode
       const cleanOrderId = orderId.trim()
-      console.log(
-        "[Invoice Download] Starting download for order:",
-        cleanOrderId
-      )
-      console.log("[Invoice Download] Raw order ID:", JSON.stringify(orderId))
 
       const response = await fetch(
         `${
@@ -41,7 +36,6 @@ export default function InvoiceDownload({ orderId }: InvoiceDownloadProps) {
         }
       )
 
-      console.log("[Invoice Download] Response status:", response.status)
 
       if (!response.ok) {
         const errorText = await response.text()
@@ -51,7 +45,6 @@ export default function InvoiceDownload({ orderId }: InvoiceDownloadProps) {
 
       // Get the PDF URL from redirect or response
       const blob = await response.blob()
-      console.log("[Invoice Download] Blob size:", blob.size)
 
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement("a")
@@ -62,7 +55,6 @@ export default function InvoiceDownload({ orderId }: InvoiceDownloadProps) {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
 
-      console.log("[Invoice Download] Download completed successfully")
     } catch (err: any) {
       console.error("[Invoice Download] Error:", err)
       setError("Failed to download invoice. Please try again.")

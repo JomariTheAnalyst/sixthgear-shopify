@@ -31,6 +31,14 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'productCollectionSections',
+      title: 'Homepage Collection Rails',
+      type: 'array',
+      of: [{ type: 'homepageCollectionSection' }],
+      description:
+        'Select Shopify collections to display as scrollable rails below the product categories section. Ordered by Display Order.',
+    }),
+    defineField({
       name: 'coffeeShowcase',
       title: 'Coffee Showcase',
       type: 'coffeeShowcase',

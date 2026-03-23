@@ -200,7 +200,6 @@ export function getOurTeamWithFallbacks(homeContent: any): OurTeamContent {
     const cmsContent = extractOurTeamContent(homeContent)
 
     if (!cmsContent) {
-      console.log("[OurTeam] No CMS data, using all fallbacks")
       return OUR_TEAM_FALLBACKS
     }
 
@@ -216,11 +215,6 @@ export function getOurTeamWithFallbacks(homeContent: any): OurTeamContent {
       teamMembers: finalTeamMembers,
     }
 
-    console.log("[OurTeam] Applied fallbacks:", {
-      usedCmsTitle: !!cmsContent.sectionTitle,
-      usedCmsDescription: !!cmsContent.sectionDescription,
-      teamMembersCount: result.teamMembers.length,
-    })
 
     return result
   } catch (error) {

@@ -67,6 +67,8 @@ export default async function StorePage(props: Params) {
 
   // Parse filter state from URL
   const filterState = parseSearchParams(urlParams);
+  const selectedCollectionHandle =
+    filterState.collection?.trim() || STORE_COLLECTION_HANDLE;
 
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
@@ -80,9 +82,9 @@ export default async function StorePage(props: Params) {
           first: 24,
           sortKey: searchSort.sortKey,
         }),
-        getCollectionFilters(STORE_COLLECTION_HANDLE),
+        getCollectionFilters(selectedCollectionHandle),
         listCollections({ limit: 100 }),
-        getCollectionHero(STORE_COLLECTION_HANDLE),
+        getCollectionHero(selectedCollectionHandle),
       ]);
 
     const searchProductsForView = searchSort.reverse
@@ -118,20 +120,20 @@ export default async function StorePage(props: Params) {
 
   // --- BROWSE MODE (existing logic) ---
   const [result, sidebarFilters, { collections }, storeHero] = await Promise.all([
-    getFilteredCollection(STORE_COLLECTION_HANDLE, {
+    getFilteredCollection(selectedCollectionHandle, {
       filters: shopifyFilters,
       sortKey: filterState.sortKey,
       reverse: filterState.reverse,
       first: 24,
       after: urlParams.get("after") || undefined,
     }),
-    getCollectionFilters(STORE_COLLECTION_HANDLE),
+    getCollectionFilters(selectedCollectionHandle),
     listCollections({ limit: 100 }),
-    getCollectionHero(STORE_COLLECTION_HANDLE),
+    getCollectionHero(selectedCollectionHandle),
   ]);
 
   if (!result) {
-    console.error("StorePage: getFilteredCollection returned null for handle:", STORE_COLLECTION_HANDLE);
+    console.error("StorePage: getFilteredCollection returned null for handle:", selectedCollectionHandle);
     console.error("StorePage: Filters used:", JSON.stringify(shopifyFilters));
     console.error("StorePage: Sorting used:", filterState.sortKey, filterState.reverse);
     notFound();
@@ -143,11 +145,14 @@ export default async function StorePage(props: Params) {
   }));
 
   // Override collection title to "Shop" for the store page
-  const storeCollection = {
-    ...result.collection,
-    title: "Shop",
-    description: "Explore all of our products.",
-  };
+  const storeCollection =
+    selectedCollectionHandle === STORE_COLLECTION_HANDLE
+      ? {
+          ...result.collection,
+          title: "Shop",
+          description: "Explore all of our products.",
+        }
+      : result.collection;
 
   return (
     <CollectionTemplate

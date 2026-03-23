@@ -24,19 +24,16 @@ export default async function CheckoutSuccessPage(props: Props) {
   const searchParams = await props.searchParams
   const { session_id } = searchParams
 
-  console.log("[Checkout Success] ===== PROCESSING PAYMENT SUCCESS =====")
 
   if (!session_id) {
     console.error("[Checkout Success] ❌ No session_id provided")
     redirect(`/${params.countryCode}/checkout`)
   }
 
-  console.log("[Checkout Success] Session ID:", session_id)
 
   // Wait for webhook to create order
   try {
     // Get cart ID from Stripe session
-    console.log("[Checkout Success] Fetching Stripe session...")
     const stripeResponse = await fetch(
       `https://api.stripe.com/v1/checkout/sessions/${session_id}`,
       {
@@ -55,11 +52,6 @@ export default async function CheckoutSuccessPage(props: Props) {
     }
 
     const session = await stripeResponse.json()
-    console.log("[Checkout Success] Stripe session:", {
-      id: session.id,
-      payment_status: session.payment_status,
-      cart_id: session.metadata?.cart_id,
-    })
 
     const cartId = session.metadata?.cart_id
 
@@ -70,7 +62,6 @@ export default async function CheckoutSuccessPage(props: Props) {
       )
     }
 
-    console.log("[Checkout Success] Waiting for webhook to create order...")
 
     // Poll for order creation (webhook should create it)
     // Try up to 10 times with 1 second delay
@@ -78,9 +69,6 @@ export default async function CheckoutSuccessPage(props: Props) {
     const maxAttempts = 10
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      console.log(
-        `[Checkout Success] Checking for order (attempt ${attempt}/${maxAttempts})...`
-      )
 
       // Wait 1 second before checking
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -105,7 +93,6 @@ export default async function CheckoutSuccessPage(props: Props) {
           const { orders } = await ordersResponse.json()
           if (orders && orders.length > 0) {
             order_id = orders[0].id
-            console.log(`[Checkout Success] ✅ Order found: ${order_id}`)
             break
           }
         }
@@ -118,26 +105,21 @@ export default async function CheckoutSuccessPage(props: Props) {
     }
 
     if (!order_id) {
-      console.warn(
+      console.error(
         "[Checkout Success] ⚠️ Order not found after polling, redirecting anyway..."
       )
     }
 
     // Clear cart cookie since order is complete
-    console.log("[Checkout Success] Clearing cart cookie...")
     const { removeCartId } = await import("@lib/data/cookies")
     await removeCartId()
 
     // Clear selected items from sessionStorage and localStorage
-    console.log("[Checkout Success] Clearing selected items...")
     // Note: This runs server-side, so we'll clear on client-side in the confirmed page
 
     // Revalidate cart cache to force refresh
     const { revalidateTag } = await import("next/cache")
     revalidateTag("carts")
-    console.log(
-      "[Checkout Success] ✅ Cart cookie cleared and cache revalidated"
-    )
 
     // Redirect to order confirmation
     if (order_id) {

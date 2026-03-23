@@ -1,7 +1,7 @@
 import { createClient } from 'next-sanity'
 
 import { apiVersion, dataset, projectId } from '../../../sanity/env'
-import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery, servicesPageQuery, allServicesQuery, serviceBySlugQuery, aboutPageQuery } from './queries'
+import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery, servicesPageQuery, allServicesQuery, serviceBySlugQuery, aboutPageQuery, homepageCollectionSectionsQuery } from './queries'
 import type {
   SanityAboutSection,
   SanityAboutPage,
@@ -22,6 +22,7 @@ import type {
   SanityMarketingData,
   SanityService,
   SanityServicesPage,
+  HomepageCollectionSection,
 } from './types'
 
 export const client = createClient({
@@ -33,7 +34,6 @@ export const client = createClient({
 
 export async function getHomepageHero(): Promise<SanityHeroSection | null> {
   try {
-    console.log('Fetching homepage hero from Sanity...')
 
     const result = await client.fetch<{ hero: SanityHeroSection | null } | null>(
       homepageQuery,
@@ -47,7 +47,6 @@ export async function getHomepageHero(): Promise<SanityHeroSection | null> {
     )
 
     if (!result?.hero) {
-      console.warn('[Sanity] Homepage query returned:', JSON.stringify(result))
     }
 
     return result?.hero ?? null
@@ -59,7 +58,6 @@ export async function getHomepageHero(): Promise<SanityHeroSection | null> {
 
 export async function getHomepageShopByBrands(): Promise<SanityShopByBrandsSection | null> {
   try {
-    console.log('Fetching homepage shopByBrands from Sanity...')
 
     const result = await client.fetch<{ shopByBrands: SanityShopByBrandsSection | null } | null>(
       homepageQuery,
@@ -73,7 +71,6 @@ export async function getHomepageShopByBrands(): Promise<SanityShopByBrandsSecti
     )
 
     if (!result?.shopByBrands) {
-      console.warn('[Sanity] Homepage query returned no shopByBrands:', JSON.stringify(result))
     }
 
     return result?.shopByBrands ?? null
@@ -85,7 +82,6 @@ export async function getHomepageShopByBrands(): Promise<SanityShopByBrandsSecti
 
 export async function getHomepageAbout(): Promise<SanityAboutSection | null> {
   try {
-    console.log('Fetching homepage about from Sanity...')
 
     const result = await client.fetch<{ about: SanityAboutSection | null } | null>(
       homepageQuery,
@@ -99,7 +95,6 @@ export async function getHomepageAbout(): Promise<SanityAboutSection | null> {
     )
 
     if (!result?.about) {
-      console.warn('[Sanity] Homepage query returned no about:', JSON.stringify(result))
     }
 
     return result?.about ?? null
@@ -111,7 +106,6 @@ export async function getHomepageAbout(): Promise<SanityAboutSection | null> {
 
 export async function getHomepageCategories(): Promise<SanityCategoriesSection | null> {
   try {
-    console.log('Fetching homepage categories from Sanity...')
 
     const result = await client.fetch<{ categories: SanityCategoriesSection | null } | null>(
       homepageQuery,
@@ -125,7 +119,6 @@ export async function getHomepageCategories(): Promise<SanityCategoriesSection |
     )
 
     if (!result?.categories) {
-      console.warn('[Sanity] Homepage query returned no categories:', JSON.stringify(result))
     }
 
     return result?.categories ?? null
@@ -137,7 +130,6 @@ export async function getHomepageCategories(): Promise<SanityCategoriesSection |
 
 export async function getHomepageServices(): Promise<SanityServicesSection | null> {
   try {
-    console.log('Fetching homepage services from Sanity...')
 
     const result = await client.fetch<{ services: SanityServicesSection | null } | null>(
       homepageQuery,
@@ -151,13 +143,66 @@ export async function getHomepageServices(): Promise<SanityServicesSection | nul
     )
 
     if (!result?.services) {
-      console.warn('[Sanity] Homepage query returned no services:', JSON.stringify(result))
     }
 
     return result?.services ?? null
   } catch (error) {
     console.error('[Sanity] getHomepageServices failed:', error)
     return null
+  }
+}
+
+type HomepageCollectionSectionQueryResult = {
+  collectionHandle?: string | null
+  sectionTitle?: string | null
+  buttonLabel?: string | null
+  enabled?: boolean | null
+  displayOrder?: number | null
+}
+
+function isHomepageCollectionSectionResult(
+  item: HomepageCollectionSectionQueryResult | null | undefined
+): item is {
+  collectionHandle: string
+  sectionTitle?: string | null
+  buttonLabel?: string | null
+  enabled: true
+  displayOrder: number
+} {
+  return (
+    typeof item?.collectionHandle === 'string' &&
+    item.collectionHandle.trim().length > 0 &&
+    item.enabled === true &&
+    typeof item.displayOrder === 'number'
+  )
+}
+
+export async function getHomepageCollectionSections(): Promise<HomepageCollectionSection[]> {
+  try {
+    const result = await client.fetch<HomepageCollectionSectionQueryResult[] | null>(
+      homepageCollectionSectionsQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return (Array.isArray(result) ? result : [])
+      .filter(isHomepageCollectionSectionResult)
+      .map((item) => ({
+        collectionHandle: item.collectionHandle.trim(),
+        sectionTitle: item.sectionTitle?.trim() || undefined,
+        buttonLabel: item.buttonLabel?.trim() || undefined,
+        enabled: true,
+        displayOrder: item.displayOrder,
+      }))
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+  } catch (error) {
+    console.error('[Sanity] getHomepageCollectionSections failed:', error)
+    return []
   }
 }
 
@@ -185,7 +230,6 @@ export async function getCollectionHero(
 
 export async function getCoffeeShowcase(): Promise<SanityCoffeeShowcase | null> {
   try {
-    console.log('Fetching homepage coffee showcase from Sanity...')
 
     const result = await client.fetch<{ coffeeShowcase: SanityCoffeeShowcase | null } | null>(
       coffeeShowcaseQuery,
@@ -199,7 +243,6 @@ export async function getCoffeeShowcase(): Promise<SanityCoffeeShowcase | null> 
     )
 
     if (!result?.coffeeShowcase) {
-      console.warn('[Sanity] Homepage coffee showcase query returned null:', JSON.stringify(result))
     }
 
     return result?.coffeeShowcase ?? null
@@ -211,7 +254,6 @@ export async function getCoffeeShowcase(): Promise<SanityCoffeeShowcase | null> 
 
 export async function getSpaceExperiences(): Promise<SanitySpaceExperiences | null> {
   try {
-    console.log('Fetching homepage space and experiences from Sanity...')
 
     const result = await client.fetch<{ spaceExperiences: SanitySpaceExperiences | null } | null>(
       spaceExperiencesQuery,
@@ -225,7 +267,6 @@ export async function getSpaceExperiences(): Promise<SanitySpaceExperiences | nu
     )
 
     if (!result?.spaceExperiences) {
-      console.warn('[Sanity] Homepage space experiences query returned null:', JSON.stringify(result))
     }
 
     return result?.spaceExperiences ?? null
@@ -237,7 +278,6 @@ export async function getSpaceExperiences(): Promise<SanitySpaceExperiences | nu
 
 export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSection | null> {
   try {
-    console.log('Fetching homepage service brands section from Sanity...')
 
     const result = await client.fetch<{ serviceBrandsSection: SanityServiceBrandsSection | null } | null>(
       serviceBrandsSectionQuery,
@@ -251,7 +291,6 @@ export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSect
     )
 
     if (!result?.serviceBrandsSection) {
-      console.warn('[Sanity] Homepage service brands section query returned null:', JSON.stringify(result))
     }
 
     return result?.serviceBrandsSection ?? null
@@ -263,7 +302,6 @@ export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSect
 
 export async function getSatisfiedCustomers(): Promise<SanitySatisfiedCustomers | null> {
   try {
-    console.log('Fetching homepage satisfied customers from Sanity...')
 
     const result = await client.fetch<{ satisfiedCustomers: SanitySatisfiedCustomers | null } | null>(
       satisfiedCustomersQuery,
@@ -277,7 +315,6 @@ export async function getSatisfiedCustomers(): Promise<SanitySatisfiedCustomers 
     )
 
     if (!result?.satisfiedCustomers) {
-      console.warn('[Sanity] Homepage satisfied customers query returned null:', JSON.stringify(result))
     }
 
     return result?.satisfiedCustomers ?? null
@@ -289,7 +326,6 @@ export async function getSatisfiedCustomers(): Promise<SanitySatisfiedCustomers 
 
 export async function getFranchiseSection(): Promise<SanityFranchiseSection | null> {
   try {
-    console.log('Fetching homepage franchise section from Sanity...')
 
     const result = await client.fetch<{ franchiseSection: SanityFranchiseSection | null } | null>(
       franchiseSectionQuery,
@@ -303,7 +339,6 @@ export async function getFranchiseSection(): Promise<SanityFranchiseSection | nu
     )
 
     if (!result?.franchiseSection) {
-      console.warn('[Sanity] Homepage franchise section query returned null:', JSON.stringify(result))
     }
 
     return result?.franchiseSection ?? null
@@ -315,7 +350,6 @@ export async function getFranchiseSection(): Promise<SanityFranchiseSection | nu
 
 export async function getOurTeamSection(): Promise<SanityOurTeamSection | null> {
   try {
-    console.log('Fetching homepage our team section from Sanity...')
 
     const result = await client.fetch<{ ourTeamSection: SanityOurTeamSection | null } | null>(
       ourTeamSectionQuery,
@@ -329,7 +363,6 @@ export async function getOurTeamSection(): Promise<SanityOurTeamSection | null> 
     )
 
     if (!result?.ourTeamSection) {
-      console.warn('[Sanity] Homepage our team section query returned null:', JSON.stringify(result))
     }
 
     return result?.ourTeamSection ?? null
@@ -341,7 +374,6 @@ export async function getOurTeamSection(): Promise<SanityOurTeamSection | null> 
 
 export async function getClientTestimonials(): Promise<SanityClientTestimonials | null> {
   try {
-    console.log('Fetching homepage client testimonials from Sanity...')
 
     const result = await client.fetch<{ clientTestimonials: SanityClientTestimonials | null } | null>(
       clientTestimonialsQuery,
@@ -355,7 +387,6 @@ export async function getClientTestimonials(): Promise<SanityClientTestimonials 
     )
 
     if (!result?.clientTestimonials) {
-      console.warn('[Sanity] Homepage client testimonials query returned null:', JSON.stringify(result))
     }
 
     return result?.clientTestimonials ?? null
@@ -367,7 +398,6 @@ export async function getClientTestimonials(): Promise<SanityClientTestimonials 
 
 export async function getStoreLocation(): Promise<SanityStoreLocation | null> {
   try {
-    console.log('Fetching homepage store location from Sanity...')
 
     const result = await client.fetch<{ storeLocation: SanityStoreLocation | null } | null>(
       storeLocationQuery,
@@ -381,7 +411,6 @@ export async function getStoreLocation(): Promise<SanityStoreLocation | null> {
     )
 
     if (!result?.storeLocation) {
-      console.warn('[Sanity] Homepage store location query returned null:', JSON.stringify(result))
     }
 
     return result?.storeLocation ?? null
@@ -393,7 +422,6 @@ export async function getStoreLocation(): Promise<SanityStoreLocation | null> {
 
 export async function getCtaBanner(): Promise<SanityCtaBanner | null> {
   try {
-    console.log('Fetching homepage CTA banner from Sanity...')
 
     const result = await client.fetch<{ ctaBanner: SanityCtaBanner | null } | null>(
       ctaBannerQuery,
@@ -407,7 +435,6 @@ export async function getCtaBanner(): Promise<SanityCtaBanner | null> {
     )
 
     if (!result?.ctaBanner) {
-      console.warn('[Sanity] Homepage CTA banner query returned null:', JSON.stringify(result))
     }
 
     return result?.ctaBanner ?? null

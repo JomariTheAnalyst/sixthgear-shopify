@@ -55,10 +55,6 @@ const PayNowButton = ({
       }
 
       // For COD and other methods: Place order directly
-      console.log(
-        "[Pay Now] Placing order with payment method:",
-        selectedPaymentMethod
-      )
 
       // Ensure payment session is initialized
       const activeSession = cart.payment_collection?.payment_sessions?.find(
@@ -69,17 +65,14 @@ const PayNowButton = ({
         !activeSession ||
         activeSession.provider_id !== selectedPaymentMethod
       ) {
-        console.log("[Pay Now] Initializing payment session...")
         await initiatePaymentSession(cart, {
           provider_id: selectedPaymentMethod,
         })
       }
 
       // Place order
-      console.log("[Pay Now] Placing order...")
       await placeOrder()
 
-      console.log("[Pay Now] ✅ Order placed successfully")
       onSuccess?.()
     } catch (err: any) {
       console.error("[Pay Now] ❌ Error:", err)

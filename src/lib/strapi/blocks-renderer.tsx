@@ -175,7 +175,7 @@ function renderBlock(block: RichTextBlock, index: number): React.ReactNode {
       )
 
     default:
-      console.warn("[BlocksRenderer] Unknown block type:", (block as any).type)
+      console.error("[BlocksRenderer] Unknown block type:", (block as any).type)
       return null
   }
 }

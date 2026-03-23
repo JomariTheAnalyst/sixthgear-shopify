@@ -82,8 +82,6 @@ export default async function PreviewPage(props: {
   // Check if draft mode is enabled
   const { isEnabled } = await draftMode()
 
-  console.log("[PreviewPage] Draft mode enabled:", isEnabled)
-  console.log("[PreviewPage] Country code:", countryCode)
 
   const region = await getRegion(countryCode)
 
@@ -121,17 +119,6 @@ export default async function PreviewPage(props: {
   const ctaBannerContent = getCTABannerWithFallbacks(homeContent)
 
   // Debug logging
-  console.log("[PreviewPage] Draft mode enabled:", isEnabled)
-  console.log("[PreviewPage] Hero content with fallbacks:", heroContent)
-  console.log("[PreviewPage] About content with fallbacks:", aboutContent)
-  console.log(
-    "[PreviewPage] Shop by brands content with fallbacks:",
-    shopByBrandsContent
-  )
-  console.log(
-    "[PreviewPage] Space and experience content with fallbacks:",
-    spaceAndExperienceContent
-  )
 
   return (
     <>

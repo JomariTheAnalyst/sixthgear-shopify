@@ -13,4 +13,6 @@ export const FALLBACK_ABOUT_MISSION: AboutMissionContent = {
   ceoName: "Cap. Gregory Nick Sevilla",
   ceoTitle: "CEO & Founder, Sixthgear Motosupply",
   ceoPhoto: "/images/ceo/capgreg.jpg",
+  ceoPhotoDescription:
+    "Portrait of Cap. Gregory Nick Sevilla, founder of SixthGearMoto, standing in the workshop.",
 }
