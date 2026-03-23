@@ -16,11 +16,6 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
-    defaults:
-      run:
-        working-directory: sixthgear-frontend
-
     steps:
       - uses: actions/checkout@v4
 
@@ -44,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-local
-          path: sixthgear-frontend/playwright-report/
+          path: playwright-report/
           retention-days: 14
 
   # ──────────────────────────────────────────────
@@ -58,11 +53,6 @@ jobs:
       github.event.deployment_status.environment == 'Production'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
-    defaults:
-      run:
-        working-directory: sixthgear-frontend
-
     steps:
       - uses: actions/checkout@v4
 
@@ -87,5 +77,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-production
-          path: sixthgear-frontend/playwright-report/
+          path: playwright-report/
           retention-days: 14
