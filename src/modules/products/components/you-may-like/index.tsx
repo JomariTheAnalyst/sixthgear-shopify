@@ -113,15 +113,16 @@ export default async function YouMayLike({
         You May Like
       </h2>
 
-      {/* Product Grid - Wider cards (3 columns on desktop instead of 6) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-6 gap-y-8">
+      {/* Product Grid - Contiguous 1px borders */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 border-t border-l border-gray-200">
         {mappedProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            region={region}
-            inventoryMap={inventoryMap}
-          />
+          <div key={product.id} className="h-full bg-white border-r border-b border-gray-200">
+            <ProductCard
+              product={product}
+              region={region}
+              inventoryMap={inventoryMap}
+            />
+          </div>
         ))}
       </div>
     </div>

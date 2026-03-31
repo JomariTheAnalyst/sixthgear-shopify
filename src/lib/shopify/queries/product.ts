@@ -78,6 +78,9 @@ export const getProductQuery = `
         {namespace: "shopify", key: "gender"},
         # Custom namespace fields
         {namespace: "custom", key: "care_instructions"},
+        {namespace: "custom", key: "size_chart"},
+        {namespace: "custom", key: "size_chart_image"},
+        {namespace: "custom", key: "size_chart_data"},
         {namespace: "custom", key: "size_guide"},
         {namespace: "custom", key: "material"},
         {namespace: "custom", key: "weight"},
@@ -100,6 +103,16 @@ export const getProductQuery = `
         value
         namespace
         type
+        reference {
+          ... on MediaImage {
+            image {
+              ...ImageFragment
+            }
+          }
+          ... on GenericFile {
+            url
+          }
+        }
       }
     }
   }

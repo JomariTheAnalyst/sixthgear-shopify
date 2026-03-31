@@ -37,8 +37,8 @@ export const predictiveSearchQuery = `
 `;
 
 export const searchProductsQuery = `
-  query searchProducts($query: String!, $first: Int!, $after: String, $sortKey: SearchSortKeys) {
-    search(query: $query, first: $first, after: $after, types: [PRODUCT], sortKey: $sortKey) {
+  query searchProducts($query: String!, $first: Int, $after: String, $last: Int, $before: String, $sortKey: SearchSortKeys) {
+    search(query: $query, first: $first, after: $after, last: $last, before: $before, types: [PRODUCT], sortKey: $sortKey) {
       edges {
         node {
           ... on Product {
@@ -49,6 +49,8 @@ export const searchProductsQuery = `
       }
       pageInfo {
         hasNextPage
+        hasPreviousPage
+        startCursor
         endCursor
       }
       totalCount

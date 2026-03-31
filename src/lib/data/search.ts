@@ -44,6 +44,8 @@ export async function searchProducts(
   options?: {
     first?: number
     after?: string
+    last?: number
+    before?: string
     sortKey?: string
   }
 ): Promise<{ products: ShopifyProductCard[]; pageInfo: ShopifyPageInfo; totalCount: number }> {
@@ -65,7 +67,11 @@ export async function searchProducts(
     "search",
     "products",
     normalizedQuery,
-    String(options?.first ?? 12)
+    String(options?.first ?? "null"),
+    options?.after ?? "null",
+    String(options?.last ?? "null"),
+    options?.before ?? "null",
+    options?.sortKey ?? "default"
   )
 
   return getCached(

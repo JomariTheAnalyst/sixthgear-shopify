@@ -42,6 +42,8 @@ export async function getFilteredCollection(
     reverse?: boolean;
     first?: number;
     after?: string;
+    last?: number;
+    before?: string;
   }
 ): Promise<{
   collection: {
@@ -63,8 +65,10 @@ export async function getFilteredCollection(
     "collection",
     handle,
     options?.sortKey ?? "default",
-    String(options?.first ?? 24),
-    options?.after ?? "page-1",
+    String(options?.first ?? "null"),
+    options?.after ?? "null",
+    String(options?.last ?? "null"),
+    options?.before ?? "null",
     JSON.stringify(sortedFilters)
   )
 
@@ -89,8 +93,10 @@ export async function getFilteredCollection(
         filters: options?.filters || [],
         sortKey: options?.sortKey || "COLLECTION_DEFAULT",
         reverse: options?.reverse || false,
-        first: options?.first || 24,
+        first: options?.first,
         after: options?.after || null,
+        last: options?.last,
+        before: options?.before || null,
       });
 
       if (errors && errors.length > 0) {

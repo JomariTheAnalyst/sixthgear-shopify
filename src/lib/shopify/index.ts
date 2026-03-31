@@ -30,7 +30,18 @@ export async function getProduct(handle: string): Promise<ShopifyProduct | null>
     key,
     async () => {
       const { data, errors } = await shopifyGraphql<{
-        product: Omit<ShopifyProduct, "metafields"> & { metafields?: Array<{ key: string, namespace: string, value: string } | null> };
+        product: Omit<ShopifyProduct, "metafields"> & {
+          metafields?: Array<{
+            key: string
+            namespace: string
+            value: string
+            type?: string
+            reference?: {
+              image?: ShopifyProduct["featuredImage"] | null
+              url?: string | null
+            } | null
+          } | null>
+        };
       }>(getProductQuery, { handle });
 
       if (errors && errors.length > 0) {
@@ -219,6 +230,8 @@ export async function searchProducts(
   options?: {
     first?: number;
     after?: string;
+    last?: number;
+    before?: string;
     sortKey?: string;
   }
 ): Promise<{ products: ShopifyProductCard[]; pageInfo: ShopifyPageInfo; totalCount: number }> {
@@ -230,8 +243,10 @@ export async function searchProducts(
     };
   }>(searchProductsQuery, {
     query,
-    first: options?.first || 20,
+    first: options?.first,
     after: options?.after,
+    last: options?.last,
+    before: options?.before,
     sortKey: options?.sortKey,
   });
 

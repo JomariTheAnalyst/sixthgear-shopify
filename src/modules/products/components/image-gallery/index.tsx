@@ -21,7 +21,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-[4/5] bg-gray-200 rounded-2xl flex items-center justify-center">
+      <div className="aspect-[4/5] bg-[#F9F9F9] rounded-lg flex items-center justify-center">
         <svg
           className="w-16 h-16 text-gray-200"
           fill="none"
@@ -122,12 +122,12 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       </div>
 
       {/* Thumbnails — Horizontal Strip on Mobile, Vertical on Desktop */}
-      <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden scrollbar-hide pb-1 lg:pb-0 pr-1 w-full lg:w-[80px] flex-shrink-0 lg:max-h-[600px]">
+      <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden scrollbar-hide pb-1 lg:pb-0 pr-1 w-full lg:w-[88px] flex-shrink-0 lg:max-h-[600px]">
         {displayedThumbnails.map((image, index) => (
           <button
             key={image.id || index}
             onClick={() => setActiveIndex(index)}
-            className={`relative flex-shrink-0 w-16 h-16 md:w-[72px] md:h-[72px] lg:w-full lg:h-auto lg:aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-1 ${
+            className={`relative flex-shrink-0 w-[72px] h-[72px] md:w-[88px] md:h-[88px] lg:w-full lg:h-auto lg:aspect-square bg-[#F9F9F9] rounded overflow-hidden border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-1 ${
               activeIndex === index
                 ? "border-gray-900"
                 : "border-transparent hover:border-gray-400"
@@ -152,7 +152,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         {extraCount > 0 && (
           <button
             onClick={() => setIsLightboxOpen(true)}
-            className="relative flex-shrink-0 w-16 h-16 md:w-[72px] md:h-[72px] lg:w-full lg:h-auto lg:aspect-square rounded-lg overflow-hidden bg-gray-900 flex items-center justify-center hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-1"
+            className="relative flex-shrink-0 w-[72px] h-[72px] md:w-[88px] md:h-[88px] lg:w-full lg:h-auto lg:aspect-square rounded overflow-hidden bg-gray-900 flex items-center justify-center hover:bg-gray-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-1"
             aria-label={`View ${extraCount} more images`}
           >
             <span className="text-white text-sm font-semibold">
@@ -166,7 +166,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       <div className="relative w-full flex-grow">
         <div
           ref={mainImageRef}
-          className="relative aspect-[4/5] lg:aspect-[4/4.5] w-full rounded-2xl overflow-hidden bg-gray-200 cursor-zoom-in"
+          className="relative aspect-[4/5] lg:aspect-[4/4.5] w-full rounded-[4px] md:rounded-lg overflow-hidden bg-[#F9F9F9] cursor-zoom-in"
           onMouseEnter={() => setIsZoomed(true)}
           onMouseLeave={() => setIsZoomed(false)}
           onMouseMove={handleMouseMove}

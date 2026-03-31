@@ -8,11 +8,10 @@
 import { useState } from "react"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
-import { ShoppingCart, Flame, Truck, Plus } from "lucide-react"
+import { ShoppingCart, Plus } from "lucide-react"
 
 import { getProductPricing } from "@lib/util/get-product-pricing"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import WishlistButton from "@modules/wishlist/components/wishlist-button"
 import QuickShopModal from "@modules/common/components/quick-shop-modal"
 
 export type BadgeMode = "discount" | "rank" | "new" | "hot"
@@ -63,40 +62,20 @@ export default function ProductCard({
     countryCode || region?.countries?.[0]?.iso_2 || "ph"
 
   const isInStock = (() => {
-    if (!firstVariant) {
-      return false
-    }
-
+    if (!firstVariant) return false
     if (inventoryMap && firstVariant.id in inventoryMap) {
       return inventoryMap[firstVariant.id] > 0
     }
-
-    if (firstVariant.allow_backorder === true) {
-      return true
-    }
-
-    if (firstVariant.manage_inventory === false) {
-      return true
-    }
-
+    if (firstVariant.allow_backorder === true) return true
+    if (firstVariant.manage_inventory === false) return true
     if (
       firstVariant.inventory_quantity !== null &&
       firstVariant.inventory_quantity !== undefined
     ) {
       return firstVariant.inventory_quantity > 0
     }
-
     return false
   })()
-
-  const openQuickShop = (event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setShowQuickShop(true)
-  }
-
-  // Fallback to checking the product's tags directly if no specific section badge mode was provided
-  const resolvedBadges = badges.length > 0 ? badges : getBadgesFromTags(product.tags?.map(t => t.value) || [])
 
   // Dynamic variant availability text from Shopify options
   const availabilityText = (() => {
@@ -125,95 +104,49 @@ export default function ProductCard({
     return null
   })()
 
-  const getBadgeElement = (mode: BadgeMode, keyItem: string) => {
-    switch (mode) {
-      case "new":
-        return (
-          <span
-            key={keyItem}
-            className="inline-flex max-w-full items-center bg-[#111] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] px-2 py-1 sm:px-2.5 leading-none rounded-sm whitespace-nowrap"
-          >
-            New
-          </span>
-        )
-      case "hot":
-        return null
-      default:
-        return null
-    }
+  const openQuickShop = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setShowQuickShop(true)
   }
 
   return (
-    <article className="group h-full flex flex-col bg-white transition-colors duration-200">
-      {/* Top Image Container — square aspect ratio for compact footprint */}
-      <div className="relative w-full aspect-square bg-[#f5f5f5] overflow-hidden rounded-sm group-hover:bg-[#f2f2f2] transition-colors">
-        
-        {/* Badges Overlay (Stackable vertically, padded from edge) */}
-        <div className="absolute left-2.5 right-12 top-2.5 z-30 flex flex-col gap-1.5 items-start pointer-events-none sm:left-3 sm:right-14 sm:top-3">
-          {pricing.isOnSale && (
-            <span className="inline-flex max-w-full items-center bg-[#e62020] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] px-2 py-1 sm:px-2.5 leading-none rounded-sm whitespace-nowrap">
-              Sale
-            </span>
-          )}
-          {resolvedBadges.map((badgeMode) => getBadgeElement(badgeMode, badgeMode))}
-        </div>
+    <article className="group h-full flex flex-col bg-white">
+      {/* ── Image Area ── */}
+      <div className="relative w-full aspect-square bg-white overflow-hidden">
 
-        {/* Sleek Wishlist Naked Icon */}
-        <div className="absolute right-3 top-3 z-20 text-[#a0a0a0] transition-colors hover:text-[#111]" title="Add to wishlist">
-          <WishlistButton
-            productData={{
-              handle: product.handle,
-              id: product.id,
-              title: product.title || "",
-              imageUrl: imageUrl || null,
-              imageAlt: product.title || null,
-              price: pricing.minCalculated ?? 0,
-              compareAtPrice: pricing.minOriginal,
-              currencyCode: pricing.currencyCode.toUpperCase(),
-              availableForSale: isInStock,
-              vendor: brandName,
-              variantId: firstVariant?.id || product.id,
-            }}
-            className="w-10 h-10 flex items-center justify-center bg-transparent border-none p-0 shadow-none hover:bg-transparent [&_svg]:!w-6 [&_svg]:!h-6"
-          />
-        </div>
-
-        {/* Subtle bottom-left UI standard icons */}
-        <div className="absolute left-3 bottom-3 z-20 flex gap-1.5 items-end text-[#d0d0d0]">
-          {resolvedBadges.includes("hot") && (
-            <div title="Hot Deal">
-              <Flame className="w-6 h-6 text-orange-500 fill-orange-500" strokeWidth={2} />
-            </div>
-          )}
-          <Truck className="w-4 h-4 mb-0.5" strokeWidth={2} />
-        </div>
+        {/* Dynamic "Save X%" badge — top-left with padding */}
+        {pricing.isOnSale && pricing.discountPct && (
+          <span className="absolute top-2 left-2 z-30 bg-[#e62020] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-1.5 leading-none tracking-wide rounded-sm">
+            Save {pricing.discountPct}%
+          </span>
+        )}
 
         <LocalizedClientLink
           href={`/products/${product.handle}`}
           className="absolute inset-0 w-full h-full block"
         >
-          {/* Main Product Image */}
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={product.title || "Product"}
               fill
-              className="object-contain p-5 sm:p-6 transition-transform duration-400 group-hover:scale-[1.03]"
+              className="object-contain p-5 sm:p-6 transition-transform duration-300 group-hover:scale-[1.03]"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               unoptimized
             />
           ) : (
-             <div className="flex h-full w-full items-center justify-center text-[#d0d0d0]">
-               <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-               </svg>
-             </div>
+            <div className="flex h-full w-full items-center justify-center text-gray-200">
+              <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
           )}
-          
-          {/* Sold Out Overlay Layer */}
+
+          {/* Sold Out Overlay */}
           {!isInStock && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60">
-              <span className="bg-white border border-[#e0e0e0] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[#5f5b53]">
+              <span className="bg-white border border-gray-200 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
                 Sold Out
               </span>
             </div>
@@ -221,61 +154,51 @@ export default function ProductCard({
         </LocalizedClientLink>
       </div>
 
-      {/* Compact Bottom Information Block */}
-      <div className="flex flex-col flex-1 pt-2 px-1 pb-1 bg-white relative">
-        <div className="flex flex-col gap-0.5">
-          {/* BRAND FIRST, small, muted, uppercase */}
-          <LocalizedClientLink href={`/products/${product.handle}`} className="block">
-             <p className="text-[10px] font-bold uppercase tracking-widest text-[#888] line-clamp-1">
-               {brandName}
-             </p>
-          </LocalizedClientLink>
+      {/* ── Text Section ── */}
+      <div className="flex flex-col flex-1 pt-4 px-4 pb-4">
+        {/* Vendor */}
+        <LocalizedClientLink href={`/products/${product.handle}`} className="block">
+          <p className="text-[10px] sm:text-[11px] font-normal uppercase tracking-[0.1em] text-gray-400 leading-none mb-1">
+            {brandName}
+          </p>
+        </LocalizedClientLink>
 
-          {/* PRODUCT NAME SECOND, bold, black, visually dominant */}
-          <LocalizedClientLink href={`/products/${product.handle}`} className="block">
-             <h3 className="text-[14px] sm:text-[15px] font-extrabold text-[#111] leading-tight line-clamp-2">
-               {product.title}
-             </h3>
-          </LocalizedClientLink>
-          
-          {/* VARIANT AVAILABILITY THIRD */}
-          {availabilityText && (
-            <p className="text-[11px] text-[#767676] font-medium italic">
-              {availabilityText}
-            </p>
-          )}
-        </div>
+        {/* Product Title — max 2 lines */}
+        <LocalizedClientLink href={`/products/${product.handle}`} className="block">
+          <h3 className="text-[14px] sm:text-[15px] font-bold text-[#111] leading-snug line-clamp-2">
+            {product.title}
+          </h3>
+        </LocalizedClientLink>
+
+        {/* VARIANT AVAILABILITY */}
+        {availabilityText && (
+          <p className="text-[11px] text-gray-500 font-medium italic mt-1.5">
+            {availabilityText}
+          </p>
+        )}
 
         {/* Pricing & Cart Action Row */}
-        <div className="mt-auto pt-1 flex w-full items-center justify-between gap-2">
+        <div className="mt-auto pt-2 flex w-full items-end justify-between gap-2">
           <div className="flex flex-col flex-1">
             {pricing.hasPrice ? (
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-baseline gap-2 flex-wrap">
                 {pricing.isOnSale && pricing.formattedOriginal ? (
                   <>
-                    <span className="text-[12px] sm:text-[13px] text-[#767676]">
-                      From
-                    </span>
-                    <span className="text-[13px] sm:text-[14px] font-extrabold text-[#e62020]">
+                    <span className="text-[13px] sm:text-[14px] font-bold text-[#e62020]">
                       {pricing.formattedCalculated}
                     </span>
-                    <span className="text-[11px] text-[#767676] line-through decoration-[#767676] decoration-1 font-medium">
+                    <span className="text-[11px] sm:text-[12px] text-gray-400 line-through font-normal">
                       {pricing.formattedOriginal}
                     </span>
-                    {pricing.discountPct && (
-                      <span className="text-[10px] font-bold text-[#e62020]">
-                        -{pricing.discountPct}%
-                      </span>
-                    )}
                   </>
                 ) : (
-                  <span className="text-[13px] sm:text-[14px] font-extrabold text-[#111]">
+                  <span className="text-[13px] sm:text-[14px] font-bold text-gray-900">
                     {pricing.formattedCalculated}
                   </span>
                 )}
               </div>
             ) : (
-                <span className="text-[12px] text-[#a0a0a0] font-medium">Price unavailable</span>
+              <span className="text-[12px] text-gray-400 font-normal">Price unavailable</span>
             )}
           </div>
 
@@ -285,16 +208,16 @@ export default function ProductCard({
             onClick={openQuickShop}
             disabled={!canAddToCart || !isInStock}
             aria-label="Quick shop"
-            className={`flex-shrink-0 w-10 h-10 flex items-center justify-center transition-all duration-200 rounded-sm ${
+            className={`flex-shrink-0 w-9 h-9 flex items-center justify-center transition-colors duration-200 rounded-sm ${
               isInStock && canAddToCart
-                ? "text-[#111] hover:bg-[#f0f0f0]"
-                : "text-[#dcdcdc] cursor-not-allowed"
+                ? "text-gray-900 hover:bg-gray-100"
+                : "text-gray-300 cursor-not-allowed"
             }`}
           >
             <div className="relative">
-              <ShoppingCart className="w-5 h-5 stroke-[2.5]" fill="none" />
-              <span className="absolute -bottom-1 -right-1 bg-white text-[#111] rounded-full">
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              <ShoppingCart className="w-[18px] h-[18px] stroke-[2]" fill="none" />
+              <span className="absolute -bottom-0.5 -right-0.5 bg-white text-gray-900 rounded-full">
+                <Plus className="w-3 h-3 stroke-[3]" />
               </span>
             </div>
           </button>

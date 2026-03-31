@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useTransition } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 
 import type {
   ShopifyFilter,
@@ -39,6 +39,7 @@ type CollectionTemplateProps = {
   countryCode: string
   collectionsMenu?: { handle: string; title: string }[]
   heroData?: SanityCollectionHero | null
+  currentPage?: number
 }
 
 function mapShopifyProductToSharedCard(
@@ -120,26 +121,72 @@ export default function CollectionTemplate({
   countryCode,
   collectionsMenu,
   heroData,
+  currentPage = 1,
 }: CollectionTemplateProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const isFirstPage = currentPage <= 1
+
   const [filterState, setFilterState] =
     useState<FilterState>(initialFilterState)
   const [isPending, startTransition] = useTransition()
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
+  // Build a URL with the current filter/sort/search state and a page number
+  const buildPageUrl = useCallback((page: number) => {
+    const params = serializeFilterState(filterState)
+
+    // Preserve search query if active
+    const query = searchParams.get("query")
+    if (query) {
+      params.set("query", query)
+    }
+
+    // Remove raw cursor params — we only use ?page=N
+    params.delete("after")
+    params.delete("before")
+
+    if (page > 1) {
+      params.set("page", String(page))
+    } else {
+      params.delete("page")
+    }
+
+    const qs = params.toString()
+    return `${pathname}${qs ? `?${qs}` : ""}`
+  }, [filterState, searchParams, pathname])
+
   const applyFilters = useCallback(
     (nextState: FilterState) => {
       setFilterState(nextState)
       const params = serializeFilterState(nextState)
+      
+      // Preserve search query if active
+      const query = searchParams.get("query")
+      if (query) {
+        params.set("query", query)
+      }
+
+      // Reset to page 1 on filter change
+      params.delete("page")
+      params.delete("after")
+      params.delete("before")
+
       const queryString = params.toString()
       startTransition(() => {
         router.push(`${pathname}${queryString ? `?${queryString}` : ""}`)
       })
     },
-    [router, pathname]
+    [router, pathname, searchParams]
   )
+
+  const goToPage = useCallback((page: number) => {
+    startTransition(() => {
+      router.push(buildPageUrl(page))
+    })
+  }, [router, buildPageUrl])
 
   const handleSortChange = useCallback(
     (sortKey: ProductCollectionSortKeys, reverse: boolean) => {
@@ -315,13 +362,13 @@ export default function CollectionTemplate({
             {isPending || displayProducts.length > 0 ? (
               <>
                 <div
-                  className="grid grid-cols-2 gap-y-10 gap-x-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-12"
+                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border-l border-t border-gray-200"
                   role="list"
                   aria-label={isPending ? "Loading products" : `${products.length} products`}
                 >
                   {isPending ? (
                     Array.from({ length: displayProducts.length || 12 }).map((_, i) => (
-                      <div role="listitem" className="h-full" key={i}>
+                      <div role="listitem" className="h-full border-r border-b border-gray-200" key={i}>
                         <SkeletonProductCard />
                       </div>
                     ))
@@ -336,31 +383,53 @@ export default function CollectionTemplate({
                   )}
                 </div>
 
-                {!isPending && pageInfo.hasNextPage && pageInfo.endCursor && (
-                  <div className="mb-4 mt-12 flex justify-center">
-                    <button
-                      onClick={() => {
-                        const params = serializeFilterState(filterState)
-                        params.set("after", pageInfo.endCursor!)
-                        router.push(`${pathname}?${params.toString()}`)
-                      }}
-                      className="group inline-flex items-center gap-2 rounded-lg border border-gray-900 px-8 py-3 text-sm font-semibold uppercase tracking-wider text-gray-900 transition-all duration-200 hover:bg-gray-900 hover:text-white"
-                    >
-                      Load More
-                      <svg
-                        className="w-4 h-4 transition-transform group-hover:translate-y-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                {!isPending && (pageInfo.hasNextPage || !isFirstPage) && (
+                  <div className="mb-8 mt-12 flex items-center justify-center gap-2">
+                    {/* First Page */}
+                    {!isFirstPage && (
+                      <button
+                        onClick={() => goToPage(1)}
+                        className="inline-flex items-center justify-center h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300"
+                        aria-label="First page"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                        />
-                      </svg>
-                    </button>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                    )}
+
+                    {/* Previous */}
+                    {!isFirstPage && (
+                      <button
+                        onClick={() => goToPage(currentPage - 1)}
+                        className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300"
+                        aria-label="Previous page"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Prev
+                      </button>
+                    )}
+
+                    {/* Current Page Indicator */}
+                    <span className="inline-flex items-center justify-center h-10 min-w-[2.5rem] px-3 rounded-lg bg-gray-900 text-sm font-bold text-white">
+                      {currentPage}
+                    </span>
+
+                    {/* Next */}
+                    {pageInfo.hasNextPage && (
+                      <button
+                        onClick={() => goToPage(currentPage + 1)}
+                        className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300"
+                        aria-label="Next page"
+                      >
+                        Next
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -427,7 +496,7 @@ function PLPProductCard({
   countryCode: string
 }) {
   return (
-    <div role="listitem" className="h-full">
+    <div role="listitem" className="h-full bg-white border-r border-b border-gray-200">
       <ProductCard
         product={mapShopifyProductToSharedCard(product)}
         countryCode={countryCode}

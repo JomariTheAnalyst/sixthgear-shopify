@@ -9,6 +9,7 @@ type SizeSelectorProps = {
   current: string | undefined
   updateOption: (optionId: string, value: string) => void
   currentSelections: Record<string, string | undefined>
+  onSizeGuideClick?: () => void
   disabled?: boolean
   inventoryMap?: Record<string, number>
 }
@@ -19,6 +20,7 @@ export default function SizeSelector({
   current,
   updateOption,
   currentSelections,
+  onSizeGuideClick,
   disabled,
   inventoryMap,
 }: SizeSelectorProps) {
@@ -33,7 +35,11 @@ export default function SizeSelector({
             <span className="font-normal text-gray-500">{current}</span>
           )}
         </span>
-        <button className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+        <button
+          type="button"
+          onClick={onSizeGuideClick}
+          className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
           Size Guide
         </button>
       </div>

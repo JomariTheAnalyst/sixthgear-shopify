@@ -1,7 +1,10 @@
 "use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { HttpTypes } from "@medusajs/types"
+import Modal from "@modules/common/components/modal"
+import { resolveSizeChart, type SizeChartResult } from "@lib/size-chart"
+
+const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -9,6 +12,21 @@ type ProductTabsProps = {
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const [activeTab, setActiveTab] = useState<string>("description")
+  const sizeChart = resolveSizeChart((product as any).shopifyMetafields)
+
+  useEffect(() => {
+    const activateSizeGuide = () => {
+      if (sizeChart.type !== "none") {
+        setActiveTab("size_guide")
+      }
+    }
+
+    window.addEventListener(ACTIVATE_SIZE_GUIDE_EVENT, activateSizeGuide)
+
+    return () => {
+      window.removeEventListener(ACTIVATE_SIZE_GUIDE_EVENT, activateSizeGuide)
+    }
+  }, [sizeChart.type])
 
   const tabs = [
     {
@@ -30,11 +48,15 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
       title: "Specifications",
       content: <ProductInfoContent product={product} />,
     },
-    {
-      id: "size_guide",
-      title: "Size Guide",
-      content: <SizeGuideContent />,
-    },
+    ...(sizeChart.type === "none"
+      ? []
+      : [
+          {
+            id: "size_guide",
+            title: "Size Guide",
+            content: <SizeGuideContent sizeChart={sizeChart} />,
+          },
+        ]),
     {
       id: "shipping",
       title: "Shipping & Returns",
@@ -47,17 +69,17 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   return (
     <div className="flex flex-col w-full">
       {/* Tabs Navigation */}
-      <div className="flex overflow-x-auto border-b border-gray-200 hide-scrollbar">
-        <div className="flex gap-8">
+      <div className="flex overflow-x-auto border-b border-gray-200 hide-scrollbar w-full">
+        <div className="flex mx-auto gap-8 lg:gap-16 px-4">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`pb-3 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 focus:outline-none ${
+                className={`pb-3 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 focus:outline-none px-2 ${
                   isActive
-                    ? "border-orange-500 text-black"
+                    ? "border-black text-black"
                     : "border-transparent text-gray-400 hover:text-gray-600"
                 }`}
                 aria-selected={isActive}
@@ -106,7 +128,15 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
   const specs: { label: string; value: string }[] = []
 
   // Skip these — review data, not spec fields
-  const SKIP_KEYS = new Set(["care_instructions", "size_guide", "rating", "rating_count"])
+  const SKIP_KEYS = new Set([
+    "care_instructions",
+    "size_guide",
+    "size_chart",
+    "size_chart_image",
+    "size_chart_data",
+    "rating",
+    "rating_count",
+  ])
   const SKIP_NAMESPACES = new Set(["reviews"])
 
   // Shopify stores list-type values as JSON arrays e.g. ["Black","navy green"]
@@ -171,19 +201,104 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
 }
 
 /* ─── Size Guide ─── */
-const SizeGuideContent = () => (
-  <div className="text-sm text-gray-600">
-    <p className="mb-4 leading-relaxed">
-      Please refer to the specific sizing chart provided in the product images or description above. 
-      Riding gear sizing can vary significantly between brands and models.
-    </p>
-    <p className="leading-relaxed">
-      If you are unsure about your size, we recommend taking your measurements 
-      (chest, waist, and inseam) and contacting our support team for guidance before placing your order. 
-      For protective gear, a snug but comfortable fit is essential for safety.
-    </p>
-  </div>
-)
+type SizeGuideContentProps = {
+  sizeChart: SizeChartResult
+}
+
+const SizeGuideContent = ({ sizeChart }: SizeGuideContentProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isZoomed, setIsZoomed] = useState(false)
+
+  if (sizeChart.type === "none") {
+    return null
+  }
+
+  if (sizeChart.type === "table") {
+    return (
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-100 text-sm">
+          <thead className="bg-gray-50/50">
+            <tr>
+              {sizeChart.data.headers.map((header) => (
+                <th
+                  key={header}
+                  scope="col"
+                  className="whitespace-nowrap border-b border-gray-100 px-4 py-3 text-left font-semibold text-black"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sizeChart.data.rows.map((row, index) => (
+              <tr
+                key={`${row.join("-")}-${index}`}
+                className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+              >
+                {row.map((cell, cellIndex) => (
+                  <td
+                    key={`${cell}-${cellIndex}`}
+                    className="whitespace-nowrap border-b border-gray-100 px-4 py-3 text-gray-600"
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="block w-full text-left"
+        >
+          <div className="w-full rounded-lg border border-gray-200 p-4 md:p-6">
+            <img
+              src={sizeChart.url}
+              alt="Size chart"
+              className="mx-auto block h-auto max-w-full"
+            />
+          </div>
+        </button>
+        <p className="text-sm text-gray-500">
+          Click image to zoom.
+        </p>
+      </div>
+
+      <Modal isOpen={isModalOpen} close={() => {
+        setIsModalOpen(false)
+        setIsZoomed(false)
+      }} size="large">
+        <Modal.Title>
+          <h2 className="font-semibold">Size Guide</h2>
+        </Modal.Title>
+        <Modal.Body>
+          <button
+            type="button"
+            onClick={() => setIsZoomed((prev) => !prev)}
+            className="mx-auto block w-full max-w-4xl rounded-lg border border-gray-200 p-4 md:p-6"
+          >
+            <img
+              src={sizeChart.url}
+              alt="Size chart full size"
+              className={`mx-auto block h-auto max-w-full transition-transform duration-200 ${
+                isZoomed ? "scale-150" : "scale-100"
+              }`}
+            />
+          </button>
+        </Modal.Body>
+      </Modal>
+    </>
+  )
+}
 
 /* ─── Shipping & Returns ─── */
 const ShippingAndReturnsContent = () => (

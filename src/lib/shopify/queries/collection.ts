@@ -33,8 +33,10 @@ export const getCollectionWithFiltersQuery = `
     $filters: [ProductFilter!]
     $sortKey: ProductCollectionSortKeys
     $reverse: Boolean
-    $first: Int!
+    $first: Int
     $after: String
+    $last: Int
+    $before: String
   ) {
     collection(handle: $handle) {
       id
@@ -47,6 +49,8 @@ export const getCollectionWithFiltersQuery = `
       products(
         first: $first
         after: $after
+        last: $last
+        before: $before
         filters: $filters
         sortKey: $sortKey
         reverse: $reverse
@@ -114,7 +118,7 @@ export const getCollectionWithFiltersQuery = `
 
 // Keep existing queries for backward compatibility
 export const getCollectionQuery = `
-  query getCollection($handle: String!, $first: Int!, $after: String, $filters: [ProductFilter!], $sortKey: ProductCollectionSortKeys, $reverse: Boolean) {
+  query getCollection($handle: String!, $first: Int, $after: String, $last: Int, $before: String, $filters: [ProductFilter!], $sortKey: ProductCollectionSortKeys, $reverse: Boolean) {
     collection(handle: $handle) {
       id
       title
@@ -126,7 +130,7 @@ export const getCollectionQuery = `
       seo {
         ...SeoFragment
       }
-      products(first: $first, after: $after, filters: $filters, sortKey: $sortKey, reverse: $reverse) {
+      products(first: $first, after: $after, last: $last, before: $before, filters: $filters, sortKey: $sortKey, reverse: $reverse) {
         edges {
           node {
             ...ProductCardFragment
@@ -135,6 +139,8 @@ export const getCollectionQuery = `
         }
         pageInfo {
           hasNextPage
+          hasPreviousPage
+          startCursor
           endCursor
         }
         filters {

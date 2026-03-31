@@ -40,6 +40,10 @@ export interface ShopifyMetafield {
   namespace: string;
   value: string;
   type?: string;
+  reference?: {
+    image?: ShopifyImage | null;
+    url?: string | null;
+  } | null;
 }
 
 export interface ShopifyProductCard {

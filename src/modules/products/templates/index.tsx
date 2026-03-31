@@ -78,7 +78,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
                 </span>
               )}
               <h1
-                className="text-xl lg:text-2xl font-bold text-black leading-tight"
+                className="text-2xl lg:text-3xl xl:text-4xl font-black text-black leading-tight tracking-tight"
                 data-testid="product-title"
               >
                 {product.title}

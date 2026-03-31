@@ -85,7 +85,7 @@ export default async function ProductSection({
             {displayProducts.map((product) => (
               <div
                 key={product.id}
-                className="flex-shrink-0 w-[70vw] sm:w-[45vw] md:w-[40vw] snap-start"
+                className="flex-shrink-0 w-[70vw] sm:w-[45vw] md:w-[40vw] snap-start border border-gray-200 bg-white"
               >
                 <ProductCard
                   product={product}
@@ -131,16 +131,19 @@ export default async function ProductSection({
         </div>
 
         {/* Desktop: Grid Layout */}
-        <div className="hidden lg:grid lg:grid-cols-4 gap-6 px-4 md:px-8 lg:px-12">
-          {displayProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              region={region}
-              badges={badges}
-              inventoryMap={inventoryByProduct?.[product.id] || {}}
-            />
-          ))}
+        <div className="hidden lg:grid lg:grid-cols-4 px-4 md:px-8 lg:px-12">
+          <div className="col-span-4 grid grid-cols-4 border-l border-t border-gray-200">
+            {displayProducts.map((product) => (
+              <div key={product.id} className="h-full bg-white border-r border-b border-gray-200">
+                <ProductCard
+                  product={product}
+                  region={region}
+                  badges={badges}
+                  inventoryMap={inventoryByProduct?.[product.id] || {}}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

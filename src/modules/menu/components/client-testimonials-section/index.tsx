@@ -184,7 +184,7 @@ const ClientTestimonialsSection = () => {
                   className="text-white text-[28px] sm:text-[32px] font-black uppercase tracking-tight mb-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]"
                   style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
                 >
-                  BREWNI
+                  SIXTHGEAR
                 </h3>
                 
                 <div className="flex items-center gap-4">

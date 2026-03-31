@@ -10,6 +10,7 @@ import {
 import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
 import { getCollectionHero } from "@lib/cms/client";
+import { storePageCursor, getPageCursor, hashFilters } from "@lib/cache/page-cursors";
 import CollectionTemplate from "@modules/collections/templates";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export const dynamic = "force-dynamic";
 // Shopify filters only work inside collection.products() queries,
 // so we must route through a collection handle.
 const STORE_COLLECTION_HANDLE = "all-products";
+const PAGE_SIZE = 24;
 
 function mapSearchSort(
   sortKey: string | undefined
@@ -73,19 +75,53 @@ export default async function StorePage(props: Params) {
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
 
+  // ── Pagination: read `page` from URL ────────────────────────────────
+  const requestedPage = Math.max(1, parseInt(urlParams.get("page") || "1", 10));
+  const isFirstPage = requestedPage <= 1;
+
+  // ── Build scope for cursor lookup ───────────────────────────────────
+  const filterHash = hashFilters(shopifyFilters, filterState.reverse);
+  const sortKeyStr = filterState.sortKey || "COLLECTION_DEFAULT";
+
   // --- SEARCH MODE ---
   if (searchQuery) {
     const searchSort = mapSearchSort(filterState.sortKey);
+    const searchScope = `search:${searchQuery}`;
+
+    // Resolve cursor for the requested page
+    let afterCursor: string | undefined;
+    if (!isFirstPage) {
+      const cursor = await getPageCursor(searchScope, searchSort.sortKey, filterHash, requestedPage);
+      if (!cursor) {
+        // Cursor not found — redirect to page 1
+        afterCursor = undefined;
+      } else {
+        afterCursor = cursor;
+      }
+    }
+
     const [searchResult, sidebarFilters, { collections }, storeHero] =
       await Promise.all([
         searchProducts(searchQuery, {
-          first: 24,
+          first: PAGE_SIZE,
+          after: afterCursor,
           sortKey: searchSort.sortKey,
         }),
         getCollectionFilters(selectedCollectionHandle),
         listCollections({ limit: 100 }),
         getCollectionHero(selectedCollectionHandle),
       ]);
+
+    // Store cursor for the NEXT page
+    if (searchResult.pageInfo.endCursor) {
+      await storePageCursor(
+        searchScope,
+        searchSort.sortKey,
+        filterHash,
+        requestedPage + 1,
+        searchResult.pageInfo.endCursor
+      );
+    }
 
     const searchProductsForView = searchSort.reverse
       ? [...searchResult.products].reverse()
@@ -114,18 +150,28 @@ export default async function StorePage(props: Params) {
         countryCode={params.countryCode}
         collectionsMenu={collectionsMenu}
         heroData={storeHero}
+        currentPage={requestedPage}
       />
     );
   }
 
   // --- BROWSE MODE (existing logic) ---
+  const browseScope = `collection:${selectedCollectionHandle}`;
+
+  // Resolve cursor for the requested page
+  let afterCursor: string | undefined;
+  if (!isFirstPage) {
+    const cursor = await getPageCursor(browseScope, sortKeyStr, filterHash, requestedPage);
+    afterCursor = cursor || undefined;
+  }
+
   const [result, sidebarFilters, { collections }, storeHero] = await Promise.all([
     getFilteredCollection(selectedCollectionHandle, {
       filters: shopifyFilters,
       sortKey: filterState.sortKey,
       reverse: filterState.reverse,
-      first: 24,
-      after: urlParams.get("after") || undefined,
+      first: PAGE_SIZE,
+      after: afterCursor,
     }),
     getCollectionFilters(selectedCollectionHandle),
     listCollections({ limit: 100 }),
@@ -137,6 +183,17 @@ export default async function StorePage(props: Params) {
     console.error("StorePage: Filters used:", JSON.stringify(shopifyFilters));
     console.error("StorePage: Sorting used:", filterState.sortKey, filterState.reverse);
     notFound();
+  }
+
+  // Store cursor for the NEXT page
+  if (result.pageInfo.endCursor) {
+    await storePageCursor(
+      browseScope,
+      sortKeyStr,
+      filterHash,
+      requestedPage + 1,
+      result.pageInfo.endCursor
+    );
   }
 
   const collectionsMenu = collections.map((c: any) => ({
@@ -165,6 +222,7 @@ export default async function StorePage(props: Params) {
       countryCode={params.countryCode}
       collectionsMenu={collectionsMenu}
       heroData={storeHero}
+      currentPage={requestedPage}
     />
   );
 }

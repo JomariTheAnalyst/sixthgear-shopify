@@ -86,12 +86,12 @@ export default function WishlistTemplate() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 border-l border-t border-gray-200">
         {items.map((item) => {
           const mapped = wishlistItemToProductCard(item)
 
           return (
-            <div key={item.handle} className="relative group/wishcard">
+            <div key={item.handle} className="relative group/wishcard bg-white h-full border-r border-b border-gray-200">
               {/* Remove button — visible on hover (desktop), always visible (mobile) */}
               <button
                 type="button"

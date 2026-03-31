@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useCartLimitModal } from "@lib/context/cart-limit-modal-context"
 import { isColorOption, isSizeOption } from "@lib/util/variant-helpers"
+import { resolveSizeChart } from "@lib/size-chart"
 import ColorSwatch from "./color-swatch"
 import SizeSelector from "./size-selector"
 import GenericOptionSelector from "./generic-option-selector"
@@ -33,6 +34,8 @@ import {
   Shield,
   ChevronDown,
 } from "lucide-react"
+
+const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -68,6 +71,16 @@ export default function ProductActions({
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const countryCode = useParams().countryCode as string
+  const showsVariantOptions = (product.variants?.length ?? 0) > 1
+  const sizeChart = useMemo(
+    () => resolveSizeChart((product as any).shopifyMetafields),
+    [product]
+  )
+  const hasSizeGuide = sizeChart.type !== "none"
+  const hasRenderedSizeOption = useMemo(
+    () => showsVariantOptions && (product.options || []).some((option) => isSizeOption(option)),
+    [product.options, showsVariantOptions]
+  )
 
   useEffect(() => {
     if (product.variants?.length === 1) {
@@ -91,6 +104,14 @@ export default function ProductActions({
       ...prev,
       [optionId]: value,
     }))
+  }
+
+  const handleSizeGuideClick = () => {
+    document
+      .getElementById("details-tab")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" })
+
+    window.dispatchEvent(new CustomEvent(ACTIVATE_SIZE_GUIDE_EVENT))
   }
 
   const isValidVariant = useMemo(() => {
@@ -215,10 +236,7 @@ export default function ProductActions({
     }
   }
 
-  const handleBuyNow = async () => {
-    if (!selectedVariant?.id) return null
-    await handleAddToCart()
-  }
+
 
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1)
@@ -272,7 +290,13 @@ export default function ProductActions({
     }
 
     if (isSizeOption(option)) {
-      return <SizeSelector key={option.id} {...commonProps} />
+      return (
+        <SizeSelector
+          key={option.id}
+          {...commonProps}
+          onSizeGuideClick={handleSizeGuideClick}
+        />
+      )
     }
 
     return <GenericOptionSelector key={option.id} {...commonProps} />
@@ -301,11 +325,23 @@ export default function ProductActions({
         <ProductPrice product={product} variant={selectedVariant} />
 
         {/* Variant Options */}
-        {(product.variants?.length ?? 0) > 1 && (
+        {showsVariantOptions && (
           <div className="flex flex-col gap-y-4">
             {(product.options || []).map((option) =>
               renderOptionSelector(option)
             )}
+          </div>
+        )}
+
+        {hasSizeGuide && !hasRenderedSizeOption && (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleSizeGuideClick}
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              Size Guide
+            </button>
           </div>
         )}
 
@@ -322,49 +358,46 @@ export default function ProductActions({
           </span>
         </div>
 
-        {/* Quantity + Actions */}
-        <div className="space-y-3 w-full flex flex-col justify-center">
+        {/* Quantity + Actions side-by-side */}
+        <div className="flex items-center gap-3 w-full">
           {/* Quantity Selector */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700">Qty</span>
-            <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-              <button
-                onClick={decreaseQuantity}
-                disabled={quantity <= 1 || disabled || isAdding}
-                className="w-9 h-9 flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
-                aria-label="Decrease quantity"
-              >
-                <Minus className="w-3.5 h-3.5" />
-              </button>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value) || 1
-                  setQuantity(Math.max(1, val))
-                }}
-                min={1}
-                disabled={disabled || isAdding}
-                className="w-10 h-9 text-center text-black font-medium border-x border-gray-300 focus:outline-none disabled:opacity-40 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                aria-label="Quantity"
-              />
-              <button
-                onClick={increaseQuantity}
-                disabled={disabled || isAdding}
-                className="w-9 h-9 flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
-                aria-label="Increase quantity"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="flex items-center border border-gray-300 overflow-hidden h-12">
+            <button
+              onClick={decreaseQuantity}
+              disabled={quantity <= 1 || disabled || isAdding}
+              className="w-10 flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none h-full"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1
+                setQuantity(Math.max(1, val))
+              }}
+              min={1}
+              disabled={disabled || isAdding}
+              className="w-12 h-full text-center text-black font-medium border-x border-gray-300 focus:outline-none disabled:opacity-40 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent"
+              aria-label="Quantity"
+            />
+            <button
+              onClick={increaseQuantity}
+              disabled={disabled || isAdding}
+              className="w-10 flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none h-full"
+              aria-label="Increase quantity"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
           </div>
 
-          {/* Add to Cart Button (Primary / Top) */}
+          {/* Add to Cart Button */}
           <button
             ref={addToCartRef}
             onClick={handleAddToCart}
             disabled={isAddToCartDisabled}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#1C2024] text-white font-semibold rounded-lg hover:bg-black transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            className="flex-1 flex items-center justify-center gap-2 px-6 h-12 bg-[#1C2024] text-white font-semibold hover:bg-black transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed focus:outline-none"
             data-testid="add-product-button"
           >
             {isAdding ? (
@@ -385,17 +418,8 @@ export default function ProductActions({
                 />
               </svg>
             ) : (
-              <span>{!inStock ? "Out of Stock" : "Add to Bag"}</span>
+              <span className="text-[15px]">{!inStock ? "Out of Stock" : "Add to cart"}</span>
             )}
-          </button>
-
-          {/* Buy This Item (Secondary / Bottom) */}
-          <button
-            onClick={handleBuyNow}
-            disabled={isAddToCartDisabled}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-gray-900 border border-gray-300 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-          >
-            <span>Buy this Item</span>
           </button>
         </div>
 
