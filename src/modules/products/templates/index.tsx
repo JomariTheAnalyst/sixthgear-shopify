@@ -60,16 +60,16 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
 
         {/* Above the Fold – Gallery + Product Info */}
         <section
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-8"
           data-testid="product-container"
         >
           {/* Left Column — Gallery */}
-          <div>
+          <div className="lg:col-span-7">
             <ImageGallery images={images} />
           </div>
 
           {/* Right Column — Product Info */}
-          <div className="lg:sticky lg:top-24 lg:self-start space-y-4">
+          <div className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start space-y-4 px-0 lg:px-4">
             {/* Title & Brand */}
             <div>
               {product.collection?.title && (

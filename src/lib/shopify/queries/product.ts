@@ -78,6 +78,7 @@ export const getProductQuery = `
         {namespace: "shopify", key: "gender"},
         # Custom namespace fields
         {namespace: "custom", key: "care_instructions"},
+        {namespace: "custom", key: "what_is_in_the_box"},
         {namespace: "custom", key: "size_chart"},
         {namespace: "custom", key: "size_chart_image"},
         {namespace: "custom", key: "size_chart_data"},

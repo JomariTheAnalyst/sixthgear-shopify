@@ -1,8 +1,11 @@
 "use client"
+
 import { useEffect, useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import Modal from "@modules/common/components/modal"
 import { resolveSizeChart, type SizeChartResult } from "@lib/size-chart"
+import { resolveWhatsInBox } from "@lib/shopify/metafield-resolvers"
+import { extractShopifyRichTextRows } from "@lib/shopify/rich-text-renderer"
 
 const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
 
@@ -13,6 +16,8 @@ type ProductTabsProps = {
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const [activeTab, setActiveTab] = useState<string>("description")
   const sizeChart = resolveSizeChart((product as any).shopifyMetafields)
+  const whatsInBox = resolveWhatsInBox((product as any).shopifyMetafields)
+  const whatsInBoxRows = extractShopifyRichTextRows(whatsInBox)
 
   useEffect(() => {
     const activateSizeGuide = () => {
@@ -57,6 +62,15 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
             content: <SizeGuideContent sizeChart={sizeChart} />,
           },
         ]),
+    ...(whatsInBoxRows.length === 0
+      ? []
+      : [
+          {
+            id: "whats_in_the_box",
+            title: "What's in the Box",
+            content: <WhatsInTheBoxContent rows={whatsInBoxRows} />,
+          },
+        ]),
     {
       id: "shipping",
       title: "Shipping & Returns",
@@ -67,17 +81,17 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   const activeContent = tabs.find((tab) => tab.id === activeTab)?.content
 
   return (
-    <div className="flex flex-col w-full">
-      {/* Tabs Navigation */}
-      <div className="flex overflow-x-auto border-b border-gray-200 hide-scrollbar w-full">
-        <div className="flex mx-auto gap-8 lg:gap-16 px-4">
+    <div className="flex w-full flex-col">
+      <div className="hide-scrollbar flex w-full overflow-x-auto border-b border-gray-200">
+        <div className="mx-auto flex gap-8 px-4 lg:gap-16">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
+
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`pb-3 text-sm font-semibold whitespace-nowrap transition-colors border-b-2 focus:outline-none px-2 ${
+                className={`border-b-2 px-2 pb-3 text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none ${
                   isActive
                     ? "border-black text-black"
                     : "border-transparent text-gray-400 hover:text-gray-600"
@@ -92,44 +106,39 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="py-6">{activeContent}</div>
     </div>
   )
 }
 
-/* ─── Specifications ─── */
 const ProductInfoContent = ({ product }: ProductTabsProps) => {
   const p = product as any
 
-  // Label map covering both `shopify` taxonomy keys and `custom` keys
   const METAFIELD_LABELS: Record<string, string> = {
-    // shopify namespace (Category metafields shown in admin)
-    color:              "Color",
-    accessory_size:     "Size",
-    handwear_material:  "Material",
-    material:           "Material",
-    age_group:          "Age Group",
-    target_gender:      "Target Gender",
-    gender:             "Gender",
-    size:               "Size",
-    // custom namespace
-    weight:             "Weight",
-    dimensions:         "Dimensions",
-    height:             "Height",
-    width:              "Width",
-    length:             "Length",
-    brand:              "Brand",
-    country_of_origin:  "Country of Origin",
-    protection_level:   "Protection Level",
-    certification:      "Certification",
+    color: "Color",
+    accessory_size: "Size",
+    handwear_material: "Material",
+    material: "Material",
+    age_group: "Age Group",
+    target_gender: "Target Gender",
+    gender: "Gender",
+    size: "Size",
+    weight: "Weight",
+    dimensions: "Dimensions",
+    height: "Height",
+    width: "Width",
+    length: "Length",
+    brand: "Brand",
+    country_of_origin: "Country of Origin",
+    protection_level: "Protection Level",
+    certification: "Certification",
   }
 
   const specs: { label: string; value: string }[] = []
 
-  // Skip these — review data, not spec fields
   const SKIP_KEYS = new Set([
     "care_instructions",
+    "what_is_in_the_box",
     "size_guide",
     "size_chart",
     "size_chart_image",
@@ -139,11 +148,14 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
   ])
   const SKIP_NAMESPACES = new Set(["reviews"])
 
-  // Shopify stores list-type values as JSON arrays e.g. ["Black","navy green"]
   function parseValue(raw: string): string {
     try {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed)) return parsed.map((v: unknown) => String(v)).join(", ")
+
+      if (Array.isArray(parsed)) {
+        return parsed.map((v: unknown) => String(v)).join(", ")
+      }
+
       return String(parsed)
     } catch {
       return raw
@@ -152,7 +164,6 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
 
   const seenLabels = new Set<string>()
 
-  // Read all metafields across shopify + custom namespaces
   if (Array.isArray(p.shopifyMetafields)) {
     for (const mf of p.shopifyMetafields) {
       if (SKIP_NAMESPACES.has(mf.namespace)) continue
@@ -160,7 +171,7 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
       if (!mf.value) continue
       const label = METAFIELD_LABELS[mf.key]
       if (!label) continue
-      if (seenLabels.has(label)) continue  // deduplicate same label from different namespaces
+      if (seenLabels.has(label)) continue
       seenLabels.add(label)
       specs.push({ label, value: parseValue(mf.value) })
     }
@@ -175,7 +186,7 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
   }
 
   return (
-    <div className="border border-gray-100 rounded-lg overflow-hidden">
+    <div className="overflow-hidden rounded-lg border border-gray-100">
       <table className="w-full text-sm">
         <tbody>
           {specs.map(({ label, value }, index) => (
@@ -185,11 +196,11 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
             >
               <th
                 scope="row"
-                className="px-4 py-3 text-left font-semibold text-black w-1/3 whitespace-nowrap"
+                className="w-1/3 whitespace-nowrap px-4 py-3 text-left font-semibold text-black"
               >
                 {label}
               </th>
-              <td className="px-4 py-3 text-gray-600 border-l border-gray-100">
+              <td className="border-l border-gray-100 px-4 py-3 text-gray-600">
                 {value}
               </td>
             </tr>
@@ -200,7 +211,31 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
   )
 }
 
-/* ─── Size Guide ─── */
+type WhatsInTheBoxContentProps = {
+  rows: string[]
+}
+
+const WhatsInTheBoxContent = ({ rows }: WhatsInTheBoxContentProps) => {
+  if (rows.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-gray-200">
+      {rows.map((row, index) => (
+        <div
+          key={`${row}-${index}`}
+          className={`px-4 py-3 text-sm leading-relaxed text-gray-700 md:px-5 ${
+            index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"
+          }`}
+        >
+          {row}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 type SizeGuideContentProps = {
   sizeChart: SizeChartResult
 }
@@ -268,15 +303,17 @@ const SizeGuideContent = ({ sizeChart }: SizeGuideContentProps) => {
             />
           </div>
         </button>
-        <p className="text-sm text-gray-500">
-          Click image to zoom.
-        </p>
+        <p className="text-sm text-gray-500">Click image to zoom.</p>
       </div>
 
-      <Modal isOpen={isModalOpen} close={() => {
-        setIsModalOpen(false)
-        setIsZoomed(false)
-      }} size="large">
+      <Modal
+        isOpen={isModalOpen}
+        close={() => {
+          setIsModalOpen(false)
+          setIsZoomed(false)
+        }}
+        size="large"
+      >
         <Modal.Title>
           <h2 className="font-semibold">Size Guide</h2>
         </Modal.Title>
@@ -300,25 +337,23 @@ const SizeGuideContent = ({ sizeChart }: SizeGuideContentProps) => {
   )
 }
 
-/* ─── Shipping & Returns ─── */
 const ShippingAndReturnsContent = () => (
   <div className="space-y-6">
     <div>
-      <h3 className="text-base font-semibold text-black mb-3 text-left">
+      <h3 className="mb-3 text-left text-base font-semibold text-black">
         Shipping Details
       </h3>
-      <ul className="text-sm text-gray-600 space-y-2 list-inside list-disc">
+      <ul className="list-inside list-disc space-y-2 text-sm text-gray-600">
         <li>Standard Delivery: 3-5 business days</li>
         <li>Provincial Delivery: 5-7 business days</li>
-        <li>Cash on Delivery (COD) available nationwide</li>
         <li>Tracking link provided via email/SMS for all orders</li>
       </ul>
     </div>
-    <div className="pt-6 border-t border-gray-100">
-      <h3 className="text-base font-semibold text-black mb-3 text-left">
+    <div className="border-t border-gray-100 pt-6">
+      <h3 className="mb-3 text-left text-base font-semibold text-black">
         Return Policy
       </h3>
-      <ul className="text-sm text-gray-600 space-y-2 list-inside list-disc">
+      <ul className="list-inside list-disc space-y-2 text-sm text-gray-600">
         <li>Easy returns accepted for defective or incorrect items</li>
         <li>Item must be unused, unwashed, and in its original packaging with tags intact</li>
         <li>Please contact support within 7 days of successful delivery</li>

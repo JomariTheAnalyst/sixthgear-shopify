@@ -397,7 +397,7 @@ export default function ProductActions({
             ref={addToCartRef}
             onClick={handleAddToCart}
             disabled={isAddToCartDisabled}
-            className="flex-1 flex items-center justify-center gap-2 px-6 h-12 bg-[#1C2024] text-white font-semibold hover:bg-black transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed focus:outline-none"
+            className="flex-1 flex items-center justify-center gap-2 px-6 h-12 bg-[#F16D34] text-white font-semibold hover:bg-[#d65f2c] transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed focus:outline-none"
             data-testid="add-product-button"
           >
             {isAdding ? (

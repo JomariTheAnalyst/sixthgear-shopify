@@ -21,7 +21,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-[4/5] bg-[#F9F9F9] rounded-lg flex items-center justify-center">
+      <div className="aspect-[4/5] bg-white rounded-lg flex items-center justify-center">
         <svg
           className="w-16 h-16 text-gray-200"
           fill="none"
@@ -127,7 +127,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           <button
             key={image.id || index}
             onClick={() => setActiveIndex(index)}
-            className={`relative flex-shrink-0 w-[72px] h-[72px] md:w-[88px] md:h-[88px] lg:w-full lg:h-auto lg:aspect-square bg-[#F9F9F9] rounded overflow-hidden border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-1 ${
+            className={`relative flex-shrink-0 w-[72px] h-[72px] md:w-[88px] md:h-[88px] lg:w-full lg:h-auto lg:aspect-square bg-white rounded overflow-hidden border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-1 ${
               activeIndex === index
                 ? "border-gray-900"
                 : "border-transparent hover:border-gray-400"
@@ -166,7 +166,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       <div className="relative w-full flex-grow">
         <div
           ref={mainImageRef}
-          className="relative aspect-[4/5] lg:aspect-[4/4.5] w-full rounded-[4px] md:rounded-lg overflow-hidden bg-[#F9F9F9] cursor-zoom-in"
+          className="relative aspect-[4/5] lg:aspect-[3.5/4] w-full rounded-[4px] md:rounded-lg border border-gray-100 overflow-hidden bg-white cursor-zoom-in"
           onMouseEnter={() => setIsZoomed(true)}
           onMouseLeave={() => setIsZoomed(false)}
           onMouseMove={handleMouseMove}
@@ -199,64 +199,43 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             />
           )}
 
-          {/* Zoom indicator */}
-          <div className="absolute bottom-6 right-6 bg-white shadow-sm overflow-hidden rounded-full w-10 h-10 flex flex-col items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-            <ZoomIn
-              className="w-5 h-5 text-gray-700"
-              aria-hidden="true"
-            />
-          </div>
+          {/* Fullscreen indicator button - Icon only */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsLightboxOpen(true)
+            }}
+            className="absolute bottom-4 right-4 bg-white border border-gray-200 shadow-sm rounded-full w-10 h-10 flex flex-col items-center justify-center hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
+            aria-label="View in fullscreen"
+          >
+            <ZoomIn className="w-5 h-5 text-gray-700" aria-hidden="true" />
+          </button>
         </div>
-
-        {/* Navigation arrows */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handlePrev()
-              }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleNext()
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
-              aria-label="Next image"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
-            </button>
-          </>
-        )}
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox / Fullscreen Modal */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-white flex items-center justify-center"
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery lightbox"
         >
+          {/* Close / Exit Button */}
           <button
             onClick={() => setIsLightboxOpen(false)}
-            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
             aria-label="Close lightbox"
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="w-6 h-6 text-black" />
           </button>
 
           <button
             onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
             aria-label="Previous image"
           >
-            <ChevronLeft className="w-6 h-6 text-white" />
+            <ChevronLeft className="w-6 h-6 text-black" />
           </button>
 
           <div className="max-w-5xl max-h-[85vh] px-16">
@@ -271,22 +250,22 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
 
           <button
             onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
             aria-label="Next image"
           >
-            <ChevronRight className="w-6 h-6 text-white" />
+            <ChevronRight className="w-6 h-6 text-black" />
           </button>
 
           {/* Bottom thumbnail strip in lightbox */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
             {images.map((img, index) => (
               <button
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${
+                className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition-all bg-gray-50 ${
                   activeIndex === index
-                    ? "border-white opacity-100"
-                    : "border-transparent opacity-50 hover:opacity-80"
+                    ? "border-black opacity-100"
+                    : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
                 {img.url && (
