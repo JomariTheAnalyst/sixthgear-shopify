@@ -11,7 +11,13 @@ export const getProductsByTagValue = async (tag?: string, limit?: number, _regio
       title: p.title,
       handle: p.handle,
       thumbnail: p.featuredImage?.url,
-      images: p.featuredImage ? [{ url: p.featuredImage.url }] : [],
+      images: (() => {
+        const images = p.images?.edges?.map((edge: any) => ({ url: edge.node.url })) || [];
+        if (images.length === 0 && p.featuredImage) {
+          images.push({ url: p.featuredImage.url });
+        }
+        return images;
+      })(),
       collection: { title: p.vendor },
       tags: p.tags?.map((t: string) => ({ value: t })) || [],
       options: p.options?.map((opt: any) => ({

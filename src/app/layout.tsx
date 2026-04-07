@@ -3,6 +3,8 @@ import { Metadata } from "next"
 import { ConsoleGuard } from "../components/console-guard"
 import { PreviewIndicator } from "../components/preview-indicator"
 import "styles/globals.css"
+import Script from "next/script"
+import { clientEnv } from "@lib/env"
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
@@ -52,6 +54,12 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         <PreviewIndicator />
         <main className="relative">{props.children}</main>
         <Toaster position="bottom-right" richColors />
+        {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
+          <Script
+            src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   )

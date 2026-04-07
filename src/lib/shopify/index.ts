@@ -262,13 +262,21 @@ export async function searchProducts(
 }
 
 export async function getProductRecommendations(productId: string): Promise<ShopifyProductCard[]> {
-  const { data, errors } = await shopifyGraphql<{
-    productRecommendations: ShopifyProductCard[];
-  }>(getProductRecommendationsQuery, { productId });
+  const key = cacheKey("product-recommendations", productId);
 
-  if (errors && errors.length > 0) {
-    throw new Error(`Shopify API Error (getProductRecommendations): ${JSON.stringify(errors)}`);
-  }
+  return getCached(
+    key,
+    async () => {
+      const { data, errors } = await shopifyGraphql<{
+        productRecommendations: ShopifyProductCard[];
+      }>(getProductRecommendationsQuery, { productId });
 
-  return data?.productRecommendations || [];
+      if (errors && errors.length > 0) {
+        throw new Error(`Shopify API Error (getProductRecommendations): ${JSON.stringify(errors)}`);
+      }
+
+      return data?.productRecommendations || [];
+    },
+    TTL.PRODUCT
+  );
 }

@@ -144,31 +144,40 @@ export default async function Home(props: {
 
   const mapShopifyToMedusa = (
     p: ShopifyProductCard
-  ): HttpTypes.StoreProduct => ({
-    id: p.id,
-    title: p.title,
-    handle: p.handle,
-    thumbnail: p.featuredImage?.url,
-    images: p.featuredImage ? [{ url: p.featuredImage.url }] : [],
-    collection: { title: p.vendor },
-    variants: [
-      {
-        id: p.id,
-        allow_backorder: false,
-        manage_inventory: true,
-        inventory_quantity: p.availableForSale ? 10 : 0,
-        calculated_price: {
-          calculated_amount: p.priceRange?.minVariantPrice
-            ? parseFloat(p.priceRange.minVariantPrice.amount)
-            : null,
-          original_amount: p.compareAtPriceRange?.minVariantPrice
-            ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount)
-            : null,
-          currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php",
+  ): HttpTypes.StoreProduct => {
+    const images =
+      p.images?.edges?.map((edge) => ({ url: edge.node.url })) || []
+
+    if (images.length === 0 && p.featuredImage) {
+      images.push({ url: p.featuredImage.url })
+    }
+
+    return {
+      id: p.id,
+      title: p.title,
+      handle: p.handle,
+      thumbnail: p.featuredImage?.url || images[0]?.url,
+      images,
+      collection: { title: p.vendor },
+      variants: [
+        {
+          id: p.id,
+          allow_backorder: false,
+          manage_inventory: true,
+          inventory_quantity: p.availableForSale ? 10 : 0,
+          calculated_price: {
+            calculated_amount: p.priceRange?.minVariantPrice
+              ? parseFloat(p.priceRange.minVariantPrice.amount)
+              : null,
+            original_amount: p.compareAtPriceRange?.minVariantPrice
+              ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount)
+              : null,
+            currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php",
+          },
         },
-      },
-    ],
-  } as any)
+      ],
+    } as any
+  }
 
   type HomepageCollectionRailData = {
     section: HomepageCollectionSection

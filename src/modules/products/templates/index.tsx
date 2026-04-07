@@ -43,6 +43,25 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
       }).format(calculatedAmount)
     : "Price Unavailable"
 
+  const normalizedTags = Array.isArray((product as any).tags)
+    ? (product as any).tags
+        .map((tag: unknown) =>
+          typeof tag === "string" ? tag : (tag as { value?: string })?.value
+        )
+        .filter((tag: string | undefined): tag is string => Boolean(tag))
+    : []
+
+  const recommendationSeed = {
+    productId: product.id,
+    handle: product.handle || "",
+    vendor:
+      ((product as any).vendor as string | undefined) ||
+      product.collection?.title ||
+      "",
+    productType: ((product as any).productType as string | undefined) || "",
+    tags: normalizedTags,
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <RecentlyViewedTracker
@@ -144,7 +163,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
             }
           >
             <YouMayLike
-              productId={product.id}
+              currentProduct={recommendationSeed}
               countryCode={countryCode}
               region={region}
             />

@@ -53,7 +53,12 @@ export default function ProductCard({
   const [showQuickShop, setShowQuickShop] = useState(false)
 
   const pricing = getProductPricing(product)
-  const imageUrl = product.thumbnail || product.images?.[0]?.url
+  const galleryImages = (product.images || [])
+    .map((image: any) => image?.url)
+    .filter((url): url is string => Boolean(url))
+  const imageUrl = product.thumbnail || galleryImages[0]
+  const hoverImageUrl =
+    galleryImages.find((url) => url !== imageUrl) || null
   const firstVariant = product.variants?.[0]
   const canAddToCart = Boolean(firstVariant)
   const brandName = product.collection?.title || "Sixthgear"
@@ -113,7 +118,7 @@ export default function ProductCard({
   return (
     <article className="group h-full flex flex-col bg-white">
       {/* ── Image Area ── */}
-      <div className="relative w-full aspect-square bg-white overflow-hidden">
+      <div className="relative group w-full aspect-square bg-white overflow-hidden">
 
         {/* Dynamic "Save X%" badge — top-left with padding */}
         {pricing.isOnSale && pricing.discountPct && (
@@ -127,14 +132,29 @@ export default function ProductCard({
           className="absolute inset-0 w-full h-full block"
         >
           {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={product.title || "Product"}
-              fill
-              className="object-contain p-5 sm:p-6 transition-transform duration-300 group-hover:scale-[1.03]"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              unoptimized
-            />
+            <>
+              <Image
+                src={imageUrl}
+                alt={product.title || "Product"}
+                fill
+                className={`object-contain p-5 sm:p-6 transition-opacity duration-300 ease-in-out ${
+                  hoverImageUrl ? "group-hover:opacity-0" : ""
+                }`}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                unoptimized
+              />
+
+              {hoverImageUrl && (
+                <Image
+                  src={hoverImageUrl}
+                  alt={product.title || "Product"}
+                  fill
+                  className="absolute inset-0 object-contain p-5 sm:p-6 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  unoptimized
+                />
+              )}
+            </>
           ) : (
             <div className="flex h-full w-full items-center justify-center text-gray-200">
               <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">

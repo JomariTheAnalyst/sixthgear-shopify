@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import Modal from "@modules/common/components/modal"
 import { resolveSizeChart, type SizeChartResult } from "@lib/size-chart"
-import { resolveWhatsInBox } from "@lib/shopify/metafield-resolvers"
+import { resolveWhatsInBox, resolveSpecifications, resolveShipping, resolveProductVideoUrl } from "@lib/shopify/metafield-resolvers"
 import { extractShopifyRichTextRows } from "@lib/shopify/rich-text-renderer"
 
 const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
@@ -18,6 +18,11 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   const sizeChart = resolveSizeChart((product as any).shopifyMetafields)
   const whatsInBox = resolveWhatsInBox((product as any).shopifyMetafields)
   const whatsInBoxRows = extractShopifyRichTextRows(whatsInBox)
+  const specifications = resolveSpecifications((product as any).shopifyMetafields)
+  const specificationsRows = extractShopifyRichTextRows(specifications)
+  const shipping = resolveShipping((product as any).shopifyMetafields)
+  const shippingRows = extractShopifyRichTextRows(shipping)
+  const productVideoUrl = resolveProductVideoUrl((product as any).shopifyMetafields)
 
   useEffect(() => {
     const activateSizeGuide = () => {
@@ -51,7 +56,9 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     {
       id: "specifications",
       title: "Specifications",
-      content: <ProductInfoContent product={product} />,
+      content: specificationsRows.length > 0
+        ? <ParsedSpecificationsContent rows={specificationsRows} />
+        : <ProductInfoContent product={product} />,
     },
     ...(sizeChart.type === "none"
       ? []
@@ -74,8 +81,19 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     {
       id: "shipping",
       title: "Shipping & Returns",
-      content: <ShippingAndReturnsContent />,
+      content: shippingRows.length > 0
+        ? <RichTextRowsContent rows={shippingRows} />
+        : <ShippingAndReturnsContent />,
     },
+    ...(productVideoUrl
+      ? [
+          {
+            id: "product_video",
+            title: "Product Video",
+            content: <ProductVideoContent url={productVideoUrl} />,
+          },
+        ]
+      : []),
   ]
 
   const activeContent = tabs.find((tab) => tab.id === activeTab)?.content
@@ -145,6 +163,9 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
     "size_chart_data",
     "rating",
     "rating_count",
+    "specifications",
+    "shipping",
+    "product_video_url",
   ])
   const SKIP_NAMESPACES = new Set(["reviews"])
 
@@ -361,5 +382,145 @@ const ShippingAndReturnsContent = () => (
     </div>
   </div>
 )
+
+type RichTextRowsContentProps = {
+  rows: string[]
+}
+
+const RichTextRowsContent = ({ rows }: RichTextRowsContentProps) => {
+  if (rows.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-gray-200">
+      {rows.map((row, index) => (
+        <div
+          key={`${row}-${index}`}
+          className={`px-4 py-3 text-sm leading-relaxed text-gray-700 md:px-5 ${
+            index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"
+          }`}
+        >
+          {row}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+type ParsedSpecificationsContentProps = {
+  rows: string[]
+}
+
+const ParsedSpecificationsContent = ({ rows }: ParsedSpecificationsContentProps) => {
+  if (rows.length === 0) return null
+
+  const parsed: { label: string; value: string }[] = []
+  let safeToParse = true
+
+  for (const row of rows) {
+    const colonIndex = row.indexOf(":")
+    if (colonIndex === -1) {
+      safeToParse = false
+      break
+    }
+    const label = row.slice(0, colonIndex).trim()
+    const value = row.slice(colonIndex + 1).trim()
+    parsed.push({ label, value })
+  }
+
+  // Fallback Rule: Unsafe parsing reverts to raw rich text rows
+  if (!safeToParse) {
+    return <RichTextRowsContent rows={rows} />
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-100">
+      <table className="w-full text-sm">
+        <tbody>
+          {parsed.map(({ label, value }, index) => (
+            <tr
+              key={`${label}-${index}`}
+              className={index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"}
+            >
+              <th
+                scope="row"
+                className="w-[40%] whitespace-nowrap px-6 py-5 md:px-8 md:py-6 text-left font-semibold text-black"
+              >
+                {label}
+              </th>
+              <td className="border-l border-gray-100 px-6 py-5 md:px-8 md:py-6 text-gray-600">
+                {value}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+type ProductVideoContentProps = {
+  url: string
+}
+
+function getEmbedUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url)
+
+    // YouTube standard: youtube.com/watch?v=ID
+    if (parsed.hostname.includes("youtube.com") && parsed.searchParams.get("v")) {
+      return `https://www.youtube.com/embed/${parsed.searchParams.get("v")}`
+    }
+
+    // YouTube short: youtu.be/ID
+    if (parsed.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed${parsed.pathname}`
+    }
+
+    // YouTube Shorts: youtube.com/shorts/ID
+    if (parsed.hostname.includes("youtube.com") && parsed.pathname.startsWith("/shorts/")) {
+      const id = parsed.pathname.replace("/shorts/", "")
+      return `https://www.youtube.com/embed/${id}`
+    }
+
+    // Vimeo: vimeo.com/ID
+    if (parsed.hostname.includes("vimeo.com")) {
+      const id = parsed.pathname.replace("/", "")
+      return `https://player.vimeo.com/video/${id}`
+    }
+
+    // Already an embed URL or unknown — return as-is
+    return url
+  } catch {
+    return null
+  }
+}
+
+const ProductVideoContent = ({ url }: ProductVideoContentProps) => {
+  const embedUrl = getEmbedUrl(url)
+
+  if (!embedUrl) {
+    return (
+      <p className="text-sm text-gray-400 italic">
+        Invalid video URL.
+      </p>
+    )
+  }
+
+  return (
+    <div className="w-full overflow-hidden rounded-lg border border-gray-200">
+      <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+        <iframe
+          src={embedUrl}
+          title="Product Video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 h-full w-full"
+        />
+      </div>
+    </div>
+  )
+}
 
 export default ProductTabs

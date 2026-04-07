@@ -5,7 +5,7 @@ import React from "react"
 const STATS = [
   {
     id: 1,
-    value: "46",
+    value: "4",
     label: "YEARS OF",
     label2: "EXPERIENCE"
   },
@@ -18,7 +18,7 @@ const STATS = [
   {
     id: 3,
     value: "84",
-    label: "COUNTRIES",
+    label: "CITIES",
     label2: "OPERATING"
   },
   {

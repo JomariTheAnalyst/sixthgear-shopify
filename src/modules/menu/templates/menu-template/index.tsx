@@ -600,7 +600,7 @@ export default function MenuTemplate({
       <FeaturedMenuSection />
 
       {/* Coffee Categories Grid */}
-      <CoffeeCategorySection />
+      {/* <CoffeeCategorySection /> */}
 
         {/* Why Choose Us Section */}
       <AdsSection />

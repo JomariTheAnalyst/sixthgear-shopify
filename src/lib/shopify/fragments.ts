@@ -33,6 +33,7 @@ export const PRODUCT_CARD_FRAGMENT = `
       }
     }
     availableForSale
+    productType
     tags
     vendor
     options {
@@ -40,7 +41,7 @@ export const PRODUCT_CARD_FRAGMENT = `
       name
       values
     }
-    images(first: 10) {
+    images(first: 2) {
       edges {
         node {
           ...ImageFragment

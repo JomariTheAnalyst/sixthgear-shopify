@@ -51,6 +51,7 @@ export interface ShopifyProductCard {
   title: string;
   handle: string;
   featuredImage: ShopifyImage | null;
+  productType: string;
   priceRange: {
     minVariantPrice: ShopifyMoney;
   };

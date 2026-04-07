@@ -21,6 +21,9 @@ const serverSchema = z.object({
   REVALIDATION_SECRET: z.string().optional(),
   JUDGEME_PRIVATE_TOKEN: z.string().min(1).optional(),
   JUDGEME_SHOP_DOMAIN: z.string().min(1).optional(),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  CONTACT_EMAIL_TO: z.string().email().optional(),
+  CONTACT_EMAIL_FROM: z.string().email().optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -34,6 +37,7 @@ const clientSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
   NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: z.string().min(1).optional(),
   NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: z.string().min(1).optional(),
+  NEXT_PUBLIC_TIDIO_PUBLIC_KEY: z.string().min(1).optional(),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>
@@ -64,6 +68,9 @@ function createServerEnv(): ServerEnv {
     REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
     JUDGEME_PRIVATE_TOKEN: process.env.JUDGEME_PRIVATE_TOKEN,
     JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    CONTACT_EMAIL_TO: process.env.CONTACT_EMAIL_TO,
+    CONTACT_EMAIL_FROM: process.env.CONTACT_EMAIL_FROM,
     NODE_ENV: process.env.NODE_ENV,
   })
 
@@ -117,6 +124,7 @@ export const clientEnv: ClientEnv =
         NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
         NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
         NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
+        NEXT_PUBLIC_TIDIO_PUBLIC_KEY: process.env.NEXT_PUBLIC_TIDIO_PUBLIC_KEY,
       } as ClientEnv)
     : createClientEnv()
 

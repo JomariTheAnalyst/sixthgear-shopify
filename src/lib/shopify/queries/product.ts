@@ -96,6 +96,9 @@ export const getProductQuery = `
         {namespace: "custom", key: "country_of_origin"},
         {namespace: "custom", key: "protection_level"},
         {namespace: "custom", key: "certification"},
+        {namespace: "custom", key: "specifications"},
+        {namespace: "custom", key: "shipping"},
+        {namespace: "custom", key: "product_video_url"},
         # Reviews
         {namespace: "reviews", key: "rating"},
         {namespace: "reviews", key: "rating_count"}
@@ -123,8 +126,8 @@ export const getProductQuery = `
 `;
 
 export const getProductsQuery = `
-  query getProducts($first: Int!, $after: String, $query: String) {
-    products(first: $first, after: $after, query: $query, sortKey: RELEVANCE) {
+  query getProducts($first: Int!, $after: String, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean) {
+    products(first: $first, after: $after, query: $query, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node {
           ...ProductCardFragment

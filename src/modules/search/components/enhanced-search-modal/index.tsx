@@ -67,7 +67,7 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
       addRecentSearch(query)
     }
     // Navigate to product
-    router.push(`/products/${handle}`)
+    router.push(`/store/${handle}`)
     onClose()
   }
 
