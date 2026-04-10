@@ -1,5 +1,9 @@
 import type { ContactFormValues } from "./schema"
 
+type ContactEmailOptions = {
+  serviceTitle?: string
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -21,8 +25,11 @@ function formatLabel(label: string, value?: string) {
 
 export function renderContactAdminEmail(
   payload: ContactFormValues,
-  submittedAt: string
+  submittedAt: string,
+  options?: ContactEmailOptions
 ) {
+  const isServiceBooking = payload.subject === "Service Booking"
+
   return `
     <div style="font-family:Arial,sans-serif;background:#f5f5f5;padding:24px;color:#111827;">
       <div style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;">
@@ -39,6 +46,9 @@ export function renderContactAdminEmail(
             ${formatLabel("Phone", payload.phone)}
             ${formatLabel("Subject", payload.subject)}
             ${formatLabel("Order Number", payload.orderNumber)}
+            ${isServiceBooking ? formatLabel("Service Type", options?.serviceTitle || payload.serviceType) : ""}
+            ${isServiceBooking ? formatLabel("Preferred Date", payload.preferredDate) : ""}
+            ${isServiceBooking ? formatLabel("Preferred Time", payload.preferredTime) : ""}
             ${formatLabel("Reply To", payload.email)}
             ${formatLabel("Message", payload.message.replace(/\n/g, "<br />"))}
           </table>
@@ -50,8 +60,10 @@ export function renderContactAdminEmail(
 
 export function renderContactCustomerEmail(
   payload: ContactFormValues,
-  fallbackEmail: string
+  fallbackEmail: string,
+  options?: ContactEmailOptions
 ) {
+  const isServiceBooking = payload.subject === "Service Booking"
   const escapedMessage = escapeHtml(payload.message).replace(/\n/g, "<br />")
 
   return `
@@ -66,10 +78,31 @@ export function renderContactCustomerEmail(
           <p>Thanks for contacting Sixth Gear Moto Supply. We received your message and our team will review it shortly.</p>
           <div style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;background:#fafafa;">
             <p style="margin:0 0 8px;font-weight:600;color:#111827;">Your submission summary</p>
-            <p style="margin:0 0 8px;"><strong>Subject:</strong> ${escapeHtml(payload.subject)}</p>
-            <p style="margin:0;"><strong>Message:</strong><br />${escapedMessage}</p>
+            ${
+              isServiceBooking
+                ? `
+                  <p style="margin:0 0 8px;"><strong>Service:</strong> ${escapeHtml(
+                    options?.serviceTitle || payload.serviceType || "Service booking"
+                  )}</p>
+                  <p style="margin:0 0 8px;"><strong>Preferred Date:</strong> ${escapeHtml(
+                    payload.preferredDate || "—"
+                  )}</p>
+                  <p style="margin:0 0 8px;"><strong>Preferred Time:</strong> ${escapeHtml(
+                    payload.preferredTime || "—"
+                  )}</p>
+                  <p style="margin:0;"><strong>Message:</strong><br />${escapedMessage}</p>
+                `
+                : `
+                  <p style="margin:0 0 8px;"><strong>Subject:</strong> ${escapeHtml(payload.subject)}</p>
+                  <p style="margin:0;"><strong>Message:</strong><br />${escapedMessage}</p>
+                `
+            }
           </div>
-          <p>We typically respond within 1–2 business days.</p>
+          ${
+            isServiceBooking
+              ? "<p>Please note this is a booking request - our team will get back to you as soon as possible to confirm your appointment.</p>"
+              : "<p>We will get back to you as soon as possible.</p>"
+          }
           <p>If you need immediate follow-up, you can reply to this email or contact us at ${escapeHtml(
             fallbackEmail
           )}.</p>

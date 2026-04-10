@@ -8,7 +8,7 @@ export const FALLBACK_EXPERTISE_STATS = {
   sectionDescription:
     "From routine maintenance to performance upgrades and emergency recovery, we provide end-to-end solutions. Our expert technicians combine advanced diagnostics with quality parts to keep your ride at its peak.",
   buttonText: "Book a Service",
-  buttonLink: "/contact",
+  buttonLink: "/contact?subject=Service+Booking",
   stats: [
     {
       number: "8",
@@ -39,9 +39,15 @@ export default function ExpertiseStats({
   data,
 }: ExpertiseStatsProps) {
   const normalizedButtonLink = (data?.buttonLink || FALLBACK_EXPERTISE_STATS.buttonLink).trim()
-  const buttonHref = /^https?:\/\//i.test(normalizedButtonLink)
+  const baseButtonHref = /^https?:\/\//i.test(normalizedButtonLink)
     ? normalizedButtonLink
     : `/${countryCode}${normalizedButtonLink.startsWith("/") ? normalizedButtonLink : `/${normalizedButtonLink}`}`
+  const shouldAppendBookingSubject =
+    /\/contact(?:\?|$)/.test(baseButtonHref) &&
+    !/[?&]subject=Service\+Booking(?:&|$)/.test(baseButtonHref)
+  const buttonHref = shouldAppendBookingSubject
+    ? `${baseButtonHref}${baseButtonHref.includes("?") ? "&" : "?"}subject=Service+Booking`
+    : baseButtonHref
 
   const activeContent = {
     sectionHeading:

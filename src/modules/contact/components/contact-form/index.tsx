@@ -1,22 +1,46 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
+import BookingSuccessModal from "../booking-success-modal"
 import {
   CONTACT_SUBJECT_OPTIONS,
   contactFormSchema,
   ContactApiResponse,
   ContactFormInput,
   ContactFormValues,
+  ServiceOption,
 } from "@lib/contact/schema"
 
 const ORDER_SUPPORT_SUBJECT = "Order Support"
+const SERVICE_BOOKING_SUBJECT = "Service Booking"
+const SERVICE_BOOKING_TIME_OPTIONS = [
+  "Morning (9:00 AM - 12:00 PM)",
+  "Afternoon (12:00 PM - 5:00 PM)",
+  "Evening (5:00 PM - 8:00 PM)",
+] as const
 
-export default function ContactForm() {
-  const [isSubmitted, setIsSubmitted] = useState(false)
+type ContactFormProps = {
+  services: ServiceOption[]
+}
+
+type SuccessData = {
+  firstName: string
+  email: string
+  subject: ContactFormValues["subject"]
+  serviceTitle?: string
+  preferredDate?: string
+  preferredTime?: string
+}
+
+export default function ContactForm({ services }: ContactFormProps) {
+  const searchParams = useSearchParams()
+  const hasPrefilledSubject = useRef(false)
+  const [successData, setSuccessData] = useState<SuccessData | null>(null)
 
   const {
     register,
@@ -35,16 +59,40 @@ export default function ContactForm() {
       phone: "",
       subject: "General Inquiry",
       orderNumber: "",
+      serviceType: "",
+      preferredDate: "",
+      preferredTime: "",
       message: "",
       companyWebsite: "",
     },
   })
 
   const selectedSubject = watch("subject")
+  const today = new Date().toISOString().split("T")[0] || ""
+
+  useEffect(() => {
+    if (hasPrefilledSubject.current) {
+      return
+    }
+
+    hasPrefilledSubject.current = true
+
+    if (searchParams.get("subject") === SERVICE_BOOKING_SUBJECT) {
+      setValue("subject", SERVICE_BOOKING_SUBJECT)
+    }
+  }, [searchParams, setValue])
 
   useEffect(() => {
     if (selectedSubject !== ORDER_SUPPORT_SUBJECT) {
       setValue("orderNumber", "")
+    }
+  }, [selectedSubject, setValue])
+
+  useEffect(() => {
+    if (selectedSubject !== SERVICE_BOOKING_SUBJECT) {
+      setValue("serviceType", "")
+      setValue("preferredDate", "")
+      setValue("preferredTime", "")
     }
   }, [selectedSubject, setValue])
 
@@ -77,8 +125,19 @@ export default function ContactForm() {
         return
       }
 
+      const serviceTitle = services.find(
+        (service) => service.slug === values.serviceType
+      )?.title
+
       reset()
-      setIsSubmitted(true)
+      setSuccessData({
+        firstName: values.firstName,
+        email: values.email,
+        subject: values.subject,
+        serviceTitle,
+        preferredDate: values.preferredDate,
+        preferredTime: values.preferredTime,
+      })
       toast.success("Message sent", {
         description: data.message,
       })
@@ -90,162 +149,252 @@ export default function ContactForm() {
     }
   })
 
-  if (isSubmitted) {
-    return (
-      <div className="text-center py-20">
-        <h3 className="text-2xl font-bold text-gray-900 mb-4">
-          Message Sent Successfully
-        </h3>
-        <p className="text-gray-600 mb-8">
-          We&apos;ll get back to you within 1–2 business days.
-        </p>
-        <button
-          type="button"
-          onClick={() => setIsSubmitted(false)}
-          className="text-[#F16D34] font-medium hover:underline transition-all"
-        >
-          Send another message
-        </button>
-      </div>
-    )
-  }
-
   return (
-    <form onSubmit={onSubmit} className="space-y-5" noValidate>
-      <input
-        type="text"
-        tabIndex={-1}
-        autoComplete="off"
-        aria-hidden="true"
-        className="hidden"
-        {...register("companyWebsite")}
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-gray-700">First Name</label>
-          <input
-            type="text"
-            placeholder="First name"
-            className="w-full h-12 px-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 placeholder-gray-300 shadow-sm transition-all"
-            {...register("firstName")}
-          />
-          {errors.firstName && (
-            <p className="text-red-500 text-xs">{errors.firstName.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-gray-700">Last Name</label>
-          <input
-            type="text"
-            placeholder="Last name"
-            className="w-full h-12 px-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 placeholder-gray-300 shadow-sm transition-all"
-            {...register("lastName")}
-          />
-          {errors.lastName && (
-            <p className="text-red-500 text-xs">{errors.lastName.message}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-gray-700">E-mail</label>
+    <>
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <input
-          type="email"
-          placeholder="you@gmail.com"
-          className="w-full h-12 px-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 placeholder-gray-300 shadow-sm transition-all"
-          {...register("email")}
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="hidden"
+          {...register("companyWebsite")}
         />
-        {errors.email && (
-          <p className="text-red-500 text-xs">{errors.email.message}</p>
-        )}
-      </div>
 
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-gray-700">Phone Number</label>
-        <input
-          type="tel"
-          placeholder="+63 917 123 4567"
-          className="w-full h-12 px-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 placeholder-gray-300 shadow-sm transition-all"
-          {...register("phone")}
-        />
-        {errors.phone && (
-          <p className="text-red-500 text-xs">{errors.phone.message}</p>
-        )}
-      </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-700">First Name</label>
+            <input
+              type="text"
+              placeholder="First name"
+              className="h-12 w-full rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all placeholder-gray-300 focus:ring-1 focus:ring-black"
+              {...register("firstName")}
+            />
+            {errors.firstName && (
+              <p className="text-xs text-red-500">{errors.firstName.message}</p>
+            )}
+          </div>
 
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-gray-700">Subject</label>
-        <div className="relative">
-          <select
-            className="w-full h-12 px-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 shadow-sm appearance-none cursor-pointer transition-all"
-            {...register("subject")}
-          >
-            {CONTACT_SUBJECT_OPTIONS.map((subject) => (
-              <option key={subject} value={subject}>
-                {subject}
-              </option>
-            ))}
-          </select>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-700">Last Name</label>
+            <input
+              type="text"
+              placeholder="Last name"
+              className="h-12 w-full rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all placeholder-gray-300 focus:ring-1 focus:ring-black"
+              {...register("lastName")}
+            />
+            {errors.lastName && (
+              <p className="text-xs text-red-500">{errors.lastName.message}</p>
+            )}
           </div>
         </div>
-        {errors.subject && (
-          <p className="text-red-500 text-xs">{errors.subject.message}</p>
-        )}
-      </div>
 
-      {selectedSubject === ORDER_SUPPORT_SUBJECT && (
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-gray-700">Order Number</label>
+          <label className="text-xs font-semibold text-gray-700">E-mail</label>
           <input
-            type="text"
-            placeholder="SGM-12345"
-            className="w-full h-12 px-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 placeholder-gray-300 shadow-sm transition-all"
-            {...register("orderNumber")}
+            type="email"
+            placeholder="you@gmail.com"
+            className="h-12 w-full rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all placeholder-gray-300 focus:ring-1 focus:ring-black"
+            {...register("email")}
           />
-          {errors.orderNumber && (
-            <p className="text-red-500 text-xs">{errors.orderNumber.message}</p>
+          {errors.email && (
+            <p className="text-xs text-red-500">{errors.email.message}</p>
           )}
         </div>
-      )}
 
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-gray-700">Message</label>
-        <textarea
-          rows={4}
-          placeholder="Leave us a message..."
-          className="w-full p-4 rounded-lg border-none bg-white focus:ring-1 focus:ring-black text-gray-900 placeholder-gray-300 resize-none shadow-sm transition-all"
-          {...register("message")}
-        />
-        {errors.message && (
-          <p className="text-red-500 text-xs">{errors.message.message}</p>
-        )}
-      </div>
-
-      <div className="flex justify-end pt-2">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex items-center gap-3 bg-black hover:bg-[#F16D34] text-white px-8 h-14 rounded-full font-semibold transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          <span>{isSubmitting ? "Sending..." : "Send Message"}</span>
-          {!isSubmitting && (
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 12h16m-7-7l7 7-7 7" />
-            </svg>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-gray-700">Phone Number</label>
+          <input
+            type="tel"
+            placeholder="+63 917 123 4567"
+            className="h-12 w-full rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all placeholder-gray-300 focus:ring-1 focus:ring-black"
+            {...register("phone")}
+          />
+          {errors.phone && (
+            <p className="text-xs text-red-500">{errors.phone.message}</p>
           )}
-        </button>
-      </div>
-    </form>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-gray-700">Subject</label>
+          <div className="relative">
+            <select
+              className="h-12 w-full cursor-pointer appearance-none rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all focus:ring-1 focus:ring-black"
+              {...register("subject")}
+            >
+              {CONTACT_SUBJECT_OPTIONS.map((subject) => (
+                <option key={subject} value={subject}>
+                  {subject}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+              <svg
+                className="h-4 w-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </div>
+          {errors.subject && (
+            <p className="text-xs text-red-500">{errors.subject.message}</p>
+          )}
+        </div>
+
+        {selectedSubject === SERVICE_BOOKING_SUBJECT && (
+          <>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700">Service Type</label>
+              <div className="relative">
+                <select
+                  className="h-12 w-full cursor-pointer appearance-none rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all focus:ring-1 focus:ring-black"
+                  {...register("serviceType")}
+                >
+                  <option value="">Select a service</option>
+                  {services.map((service) => (
+                    <option key={service.slug} value={service.slug}>
+                      {service.title}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+                  <svg
+                    className="h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              {errors.serviceType && (
+                <p className="text-xs text-red-500">{errors.serviceType.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700">Preferred Date</label>
+              <input
+                type="date"
+                min={today}
+                className="h-12 w-full rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all focus:ring-1 focus:ring-black"
+                {...register("preferredDate")}
+              />
+              {errors.preferredDate && (
+                <p className="text-xs text-red-500">{errors.preferredDate.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-700">Preferred Time</label>
+              <div className="relative">
+                <select
+                  className="h-12 w-full cursor-pointer appearance-none rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all focus:ring-1 focus:ring-black"
+                  {...register("preferredTime")}
+                >
+                  <option value="">Select a time window</option>
+                  {SERVICE_BOOKING_TIME_OPTIONS.map((timeOption) => (
+                    <option key={timeOption} value={timeOption}>
+                      {timeOption}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+                  <svg
+                    className="h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              {errors.preferredTime && (
+                <p className="text-xs text-red-500">{errors.preferredTime.message}</p>
+              )}
+            </div>
+          </>
+        )}
+
+        {selectedSubject === ORDER_SUPPORT_SUBJECT && (
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-700">Order Number</label>
+            <input
+              type="text"
+              placeholder="SGM-12345"
+              className="h-12 w-full rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all placeholder-gray-300 focus:ring-1 focus:ring-black"
+              {...register("orderNumber")}
+            />
+            {errors.orderNumber && (
+              <p className="text-xs text-red-500">{errors.orderNumber.message}</p>
+            )}
+          </div>
+        )}
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-gray-700">Message</label>
+          <textarea
+            rows={4}
+            placeholder="Leave us a message..."
+            className="w-full resize-none rounded-lg border-none bg-white p-4 text-gray-900 shadow-sm transition-all placeholder-gray-300 focus:ring-1 focus:ring-black"
+            {...register("message")}
+          />
+          {errors.message && (
+            <p className="text-xs text-red-500">{errors.message.message}</p>
+          )}
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex h-14 items-center gap-3 rounded-full bg-black px-8 font-semibold text-white shadow-md transition-all hover:bg-[#F16D34] focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            <span>{isSubmitting ? "Sending..." : "Send Message"}</span>
+            {!isSubmitting && (
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M4 12h16m-7-7l7 7-7 7"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+      </form>
+
+      <BookingSuccessModal
+        isOpen={Boolean(successData)}
+        onClose={() => setSuccessData(null)}
+        successData={successData}
+      />
+    </>
   )
 }

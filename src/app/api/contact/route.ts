@@ -1,24 +1,37 @@
 import { NextRequest } from "next/server"
-import { serverEnv } from "@lib/env"
 import { checkRateLimit, TTL } from "@lib/cache/redis"
+import { getAllServicesCMS } from "@lib/cms/client"
 import {
   contactFormSchema,
   ContactApiResponse,
   ContactFormValues,
+  ServiceOption,
   toContactFieldErrors,
 } from "@lib/contact/schema"
 import {
   renderContactAdminEmail,
   renderContactCustomerEmail,
 } from "@lib/contact/email"
+import { serverEnv } from "@lib/env"
 import { Resend } from "resend"
 
 const CONTACT_RATE_LIMIT = 5
+const SERVICE_BOOKING_SUBJECT = "Service Booking"
+const FALLBACK_SERVICES: ServiceOption[] = [
+  { slug: "preventive-maintenance", title: "Preventive Maintenance (PMS)" },
+  { slug: "repairs-diagnostics", title: "Repairs & Diagnostics" },
+  {
+    slug: "accessories-installation",
+    title: "Accessories & Custom Installation",
+  },
+  { slug: "wheels-drivetrain", title: "Wheels, Drivetrain & Handling" },
+  { slug: "detailing-protection", title: "Detailing & Protection" },
+  { slug: "performance-upgrades", title: "Performance Upgrades" },
+  { slug: "roadside-assistance", title: "Roadside Assistance & Recovery" },
+  { slug: "rider-support", title: "Rider Support & Convenience" },
+]
 
-function json(
-  body: ContactApiResponse,
-  status: number
-): Response {
+function json(body: ContactApiResponse, status: number): Response {
   return Response.json(body, { status })
 }
 
@@ -87,6 +100,29 @@ function ensureEmailConfig() {
     contactTo: serverEnv.CONTACT_EMAIL_TO,
     contactFrom: serverEnv.CONTACT_EMAIL_FROM,
   }
+}
+
+async function getServiceOptions(): Promise<ServiceOption[]> {
+  const services = await getAllServicesCMS()
+  const mappedServices = services
+    .filter((service) => Boolean(service.slug?.trim()) && Boolean(service.title?.trim()))
+    .map((service) => ({
+      slug: service.slug!.trim(),
+      title: service.title!.trim(),
+    }))
+
+  return mappedServices.length > 0 ? mappedServices : FALLBACK_SERVICES
+}
+
+function findServiceTitle(
+  serviceType: string | undefined,
+  services: ServiceOption[]
+) {
+  if (!serviceType) {
+    return undefined
+  }
+
+  return services.find((service) => service.slug === serviceType)?.title
 }
 
 export async function POST(request: NextRequest) {
@@ -184,20 +220,29 @@ export async function POST(request: NextRequest) {
       timeStyle: "short",
       timeZone: "Asia/Manila",
     })
+    const serviceOptions =
+      payload.subject === SERVICE_BOOKING_SUBJECT ? await getServiceOptions() : []
+    const serviceTitle = findServiceTitle(payload.serviceType, serviceOptions)
+    const adminSubject =
+      payload.subject === SERVICE_BOOKING_SUBJECT
+        ? `[SixthgearMoto] Service Booking Request: ${
+            serviceTitle || payload.serviceType || "Service booking"
+          } - ${payload.firstName} ${payload.lastName}`
+        : `[SixthgearMoto] New Contact: ${payload.subject} - ${payload.firstName} ${payload.lastName}`
 
     await Promise.all([
       resend.emails.send({
         to: contactTo,
         from: contactFrom,
         replyTo: payload.email,
-        subject: `[SixthgearMoto] New Contact: ${payload.subject} — ${payload.firstName} ${payload.lastName}`,
-        html: renderContactAdminEmail(payload, submittedAt),
+        subject: adminSubject,
+        html: renderContactAdminEmail(payload, submittedAt, { serviceTitle }),
       }),
       resend.emails.send({
         to: payload.email,
         from: contactFrom,
-        subject: "We received your message — Sixth Gear Moto Supply",
-        html: renderContactCustomerEmail(payload, contactTo),
+        subject: "We received your message - Sixth Gear Moto Supply",
+        html: renderContactCustomerEmail(payload, contactTo, { serviceTitle }),
       }),
     ])
 

@@ -11,6 +11,12 @@ export const CONTACT_SUBJECT_OPTIONS = [
 
 const philippineMobileRegex = /^(?:\+63|0)9\d{9}$/
 const orderSupportLabel = "Order Support"
+const serviceBookingLabel = "Service Booking"
+
+export type ServiceOption = {
+  slug: string
+  title: string
+}
 
 function normalizeOptionalString(value: unknown) {
   if (typeof value !== "string") {
@@ -52,6 +58,15 @@ export const contactFormSchema = z
         (value) => value === undefined || value.length <= 40,
         "Order number is too long"
       ),
+    serviceType: z
+      .union([z.string(), z.undefined()])
+      .transform((value) => normalizeOptionalString(value)),
+    preferredDate: z
+      .union([z.string(), z.undefined()])
+      .transform((value) => normalizeOptionalString(value)),
+    preferredTime: z
+      .union([z.string(), z.undefined()])
+      .transform((value) => normalizeOptionalString(value)),
     message: z.string().trim().min(10, "Message must be at least 10 characters").max(2000),
     companyWebsite: z.string().max(0, "Spam detected").default(""),
   })
@@ -61,6 +76,56 @@ export const contactFormSchema = z
         code: z.ZodIssueCode.custom,
         path: ["orderNumber"],
         message: "Order number is only allowed for order support inquiries",
+      })
+    }
+
+    if (value.subject === serviceBookingLabel) {
+      if (!value.serviceType) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["serviceType"],
+          message: "Service type is required for booking requests",
+        })
+      }
+
+      if (!value.preferredDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["preferredDate"],
+          message: "Preferred date is required for booking requests",
+        })
+      }
+
+      if (!value.preferredTime) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["preferredTime"],
+          message: "Preferred time is required for booking requests",
+        })
+      }
+    }
+
+    if (value.subject !== serviceBookingLabel && value.serviceType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["serviceType"],
+        message: "Service type is only allowed for service booking inquiries",
+      })
+    }
+
+    if (value.subject !== serviceBookingLabel && value.preferredDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["preferredDate"],
+        message: "Preferred date is only allowed for service booking inquiries",
+      })
+    }
+
+    if (value.subject !== serviceBookingLabel && value.preferredTime) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["preferredTime"],
+        message: "Preferred time is only allowed for service booking inquiries",
       })
     }
   })
