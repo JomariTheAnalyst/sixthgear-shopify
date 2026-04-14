@@ -36,5 +36,9 @@ export const updateRateLimit = createRateLimiter(
   "update",
   TTL.RATE_LIMIT_UPDATE
 )
+export const passwordChangeRateLimit = createRateLimiter(
+  "password_change",
+  TTL.RATE_LIMIT_PASSWORD_CHANGE
+)
 
 export default authRateLimit

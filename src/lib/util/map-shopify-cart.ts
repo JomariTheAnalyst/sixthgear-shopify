@@ -14,6 +14,10 @@ export function mapShopifyCartToStoreCart(shopifyCart: ShopifyCart | null): any 
 
   const items = lines.map((line: ShopifyCartLine) => {
     const unitPrice = parseFloat(line.cost.totalAmount.amount) / (line.quantity || 1)
+    const matchingVariantImage =
+      line.merchandise?.product?.variants?.edges?.find(
+        (edge) => edge.node.id === line.merchandise?.id
+      )?.node.image?.url ?? null
 
     return {
       id: line.id,
@@ -26,7 +30,11 @@ export function mapShopifyCartToStoreCart(shopifyCart: ShopifyCart | null): any 
       compare_at_unit_price: null,
       subtotal: parseFloat(line.cost.totalAmount.amount),
       total: parseFloat(line.cost.totalAmount.amount),
-      thumbnail: line.merchandise?.product?.featuredImage?.url || null,
+      thumbnail:
+        line.merchandise?.image?.url ??
+        matchingVariantImage ??
+        line.merchandise?.product?.featuredImage?.url ??
+        null,
       created_at: null,
       variant: {
         id: line.merchandise?.id || "",

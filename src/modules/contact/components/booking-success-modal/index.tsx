@@ -51,7 +51,7 @@ export default function BookingSuccessModal({
   return (
     <Modal isOpen={isOpen} close={onClose} size="small">
       <Modal.Title>
-        {isServiceBooking ? "Booking Request Received! 🏍️" : "Message Sent! ✓"}
+        {isServiceBooking ? "Booking Request Received" : "Message Sent"}
       </Modal.Title>
       <Modal.Body>
         <div className="w-full pt-6">

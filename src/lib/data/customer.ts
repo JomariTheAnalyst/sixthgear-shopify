@@ -26,6 +26,7 @@ import {
   registerRateLimit,
   resetRateLimit,
   updateRateLimit,
+  passwordChangeRateLimit,
 } from "@lib/util/rate-limit"
 
 // ─── Cookie Helpers — Customer Token ─────────────────────────────────────────
@@ -201,8 +202,8 @@ export async function signup(
     return "All fields are required."
   }
 
-  if (!password || password.length < 5) {
-    return "Password must be at least 5 characters."
+  if (!password || password.length < 8) {
+    return "Password must be at least 8 characters."
   }
 
   // Rate Limiting
@@ -231,7 +232,7 @@ export async function signup(
         case "TAKEN":
           return "An account with this email already exists."
         case "TOO_SHORT": // Shopify might return this for password constraints
-          return "Password must be at least 5 characters."
+          return "Password must be at least 8 characters."
         default:
           return userErrors[0].message || "Registration failed. Please try again."
       }
@@ -781,5 +782,101 @@ export async function setDefaultAddress(
   } catch (error) {
     console.error("[setDefaultAddress] Error:", error)
     return { success: false, error: "Failed to set default address." }
+  }
+}
+
+export async function changePassword(
+  currentPassword?: string,
+  newPassword?: string,
+  confirmPassword?: string
+): Promise<{ success: boolean; error?: string }> {
+  // 1. Rate Limiting (5 attempts max, 15 min window)
+  const allowed = await passwordChangeRateLimit.check(5)
+  if (!allowed) {
+    return { success: false, error: "Too many requests. Please try again later." }
+  }
+
+  // 2. Get current customer session
+  const token = await getCustomerToken()
+  if (!token) {
+    return { success: false, error: "You must be logged in to change your password." }
+  }
+
+  // 3. Get current customer email
+  const customer = await shopifyGetCustomer(token)
+  if (!customer || !customer.email) {
+    return { success: false, error: "Unable to verify your account. Please log in again." }
+  }
+
+  // 4. Server-side validation
+  const oldPass = (currentPassword || "").trim()
+  const newPass = (newPassword || "").trim()
+  const confirmPass = (confirmPassword || "").trim()
+
+  if (!oldPass || !newPass || !confirmPass) {
+    return { success: false, error: "All fields are required." }
+  }
+
+  if (newPass.length < 8) {
+    return { success: false, error: "New password must be at least 8 characters long." }
+  }
+
+  if (newPass !== confirmPass) {
+    return { success: false, error: "New password and confirm password do not match." }
+  }
+
+  if (newPass === oldPass) {
+    return { success: false, error: "New password must be different from your current password." }
+  }
+
+  try {
+    // 5. Re-authenticate with current password to verify they know it
+    const loginResult = await customerAccessTokenCreate({
+      email: customer.email,
+      password: oldPass,
+    })
+
+    if (!loginResult || !loginResult.customerAccessToken || loginResult.customerUserErrors?.length) {
+      return { success: false, error: "Current password is incorrect." }
+    }
+
+    const verificationToken = loginResult.customerAccessToken.accessToken
+
+    // 6. Update password using the fresh verified token
+    const updateResult = await shopifyCustomerUpdate(verificationToken, {
+      password: newPass,
+    })
+
+    if (!updateResult) {
+      return { success: false, error: "Unable to update your password right now. Please try again." }
+    }
+
+    const userErrors = updateResult.customerUserErrors || []
+    if (userErrors.length > 0) {
+      return { success: false, error: "Unable to update your password right now. Please try again." }
+    }
+
+    // 7. Handle token refresh
+    if (updateResult.customerAccessToken) {
+      await setCustomerToken(
+        updateResult.customerAccessToken.accessToken,
+        updateResult.customerAccessToken.expiresAt
+      )
+    } else {
+      // If we didn't get a new token in the response, store the verification token
+      await setCustomerToken(
+        loginResult.customerAccessToken.accessToken,
+        loginResult.customerAccessToken.expiresAt
+      )
+    }
+
+    // 8. Revalidate
+    revalidatePath("/", "layout")
+    
+    // 9. Return success
+    return { success: true }
+  } catch (error) {
+    console.error("[changePassword] Error:", error)
+    return { success: false, error: "Unable to update your password right now. Please try again." }
   }
 }

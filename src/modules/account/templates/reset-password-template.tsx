@@ -1,19 +1,31 @@
 "use client"
 
+import type { ChangeEvent, FormEvent } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { resetPassword } from "@lib/data/customer"
-import { useActionState } from "react"
-import { useState, useEffect, useRef } from "react"
-import { useSearchParams, useRouter, useParams } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { SubmitButton } from "@modules/common/components/submit-button"
+import PasswordField from "@modules/account/components/password-field"
+
+type ClientErrors = {
+  password?: string
+  confirm_password?: string
+}
+
+const passwordHint =
+  "Use at least 8 characters. For better security, use a mix of upper and lowercase letters, numbers, and symbols."
 
 export default function ResetPasswordTemplate() {
-  const [message, formAction, isPending] = useActionState(resetPassword, null)
+  const [message, setMessage] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isPending, setIsPending] = useState(false)
+  const [clientErrors, setClientErrors] = useState<ClientErrors>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
   const { countryCode } = useParams() as { countryCode: string }
-  const hasSubmitted = useRef(false)
+  const formRef = useRef<HTMLFormElement>(null)
   const resetUrl = searchParams.get("url")
 
   useEffect(() => {
@@ -23,21 +35,77 @@ export default function ResetPasswordTemplate() {
   }, [resetUrl, router, countryCode])
 
   useEffect(() => {
-    if (isPending) {
-      hasSubmitted.current = true
+    if (!showSuccess) {
+      return
     }
-  }, [isPending])
 
-  useEffect(() => {
-    if (hasSubmitted.current && !isPending && message === "success") {
-      setShowSuccess(true)
-      // Auto-redirect to account after 3 seconds
-      const timer = setTimeout(() => {
-        router.push(`/${countryCode}/account`)
-      }, 3000)
-      return () => clearTimeout(timer)
+    const timer = setTimeout(() => {
+      router.push(`/${countryCode}/account`)
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [showSuccess, router, countryCode])
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name } = event.target
+
+    if (clientErrors[name as keyof ClientErrors]) {
+      setClientErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }))
     }
-  }, [isPending, message, router, countryCode])
+
+    if (message && message !== "success") {
+      setMessage(null)
+    }
+  }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!resetUrl) {
+      return
+    }
+
+    const formData = new FormData(event.currentTarget)
+    const password = ((formData.get("password") as string) || "").trim()
+    const confirmPassword = ((formData.get("confirm_password") as string) || "").trim()
+    const errors: ClientErrors = {}
+
+    setMessage(null)
+    setShowSuccess(false)
+
+    if (!password) {
+      errors.password = "New password is required"
+    } else if (password.length < 8) {
+      errors.password = "New password must be at least 8 characters"
+    }
+
+    if (!confirmPassword) {
+      errors.confirm_password = "Please confirm your new password"
+    } else if (password !== confirmPassword) {
+      errors.confirm_password = "Passwords do not match"
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setClientErrors(errors)
+      return
+    }
+
+    setClientErrors({})
+    setIsPending(true)
+    const result = await resetPassword(null, formData)
+    setIsPending(false)
+
+    if (result === "success") {
+      setShowSuccess(true)
+      formRef.current?.reset()
+      return
+    }
+
+    setMessage(result || "Password reset failed. Please try again.")
+  }
 
   if (!resetUrl) {
     return null
@@ -55,13 +123,16 @@ export default function ResetPasswordTemplate() {
 
         {showSuccess ? (
           <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-            <div className="text-green-600 text-5xl mb-4">✓</div>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-700">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Password Reset Successful!
+              Password Reset Successful
             </h2>
             <p className="text-gray-600 mb-6">
-              Your password has been successfully reset. Redirecting to your
-              account...
+              Your password has been successfully reset. Redirecting to your account.
             </p>
             <LocalizedClientLink
               href="/account"
@@ -71,8 +142,8 @@ export default function ResetPasswordTemplate() {
             </LocalizedClientLink>
           </div>
         ) : (
-          <form action={formAction} className="space-y-6">
-            {message && message !== "success" && (
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+            {message && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                 <p className="text-sm text-red-600">{message}</p>
               </div>
@@ -80,54 +151,48 @@ export default function ResetPasswordTemplate() {
 
             <input type="hidden" name="reset_url" value={resetUrl} />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                New Password
-              </label>
-              <input
-                name="password"
-                type="password"
-                placeholder="New Password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                data-testid="password-input"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Must be at least 8 characters
-              </p>
-            </div>
+            <PasswordField
+              label="New Password"
+              name="password"
+              show={showPassword}
+              onToggle={() => setShowPassword((prev) => !prev)}
+              onChange={handleInputChange}
+              autoComplete="new-password"
+              required
+              disabled={isPending}
+              error={clientErrors.password}
+              hint={passwordHint}
+              dataTestId="password-input"
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <input
-                name="confirm_password"
-                type="password"
-                placeholder="Confirm Password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                data-testid="confirm-password-input"
-              />
-            </div>
+            <PasswordField
+              label="Confirm New Password"
+              name="confirm_password"
+              show={showConfirmPassword}
+              onToggle={() => setShowConfirmPassword((prev) => !prev)}
+              onChange={handleInputChange}
+              autoComplete="new-password"
+              required
+              disabled={isPending}
+              error={clientErrors.confirm_password}
+              dataTestId="confirm-password-input"
+            />
 
-            <SubmitButton
-              className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="reset-password-button"
             >
-              Reset Password
-            </SubmitButton>
+              {isPending ? "Resetting..." : "Reset Password"}
+            </button>
 
             <div className="text-center">
               <LocalizedClientLink
                 href="/login"
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
-                ← Back to Login
+                Back to Login
               </LocalizedClientLink>
             </div>
           </form>

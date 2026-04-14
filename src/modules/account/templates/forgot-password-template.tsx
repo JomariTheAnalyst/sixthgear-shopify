@@ -42,15 +42,12 @@ export default function ForgotPasswordTemplate() {
 
         {showSuccess ? (
           <div className="border border-gray-200 rounded-xl p-8 text-center">
-            {/* Icon */}
             <Mail className="w-10 h-10 text-[#0a0a0a] mx-auto mb-6" strokeWidth={1.5} />
 
-            {/* Headline */}
             <h2 className="text-[22px] font-bold text-[#0a0a0a] mb-4">
               Check your inbox
             </h2>
 
-            {/* Body */}
             <p className="text-sm text-gray-600 leading-relaxed mb-3">
               If an account exists for this email, you will receive
               password reset instructions.
@@ -61,12 +58,10 @@ export default function ForgotPasswordTemplate() {
               or try again.
             </p>
 
-            {/* Help */}
             <p className="text-xs text-gray-400 mb-6">
               Need help? Contact us at noreply@sixthgearmoto.com
             </p>
 
-            {/* Divider */}
             <div className="border-t border-gray-200 my-6" />
 
             <LocalizedClientLink
@@ -111,7 +106,7 @@ export default function ForgotPasswordTemplate() {
                 href="/login"
                 className="text-sm text-gray-600 hover:text-gray-900"
               >
-                ← Back to Login
+                Back to Login
               </LocalizedClientLink>
             </div>
           </form>

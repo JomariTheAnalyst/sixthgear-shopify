@@ -12,7 +12,6 @@ import AboutMission from "./ceo-quote"
 import OurValues from "@modules/about/components/our-values"
 import WhyChooseUs from "@modules/about/components/why-choose-us"
 import CTABanner from "@modules/home/components/cta-banner"
-import { FALLBACK_ABOUT_MISSION } from "@modules/about/constants"
 import {
   AboutHeroContent,
   AboutMissionContent,
@@ -39,21 +38,6 @@ export default function AboutTemplate({
   whyChooseUsContent,
   ceoQuoteContent,
 }: AboutTemplateProps) {
-  const missionContent: AboutMissionContent = {
-    quoteText:
-      ceoQuoteContent?.quoteText?.trim() || FALLBACK_ABOUT_MISSION.quoteText,
-    highlightedPhrase:
-      ceoQuoteContent?.highlightedPhrase?.trim() ||
-      FALLBACK_ABOUT_MISSION.highlightedPhrase,
-    ceoName: ceoQuoteContent?.ceoName?.trim() || FALLBACK_ABOUT_MISSION.ceoName,
-    ceoTitle:
-      ceoQuoteContent?.ceoTitle?.trim() || FALLBACK_ABOUT_MISSION.ceoTitle,
-    ceoPhoto: ceoQuoteContent?.ceoPhoto || FALLBACK_ABOUT_MISSION.ceoPhoto,
-    ceoPhotoDescription:
-      ceoQuoteContent?.ceoPhotoDescription?.trim() ||
-      FALLBACK_ABOUT_MISSION.ceoPhotoDescription,
-  }
-
   return (
     <>
       <AboutHero
@@ -68,14 +52,16 @@ export default function AboutTemplate({
       <div className="h-12 md:h-20 bg-white" />
       <OurValues data={ourValuesContent} />
       <WhyChooseUs data={whyChooseUsContent} />
-      <AboutMission
-        quoteText={missionContent.quoteText}
-        highlightedPhrase={missionContent.highlightedPhrase}
-        ceoName={missionContent.ceoName}
-        ceoTitle={missionContent.ceoTitle}
-        ceoPhoto={missionContent.ceoPhoto}
-        ceoPhotoDescription={missionContent.ceoPhotoDescription}
-      />
+      {ceoQuoteContent && (
+        <AboutMission
+          quoteText={ceoQuoteContent.quoteText}
+          highlightedPhrase={ceoQuoteContent.highlightedPhrase}
+          ceoName={ceoQuoteContent.ceoName}
+          ceoTitle={ceoQuoteContent.ceoTitle}
+          ceoPhoto={ceoQuoteContent.ceoPhoto ?? undefined}
+          ceoPhotoDescription={ceoQuoteContent.ceoPhotoDescription}
+        />
+      )}
       <CTABanner />
     </>
   )

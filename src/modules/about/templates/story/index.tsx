@@ -46,7 +46,22 @@ export interface AboutStoryProps {
 
 export default function AboutStory({ items }: AboutStoryProps) {
   const displayItems =
-    items && items.length > 0 ? items : FALLBACK_ABOUT_STORY
+    items && items.length > 0
+      ? items.map((item, index) => {
+          const fallback =
+            FALLBACK_ABOUT_STORY[index % FALLBACK_ABOUT_STORY.length]
+
+          return {
+            id: item.id || fallback.id,
+            heading: item.heading?.trim() || fallback.heading,
+            body: item.body?.trim() || fallback.body,
+            image: {
+              src: item.image?.src?.trim() || fallback.image.src,
+              alt: item.image?.alt?.trim() || fallback.image.alt,
+            },
+          }
+        })
+      : FALLBACK_ABOUT_STORY
 
   return (
     <section className="bg-[#FAFAFA] w-full flex flex-col">

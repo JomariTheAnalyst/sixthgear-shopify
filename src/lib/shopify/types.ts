@@ -193,6 +193,7 @@ export interface ShopifyCartLine {
   merchandise: {
     id: string;
     title: string;
+    image?: ShopifyImage | null;
     selectedOptions: {
       name: string;
       value: string;
@@ -202,6 +203,14 @@ export interface ShopifyCartLine {
       handle: string;
       title: string;
       featuredImage: ShopifyImage | null;
+      variants?: {
+        edges: {
+          node: {
+            id: string;
+            image: ShopifyImage | null;
+          };
+        }[];
+      };
     };
   };
 }

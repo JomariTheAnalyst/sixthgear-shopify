@@ -59,6 +59,12 @@ const CART_FRAGMENT = `
                 name
                 value
               }
+              image {
+                url
+                altText
+                width
+                height
+              }
               product {
                 id
                 handle
@@ -68,6 +74,19 @@ const CART_FRAGMENT = `
                   altText
                   width
                   height
+                }
+                variants(first: 50) {
+                  edges {
+                    node {
+                      id
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
                 }
               }
             }

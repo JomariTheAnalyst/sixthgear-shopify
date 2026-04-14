@@ -9,6 +9,7 @@ import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/common/components/submit-button"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
+
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
@@ -20,14 +21,12 @@ const Register = ({ setCurrentView }: Props) => {
   const { countryCode } = useParams() as { countryCode: string }
   const hasSubmitted = useRef(false)
 
-  // Track submissions
   useEffect(() => {
     if (isPending) {
       hasSubmitted.current = true
     }
   }, [isPending])
 
-  // Redirect on successful registration (auto-logged in)
   useEffect(() => {
     if (hasSubmitted.current && !isPending && message === null) {
       router.push(`/${countryCode}/account`)
@@ -37,7 +36,6 @@ const Register = ({ setCurrentView }: Props) => {
 
   return (
     <div data-testid="register-page">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Create Account
@@ -53,9 +51,7 @@ const Register = ({ setCurrentView }: Props) => {
         </p>
       </div>
 
-      {/* Form */}
       <form className="space-y-5" action={formAction}>
-        {/* Name Row */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -87,7 +83,6 @@ const Register = ({ setCurrentView }: Props) => {
           </div>
         </div>
 
-        {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Email Address
@@ -103,7 +98,6 @@ const Register = ({ setCurrentView }: Props) => {
           />
         </div>
 
-        {/* Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Password
@@ -112,17 +106,17 @@ const Register = ({ setCurrentView }: Props) => {
             <input
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Min. 5 characters"
+              placeholder="Create a password"
               autoComplete="new-password"
               required
-              minLength={5}
+              minLength={8}
               className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               data-testid="password-input"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/3 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
             >
               {showPassword ? (
                 <svg
@@ -162,12 +156,10 @@ const Register = ({ setCurrentView }: Props) => {
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-            You&apos;ll be automatically signed in after clicking the activation
-            link sent to your email.
+            Use at least 8 characters. For better security, use a mix of upper and lowercase letters, numbers, and symbols.
           </p>
         </div>
 
-        {/* Terms */}
         <p className="text-xs text-gray-500">
           By creating an account, you agree to Sixthgear&apos;s{" "}
           <LocalizedClientLink
@@ -188,7 +180,6 @@ const Register = ({ setCurrentView }: Props) => {
 
         <ErrorMessage error={message} data-testid="register-error" />
 
-        {/* Submit */}
         <SubmitButton
           className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"
           data-testid="register-button"
@@ -196,7 +187,6 @@ const Register = ({ setCurrentView }: Props) => {
           Create Account
         </SubmitButton>
 
-        {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
@@ -206,7 +196,6 @@ const Register = ({ setCurrentView }: Props) => {
           </div>
         </div>
 
-        {/* Google Button */}
         <button
           type="button"
           className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"

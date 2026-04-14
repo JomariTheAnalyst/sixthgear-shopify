@@ -29,6 +29,7 @@ export const TTL = {
   RATE_LIMIT_RECOVER: 3600,
   RATE_LIMIT_RESET: 3600,
   RATE_LIMIT_UPDATE: 3600,
+  RATE_LIMIT_PASSWORD_CHANGE: 900,
 } as const
 
 export async function getCached<T>(

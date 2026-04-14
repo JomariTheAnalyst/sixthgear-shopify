@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { retrieveCustomer } from "@lib/data/customer"
 import ProfileForm from "@modules/account/components/profile-form"
+import ProfilePassword from "@modules/account/components/profile-password"
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -17,7 +18,6 @@ export default async function Profile() {
 
   return (
     <div className="space-y-6" data-testid="profile-page-wrapper">
-      {/* Header */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg flex-shrink-0">
@@ -29,14 +29,14 @@ export default async function Profile() {
               {customer.firstName} {customer.lastName}
             </h1>
             <p className="text-gray-500 text-sm mt-1">
-              Manage your personal information and account settings
+              Manage your personal information and account settings.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Profile Form */}
       <ProfileForm customer={customer} />
+      <ProfilePassword />
     </div>
   )
 }

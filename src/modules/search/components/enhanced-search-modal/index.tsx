@@ -140,7 +140,7 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
                           <div className="flex items-center gap-2 mb-3">
                             <TrendingUp className="w-4 h-4 text-gray-400" />
                             <h3 className="text-sm font-medium text-gray-700">
-                              Popular Suggestions
+                              Recent Searches
                             </h3>
                           </div>
                           <PopularSuggestions

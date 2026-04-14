@@ -9,12 +9,12 @@ function escapeHtml(value: string) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;")
 }
 
 function formatLabel(label: string, value?: string) {
-  const safeValue = value ? escapeHtml(value) : "—"
+  const safeValue = value ? escapeHtml(value) : "Not provided"
   return `
     <tr>
       <td style="padding:12px 16px;background:#fafafa;border:1px solid #e5e7eb;font-weight:600;color:#111827;width:180px;">${escapeHtml(label)}</td>
@@ -85,10 +85,10 @@ export function renderContactCustomerEmail(
                     options?.serviceTitle || payload.serviceType || "Service booking"
                   )}</p>
                   <p style="margin:0 0 8px;"><strong>Preferred Date:</strong> ${escapeHtml(
-                    payload.preferredDate || "—"
+                    payload.preferredDate || "Not provided"
                   )}</p>
                   <p style="margin:0 0 8px;"><strong>Preferred Time:</strong> ${escapeHtml(
-                    payload.preferredTime || "—"
+                    payload.preferredTime || "Not provided"
                   )}</p>
                   <p style="margin:0;"><strong>Message:</strong><br />${escapedMessage}</p>
                 `
