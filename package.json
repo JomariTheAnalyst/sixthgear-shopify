@@ -47,6 +47,7 @@
     "next": "^15.5.11",
     "next-auth": "^5.0.0-beta.30",
     "next-sanity": "^11.6.12",
+    "qrcode.react": "^4.2.0",
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "react-hook-form": "^7.72.1",

@@ -254,10 +254,7 @@ export function getSatisfiedCustomersWithFallbacks(
 
     return cmsContent
   } catch (error) {
-    console.error(
-      "[SatisfiedCustomers] Error fetching content, using fallbacks:",
-      error
-    )
+    console.error(error)
     return SATISFIED_CUSTOMERS_FALLBACKS
   }
 }

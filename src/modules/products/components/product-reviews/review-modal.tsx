@@ -64,7 +64,7 @@ export default function ReviewModal({
         setHasPurchased(purchased)
       }
     } catch (error) {
-      console.error("Error checking auth/purchase:", error)
+      console.error(error)
       setIsAuthenticated(false)
       setHasPurchased(false)
     } finally {
@@ -227,9 +227,9 @@ export default function ReviewModal({
                       className="text-3xl focus:outline-none transition-transform hover:scale-110"
                     >
                       {star <= (hoverRating || rating) ? (
-                        <span className="text-yellow-400">★</span>
+                        <span className="text-yellow-400">â˜…</span>
                       ) : (
-                        <span className="text-gray-300">★</span>
+                        <span className="text-gray-300">â˜…</span>
                       )}
                     </button>
                   ))}

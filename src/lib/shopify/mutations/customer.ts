@@ -1,6 +1,6 @@
 import { shopifyGraphql } from "../client";
 
-// ─── Mutation Strings ────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Mutation Strings Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 const CUSTOMER_CREATE_MUTATION = `
   mutation customerCreate($input: CustomerCreateInput!) {
@@ -242,7 +242,7 @@ const CUSTOMER_DEFAULT_ADDRESS_UPDATE_MUTATION = `
   }
 `;
 
-// ─── Mutation Callers ────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Mutation Callers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 export async function customerCreate(input: {
   firstName: string;
@@ -257,7 +257,6 @@ export async function customerCreate(input: {
   );
 
   if (errors?.length) {
-    console.error("[customerCreate] GraphQL errors:", errors);
   }
 
   return data?.customerCreate ?? null;
@@ -274,7 +273,6 @@ export async function customerAccessTokenCreate(input: {
   );
 
   if (errors?.length) {
-    console.error("[customerAccessTokenCreate] GraphQL errors:", errors);
   }
 
   return data?.customerAccessTokenCreate ?? null;
@@ -290,7 +288,6 @@ export async function customerAccessTokenDelete(
   );
 
   if (errors?.length) {
-    console.error("[customerAccessTokenDelete] GraphQL errors:", errors);
   }
 
   return data?.customerAccessTokenDelete ?? null;
@@ -304,7 +301,6 @@ export async function customerRecover(email: string) {
   );
 
   if (errors?.length) {
-    console.error("[customerRecover] GraphQL errors:", errors);
   }
 
   return data?.customerRecover ?? null;
@@ -321,7 +317,6 @@ export async function customerResetByUrl(
   );
 
   if (errors?.length) {
-    console.error("[customerResetByUrl] GraphQL errors:", errors);
   }
 
   return data?.customerResetByUrl ?? null;
@@ -338,7 +333,6 @@ export async function customerActivateByUrl(
   );
 
   if (errors?.length) {
-    console.error("[customerActivateByUrl] GraphQL errors:", errors);
   }
 
   return data?.customerActivateByUrl ?? null;
@@ -361,7 +355,6 @@ export async function customerUpdate(
   );
 
   if (errors?.length) {
-    console.error("[customerUpdate] GraphQL errors:", errors);
   }
 
   return data?.customerUpdate ?? null;
@@ -389,7 +382,6 @@ export async function customerAddressCreate(input: {
   );
 
   if (errors?.length) {
-    console.error("[customerAddressCreate] GraphQL errors:", errors);
   }
 
   return data?.customerAddressCreate ?? null;
@@ -418,7 +410,6 @@ export async function customerAddressUpdate(input: {
   );
 
   if (errors?.length) {
-    console.error("[customerAddressUpdate] GraphQL errors:", errors);
   }
 
   return data?.customerAddressUpdate ?? null;
@@ -435,7 +426,6 @@ export async function customerAddressDelete(input: {
   );
 
   if (errors?.length) {
-    console.error("[customerAddressDelete] GraphQL errors:", errors);
   }
 
   return data?.customerAddressDelete ?? null;
@@ -452,7 +442,6 @@ export async function customerDefaultAddressUpdate(input: {
   );
 
   if (errors?.length) {
-    console.error("[customerDefaultAddressUpdate] GraphQL errors:", errors);
   }
 
   return data?.customerDefaultAddressUpdate ?? null;

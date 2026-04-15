@@ -75,11 +75,11 @@ export default async function StorePage(props: Params) {
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
 
-  // ── Pagination: read `page` from URL ────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Pagination: read `page` from URL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   const requestedPage = Math.max(1, parseInt(urlParams.get("page") || "1", 10));
   const isFirstPage = requestedPage <= 1;
 
-  // ── Build scope for cursor lookup ───────────────────────────────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Build scope for cursor lookup Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   const filterHash = hashFilters(shopifyFilters, filterState.reverse);
   const sortKeyStr = filterState.sortKey || "COLLECTION_DEFAULT";
 
@@ -93,7 +93,7 @@ export default async function StorePage(props: Params) {
     if (!isFirstPage) {
       const cursor = await getPageCursor(searchScope, searchSort.sortKey, filterHash, requestedPage);
       if (!cursor) {
-        // Cursor not found — redirect to page 1
+        // Cursor not found Ã¢â‚¬â€ redirect to page 1
         afterCursor = undefined;
       } else {
         afterCursor = cursor;
@@ -179,9 +179,6 @@ export default async function StorePage(props: Params) {
   ]);
 
   if (!result) {
-    console.error("StorePage: getFilteredCollection returned null for handle:", selectedCollectionHandle);
-    console.error("StorePage: Filters used:", JSON.stringify(shopifyFilters));
-    console.error("StorePage: Sorting used:", filterState.sortKey, filterState.reverse);
     notFound();
   }
 

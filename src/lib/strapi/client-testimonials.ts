@@ -259,10 +259,7 @@ export function getClientTestimonialsWithFallbacks(
 
     return result
   } catch (error) {
-    console.error(
-      "[ClientTestimonials] Error fetching content, using fallbacks:",
-      error
-    )
+    console.error(error)
     return CLIENT_TESTIMONIALS_FALLBACKS
   }
 }

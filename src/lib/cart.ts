@@ -15,7 +15,7 @@ export interface CartStore {
 }
 
 /**
- * Zustand cart store — IN-MEMORY ONLY, no persistence.
+ * Zustand cart store â€” IN-MEMORY ONLY, no persistence.
  *
  * The cart ID is owned by the server-side HttpOnly cookie
  * managed by src/lib/data/cart.ts (Server Actions).
@@ -36,14 +36,11 @@ export const useCartStore = create<CartStore>()((set, get) => ({
   addItem: async () => {
     // Cart operations are handled by Server Actions in src/lib/data/cart.ts
     // This method is kept for interface compat but should not be called directly.
-    console.error("[CartStore] addItem is deprecated — use addToCart server action");
   },
 
   removeItem: async () => {
-    console.error("[CartStore] removeItem is deprecated — use deleteLineItem server action");
   },
 
   updateItem: async () => {
-    console.error("[CartStore] updateItem is deprecated — use updateLineItem server action");
   },
 }));

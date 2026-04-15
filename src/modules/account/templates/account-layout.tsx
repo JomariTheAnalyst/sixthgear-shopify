@@ -6,7 +6,7 @@ import AccountNav from "../components/account-nav"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { usePathname } from "next/navigation"
 import { useParams } from "next/navigation"
-import { Package, User, MapPin, Headphones } from "lucide-react"
+import { EllipsisVertical, Headphones, MapPin, Package, User } from "lucide-react"
 
 interface AccountLayoutProps {
   customer: ShopifyCustomer | null
@@ -15,6 +15,7 @@ interface AccountLayoutProps {
 
 export default function AccountLayout({ customer, children }: AccountLayoutProps) {
   const [greeting, setGreeting] = useState("")
+  const [isMobileAccountNavOpen, setIsMobileAccountNavOpen] = useState(false)
 
   useEffect(() => {
     const hour = new Date().getHours()
@@ -44,18 +45,36 @@ export default function AccountLayout({ customer, children }: AccountLayoutProps
 
         {/* ── Page grid: sidebar + content ── */}
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 items-start">
-          <AccountNav customer={customer} />
+          <AccountNav
+            customer={customer}
+            isMobileOpen={isMobileAccountNavOpen}
+            onMobileOpenChange={setIsMobileAccountNavOpen}
+            hideMobileTrigger
+          />
 
           {/* ── Main content panel ── */}
           <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 min-h-[520px]">
             {/* Greeting strip */}
-            <div className="mb-6 pb-5 border-b border-gray-100">
-              <h1 className="text-lg font-semibold text-gray-900">
-                {greeting}, {customer.firstName || "there"}!
-              </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Welcome back to your account
-              </p>
+            <div className="mb-6 border-b border-gray-100 pb-5">
+              <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsMobileAccountNavOpen(true)}
+                  className="inline-flex h-8 w-8 flex-shrink-0 items-center justify-center text-gray-500 transition-colors hover:text-gray-900 lg:hidden"
+                  aria-label="Open account menu"
+                >
+                  <EllipsisVertical className="h-5 w-5" />
+                </button>
+
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg font-semibold text-gray-900">
+                    {greeting}, {customer.firstName || "there"}!
+                  </h1>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    Welcome back to your account
+                  </p>
+                </div>
+              </div>
             </div>
 
             {children}

@@ -2,7 +2,7 @@ import { redis, cacheKey } from "./redis"
 
 const isServer = typeof window === "undefined"
 
-// TTL for page cursors — matches collection TTL
+// TTL for page cursors â€” matches collection TTL
 const PAGE_CURSOR_TTL = 600 // 10 minutes
 
 /**
@@ -38,7 +38,7 @@ export async function storePageCursor(
     await redis.hset(key, { [String(pageNumber)]: cursor })
     await redis.expire(key, PAGE_CURSOR_TTL)
   } catch (error) {
-    console.error("[page-cursors] Failed to store cursor:", error)
+    console.error(error)
   }
 }
 
@@ -59,7 +59,7 @@ export async function getPageCursor(
     const cursor = await redis.hget<string>(key, String(pageNumber))
     return cursor || null
   } catch (error) {
-    console.error("[page-cursors] Failed to retrieve cursor:", error)
+    console.error(error)
     return null
   }
 }
@@ -69,7 +69,7 @@ export async function getPageCursor(
  */
 export function hashFilters(filters: unknown[], reverse?: boolean): string {
   const input = JSON.stringify({ filters, reverse })
-  // Simple stable hash — good enough for cache keys
+  // Simple stable hash â€” good enough for cache keys
   let hash = 0
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i)

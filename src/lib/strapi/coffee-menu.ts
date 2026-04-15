@@ -196,7 +196,7 @@ export function transformCoffeeMenuHero(
     pageTitle: heroBlock.heading || "Our Menu",
     pageSubtitle:
       heroBlock.subheading ||
-      "Handcrafted brews served with passion. More than a pit stop—it's where riders refuel, relax, and reconnect.",
+      "Handcrafted brews served with passion. More than a pit stopâ€”it's where riders refuel, relax, and reconnect.",
     backgroundImage: resolveImageUrl(heroBlock.background_image?.url),
   }
 
@@ -283,7 +283,7 @@ export async function getCoffeeMenuHero(): Promise<CoffeeMenuHero | null> {
     const pageData = await fetchCoffeeMenuPage()
     return transformCoffeeMenuHero(pageData)
   } catch (error) {
-    console.error("[Coffee Menu] Error getting hero:", error)
+    console.error(error)
     return null
   }
 }
@@ -296,7 +296,7 @@ export async function getMenuCategories(): Promise<MenuCategoryUI[]> {
     const categoriesData = await fetchMenuCategories()
     return transformMenuCategories(categoriesData)
   } catch (error) {
-    console.error("[Coffee Menu] Error getting categories:", error)
+    console.error(error)
     return []
   }
 }

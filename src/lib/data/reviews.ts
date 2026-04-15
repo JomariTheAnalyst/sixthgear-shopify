@@ -8,7 +8,7 @@ const SHOP_DOMAIN = process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN || ""
 
 /**
  * Convert a product handle to the internal Judge.me product ID.
- * Returns null on any error — never throws.
+ * Returns null on any error â€” never throws.
  */
 export async function getJudgeMeProductId(
   handle: string
@@ -27,21 +27,20 @@ export async function getJudgeMeProductId(
     })
 
     if (!res.ok) {
-      console.error(`[reviews] getJudgeMeProductId failed: ${res.status}`)
       return null
     }
 
     const data = await res.json()
     return data?.product?.id ?? null
   } catch (error) {
-    console.error("[reviews] getJudgeMeProductId error:", error)
+    console.error(error)
     return null
   }
 }
 
 /**
  * Fetch published reviews for a product from Judge.me.
- * Returns null on any error — never throws.
+ * Returns null on any error â€” never throws.
  */
 export async function getProductReviews(
   handle: string,
@@ -66,21 +65,20 @@ export async function getProductReviews(
     })
 
     if (!res.ok) {
-      console.error(`[reviews] getProductReviews failed: ${res.status}`)
       return null
     }
 
     const data = await res.json()
     return data as JudgeMeReviewsResponse
   } catch (error) {
-    console.error("[reviews] getProductReviews error:", error)
+    console.error(error)
     return null
   }
 }
 
 /**
  * Parse aggregate rating from Shopify metafields (already fetched with product query).
- * Synchronous — no API calls.
+ * Synchronous â€” no API calls.
  */
 export function parseRatingSummaryFromMetafields(
   metafields: Array<{ namespace: string; key: string; value: string; type?: string } | null> | undefined

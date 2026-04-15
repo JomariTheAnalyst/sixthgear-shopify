@@ -225,10 +225,7 @@ export function getShopByBrandsWithFallbacks(
 
     return result
   } catch (error) {
-    console.error(
-      "[ShopByBrands] Error fetching content, using fallbacks:",
-      error
-    )
+    console.error(error)
     return {
       ...SHOP_BY_BRANDS_FALLBACKS,
       isSectionEnabled: true,

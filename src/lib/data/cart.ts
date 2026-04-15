@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
@@ -13,7 +13,7 @@ import {
 import { getCart as shopifyGetCart } from "@lib/shopify/queries/cart"
 import { ShopifyCart } from "@lib/shopify/types"
 
-// ─── Cookie helpers ─────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Cookie helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 const CART_COOKIE = "shopify_cart_id"
 const COOKIE_OPTIONS = {
@@ -32,7 +32,7 @@ async function getCartId(): Promise<string | undefined> {
   // Guard: detect and reject corrupted Zustand state objects.
   // A valid Shopify cart ID starts with "gid://shopify/Cart/".
   if (!value.startsWith("gid://shopify/Cart/")) {
-    console.error("[cart] Corrupted cart cookie detected — ignoring")
+    console.warn("[cart] Corrupted cart cookie detected - ignoring")
     return undefined
   }
 
@@ -54,10 +54,10 @@ async function deleteCartCookie(): Promise<void> {
   cookieStore.delete(CART_COOKIE)
 }
 
-// ─── Cart actions ───────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Cart actions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 /**
- * 1. createCart — creates a new empty Shopify cart, saves ID to cookie
+ * 1. createCart Ã¢â‚¬â€ creates a new empty Shopify cart, saves ID to cookie
  */
 export async function createCart(): Promise<ShopifyCart> {
   const cart = await shopifyCartCreate()
@@ -71,7 +71,7 @@ export async function createCart(): Promise<ShopifyCart> {
 }
 
 /**
- * 2. retrieveCart — reads cart ID from cookie and fetches from Shopify
+ * 2. retrieveCart Ã¢â‚¬â€ reads cart ID from cookie and fetches from Shopify
  *    Safe to call from Server Components (read-only cookie access).
  */
 export async function retrieveCart(): Promise<ShopifyCart | null> {
@@ -83,7 +83,7 @@ export async function retrieveCart(): Promise<ShopifyCart | null> {
   if (!cart) {
     // Cart is expired/invalid on Shopify's side.
     // We CANNOT delete the cookie here (may be called from Server Component).
-    // Return null — the next addToCart call will create a fresh cart
+    // Return null Ã¢â‚¬â€ the next addToCart call will create a fresh cart
     // and overwrite the stale cookie automatically.
     return null
   }
@@ -92,7 +92,7 @@ export async function retrieveCart(): Promise<ShopifyCart | null> {
 }
 
 /**
- * 3. addToCart — the main Server Action called by ProductActions
+ * 3. addToCart Ã¢â‚¬â€ the main Server Action called by ProductActions
  *    Signature matches what callers already pass:
  *    addToCart({ variantId, quantity, countryCode })
  */
@@ -111,11 +111,11 @@ export async function addToCart(opts: {
     cart = await shopifyGetCart(cartId)
   }
 
-  // If no cart or stale cart — create a fresh one
+  // If no cart or stale cart Ã¢â‚¬â€ create a fresh one
   // setCartCookie() is safe here because addToCart IS a Server Action
   if (!cart) {
     cart = await createCart()
-    // createCart calls setCartCookie() internally — stale cookie overwritten
+    // createCart calls setCartCookie() internally Ã¢â‚¬â€ stale cookie overwritten
   }
 
   const updatedCart = await shopifyCartLinesAdd(cart.id, [
@@ -133,7 +133,7 @@ export async function addToCart(opts: {
 }
 
 /**
- * 4. updateLineItem — update quantity of a line item in the cart
+ * 4. updateLineItem Ã¢â‚¬â€ update quantity of a line item in the cart
  */
 export async function updateLineItem(opts: {
   lineId: string
@@ -163,7 +163,7 @@ export async function updateLineItem(opts: {
 }
 
 /**
- * 5. deleteLineItem — remove a line item from the cart
+ * 5. deleteLineItem Ã¢â‚¬â€ remove a line item from the cart
  */
 export async function deleteLineItem(opts: {
   lineId: string
@@ -186,7 +186,7 @@ export async function deleteLineItem(opts: {
 }
 
 /**
- * 6. applyDiscount — apply a discount code to the cart
+ * 6. applyDiscount Ã¢â‚¬â€ apply a discount code to the cart
  */
 export async function applyDiscount(
   discountCode: string
@@ -210,7 +210,7 @@ export async function applyDiscount(
 }
 
 /**
- * 7. associateBuyerIdentity â€” links cart to logged-in customer token when available
+ * 7. associateBuyerIdentity ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â links cart to logged-in customer token when available
  *    Silent no-op for guests or association failures (guest checkout fallback).
  */
 export async function associateBuyerIdentity(
@@ -229,22 +229,18 @@ export async function associateBuyerIdentity(
     })
 
     if (result.userErrors.length > 0) {
-      console.error(
-        "[cart] cartBuyerIdentityUpdate userErrors:",
-        result.userErrors
-      )
       return null
     }
 
     return result.cart
   } catch (error) {
-    console.error("[cart] cartBuyerIdentityUpdate failed:", error)
+    console.error(error)
     return null
   }
 }
 
 /**
- * 8. getCheckoutUrl — returns the Shopify hosted checkout URL
+ * 8. getCheckoutUrl Ã¢â‚¬â€ returns the Shopify hosted checkout URL
  *    Attempts cart/customer association first, then falls back to guest checkout URL.
  */
 export async function getCheckoutUrl(): Promise<string> {
@@ -270,7 +266,7 @@ export async function getCheckoutUrl(): Promise<string> {
 }
 
 /**
- * 9. changeLineItemVariant — switches an existing cart line to another variant.
+ * 9. changeLineItemVariant Ã¢â‚¬â€ switches an existing cart line to another variant.
  */
 export async function changeLineItemVariant(opts: {
   lineId: string
@@ -304,7 +300,7 @@ export async function changeLineItemVariant(opts: {
   return updatedCart
 }
 
-// ─── Legacy compat stubs (used by cart drawer, keep for now) ────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Legacy compat stubs (used by cart drawer, keep for now) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 export const listCartOptions = async () => null as any
 export const forceNewCart = async (_countryCode?: string) => {
@@ -322,3 +318,4 @@ export const placeOrder = async (_cartId?: string) => null as any
 export const setShippingMethod = async (opts?: any) => null as any
 export const createCheckoutCartFromSelection = async (opts?: any) =>
   null as any
+

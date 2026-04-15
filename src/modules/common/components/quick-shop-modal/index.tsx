@@ -1,5 +1,5 @@
 /**
- * QuickShopModal — lightweight product detail modal
+ * QuickShopModal â€” lightweight product detail modal
  * Triggered from product card add-to-cart icon.
  * Supports variant selection, quantity control, and add-to-cart confirmation.
  */
@@ -57,7 +57,7 @@ export default function QuickShopModal({
     return imgs
   }, [product.images, product.thumbnail])
 
-  // ── Options and variants ──
+  // â”€â”€ Options and variants â”€â”€
   const productOptions = useMemo(() => {
     return product.options?.filter((opt) => {
       // Only show options with more than 1 value (skip "Default Title")
@@ -185,7 +185,7 @@ export default function QuickShopModal({
         }, 1200)
       }
     } catch (error) {
-      console.error("Failed to add to cart:", error)
+      console.error(error)
       toast.error("Failed to add to cart")
     } finally {
       setIsAdding(false)

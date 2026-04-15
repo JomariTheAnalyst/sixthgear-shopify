@@ -37,7 +37,7 @@ export async function generateStaticParams() {
       }))
     )
   } catch (error) {
-    console.error("[Services] Error generating static params:", error)
+    console.error(error)
     return []
   }
 }
@@ -60,7 +60,7 @@ export async function generateStaticParams() {
     
     return params
   } catch (error) {
-    console.error("[Services] Error generating static params:", error)
+    console.error(error)
     // Return empty array to allow dynamic rendering as fallback
     return []
   }
@@ -86,7 +86,7 @@ export async function generateMetadata({
       description: service.description || service.title,
     }
   } catch (error) {
-    console.error("[Services] Error generating metadata:", error)
+    console.error(error)
     return {
       title: "Service",
       description: "Sixthgear Moto Supply Services",
@@ -111,7 +111,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
       />
     )
   } catch (error) {
-    console.error("[Services] Error rendering service page:", error)
+    console.error(error)
     // Return 404 instead of 500 for any errors
     notFound()
   }

@@ -39,18 +39,16 @@ export async function shopifyAdminGraphql<T>(
     const result = await res.json()
 
     if (result.errors) {
-      console.error("[shopifyAdminGraphql] GraphQL Errors:", result.errors)
       return { data: null, errors: result.errors }
     }
 
     if (result.data?.userErrors?.length > 0) {
-      console.error("[shopifyAdminGraphql] User Errors:", result.data.userErrors)
       return { data: null, errors: result.data.userErrors }
     }
 
     return { data: result.data || null, errors: undefined }
   } catch (error) {
-    console.error("[shopifyAdminGraphql] Fetch Error:", error)
+    console.error(error)
     return { data: null, errors: [error] }
   }
 }

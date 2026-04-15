@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useActionState } from "react"
-import { useRouter, useParams, useSearchParams } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { login } from "@lib/data/customer"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -34,28 +34,25 @@ const Login = ({ setCurrentView }: Props) => {
   const router = useRouter()
   const { countryCode } = useParams() as { countryCode: string }
   const searchParams = useSearchParams()
+  const hasSubmitted = useRef(false)
   const errorCode = searchParams.get("error")
   const activationError = errorCode
     ? ACTIVATION_ERROR_MESSAGES[errorCode]
     : null
-  const hasSubmitted = useRef(false)
+  const redirectTo = searchParams.get("redirect") || `/${countryCode}/account`
 
-  // Track submissions
   useEffect(() => {
     if (isPending) {
       hasSubmitted.current = true
     }
   }, [isPending])
 
-  // Redirect on successful login
   useEffect(() => {
     if (hasSubmitted.current && !isPending && message === null) {
-      const redirectTo =
-        searchParams.get("redirect") || `/${countryCode}/account`
       router.push(redirectTo)
       router.refresh()
     }
-  }, [isPending, message, router, countryCode, searchParams])
+  }, [isPending, message, redirectTo, router])
 
   return (
     <div data-testid="login-page">
@@ -77,6 +74,13 @@ const Login = ({ setCurrentView }: Props) => {
 
       {/* Form */}
       <form className="space-y-6" action={formAction}>
+        <input type="hidden" name="country_code" value={countryCode} />
+        <input
+          type="hidden"
+          name="redirect_to"
+          value={searchParams.get("redirect") || ""}
+        />
+
         {activationError && (
           <div
             className="bg-orange-50 border border-orange-200 rounded-xl p-4"
@@ -178,7 +182,10 @@ const Login = ({ setCurrentView }: Props) => {
           </LocalizedClientLink>
         </div>
 
-        <ErrorMessage error={message} data-testid="login-error-message" />
+        <ErrorMessage
+          error={message}
+          data-testid="login-error-message"
+        />
 
         {/* Submit */}
         <SubmitButton

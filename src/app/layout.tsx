@@ -1,6 +1,6 @@
 import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
-import { ConsoleGuard } from "../components/console-guard"
+import { ConsoleWarning } from "../components/common/console-warning"
 import { PreviewIndicator } from "../components/preview-indicator"
 import "styles/globals.css"
 import Script from "next/script"
@@ -44,13 +44,13 @@ export const metadata: Metadata = {
 }
 
 import { Toaster } from "sonner"
-import { hendrix, inter, montserrat } from "@lib/fonts"
+import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
-      <body className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} font-sans`}>
-        <ConsoleGuard />
+      <body className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}>
+        <ConsoleWarning />
         <PreviewIndicator />
         <main className="relative">{props.children}</main>
         <Toaster position="bottom-right" richColors />

@@ -55,7 +55,7 @@ const SPACE_AND_EXPERIENCE_FALLBACKS = {
       id: 2,
       title: "Rider Lounge & Hangout",
       description:
-        "A relaxed café and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
+        "A relaxed cafÃ© and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
       imageUrl: "/images/homepage/projects/lounge.jpg",
       isEnabled: true,
     },
@@ -193,10 +193,7 @@ export function getSpaceAndExperienceWithFallbacks(
 
     return result
   } catch (error) {
-    console.error(
-      "[SpaceAndExperience] Error fetching content, using fallbacks:",
-      error
-    )
+    console.error(error)
     return {
       ...SPACE_AND_EXPERIENCE_FALLBACKS,
       isSectionEnabled: true,

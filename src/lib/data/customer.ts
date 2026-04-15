@@ -1,8 +1,8 @@
 "use server"
 
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { randomBytes } from "crypto"
 import { serverEnv } from "@lib/env"
 import {
@@ -29,7 +29,7 @@ import {
   passwordChangeRateLimit,
 } from "@lib/util/rate-limit"
 
-// ─── Cookie Helpers — Customer Token ─────────────────────────────────────────
+// â”€â”€â”€ Cookie Helpers â€” Customer Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const CUSTOMER_TOKEN_COOKIE = "shopify_customer_token"
 const COOKIE_OPTIONS = {
@@ -62,7 +62,7 @@ async function deleteCustomerToken(): Promise<void> {
   cookieStore.delete(CUSTOMER_TOKEN_COOKIE)
 }
 
-// ─── Auth Result Type ────────────────────────────────────────────────────────
+// â”€â”€â”€ Auth Result Type â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type AuthResult = {
   success: boolean
@@ -177,7 +177,7 @@ function toAddressActionResult(
   return error
 }
 
-// ─── Server Actions ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Server Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Register a new customer.
@@ -257,7 +257,7 @@ export async function signup(
 
     return null
   } catch (error) {
-    console.error("[signup] Error:", error)
+    console.error(error)
     return "Registration failed. Please try again."
   }
 }
@@ -312,21 +312,21 @@ export async function login(
       result.customerAccessToken.expiresAt
     )
 
-    return null // success
+    return null
   } catch (error) {
-    console.error("[login] Error:", error)
+    console.error(error)
     return "Login failed. Please try again."
   }
 }
 
 /**
- * Logout — invalidate token on Shopify, clear cookie, redirect.
+ * Logout â€” invalidate token on Shopify, clear cookie, redirect.
  */
 export async function signout(countryCode: string): Promise<void> {
   const token = await getCustomerToken()
 
   if (token) {
-    // Fire and forget — don't block on Shopify's response
+    // Fire and forget â€” don't block on Shopify's response
     customerAccessTokenDelete(token).catch(() => {})
   }
 
@@ -354,7 +354,7 @@ export async function retrieveCustomer(): Promise<ShopifyCustomer | null> {
 
     return customer
   } catch (error) {
-    console.error("[retrieveCustomer] Error:", error)
+    console.error(error)
     return null
   }
 }
@@ -383,7 +383,7 @@ export async function requestPasswordReset(
     await shopifyCustomerRecover(email)
     return "success"
   } catch (error) {
-    console.error("[requestPasswordReset] Error:", error)
+    console.error(error)
     return "Something went wrong. Please try again."
   }
 }
@@ -439,8 +439,48 @@ export async function resetPassword(
 
     return "success"
   } catch (error) {
-    console.error("[resetPassword] Error:", error)
+    console.error(error)
     return "Password reset failed. Please try again."
+  }
+}
+
+export async function getCustomerOrders(
+  cursor?: string
+): Promise<{
+  orders: ShopifyCustomer["orders"]["edges"][number]["node"][]
+  pageInfo: { hasNextPage: boolean; endCursor: string | null }
+}> {
+  const token = await getCustomerToken()
+  if (!token) {
+    return {
+      orders: [],
+      pageInfo: { hasNextPage: false, endCursor: null },
+    }
+  }
+
+  try {
+    const customer = await shopifyGetCustomer(token, cursor)
+
+    if (!customer) {
+      return {
+        orders: [],
+        pageInfo: { hasNextPage: false, endCursor: null },
+      }
+    }
+
+    return {
+      orders: customer.orders?.edges?.map((edge) => edge.node) ?? [],
+      pageInfo: {
+        hasNextPage: customer.orders?.pageInfo?.hasNextPage ?? false,
+        endCursor: customer.orders?.pageInfo?.endCursor ?? null,
+      },
+    }
+  } catch (error) {
+    console.error(error)
+    return {
+      orders: [],
+      pageInfo: { hasNextPage: false, endCursor: null },
+    }
   }
 }
 
@@ -489,7 +529,7 @@ export async function activateCustomerAccountByUrl(
 
     return { success: true }
   } catch (error) {
-    console.error("[activateCustomerAccountByUrl] Error:", error)
+    console.error(error)
     return { success: false, error: "activation_failed" }
   }
 }
@@ -545,12 +585,12 @@ export async function updateCustomer(
     revalidatePath("/", "layout")
     return "success"
   } catch (error) {
-    console.error("[updateCustomer] Error:", error)
+    console.error(error)
     return "Update failed. Please try again."
   }
 }
 
-// ─── Legacy compat stubs (keep for existing imports) ─────────────────────────
+// â”€â”€â”€ Legacy compat stubs (keep for existing imports) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function addCustomerAddress(
   _prevState: string | null,
@@ -630,7 +670,7 @@ export async function addCustomerAddress(
     revalidatePath("/", "layout")
     return toAddressActionResult(_prevState, null)
   } catch (error) {
-    console.error("[addCustomerAddress] Error:", error)
+    console.error(error)
     return toAddressActionResult(_prevState, "Failed to save address.")
   }
 }
@@ -714,7 +754,7 @@ export async function updateCustomerAddress(
     revalidatePath("/", "layout")
     return toAddressActionResult(_prevState, null)
   } catch (error) {
-    console.error("[updateCustomerAddress] Error:", error)
+    console.error(error)
     return toAddressActionResult(_prevState, "Failed to save address.")
   }
 }
@@ -747,7 +787,7 @@ export async function deleteCustomerAddress(
     revalidatePath("/", "layout")
     return { success: true }
   } catch (error) {
-    console.error("[deleteCustomerAddress] Error:", error)
+    console.error(error)
     return { success: false, error: "Failed to delete address." }
   }
 }
@@ -780,7 +820,7 @@ export async function setDefaultAddress(
     revalidatePath("/", "layout")
     return { success: true }
   } catch (error) {
-    console.error("[setDefaultAddress] Error:", error)
+    console.error(error)
     return { success: false, error: "Failed to set default address." }
   }
 }
@@ -876,7 +916,7 @@ export async function changePassword(
     // 9. Return success
     return { success: true }
   } catch (error) {
-    console.error("[changePassword] Error:", error)
+    console.error(error)
     return { success: false, error: "Unable to update your password right now. Please try again." }
   }
 }

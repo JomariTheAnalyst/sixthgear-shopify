@@ -120,7 +120,6 @@ export async function getCart(cartId: string): Promise<ShopifyCart | null> {
     if (isNotFound) {
       return null; // Caller will create a new cart
     }
-    console.error("[cart query] Errors:", errors);
   }
 
   return data?.cart || null;

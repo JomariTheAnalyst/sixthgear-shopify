@@ -2,7 +2,7 @@ import { shopifyGraphql } from "../client";
 import { ShopifyCustomer } from "../types";
 
 const GET_CUSTOMER_QUERY = `
-  query getCustomer($customerAccessToken: String!) {
+  query getCustomer($customerAccessToken: String!, $cursor: String) {
     customer(customerAccessToken: $customerAccessToken) {
       id
       firstName
@@ -47,7 +47,11 @@ const GET_CUSTOMER_QUERY = `
           }
         }
       }
-      orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {
+      orders(first: 10, after: $cursor, sortKey: PROCESSED_AT, reverse: true) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
         edges {
           node {
             id
@@ -56,6 +60,14 @@ const GET_CUSTOMER_QUERY = `
             financialStatus
             fulfillmentStatus
             statusUrl
+            canceledAt
+            cancelReason
+            successfulFulfillments {
+              trackingInfo {
+                number
+                url
+              }
+            }
             currentTotalPrice {
               amount
               currencyCode
@@ -103,11 +115,12 @@ const GET_CUSTOMER_QUERY = `
 `;
 
 export async function getCustomer(
-  customerAccessToken: string
+  customerAccessToken: string,
+  cursor?: string
 ): Promise<ShopifyCustomer | null> {
   const { data, errors } = await shopifyGraphql<any>(
     GET_CUSTOMER_QUERY,
-    { customerAccessToken },
+    { customerAccessToken, cursor: cursor ?? null },
     true
   );
 
@@ -122,7 +135,6 @@ export async function getCustomer(
     if (isExpired) {
       return null;
     }
-    console.error("[getCustomer] GraphQL errors:", errors);
   }
 
   return data?.customer ?? null;

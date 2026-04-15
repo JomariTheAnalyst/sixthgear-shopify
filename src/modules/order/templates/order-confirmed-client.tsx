@@ -17,10 +17,6 @@ export default function OrderConfirmedClient({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // FORCE VISIBLE MARKER - Remove after testing
-  useEffect(() => {
-  }, [orderId])
-
   useEffect(() => {
     const fetchOrder = async () => {
       try {
@@ -40,8 +36,6 @@ export default function OrderConfirmedClient({
 
 
         if (!response.ok) {
-          const errorText = await response.text()
-          console.error("[Order Confirmed] Error response:", errorText)
           throw new Error(`Failed to fetch order: ${response.status}`)
         }
 
@@ -55,7 +49,7 @@ export default function OrderConfirmedClient({
 
         setOrder(data.order)
       } catch (err: any) {
-        console.error("[Order Confirmed] Error:", err)
+        console.error(err)
         setError(err.message)
       } finally {
         setLoading(false)
@@ -163,9 +157,6 @@ export default function OrderConfirmedClient({
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-gray-900 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
-          <p className="text-xs text-red-600 mt-2">
-            DEBUG: OrderConfirmedClient v2.0 - {new Date().toISOString()}
-          </p>
         </div>
       </div>
     )

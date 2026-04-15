@@ -117,7 +117,6 @@ export async function cartCreate(): Promise<ShopifyCart | null> {
   
   const { data, errors } = await shopifyGraphql<any>(query, { input: {} }, isServer());
   if (data?.cartCreate?.userErrors?.length) {
-    console.error("Cart Create Errors:", data.cartCreate.userErrors);
   }
   return data?.cartCreate?.cart || null;
 }
@@ -140,7 +139,6 @@ export async function cartLinesAdd(cartId: string, lines: { merchandiseId: strin
 
   const { data } = await shopifyGraphql<any>(query, { cartId, lines }, isServer());
   if (data?.cartLinesAdd?.userErrors?.length) {
-    console.error("Cart Lines Add Errors:", data.cartLinesAdd.userErrors);
   }
   return data?.cartLinesAdd?.cart || null;
 }
@@ -166,7 +164,6 @@ export async function cartLinesUpdate(
 
   const { data } = await shopifyGraphql<any>(query, { cartId, lines }, isServer());
   if (data?.cartLinesUpdate?.userErrors?.length) {
-    console.error("Cart Lines Update Errors:", data.cartLinesUpdate.userErrors);
   }
   return data?.cartLinesUpdate?.cart || null;
 }
@@ -189,7 +186,6 @@ export async function cartLinesRemove(cartId: string, lineIds: string[]): Promis
 
   const { data } = await shopifyGraphql<any>(query, { cartId, lineIds }, isServer());
   if (data?.cartLinesRemove?.userErrors?.length) {
-    console.error("Cart Lines Remove Errors:", data.cartLinesRemove.userErrors);
   }
   return data?.cartLinesRemove?.cart || null;
 }

@@ -34,7 +34,7 @@ export const addRecentSearch = (query: string) => {
     const updated = [normalized, ...filtered].slice(0, MAX_RECENT_SEARCHES)
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated))
   } catch (error) {
-    console.error("Failed to save recent search:", error)
+    console.error(error)
   }
 }
 
@@ -43,7 +43,7 @@ export const clearRecentSearches = () => {
   try {
     localStorage.removeItem(RECENT_SEARCHES_KEY)
   } catch (error) {
-    console.error("Failed to clear recent searches:", error)
+    console.error(error)
   }
 }
 

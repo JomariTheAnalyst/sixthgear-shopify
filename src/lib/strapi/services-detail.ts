@@ -197,23 +197,19 @@ async function fetchServicesFromStrapi(): Promise<ServiceCategory[] | null> {
     })
 
     if (!response.ok) {
-      console.error(
-        `[Strapi Services] Failed to fetch services: ${response.status} ${response.statusText}`
-      )
       return null
     }
 
     const result: StrapiResponse<StrapiServiceRaw[]> = await response.json()
 
     if (!result.data || !Array.isArray(result.data)) {
-      console.error("[Strapi Services] Invalid response structure:", result)
       return null
     }
 
 
     return result.data.map(mapStrapiToService)
   } catch (error) {
-    console.error("[Strapi Services] Error fetching services:", error)
+    console.error(error)
     // Always return null, never throw
     return null
   }
@@ -243,9 +239,6 @@ async function fetchServiceBySlugFromStrapi(
     })
 
     if (!response.ok) {
-      console.error(
-        `[Strapi Services] Failed to fetch service by slug: ${response.status} ${response.statusText}`
-      )
       return null
     }
 
@@ -262,10 +255,7 @@ async function fetchServiceBySlugFromStrapi(
 
     return mapStrapiToService(result.data[0])
   } catch (error) {
-    console.error(
-      `[Strapi Services] Error fetching service by slug "${slug}":`,
-      error
-    )
+    console.error(error)
     return null
   }
 }
@@ -292,9 +282,6 @@ async function getAllServiceSlugsFromStrapi(): Promise<string[] | null> {
     })
 
     if (!response.ok) {
-      console.error(
-        `[Strapi Services] Failed to fetch slugs: ${response.status} ${response.statusText}`
-      )
       return null
     }
 
@@ -302,7 +289,6 @@ async function getAllServiceSlugsFromStrapi(): Promise<string[] | null> {
       await response.json()
 
     if (!result.data || !Array.isArray(result.data)) {
-      console.error("[Strapi Services] Invalid response structure:", result)
       return null
     }
 
@@ -311,7 +297,7 @@ async function getAllServiceSlugsFromStrapi(): Promise<string[] | null> {
 
     return slugs
   } catch (error) {
-    console.error("[Strapi Services] Error fetching slugs:", error)
+    console.error(error)
     return null
   }
 }

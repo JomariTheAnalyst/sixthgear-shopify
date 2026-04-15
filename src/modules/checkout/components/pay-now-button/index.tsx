@@ -75,7 +75,7 @@ const PayNowButton = ({
 
       onSuccess?.()
     } catch (err: any) {
-      console.error("[Pay Now] ❌ Error:", err)
+      console.error(err)
       const errorMessage =
         err.message || "Failed to place order. Please try again."
       onError?.(errorMessage)

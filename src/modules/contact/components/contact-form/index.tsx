@@ -142,7 +142,7 @@ export default function ContactForm({ services }: ContactFormProps) {
         description: data.message,
       })
     } catch (error) {
-      console.error("[contact] Submit failed:", error)
+      console.error(error)
       toast.error("Message not sent", {
         description: "Please try again later.",
       })

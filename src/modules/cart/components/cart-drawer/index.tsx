@@ -138,7 +138,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
         setShopifyCart(updatedCart as any)
       }
     } catch (error) {
-      console.error("Failed to update quantity:", error)
+      console.error(error)
     } finally {
       setUpdatingItem(null)
     }
@@ -154,7 +154,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
         window.location.href = url
       }, 1500)
     } catch (error) {
-      console.error("[checkout] Failed to get checkout URL:", error)
+      console.error(error)
       setCheckoutState("error")
       setTimeout(() => {
         setCheckoutState("idle")
@@ -175,7 +175,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
       await forceNewCart(countryCode)
       window.location.reload()
     } catch (error) {
-      console.error("Failed to clear cart:", error)
+      console.error(error)
       alert("Failed to clear cart. Please try again.")
     } finally {
       setClearingCart(false)
@@ -237,7 +237,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
           isCartOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* ── Header ── */}
+        {/* â”€â”€ Header â”€â”€ */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-bold text-gray-900">
@@ -286,7 +286,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
           </div>
         </div>
 
-        {/* ── Scrollable Items ── */}
+        {/* â”€â”€ Scrollable Items â”€â”€ */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {hasItems ? (
             <div className="flex flex-col gap-4">
@@ -485,7 +485,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
           )}
         </div>
 
-        {/* ── Footer (Summary + Buttons) ── */}
+        {/* â”€â”€ Footer (Summary + Buttons) â”€â”€ */}
         {hasItems && (
           <div className="border-t border-gray-100 bg-white px-6 py-5 shrink-0 space-y-4">
             {/* Summary */}
@@ -544,7 +544,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
               {checkoutState === "error" && (
                 <>
                   <X className="w-4 h-4" />
-                  Failed — Try Again
+                  Failed â€” Try Again
                 </>
               )}
               {checkoutState === "idle" &&

@@ -239,7 +239,18 @@ export interface ShopifyOrder {
   financialStatus: string;
   fulfillmentStatus: string;
   statusUrl: string;
+  canceledAt?: string | null;
+  cancelReason?: string | null;
+  successfulFulfillments?: {
+    trackingInfo: {
+      number: string | null;
+      url: string | null;
+    }[];
+  }[];
   currentTotalPrice: ShopifyMoney;
+  currentSubtotalPrice?: ShopifyMoney | null;
+  currentTotalShippingPrice?: ShopifyMoney | null;
+  currentTotalTax?: ShopifyMoney | null;
   shippingAddress: {
     firstName: string | null;
     lastName: string | null;
@@ -292,7 +303,37 @@ export interface ShopifyCustomer {
   createdAt: string;
   defaultAddress: ShopifyMailingAddress | null;
   addresses: { edges: { node: ShopifyMailingAddress }[] };
-  orders: { edges: { node: ShopifyOrder }[] };
+  orders: {
+    edges: { node: ShopifyOrder }[];
+    pageInfo?: ShopifyPageInfo;
+  };
+}
+
+export interface ShopifyReceiptOrder {
+  id: string;
+  orderNumber: number;
+  processedAt: string;
+  fulfillmentStatus: string;
+  currentSubtotalPrice: ShopifyMoney;
+  currentTotalShippingPrice: ShopifyMoney;
+  currentTotalTax: ShopifyMoney;
+  currentTotalPrice: ShopifyMoney;
+  lineItems: {
+    edges: {
+      node: {
+        title: string;
+        quantity: number;
+        variant: {
+          title: string;
+          price: ShopifyMoney;
+          image: ShopifyImage | null;
+          product: {
+            title: string;
+          };
+        } | null;
+      };
+    }[];
+  };
 }
 
 export interface ShopifyCart {

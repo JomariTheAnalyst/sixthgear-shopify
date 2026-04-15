@@ -10,7 +10,7 @@ export default function ClearPromotionsOnLoad() {
       try {
         await updateCart({ promo_codes: [] })
       } catch (error) {
-        console.error("Failed to clear promotions:", error)
+        console.error(error)
       }
     }
 

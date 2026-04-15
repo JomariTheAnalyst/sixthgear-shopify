@@ -42,7 +42,7 @@ const SearchResults = ({ query, onProductClick }: SearchResultsProps) => {
         setProducts(mapped)
         setTotalCount(result.totalCount)
       } catch (error) {
-        console.error("Search results failed:", error)
+        console.error(error)
         setProducts([])
         setTotalCount(0)
       } finally {

@@ -47,7 +47,7 @@ const AutocompleteSuggestions = ({
         setProducts(result.products.slice(0, 5))
         setCollections(result.collections.slice(0, 3))
       } catch (error) {
-        console.error("Predictive search failed:", error)
+        console.error(error)
         setProducts([])
         setCollections([])
       } finally {
@@ -78,7 +78,7 @@ const AutocompleteSuggestions = ({
 
   const formatPrice = (amount: string, currency: string) => {
     const num = parseFloat(amount)
-    const symbol = currency.toUpperCase() === "PHP" ? "₱" : "$"
+    const symbol = currency.toUpperCase() === "PHP" ? "â‚±" : "$"
     return `${symbol}${num.toLocaleString("en-PH", { minimumFractionDigits: 2 })}`
   }
 

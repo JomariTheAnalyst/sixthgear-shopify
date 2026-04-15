@@ -17,7 +17,17 @@ function withServerCacheOptions(
   })
 }
 
-function getServerClient() {
+function withServerNoStoreOptions(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response> {
+  return fetch(input, {
+    ...init,
+    cache: "no-store",
+  })
+}
+
+function getServerClient(isAuthenticatedRequest: boolean = false) {
   if (
     !("domain" in shopifyConfig) ||
     !("token" in shopifyConfig) ||
@@ -33,7 +43,9 @@ function getServerClient() {
     apiVersion: shopifyConfig.apiVersion!,
     privateAccessToken: shopifyConfig.token!,
     // SDK types in this version don't expose fetch override, but runtime supports it.
-    fetchApi: withServerCacheOptions,
+    fetchApi: isAuthenticatedRequest
+      ? withServerNoStoreOptions
+      : withServerCacheOptions,
   } as any)
 }
 
@@ -62,18 +74,23 @@ export async function shopifyGraphql<T>(
   isServer: boolean = true
 ): Promise<{ data: T | null; errors?: any[] }> {
   try {
-    const client = isServer ? getServerClient() : getClientClient()
+    const isAuthenticatedRequest =
+      variables != null &&
+      Object.prototype.hasOwnProperty.call(variables, "customerAccessToken")
+
+    const client = isServer
+      ? getServerClient(isAuthenticatedRequest)
+      : getClientClient()
     const { data, errors } = await client.request<T>(query, { variables })
 
     const errs = errors ? (errors as any).graphQLErrors || errors : []
 
     if (errs && errs.length > 0) {
-      console.error("Shopify GraphQL Errors:", errs)
     }
 
     return { data: data || null, errors: errs }
   } catch (error) {
-    console.error("Shopify Network/Client Error:", error)
+    console.error(error)
     return { data: null, errors: [error] }
   }
 }

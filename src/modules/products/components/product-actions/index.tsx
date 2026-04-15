@@ -226,7 +226,7 @@ export default function ProductActions({
         const [, currentCount, limit] = error.message.split(":")
         showCartLimitModal(parseInt(currentCount), parseInt(limit))
       } else {
-        console.error("Failed to add to cart:", error)
+        console.error(error)
         toast.error("Failed to add to cart", {
           description: "Please try again later."
         })
@@ -423,7 +423,7 @@ export default function ProductActions({
           </button>
         </div>
 
-        {/* Utility Action Row — Chat, Wishlist, Share */}
+        {/* Utility Action Row â€” Chat, Wishlist, Share */}
         <div className="flex items-center justify-center gap-6 border-t border-gray-200 pt-5 mt-6 pb-2">
           <a
             href="/ph/account/support"

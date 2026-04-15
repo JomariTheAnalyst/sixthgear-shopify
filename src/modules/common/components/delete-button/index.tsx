@@ -28,7 +28,7 @@ const DeleteButton = ({
         setCart(updatedCart as any)
       }
     } catch (err) {
-      console.error("Failed to delete item:", err)
+      console.error(err)
     } finally {
       setIsDeleting(false)
     }

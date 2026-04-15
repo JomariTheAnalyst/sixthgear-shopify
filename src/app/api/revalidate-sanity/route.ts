@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       timestamp: Date.now(),
     })
   } catch (error) {
-    console.error("[sanity-revalidate] Failed to revalidate", error)
+    console.error(error)
 
     return NextResponse.json(
       { error: "Failed to revalidate" },

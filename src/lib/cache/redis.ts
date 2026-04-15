@@ -64,10 +64,7 @@ export async function getCached<T>(
         (error as any).digest === "DYNAMIC_SERVER_USAGE")
 
     if (!isDynamicServerError) {
-      console.error(
-        "[cache] Redis unavailable, falling back to direct fetch:",
-        error
-      )
+      console.error(error)
     }
 
     return fetcher()
@@ -89,7 +86,7 @@ export async function invalidatePattern(pattern: string): Promise<void> {
       await redis.del(...keys)
     }
   } catch (error) {
-    console.error("[cache] Redis invalidation failed:", error)
+    console.error(error)
   }
 }
 
@@ -114,7 +111,7 @@ export async function checkRateLimit(
     const remaining = Math.max(0, limit - current)
     return { allowed, remaining }
   } catch (error) {
-    console.error("[ratelimit] Redis unavailable, allowing request:", error)
+    console.error(error)
     return { allowed: true, remaining: limit }
   }
 }

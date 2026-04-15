@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { useParams } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import {
   Package, User, MapPin, Heart, CreditCard,
@@ -14,6 +14,9 @@ import { ShopifyCustomer } from "@lib/shopify/types"
 
 interface AccountNavProps {
   customer: ShopifyCustomer
+  isMobileOpen?: boolean
+  onMobileOpenChange?: (isOpen: boolean) => void
+  hideMobileTrigger?: boolean
 }
 
 type NavItem = {
@@ -38,12 +41,35 @@ const navItems: NavItem[] = [
   },
 ]
 
-export default function AccountNav({ customer }: AccountNavProps) {
+export default function AccountNav({
+  customer,
+  isMobileOpen: controlledMobileOpen,
+  onMobileOpenChange,
+  hideMobileTrigger = false,
+}: AccountNavProps) {
   const pathname  = usePathname()
   const params    = useParams()
   const countryCode = (params?.countryCode as string) ?? "ph"
   const [isLoggingOut, setIsLoggingOut]   = useState(false)
-  const [isMobileOpen, setIsMobileOpen]   = useState(false)
+  const [internalMobileOpen, setInternalMobileOpen]   = useState(false)
+  const [isMobileMounted, setIsMobileMounted] = useState(false)
+  const isMobileOpen = controlledMobileOpen ?? internalMobileOpen
+  const setIsMobileOpen = onMobileOpenChange ?? setInternalMobileOpen
+
+  useEffect(() => {
+    if (isMobileOpen) {
+      setIsMobileMounted(true)
+      return
+    }
+
+    if (!isMobileMounted) return
+
+    const timeoutId = window.setTimeout(() => {
+      setIsMobileMounted(false)
+    }, 280)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [isMobileMounted, isMobileOpen])
 
   const isActive = (href: string) => {
     if (href === "/account" || href === "/account/") {
@@ -188,24 +214,34 @@ export default function AccountNav({ customer }: AccountNavProps) {
       </aside>
 
       {/* ── Mobile: hamburger trigger ── */}
-      <button
-        className="lg:hidden fixed top-[5.5rem] right-4 z-50 w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-700 flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
-        onClick={() => setIsMobileOpen(true)}
-        aria-label="Open account menu"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {!hideMobileTrigger ? (
+        <button
+          className="lg:hidden fixed top-[5.5rem] right-4 z-50 w-10 h-10 rounded-xl bg-white border border-gray-200 text-gray-700 flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+          onClick={() => setIsMobileOpen(true)}
+          aria-label="Open account menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      ) : null}
 
       {/* ── Mobile drawer ── */}
-      {isMobileOpen && (
+      {isMobileMounted && (
         <div className="lg:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40 bg-black/30"
+            className={[
+              "fixed inset-0 z-40 bg-slate-950/32 transition-opacity duration-300 ease-out",
+              isMobileOpen ? "opacity-100" : "opacity-0",
+            ].join(" ")}
             onClick={() => setIsMobileOpen(false)}
           />
           {/* Panel */}
-          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-white flex flex-col border-r border-gray-200">
+          <div
+            className={[
+              "fixed inset-y-0 left-0 z-50 w-[min(22rem,88vw)] bg-white flex flex-col border-r border-gray-200 shadow-[24px_0_60px_rgba(15,23,42,0.22)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              isMobileOpen ? "translate-x-0" : "-translate-x-full",
+            ].join(" ")}
+          >
             <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
               <span className="text-gray-900 text-sm font-semibold">My Account</span>
               <button

@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { retrieveCustomer } from "@lib/data/customer"
+import { getCustomerOrders, getCustomerToken } from "@lib/data/customer"
 import OrdersTemplate from "@modules/account/templates/orders-template"
 import OrdersSkeleton from "@modules/account/components/orders-skeleton"
 
@@ -11,18 +11,22 @@ export const metadata: Metadata = {
 }
 
 export default async function OrdersPage() {
-  const customer = await retrieveCustomer().catch(() => null)
-
-  if (!customer) {
+  const customerToken = await getCustomerToken()
+  if (!customerToken) {
     notFound()
   }
 
-  // Already sorted newest-first by the GQL query: orders(sortKey: PROCESSED_AT, reverse: true)
-  const orders = customer.orders?.edges?.map(e => e.node) ?? []
+  const initialOrders = await getCustomerOrders().catch(() => ({
+    orders: [],
+    pageInfo: { hasNextPage: false, endCursor: null },
+  }))
 
   return (
     <Suspense fallback={<OrdersSkeleton />}>
-      <OrdersTemplate orders={orders} customer={customer} />
+      <OrdersTemplate
+        orders={initialOrders.orders}
+        pageInfo={initialOrders.pageInfo}
+      />
     </Suspense>
   )
 }

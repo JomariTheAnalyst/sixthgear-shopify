@@ -218,7 +218,7 @@ export function getOurTeamWithFallbacks(homeContent: any): OurTeamContent {
 
     return result
   } catch (error) {
-    console.error("[OurTeam] Error fetching content, using fallbacks:", error)
+    console.error(error)
     return OUR_TEAM_FALLBACKS
   }
 }

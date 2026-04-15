@@ -87,10 +87,7 @@ export default async function YouMayLike({
     matchedProducts = recommendations.matched
     fallbackProducts = recommendations.fallback
   } catch (error) {
-    console.error(
-      "[YouMayLike Component] Error fetching rule-based recommendations:",
-      error
-    )
+    console.error(error)
   }
 
   const mappedRecommendations = matchedProducts.map(mapShopifyToMedusa)

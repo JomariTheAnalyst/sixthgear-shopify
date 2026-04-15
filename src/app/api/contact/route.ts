@@ -254,7 +254,7 @@ export async function POST(request: NextRequest) {
       200
     )
   } catch (error) {
-    console.error("[contact] Failed to send contact emails:", error)
+    console.error(error)
     return json(
       {
         success: false,

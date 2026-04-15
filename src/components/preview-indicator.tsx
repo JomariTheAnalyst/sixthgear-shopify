@@ -26,7 +26,7 @@ export function PreviewIndicator() {
       await fetch("/api/exit-preview")
       window.location.reload()
     } catch (error) {
-      console.error("Failed to exit preview mode:", error)
+      console.error(error)
     }
   }
 

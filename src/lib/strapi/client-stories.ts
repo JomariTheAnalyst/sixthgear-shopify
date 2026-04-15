@@ -235,10 +235,7 @@ export function getClientStoriesWithFallbacks(
 
     return result
   } catch (error) {
-    console.error(
-      "[ClientStories] Error fetching content, using fallbacks:",
-      error
-    )
+    console.error(error)
     return CLIENT_STORIES_FALLBACKS
   }
 }

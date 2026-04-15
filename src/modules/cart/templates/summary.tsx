@@ -73,7 +73,7 @@ const Summary = ({ cart }: SummaryProps) => {
     try {
       targetUrl = await getCheckoutUrl()
     } catch (error) {
-      console.error("[checkout] buyer identity association failed; using guest checkout", error)
+      console.error(error)
       targetUrl = fallbackUrl
     }
 
@@ -153,7 +153,7 @@ const Summary = ({ cart }: SummaryProps) => {
         </div>
       )}
 
-      {/* Checkout Button — Shopify Hosted Checkout */}
+      {/* Checkout Button â€” Shopify Hosted Checkout */}
       {hasSelectedItems ? (
         <button
           onClick={handleCheckout}
@@ -167,7 +167,7 @@ const Summary = ({ cart }: SummaryProps) => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Redirecting to checkout…
+              Redirecting to checkoutâ€¦
             </>
           ) : (
             "Proceed to Checkout"

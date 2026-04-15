@@ -58,7 +58,7 @@ export function SelectedItemsProvider({
         }
       }
     } catch (e) {
-      console.error("Failed to parse selected items from storage", e)
+      console.error(e)
     } finally {
       setIsLoading(false)
     }

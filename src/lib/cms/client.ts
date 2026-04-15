@@ -51,7 +51,7 @@ export async function getHomepageHero(): Promise<SanityHeroSection | null> {
 
     return result?.hero ?? null
   } catch (error) {
-    console.error('[Sanity] getHomepageHero failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -75,7 +75,7 @@ export async function getHomepageShopByBrands(): Promise<SanityShopByBrandsSecti
 
     return result?.shopByBrands ?? null
   } catch (error) {
-    console.error('[Sanity] getHomepageShopByBrands failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -99,7 +99,7 @@ export async function getHomepageAbout(): Promise<SanityAboutSection | null> {
 
     return result?.about ?? null
   } catch (error) {
-    console.error('[Sanity] getHomepageAbout failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -123,7 +123,7 @@ export async function getHomepageCategories(): Promise<SanityCategoriesSection |
 
     return result?.categories ?? null
   } catch (error) {
-    console.error('[Sanity] getHomepageCategories failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -147,7 +147,7 @@ export async function getHomepageServices(): Promise<SanityServicesSection | nul
 
     return result?.services ?? null
   } catch (error) {
-    console.error('[Sanity] getHomepageServices failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -201,7 +201,7 @@ export async function getHomepageCollectionSections(): Promise<HomepageCollectio
       }))
       .sort((a, b) => a.displayOrder - b.displayOrder)
   } catch (error) {
-    console.error('[Sanity] getHomepageCollectionSections failed:', error)
+    console.error(error)
     return []
   }
 }
@@ -223,7 +223,7 @@ export async function getCollectionHero(
 
     return result ?? null
   } catch (error) {
-    console.error('[Sanity] getCollectionHero failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -247,7 +247,7 @@ export async function getCoffeeShowcase(): Promise<SanityCoffeeShowcase | null> 
 
     return result?.coffeeShowcase ?? null
   } catch (error) {
-    console.error('[Sanity] getCoffeeShowcase failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -271,7 +271,7 @@ export async function getSpaceExperiences(): Promise<SanitySpaceExperiences | nu
 
     return result?.spaceExperiences ?? null
   } catch (error) {
-    console.error('[Sanity] getSpaceExperiences failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -295,7 +295,7 @@ export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSect
 
     return result?.serviceBrandsSection ?? null
   } catch (error) {
-    console.error('[Sanity] getServiceBrandsSection failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -319,7 +319,7 @@ export async function getSatisfiedCustomers(): Promise<SanitySatisfiedCustomers 
 
     return result?.satisfiedCustomers ?? null
   } catch (error) {
-    console.error('[Sanity] getSatisfiedCustomers failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -343,7 +343,7 @@ export async function getFranchiseSection(): Promise<SanityFranchiseSection | nu
 
     return result?.franchiseSection ?? null
   } catch (error) {
-    console.error('[Sanity] getFranchiseSection failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -367,7 +367,7 @@ export async function getOurTeamSection(): Promise<SanityOurTeamSection | null> 
 
     return result?.ourTeamSection ?? null
   } catch (error) {
-    console.error('[Sanity] getOurTeamSection failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -391,7 +391,7 @@ export async function getClientTestimonials(): Promise<SanityClientTestimonials 
 
     return result?.clientTestimonials ?? null
   } catch (error) {
-    console.error('[Sanity] getClientTestimonials failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -415,7 +415,7 @@ export async function getStoreLocation(): Promise<SanityStoreLocation | null> {
 
     return result?.storeLocation ?? null
   } catch (error) {
-    console.error('[Sanity] getStoreLocation failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -439,7 +439,7 @@ export async function getCtaBanner(): Promise<SanityCtaBanner | null> {
 
     return result?.ctaBanner ?? null
   } catch (error) {
-    console.error('[Sanity] getCtaBanner failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -464,7 +464,7 @@ export async function getMarketingData(): Promise<SanityMarketingData> {
       promoBanners: result?.promoBanners ?? [],
     }
   } catch (error) {
-    console.error('[Sanity] getMarketingData failed:', error)
+    console.error(error)
     return {
       announcementBar: null,
       activePopup: null,
@@ -489,7 +489,7 @@ export async function getServicesPage(): Promise<SanityServicesPage | null> {
 
     return result ?? null
   } catch (error) {
-    console.error('[Sanity] getServicesPage failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -509,7 +509,7 @@ export async function getAboutPage(): Promise<SanityAboutPage | null> {
 
     return result ?? null
   } catch (error) {
-    console.error('[Sanity] getAboutPage failed:', error)
+    console.error(error)
     return null
   }
 }
@@ -529,7 +529,7 @@ export async function getAllServicesCMS(): Promise<SanityService[]> {
 
     return Array.isArray(result) ? result : []
   } catch (error) {
-    console.error('[Sanity] getAllServicesCMS failed:', error)
+    console.error(error)
     return []
   }
 }
@@ -549,7 +549,7 @@ export async function getServiceBySlug(slug: string): Promise<SanityService | nu
 
     return result ?? null
   } catch (error) {
-    console.error('[Sanity] getServiceBySlug failed:', error)
+    console.error(error)
     return null
   }
 }

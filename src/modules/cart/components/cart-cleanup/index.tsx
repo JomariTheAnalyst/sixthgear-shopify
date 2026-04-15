@@ -40,7 +40,7 @@ export default function CartCleanup({ cartId }: { cartId?: string }) {
         if (response.ok) {
         }
       } catch (error) {
-        console.error("[Cart Cleanup] Failed to cleanup cart:", error)
+        console.error(error)
       }
     }
 

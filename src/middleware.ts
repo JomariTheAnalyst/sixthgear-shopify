@@ -94,10 +94,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (error) {
-    console.error(
-      "Middleware: Error occurred, allowing request through:",
-      error instanceof Error ? error.message : "Unknown error"
-    )
+    console.error(error)
     return NextResponse.next()
   }
 }

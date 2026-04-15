@@ -38,8 +38,6 @@ export default function InvoiceDownload({ orderId }: InvoiceDownloadProps) {
 
 
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error("[Invoice Download] Error response:", errorText)
         throw new Error(`Failed to download invoice: ${response.status}`)
       }
 
@@ -56,7 +54,7 @@ export default function InvoiceDownload({ orderId }: InvoiceDownloadProps) {
       document.body.removeChild(a)
 
     } catch (err: any) {
-      console.error("[Invoice Download] Error:", err)
+      console.error(err)
       setError("Failed to download invoice. Please try again.")
     } finally {
       setLoading(false)

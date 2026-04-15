@@ -127,7 +127,7 @@ export function getCTABannerWithFallbacks(homeContent: any): CTABannerContent {
 
     return cmsContent
   } catch (error) {
-    console.error("[CTABanner] Error fetching content, using fallbacks:", error)
+    console.error(error)
     return CTA_BANNER_FALLBACKS
   }
 }
