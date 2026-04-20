@@ -62,9 +62,9 @@ import {
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: "Motorcycle Gear, Parts, Services & Coffee",
   description:
-    "Your one-stop shop for motorcycle gear, parts, and great coffee in the Philippines.",
+    "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at SixthgearMoto in the Philippines.",
 }
 
 function ProductSectionSkeleton() {

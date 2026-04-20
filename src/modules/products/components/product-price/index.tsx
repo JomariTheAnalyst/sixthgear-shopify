@@ -25,34 +25,49 @@ export default function ProductPrice({
   return (
     <div className="flex flex-col gap-1 my-4">
       {/* Current/Sale Price */}
-      <span
-        className={cn(
-          "text-[32px] font-bold leading-tight",
-          isOnSale ? "text-red-600" : "text-slate-900"
-        )}
-        data-testid="product-price"
-        data-value={selectedPrice.calculated_price_number}
-      >
-        {!variant && "From "}
-        {selectedPrice.calculated_price}
-      </span>
-
-      {/* Original Price & Discount Row */}
-      {isOnSale && selectedPrice.original_price && (
-        <div className="flex items-center gap-2">
-          <span
-            className="text-base text-gray-500 line-through"
-            data-testid="original-product-price"
-            data-value={selectedPrice.original_price_number}
-          >
-            {selectedPrice.original_price}
-          </span>
-          {selectedPrice.percentage_diff && (
-            <span className="text-sm font-bold text-red-600 border border-red-200 bg-red-50 px-2 py-0.5 rounded-md">
-              -{selectedPrice.percentage_diff}%
+      {isOnSale ? (
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-500">
+              Now
             </span>
+            <span
+              className={cn("text-[32px] font-bold leading-tight text-red-600")}
+              data-testid="product-price"
+              data-value={selectedPrice.calculated_price_number}
+            >
+              {selectedPrice.calculated_price}
+            </span>
+          </div>
+
+          {selectedPrice.original_price && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold uppercase tracking-[0.08em] text-gray-500">
+                Before
+              </span>
+              <span
+                className="text-base text-gray-500 line-through"
+                data-testid="original-product-price"
+                data-value={selectedPrice.original_price_number}
+              >
+                {selectedPrice.original_price}
+              </span>
+              {selectedPrice.percentage_diff && (
+                <span className="text-sm font-bold text-red-600 border border-red-200 bg-red-50 px-2 py-0.5 rounded-md">
+                  -{selectedPrice.percentage_diff}%
+                </span>
+              )}
+            </div>
           )}
         </div>
+      ) : (
+        <span
+          className="text-[32px] font-bold leading-tight text-slate-900"
+          data-testid="product-price"
+          data-value={selectedPrice.calculated_price_number}
+        >
+          {selectedPrice.calculated_price}
+        </span>
       )}
     </div>
   )

@@ -21,7 +21,8 @@ import DeleteButton from "@modules/common/components/delete-button"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useRouter, useParams } from "next/navigation"
 import { useCartStore } from "@lib/cart"
-import { Loader2, Check, X, ShoppingBag, Minus, Plus } from "lucide-react"
+import { Loader2, Check, X, ShoppingBag, Minus, Plus, Store } from "lucide-react"
+
 
 type CartDrawerProps = {
   cart: HttpTypes.StoreCart | null
@@ -513,6 +514,23 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
               <p className="text-xs text-gray-400">
                 Shipping fee is calculated at checkout.
               </p>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-gray-900 shadow-sm">
+                  <Store className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900">
+                    In-store pickup available
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-gray-600">
+                    Choose pickup at checkout.
+                  </p>
+               
+                </div>
+              </div>
             </div>
 
             {/* Checkout Button */}

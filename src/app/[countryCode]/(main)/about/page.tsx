@@ -13,7 +13,7 @@ import {
 } from "@modules/about/types"
 
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "About SixthgearMoto",
   description:
     "Sixth Gear Moto Supply Café + Lounge - Built by riders, for riders. Premium motorcycle service hub with professional workshop expertise and a relaxed café experience.",
 }

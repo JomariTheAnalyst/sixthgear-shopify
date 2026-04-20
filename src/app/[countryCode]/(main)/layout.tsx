@@ -1,10 +1,10 @@
 import { Metadata } from "next"
 import { draftMode } from "next/headers"
+import Script from "next/script"
 
 import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
 import { getMarketingForPath } from "@lib/data/marketing"
-import { getBaseURL } from "@lib/util/env"
 import { mapShopifyCartToStoreCart } from "@lib/util/map-shopify-cart"
 import Footer from "@modules/layout/templates/footer"
 import Nav from "@modules/layout/templates/nav"
@@ -16,19 +16,28 @@ import AnnouncementBar from "@modules/layout/components/announcement-bar"
 import { getMarketingData } from "@lib/cms/client"
 import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
+import {
+  getOrganizationStructuredData,
+  getSeoMetadataBase,
+  getWebsiteStructuredData,
+} from "@lib/seo"
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getBaseURL()),
+  metadataBase: getSeoMetadataBase(),
 }
 
 export default async function PageLayout(props: {
   children: React.ReactNode
   overlay: React.ReactNode
+  params: Promise<{ countryCode: string }>
 }) {
+  const { countryCode } = await props.params
   const customer = await retrieveCustomer()
   const shopifyCart = await retrieveCart()
   const cart = mapShopifyCartToStoreCart(shopifyCart)
   const draft = await draftMode()
+  const organizationStructuredData = getOrganizationStructuredData(countryCode)
+  const websiteStructuredData = getWebsiteStructuredData(countryCode)
 
   // Fetch marketing content for the layout (strip only at this level)
   const marketing = await getMarketingForPath("/")
@@ -38,6 +47,20 @@ export default async function PageLayout(props: {
     <CartLimitModalProvider>
       <SelectedItemsProvider>
         <CartDrawerWrapper cart={cart}>
+          <Script
+            id="organization-structured-data"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(organizationStructuredData),
+            }}
+          />
+          <Script
+            id="website-structured-data"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(websiteStructuredData),
+            }}
+          />
           {/* Cart cleanup component - removes shipping methods when leaving checkout */}
           <CartCleanup cartId={cart?.id} />
 

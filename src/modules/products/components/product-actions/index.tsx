@@ -33,9 +33,13 @@ import {
   RotateCcw,
   Shield,
   ChevronDown,
+  Store,
 } from "lucide-react"
 
 const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
+const PICKUP_PROOF_ITEMS = [
+ 
+]
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -356,6 +360,38 @@ export default function ProductActions({
           >
             {inventoryStatus.message}
           </span>
+        </div>
+
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white text-gray-900 shadow-sm">
+              <Store className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div className="min-w-0 space-y-2">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  In-store pickup available
+                </p>
+                <p className="mt-1 text-sm leading-6 text-gray-600">
+                  Pickup is available at our store. Choose pickup at checkout.
+                </p>
+              </div>
+              <div className="space-y-1.5">
+              
+                <ul className="space-y-1.5">
+                  {PICKUP_PROOF_ITEMS.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2 text-sm leading-6 text-gray-700"
+                    >
+                      <span className="mt-[9px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#F16D34]" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Quantity + Actions side-by-side */}

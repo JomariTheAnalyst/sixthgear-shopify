@@ -6,6 +6,7 @@ import Modal from "@modules/common/components/modal"
 import { resolveSizeChart, type SizeChartResult } from "@lib/size-chart"
 import { resolveWhatsInBox, resolveSpecifications, resolveShipping, resolveProductVideoUrl } from "@lib/shopify/metafield-resolvers"
 import { extractShopifyRichTextRows } from "@lib/shopify/rich-text-renderer"
+import { ChevronDown } from "lucide-react"
 
 const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
 
@@ -44,7 +45,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
       title: "Description",
       content: product.description ? (
         <div
-          className="prose prose-sm max-w-none text-gray-600 leading-relaxed"
+          className="prose prose-sm max-w-none break-words text-gray-600 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       ) : (
@@ -100,31 +101,76 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 
   return (
     <div className="flex w-full flex-col">
-      <div className="hide-scrollbar flex w-full overflow-x-auto border-b border-gray-200">
-        <div className="mx-auto flex gap-8 px-4 lg:gap-16">
-          {tabs.map((tab) => {
+      <div className="md:hidden">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+          {tabs.map((tab, index) => {
             const isActive = activeTab === tab.id
 
             return (
-              <button
+              <div
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`border-b-2 px-2 pb-3 text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none ${
-                  isActive
-                    ? "border-black text-black"
-                    : "border-transparent text-gray-400 hover:text-gray-600"
-                }`}
-                aria-selected={isActive}
-                role="tab"
+                className={index !== tabs.length - 1 ? "border-b border-gray-200" : ""}
               >
-                {tab.title}
-              </button>
+                <button
+                  onClick={() =>
+                    setActiveTab((current) =>
+                      current === tab.id ? "" : tab.id
+                    )
+                  }
+                  className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-gray-50 focus:outline-none focus-visible:bg-gray-50"
+                  aria-expanded={isActive}
+                  aria-controls={`product-tab-panel-${tab.id}`}
+                >
+                  <span className="text-sm font-semibold text-gray-900">
+                    {tab.title}
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 flex-shrink-0 text-gray-500 transition-transform duration-200 ${
+                      isActive ? "rotate-180" : ""
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                <div
+                  id={`product-tab-panel-${tab.id}`}
+                  className={isActive ? "block" : "hidden"}
+                >
+                  <div className="px-4 pb-4 pt-1">{tab.content}</div>
+                </div>
+              </div>
             )
           })}
         </div>
       </div>
 
-      <div className="py-6">{activeContent}</div>
+      <div className="hidden md:block">
+        <div className="hide-scrollbar flex w-full overflow-x-auto border-b border-gray-200">
+          <div className="mx-auto flex gap-8 px-4 lg:gap-16">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`border-b-2 px-2 pb-3 text-sm font-semibold whitespace-nowrap transition-colors focus:outline-none ${
+                    isActive
+                      ? "border-black text-black"
+                      : "border-transparent text-gray-400 hover:text-gray-600"
+                  }`}
+                  aria-selected={isActive}
+                  role="tab"
+                >
+                  {tab.title}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="py-6">{activeContent}</div>
+      </div>
     </div>
   )
 }
@@ -207,8 +253,8 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-100">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-lg border border-gray-100">
+      <table className="w-full min-w-[320px] text-sm">
         <tbody>
           {specs.map(({ label, value }, index) => (
             <tr
@@ -217,11 +263,11 @@ const ProductInfoContent = ({ product }: ProductTabsProps) => {
             >
               <th
                 scope="row"
-                className="w-1/3 whitespace-nowrap px-4 py-3 text-left font-semibold text-black"
+                className="w-[38%] px-4 py-3 text-left align-top font-semibold text-black sm:whitespace-nowrap"
               >
                 {label}
               </th>
-              <td className="border-l border-gray-100 px-4 py-3 text-gray-600">
+              <td className="border-l border-gray-100 px-4 py-3 text-gray-600 break-words">
                 {value}
               </td>
             </tr>
@@ -435,8 +481,8 @@ const ParsedSpecificationsContent = ({ rows }: ParsedSpecificationsContentProps)
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-100">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-xl border border-gray-100">
+      <table className="w-full min-w-[320px] text-sm">
         <tbody>
           {parsed.map(({ label, value }, index) => (
             <tr
@@ -445,11 +491,11 @@ const ParsedSpecificationsContent = ({ rows }: ParsedSpecificationsContentProps)
             >
               <th
                 scope="row"
-                className="w-[40%] whitespace-nowrap px-6 py-5 md:px-8 md:py-6 text-left font-semibold text-black"
+                className="w-[40%] px-4 py-4 text-left align-top font-semibold text-black sm:px-6 sm:py-5 md:px-8 md:py-6 md:whitespace-nowrap"
               >
                 {label}
               </th>
-              <td className="border-l border-gray-100 px-6 py-5 md:px-8 md:py-6 text-gray-600">
+              <td className="border-l border-gray-100 px-4 py-4 text-gray-600 break-words sm:px-6 sm:py-5 md:px-8 md:py-6">
                 {value}
               </td>
             </tr>

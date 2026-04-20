@@ -195,3 +195,19 @@
 .animate-slide-up {
   animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
+
+@media (max-width: 1023px) {
+  body[data-account-mobile-nav="true"] #tidio-chat,
+  body[data-account-mobile-nav="true"] #tidio-chat iframe,
+  body[data-account-mobile-nav="true"] iframe[id^="tidio"],
+  body[data-account-mobile-nav="true"] div[id^="tidio"] {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body[data-pdp-mobile-actions="true"] #tidio-chat,
+  body[data-pdp-mobile-actions="true"] #tidio-chat iframe,
+  body[data-pdp-mobile-actions="true"] iframe[id^="tidio"],
+  body[data-pdp-mobile-actions="true"] div[id^="tidio"] {
+    bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}

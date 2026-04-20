@@ -4,9 +4,9 @@ import { getAllServices } from "@lib/strapi/services"
 import { getAllServicesCMS, getServicesPage } from "@lib/cms/client"
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Motorcycle Services & Workshop",
   description:
-    "Professional motorcycle services including maintenance, repairs, diagnostics, detailing, and performance upgrades. Expert care for your ride at Sixthgear.",
+    "Book motorcycle maintenance, diagnostics, repairs, detailing, and upgrade work with the SixthgearMoto workshop.",
 }
 
 export default async function ServicesPage() {

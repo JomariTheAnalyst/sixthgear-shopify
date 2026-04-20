@@ -25,6 +25,14 @@ export default function AccountLayout({ customer, children }: AccountLayoutProps
     else                               setGreeting("Good night")
   }, [])
 
+  useEffect(() => {
+    document.body.dataset.accountMobileNav = "true"
+
+    return () => {
+      delete document.body.dataset.accountMobileNav
+    }
+  }, [])
+
   const pathname    = usePathname()
   const params      = useParams()
 

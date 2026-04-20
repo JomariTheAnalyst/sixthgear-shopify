@@ -1,4 +1,5 @@
 import { getBaseURL } from "@lib/util/env"
+import { getSeoMetadataBase } from "@lib/seo"
 import { Metadata } from "next"
 import { ConsoleWarning } from "../components/common/console-warning"
 import { PreviewIndicator } from "../components/preview-indicator"
@@ -7,13 +8,22 @@ import Script from "next/script"
 import { clientEnv } from "@lib/env"
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getBaseURL()),
+  metadataBase: getSeoMetadataBase(),
   title: {
     default: "Sixthgear | Moto Supply & Café",
-    template: "%s - Sixthgear",
+    template: "%s | SixthgearMoto Philippines",
   },
   description:
-    "Your one-stop shop for motorcycle gear, parts, and great coffee in the Philippines.",
+    "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthgearMoto in the Philippines.",
+  applicationName: "SixthgearMoto",
+  openGraph: {
+    type: "website",
+    url: getBaseURL(),
+    siteName: "SixthgearMoto",
+    title: "SixthgearMoto Philippines | Motorcycle Gear, Parts, Services",
+    description:
+      "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthgearMoto in the Philippines.",
+  },
   icons: {
     icon: [
       { url: "/images/favicon/favicon.ico" },

@@ -1,0 +1,75 @@
+import { companyData } from "@lib/company-data"
+import { getBaseURL } from "@lib/util/env"
+
+const DEFAULT_COUNTRY_CODE = "ph"
+const BRAND_NAME = "SixthgearMoto"
+const BRAND_LEGAL_NAME = "Sixthgear Motosupply"
+const BRAND_DESCRIPTION =
+  "SixthgearMoto is a rider-focused shop in the Philippines for motorcycle gear, parts, workshop services, and First Gear Coffee."
+const SOCIAL_PROFILES = [
+  "https://www.facebook.com/camille.sixthgear",
+  "https://www.instagram.com/sixthgear_moto_supply/",
+  "https://www.tiktok.com/@sixthgear.moto.su",
+  "https://twitter.com/sixthgear",
+  "https://linkedin.com/company/sixthgear",
+]
+
+const getLocalizedSiteUrl = (countryCode = DEFAULT_COUNTRY_CODE) =>
+  `${getBaseURL()}/${countryCode}`
+
+export const getSeoMetadataBase = () => new URL(getBaseURL())
+
+export const getOrganizationStructuredData = (
+  countryCode = DEFAULT_COUNTRY_CODE
+) => {
+  const siteUrl = getLocalizedSiteUrl(countryCode)
+  const logoUrl = `${getBaseURL()}/images/logo/sixthgear-removebg-preview.png`
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${siteUrl}#organization`,
+    name: BRAND_NAME,
+    legalName: BRAND_LEGAL_NAME,
+    alternateName: "Sixthgear Moto Supply",
+    url: siteUrl,
+    logo: {
+      "@type": "ImageObject",
+      url: logoUrl,
+    },
+    description: BRAND_DESCRIPTION,
+    email: "info@sixthgear.ph",
+    telephone: "+63-995-093-0157",
+    sameAs: SOCIAL_PROFILES,
+  }
+}
+
+export const getWebsiteStructuredData = (countryCode = DEFAULT_COUNTRY_CODE) => {
+  const siteUrl = getLocalizedSiteUrl(countryCode)
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteUrl}#website`,
+    url: siteUrl,
+    name: BRAND_NAME,
+    alternateName: BRAND_LEGAL_NAME,
+    description: BRAND_DESCRIPTION,
+    inLanguage: "en-PH",
+    publisher: {
+      "@id": `${siteUrl}#organization`,
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/store?query={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  }
+}
+
+export const brandSeo = {
+  brandName: BRAND_NAME,
+  legalName: BRAND_LEGAL_NAME,
+  description: BRAND_DESCRIPTION,
+  businessDescription: companyData.aboutUs.description || BRAND_DESCRIPTION,
+}

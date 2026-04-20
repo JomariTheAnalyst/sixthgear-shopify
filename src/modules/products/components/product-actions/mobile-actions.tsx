@@ -1,7 +1,7 @@
 "use client"
 
 import { Dialog, Transition } from "@headlessui/react"
-import React, { Fragment, useMemo } from "react"
+import React, { Fragment, useEffect, useMemo } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import X from "@modules/common/icons/x"
@@ -56,6 +56,18 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   }, [price])
 
   const isSimple = isSimpleProduct(product)
+
+  useEffect(() => {
+    if (show) {
+      document.body.setAttribute("data-pdp-mobile-actions", "true")
+    } else {
+      document.body.removeAttribute("data-pdp-mobile-actions")
+    }
+
+    return () => {
+      document.body.removeAttribute("data-pdp-mobile-actions")
+    }
+  }, [show])
 
   // Render the appropriate selector based on option type
   const renderOptionSelector = (option: HttpTypes.StoreProductOption) => {

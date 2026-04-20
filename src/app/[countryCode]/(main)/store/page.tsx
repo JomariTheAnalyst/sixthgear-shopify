@@ -14,8 +14,9 @@ import { storePageCursor, getPageCursor, hashFilters } from "@lib/cache/page-cur
 import CollectionTemplate from "@modules/collections/templates";
 
 export const metadata: Metadata = {
-  title: "Shop | Sixthgear Moto",
-  description: "Explore all of our products.",
+  title: "Shop Motorcycle Gear, Parts & Accessories",
+  description:
+    "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.",
 };
 
 export const dynamic = "force-dynamic";
