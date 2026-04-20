@@ -3,7 +3,12 @@ import { notFound } from "next/navigation"
 import { getAllServicesCMS } from "@lib/cms/client"
 import { getService, getAllServiceSlugs } from "@lib/strapi/services"
 import { getServiceDetailData } from "@lib/data/service-detail"
+import JsonLd from "@modules/common/components/json-ld"
 import ServiceDetailTemplate from "@modules/services/templates/service-detail"
+import {
+  getBreadcrumbStructuredData,
+  getLocalizedCanonicalPath,
+} from "@lib/seo"
 
 interface ServicePageProps {
   params: Promise<{
@@ -71,7 +76,7 @@ export async function generateMetadata({
   params,
 }: ServicePageProps): Promise<Metadata> {
   try {
-    const { slug } = await params
+    const { slug, countryCode } = await params
     const service = await getService(slug)
 
     if (!service) {
@@ -84,6 +89,9 @@ export async function generateMetadata({
     return {
       title: service.title,
       description: service.description || service.title,
+      alternates: {
+        canonical: getLocalizedCanonicalPath(countryCode, `/services/${slug}`),
+      },
     }
   } catch (error) {
     console.error(error)
@@ -96,19 +104,27 @@ export async function generateMetadata({
 
 export default async function ServicePage({ params }: ServicePageProps) {
   try {
-    const { slug } = await params
+    const { slug, countryCode } = await params
 
     const data = await getServiceDetailData(slug)
 
     if (!data) {
       notFound()
     }
+    const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
+      { name: "Home", path: "/" },
+      { name: "Services", path: "/services" },
+      { name: data.service.title, path: `/services/${slug}` },
+    ])
 
     return (
-      <ServiceDetailTemplate
-        service={data.service}
-        otherServices={data.otherServices}
-      />
+      <>
+        <JsonLd id="service-breadcrumbs" data={breadcrumbStructuredData} />
+        <ServiceDetailTemplate
+          service={data.service}
+          otherServices={data.otherServices}
+        />
+      </>
     )
   } catch (error) {
     console.error(error)

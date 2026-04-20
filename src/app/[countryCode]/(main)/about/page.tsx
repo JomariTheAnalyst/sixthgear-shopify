@@ -1,8 +1,6 @@
 import { Metadata } from "next"
 import AboutTemplate from "@modules/about/templates"
-import {
-  FALLBACK_ABOUT_HERO,
-} from "@modules/about/constants"
+import { FALLBACK_ABOUT_HERO } from "@modules/about/constants"
 import { getAboutPage } from "@lib/cms/client"
 import {
   AboutMissionContent,
@@ -11,15 +9,40 @@ import {
   AboutStoryItem,
   AboutValuesContent,
 } from "@modules/about/types"
+import JsonLd from "@modules/common/components/json-ld"
+import {
+  getBreadcrumbStructuredData,
+  getLocalizedCanonicalPath,
+} from "@lib/seo"
 
-export const metadata: Metadata = {
-  title: "About SixthgearMoto",
-  description:
-    "Sixth Gear Moto Supply Café + Lounge - Built by riders, for riders. Premium motorcycle service hub with professional workshop expertise and a relaxed café experience.",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ countryCode: string }>
+}): Promise<Metadata> {
+  const { countryCode } = await params
+
+  return {
+    title: "About SixthgearMoto",
+    description:
+      "Learn about SixthgearMoto, a rider-built motorcycle shop, workshop, and cafe hub in the Philippines.",
+    alternates: {
+      canonical: getLocalizedCanonicalPath(countryCode, "/about"),
+    },
+  }
 }
 
-export default async function AboutPage() {
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ countryCode: string }>
+}) {
+  const { countryCode } = await params
   const aboutPage = await getAboutPage()
+  const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+  ])
 
   const heroContent = {
     title: aboutPage?.hero?.title?.trim() || FALLBACK_ABOUT_HERO.title,
@@ -113,13 +136,16 @@ export default async function AboutPage() {
     : null
 
   return (
-    <AboutTemplate
-      heroContent={heroContent}
-      storyItems={storyItems}
-      whatWeOfferContent={whatWeOfferContent}
-      ourValuesContent={ourValuesContent}
-      whyChooseUsContent={whyChooseUsContent}
-      ceoQuoteContent={ceoQuoteContent}
-    />
+    <>
+      <JsonLd id="about-breadcrumbs" data={breadcrumbStructuredData} />
+      <AboutTemplate
+        heroContent={heroContent}
+        storyItems={storyItems}
+        whatWeOfferContent={whatWeOfferContent}
+        ourValuesContent={ourValuesContent}
+        whyChooseUsContent={whyChooseUsContent}
+        ceoQuoteContent={ceoQuoteContent}
+      />
+    </>
   )
 }

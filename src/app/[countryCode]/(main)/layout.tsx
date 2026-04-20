@@ -1,6 +1,5 @@
 import { Metadata } from "next"
 import { draftMode } from "next/headers"
-import Script from "next/script"
 
 import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
@@ -16,6 +15,7 @@ import AnnouncementBar from "@modules/layout/components/announcement-bar"
 import { getMarketingData } from "@lib/cms/client"
 import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
+import JsonLd from "@modules/common/components/json-ld"
 import {
   getOrganizationStructuredData,
   getSeoMetadataBase,
@@ -47,20 +47,11 @@ export default async function PageLayout(props: {
     <CartLimitModalProvider>
       <SelectedItemsProvider>
         <CartDrawerWrapper cart={cart}>
-          <Script
+          <JsonLd
             id="organization-structured-data"
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(organizationStructuredData),
-            }}
+            data={organizationStructuredData}
           />
-          <Script
-            id="website-structured-data"
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(websiteStructuredData),
-            }}
-          />
+          <JsonLd id="website-structured-data" data={websiteStructuredData} />
           {/* Cart cleanup component - removes shipping methods when leaving checkout */}
           <CartCleanup cartId={cart?.id} />
 

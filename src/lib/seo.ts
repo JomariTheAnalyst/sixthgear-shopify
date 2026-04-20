@@ -17,7 +17,25 @@ const SOCIAL_PROFILES = [
 const getLocalizedSiteUrl = (countryCode = DEFAULT_COUNTRY_CODE) =>
   `${getBaseURL()}/${countryCode}`
 
+const normalizeRelativePath = (path = "") => {
+  if (!path || path === "/") {
+    return ""
+  }
+
+  return path.startsWith("/") ? path : `/${path}`
+}
+
 export const getSeoMetadataBase = () => new URL(getBaseURL())
+
+export const getLocalizedCanonicalPath = (
+  countryCode = DEFAULT_COUNTRY_CODE,
+  path = ""
+) => `/${countryCode}${normalizeRelativePath(path)}`
+
+export const getAbsoluteSiteUrl = (
+  countryCode = DEFAULT_COUNTRY_CODE,
+  path = ""
+) => `${getBaseURL()}${getLocalizedCanonicalPath(countryCode, path)}`
 
 export const getOrganizationStructuredData = (
   countryCode = DEFAULT_COUNTRY_CODE
@@ -66,6 +84,25 @@ export const getWebsiteStructuredData = (countryCode = DEFAULT_COUNTRY_CODE) => 
     },
   }
 }
+
+type BreadcrumbItem = {
+  name: string
+  path: string
+}
+
+export const getBreadcrumbStructuredData = (
+  countryCode = DEFAULT_COUNTRY_CODE,
+  items: BreadcrumbItem[]
+) => ({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: getAbsoluteSiteUrl(countryCode, item.path),
+  })),
+})
 
 export const brandSeo = {
   brandName: BRAND_NAME,

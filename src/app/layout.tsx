@@ -1,16 +1,20 @@
-import { getBaseURL } from "@lib/util/env"
-import { getSeoMetadataBase } from "@lib/seo"
 import { Metadata } from "next"
+import Script from "next/script"
+
+import { clientEnv } from "@lib/env"
+import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
+import { getSeoMetadataBase } from "@lib/seo"
+import { getBaseURL } from "@lib/util/env"
+import { Toaster } from "sonner"
+
 import { ConsoleWarning } from "../components/common/console-warning"
 import { PreviewIndicator } from "../components/preview-indicator"
 import "styles/globals.css"
-import Script from "next/script"
-import { clientEnv } from "@lib/env"
 
 export const metadata: Metadata = {
   metadataBase: getSeoMetadataBase(),
   title: {
-    default: "Sixthgear | Moto Supply & Café",
+    default: "SixthgearMoto Philippines | Motorcycle Gear, Parts, Services",
     template: "%s | SixthgearMoto Philippines",
   },
   description:
@@ -53,13 +57,12 @@ export const metadata: Metadata = {
   manifest: "/images/favicon/site.webmanifest",
 }
 
-import { Toaster } from "sonner"
-import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
-
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
-      <body className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}>
+      <body
+        className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
+      >
         <ConsoleWarning />
         <PreviewIndicator />
         <main className="relative">{props.children}</main>

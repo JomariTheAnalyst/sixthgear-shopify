@@ -2,6 +2,11 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { getCategoryByHandle } from "@lib/data/categories"
+import JsonLd from "@modules/common/components/json-ld"
+import {
+  getBreadcrumbStructuredData,
+  getLocalizedCanonicalPath,
+} from "@lib/seo"
 import CategoryTemplate from "@modules/categories/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
@@ -21,15 +26,16 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     const productCategory = await getCategoryByHandle(params.category[params.category.length - 1])
 
     if (!productCategory) return { title: "Not Found" }
-    const title = productCategory.title + " | Medusa Store"
+    const title = productCategory.title
 
     const description = productCategory.description ?? `${title} category.`
+    const categoryPath = `/categories/${params.category.join("/")}`
 
     return {
-      title: `${title} | Medusa Store`,
+      title: `${title} | SixthgearMoto`,
       description,
       alternates: {
-        canonical: `${params.category.join("/")}`,
+        canonical: getLocalizedCanonicalPath(params.countryCode, categoryPath),
       },
     }
   } catch (error) {
@@ -47,13 +53,25 @@ export default async function CategoryPage(props: Props) {
   if (!productCategory) {
     notFound()
   }
+  const categoryPath = `/categories/${params.category.join("/")}`
+  const breadcrumbStructuredData = getBreadcrumbStructuredData(
+    params.countryCode,
+    [
+      { name: "Home", path: "/" },
+      { name: "Shop", path: "/store" },
+      { name: productCategory.title, path: categoryPath },
+    ]
+  )
 
   return (
-    <CategoryTemplate
-      category={productCategory}
-      sortBy={sortBy}
-      page={page}
-      countryCode={params.countryCode}
-    />
+    <>
+      <JsonLd id="category-breadcrumbs" data={breadcrumbStructuredData} />
+      <CategoryTemplate
+        category={productCategory}
+        sortBy={sortBy}
+        page={page}
+        countryCode={params.countryCode}
+      />
+    </>
   )
 }

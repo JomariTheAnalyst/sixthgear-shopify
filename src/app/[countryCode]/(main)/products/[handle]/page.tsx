@@ -4,8 +4,13 @@ import { Suspense } from "react"
 import { getProduct } from "@lib/shopify"
 import { invalidatePattern } from "@lib/cache/redis"
 import { getRegion } from "@lib/data/regions"
+import JsonLd from "@modules/common/components/json-ld"
 import ProductTemplate from "@modules/products/templates"
 import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product-detail"
+import {
+  getBreadcrumbStructuredData,
+  getLocalizedCanonicalPath,
+} from "@lib/seo"
 
 export const dynamic = "force-dynamic"
 
@@ -25,12 +30,18 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${product.title} | Sixthgear Moto`,
+    title: `${product.title} | SixthgearMoto`,
     description: product.description,
     openGraph: {
-      title: `${product.title} | Sixthgear Moto`,
+      title: `${product.title} | SixthgearMoto`,
       description: product.description,
       images: product.featuredImage ? [product.featuredImage.url] : [],
+    },
+    alternates: {
+      canonical: getLocalizedCanonicalPath(
+        params.countryCode,
+        `/products/${handle}`
+      ),
     },
   }
 }
@@ -51,6 +62,14 @@ export default async function ProductPage(props: Props) {
   if (!shopifyProduct) {
     notFound()
   }
+  const breadcrumbStructuredData = getBreadcrumbStructuredData(
+    params.countryCode,
+    [
+      { name: "Home", path: "/" },
+      { name: "Shop", path: "/store" },
+      { name: shopifyProduct.title, path: `/products/${params.handle}` },
+    ]
+  )
 
   // DEBUG: log raw metafields from Shopify to terminal
 
@@ -130,12 +149,15 @@ export default async function ProductPage(props: Props) {
 
   return (
     <Suspense fallback={<SkeletonProductDetail />}>
-      <ProductTemplate
-        product={mappedProduct}
-        region={region}
-        countryCode={params.countryCode}
-        images={displayImages}
-      />
+      <>
+        <JsonLd id="product-breadcrumbs" data={breadcrumbStructuredData} />
+        <ProductTemplate
+          product={mappedProduct}
+          region={region}
+          countryCode={params.countryCode}
+          images={displayImages}
+        />
+      </>
     </Suspense>
   )
 }

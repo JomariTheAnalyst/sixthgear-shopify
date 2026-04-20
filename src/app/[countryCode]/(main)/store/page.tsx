@@ -11,13 +11,12 @@ import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
 import { getCollectionHero } from "@lib/cms/client";
 import { storePageCursor, getPageCursor, hashFilters } from "@lib/cache/page-cursors";
+import {
+  getBreadcrumbStructuredData,
+  getLocalizedCanonicalPath,
+} from "@lib/seo";
 import CollectionTemplate from "@modules/collections/templates";
-
-export const metadata: Metadata = {
-  title: "Shop Motorcycle Gear, Parts & Accessories",
-  description:
-    "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.",
-};
+import JsonLd from "@modules/common/components/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -51,9 +50,29 @@ type Params = {
   params: Promise<{ countryCode: string }>;
 };
 
+export async function generateMetadata(props: Params): Promise<Metadata> {
+  const { countryCode } = await props.params;
+
+  return {
+    title: "Shop Motorcycle Gear, Parts & Accessories",
+    description:
+      "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.",
+    alternates: {
+      canonical: getLocalizedCanonicalPath(countryCode, "/store"),
+    },
+  };
+}
+
 export default async function StorePage(props: Params) {
   const params = await props.params;
   const rawSearchParams = await props.searchParams;
+  const breadcrumbStructuredData = getBreadcrumbStructuredData(
+    params.countryCode,
+    [
+      { name: "Home", path: "/" },
+      { name: "Shop", path: "/store" },
+    ]
+  );
 
   // Convert raw searchParams to URLSearchParams
   const urlParams = new URLSearchParams();
@@ -141,18 +160,21 @@ export default async function StorePage(props: Params) {
     };
 
     return (
-      <CollectionTemplate
-        collection={searchCollection}
-        products={searchProductsForView}
-        filters={[]}
-        sidebarFilters={sidebarFilters}
-        pageInfo={searchResult.pageInfo}
-        initialFilterState={filterState}
-        countryCode={params.countryCode}
-        collectionsMenu={collectionsMenu}
-        heroData={storeHero}
-        currentPage={requestedPage}
-      />
+      <>
+        <JsonLd id="store-breadcrumbs" data={breadcrumbStructuredData} />
+        <CollectionTemplate
+          collection={searchCollection}
+          products={searchProductsForView}
+          filters={[]}
+          sidebarFilters={sidebarFilters}
+          pageInfo={searchResult.pageInfo}
+          initialFilterState={filterState}
+          countryCode={params.countryCode}
+          collectionsMenu={collectionsMenu}
+          heroData={storeHero}
+          currentPage={requestedPage}
+        />
+      </>
     );
   }
 
@@ -210,17 +232,20 @@ export default async function StorePage(props: Params) {
       : result.collection;
 
   return (
-    <CollectionTemplate
-      collection={storeCollection}
-      products={result.products}
-      filters={result.filters}
-      sidebarFilters={sidebarFilters}
-      pageInfo={result.pageInfo}
-      initialFilterState={filterState}
-      countryCode={params.countryCode}
-      collectionsMenu={collectionsMenu}
-      heroData={storeHero}
-      currentPage={requestedPage}
-    />
+    <>
+      <JsonLd id="store-breadcrumbs" data={breadcrumbStructuredData} />
+      <CollectionTemplate
+        collection={storeCollection}
+        products={result.products}
+        filters={result.filters}
+        sidebarFilters={sidebarFilters}
+        pageInfo={result.pageInfo}
+        initialFilterState={filterState}
+        countryCode={params.countryCode}
+        collectionsMenu={collectionsMenu}
+        heroData={storeHero}
+        currentPage={requestedPage}
+      />
+    </>
   );
 }

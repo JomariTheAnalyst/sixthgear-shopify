@@ -58,13 +58,25 @@ import {
   getHomepageCollectionSections,
   getMarketingData,
 } from "@lib/cms/client"
+import { getLocalizedCanonicalPath } from "@lib/seo"
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
-  title: "Motorcycle Gear, Parts, Services & Coffee",
-  description:
-    "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at SixthgearMoto in the Philippines.",
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ countryCode: string }>
+}): Promise<Metadata> {
+  const { countryCode } = await params
+
+  return {
+    title: "Motorcycle Gear, Parts, Services & Coffee",
+    description:
+      "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at SixthgearMoto in the Philippines.",
+    alternates: {
+      canonical: getLocalizedCanonicalPath(countryCode),
+    },
+  }
 }
 
 function ProductSectionSkeleton() {

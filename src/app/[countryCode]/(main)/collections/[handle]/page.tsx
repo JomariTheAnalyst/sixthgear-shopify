@@ -9,6 +9,11 @@ import {
 } from "@lib/data/collections";
 import { getCollectionHero } from "@lib/cms/client";
 import { parseSearchParams, getDefaultFilterState } from "@lib/util/filterParams";
+import JsonLd from "@modules/common/components/json-ld";
+import {
+  getBreadcrumbStructuredData,
+  getLocalizedCanonicalPath,
+} from "@lib/seo";
 import CollectionTemplate from "@modules/collections/templates";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +31,16 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   if (!result) notFound();
 
   return {
-    title: `${result.collection.title} | Sixthgear Moto`,
+    title: `${result.collection.title} | SixthgearMoto`,
     description:
       result.collection.description ||
       `${result.collection.title} collection`,
+    alternates: {
+      canonical: getLocalizedCanonicalPath(
+        params.countryCode,
+        `/collections/${params.handle}`
+      ),
+    },
   };
 }
 
@@ -68,6 +79,17 @@ export default async function CollectionPage(props: Props) {
   ]);
 
   if (!result) notFound();
+  const breadcrumbStructuredData = getBreadcrumbStructuredData(
+    params.countryCode,
+    [
+      { name: "Home", path: "/" },
+      { name: "Shop", path: "/store" },
+      {
+        name: result.collection.title,
+        path: `/collections/${params.handle}`,
+      },
+    ]
+  );
 
   const collectionsMenu = collections.map((c: any) => ({
     handle: c.handle,
@@ -75,16 +97,19 @@ export default async function CollectionPage(props: Props) {
   }));
 
   return (
-    <CollectionTemplate
-      collection={result.collection}
-      products={result.products}
-      filters={result.filters}
-      sidebarFilters={sidebarFilters}
-      pageInfo={result.pageInfo}
-      initialFilterState={filterState}
-      countryCode={params.countryCode}
-      collectionsMenu={collectionsMenu}
-      heroData={collectionHero}
-    />
+    <>
+      <JsonLd id="collection-breadcrumbs" data={breadcrumbStructuredData} />
+      <CollectionTemplate
+        collection={result.collection}
+        products={result.products}
+        filters={result.filters}
+        sidebarFilters={sidebarFilters}
+        pageInfo={result.pageInfo}
+        initialFilterState={filterState}
+        countryCode={params.countryCode}
+        collectionsMenu={collectionsMenu}
+        heroData={collectionHero}
+      />
+    </>
   );
 }
