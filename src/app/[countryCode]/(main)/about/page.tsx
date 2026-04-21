@@ -23,7 +23,7 @@ export async function generateMetadata({
   const { countryCode } = await params
 
   return {
-    title: "About SixthgearMoto",
+    title: "About Us",
     description:
       "Learn about SixthgearMoto, a rider-built motorcycle shop, workshop, and cafe hub in the Philippines.",
     alternates: {

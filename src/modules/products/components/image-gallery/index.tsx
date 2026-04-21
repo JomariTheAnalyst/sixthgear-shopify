@@ -1,16 +1,22 @@
 "use client"
 
-import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import { useState, useCallback, useRef, useEffect } from "react"
 import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react"
 
+type ProductGalleryImage = {
+  id?: string
+  url?: string | null
+  width?: number | null
+  height?: number | null
+  altText?: string | null
+}
+
 type ImageGalleryProps = {
-  images: HttpTypes.StoreProductImage[]
+  images: ProductGalleryImage[]
 }
 
 const MAX_THUMBNAILS = 6
-
 const ImageGallery = ({ images }: ImageGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
@@ -70,6 +76,26 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
   }
 
   const selectedImage = images[activeIndex]
+  const selectedImageUrl = selectedImage?.url || ""
+  const selectedImageAlt =
+    selectedImage?.altText?.trim() || `Product image ${activeIndex + 1}`
+  const selectedImageWidth = selectedImage?.width || 1600
+  const selectedImageHeight = selectedImage?.height || 1600
+  const selectedImageLargestEdge = Math.max(
+    selectedImage?.width || 0,
+    selectedImage?.height || 0
+  )
+  const canHoverZoom = Boolean(selectedImageUrl)
+  const zoomScale =
+    selectedImageLargestEdge >= 2400
+      ? 2
+      : selectedImageLargestEdge >= 1800
+        ? 1.8
+        : selectedImageLargestEdge >= 1400
+          ? 1.6
+          : selectedImageLargestEdge >= 1000
+            ? 1.45
+            : 1.6
 
   const extraCount = images.length - MAX_THUMBNAILS
   const displayedThumbnails = images.slice(0, MAX_THUMBNAILS)
@@ -87,7 +113,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
   }, [isLightboxOpen, handlePrev, handleNext])
 
   useEffect(() => {
-    const handleVariantImage = (e: any) => {
+    const handleVariantImage = (e: CustomEvent<{ imageUrl?: string }>) => {
       const imageUrl = e.detail?.imageUrl
       if (!imageUrl) return
 
@@ -97,14 +123,20 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       }
     }
 
-    window.addEventListener("variantImageSelected", handleVariantImage)
+    window.addEventListener(
+      "variantImageSelected",
+      handleVariantImage as EventListener
+    )
+
     return () =>
-      window.removeEventListener("variantImageSelected", handleVariantImage)
+      window.removeEventListener(
+        "variantImageSelected",
+        handleVariantImage as EventListener
+      )
   }, [images])
 
   return (
     <div className="flex flex-col-reverse lg:flex-row gap-4">
-      {/* Mobile dots indicator */}
       <div className="flex lg:hidden justify-center gap-1.5 mt-2">
         {images.map((_, index) => (
           <button
@@ -121,7 +153,6 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         ))}
       </div>
 
-      {/* Thumbnails — Horizontal Strip on Mobile, Vertical on Desktop */}
       <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto lg:overflow-x-hidden scrollbar-hide pb-1 lg:pb-0 pr-1 w-full lg:w-[88px] flex-shrink-0 lg:max-h-[600px]">
         {displayedThumbnails.map((image, index) => (
           <button
@@ -138,17 +169,16 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             {image.url && (
               <Image
                 src={image.url}
-                alt=""
+                alt={image.altText?.trim() || ""}
                 fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 72px, 80px"
-                unoptimized
+                sizes="(max-width: 1024px) 72px, 88px"
+                quality={75}
               />
             )}
           </button>
         ))}
 
-        {/* "+N more" Indicator */}
         {extraCount > 0 && (
           <button
             onClick={() => setIsLightboxOpen(true)}
@@ -162,13 +192,17 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         )}
       </div>
 
-      {/* Main Image */}
       <div className="relative w-full flex-grow">
         <div
           ref={mainImageRef}
-          className="relative aspect-[4/5] lg:aspect-[3.5/4] w-full rounded-[4px] md:rounded-lg border border-gray-100 overflow-hidden bg-white cursor-zoom-in"
-          onMouseEnter={() => setIsZoomed(true)}
-          onMouseLeave={() => setIsZoomed(false)}
+          className={`relative aspect-[4/5] lg:aspect-[3.5/4] w-full rounded-[4px] md:rounded-lg border border-gray-100 overflow-hidden bg-white ${
+            canHoverZoom ? "cursor-zoom-in" : "cursor-default"
+          }`}
+          onMouseEnter={() => canHoverZoom && setIsZoomed(true)}
+          onMouseLeave={() => {
+            setIsZoomed(false)
+            setZoomPosition({ x: 50, y: 50 })
+          }}
           onMouseMove={handleMouseMove}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
@@ -178,28 +212,41 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           aria-label="Click to open full screen gallery"
           onKeyDown={(e) => e.key === "Enter" && setIsLightboxOpen(true)}
         >
-          {selectedImage?.url && (
-            <Image
-              src={selectedImage.url}
-              alt={`Product image ${activeIndex + 1}`}
-              fill
-              priority={activeIndex === 0}
-              className={`object-contain p-6 transition-transform duration-200 ${
-                isZoomed ? "scale-150" : "scale-100"
-              }`}
-              style={
-                isZoomed
-                  ? {
-                      transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                    }
-                  : undefined
-              }
-              sizes="(max-width: 768px) 100vw, 60vw"
-              unoptimized
-            />
+          {selectedImageUrl && (
+            <>
+              <Image
+                src={selectedImageUrl}
+                alt={selectedImageAlt}
+                fill
+                priority={activeIndex === 0}
+                className={`object-contain p-6 transition-transform duration-200 ${
+                  canHoverZoom && isZoomed ? "scale-[1.02]" : "scale-100"
+                }`}
+                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(100vw - 3rem), (max-width: 1280px) 58vw, 700px"
+                quality={85}
+              />
+
+              {canHoverZoom && isZoomed && (
+                <div
+                  className="absolute inset-0 pointer-events-none hidden md:block"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    backgroundImage: `url("${selectedImageUrl}")`,
+                    backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: `${zoomScale * 100}%`,
+                  }}
+                >
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white/40 to-transparent p-4">
+                    <span className="inline-flex rounded-full border border-black/10 bg-white/90 px-3 py-1 text-[11px] font-medium text-gray-700 shadow-sm">
+                      Hover to zoom
+                    </span>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
-          {/* Fullscreen indicator button - Icon only */}
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -213,7 +260,6 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         </div>
       </div>
 
-      {/* Lightbox / Fullscreen Modal */}
       {isLightboxOpen && (
         <div
           className="fixed inset-0 z-50 bg-white flex items-center justify-center"
@@ -221,7 +267,6 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           aria-modal="true"
           aria-label="Image gallery lightbox"
         >
-          {/* Close / Exit Button */}
           <button
             onClick={() => setIsLightboxOpen(false)}
             className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
@@ -238,12 +283,16 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             <ChevronLeft className="w-6 h-6 text-black" />
           </button>
 
-          <div className="max-w-5xl max-h-[85vh] px-16">
-            {selectedImage?.url && (
-              <img
-                src={selectedImage.url}
-                alt={`Product image ${activeIndex + 1}`}
-                className="max-w-full max-h-[85vh] object-contain"
+          <div className="max-w-5xl max-h-[85vh] px-16 flex items-center justify-center">
+            {selectedImageUrl && (
+              <Image
+                src={selectedImageUrl}
+                alt={selectedImageAlt}
+                width={selectedImageWidth}
+                height={selectedImageHeight}
+                className="max-w-full max-h-[85vh] w-auto h-auto object-contain"
+                sizes="100vw"
+                quality={90}
               />
             )}
           </div>
@@ -256,23 +305,25 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             <ChevronRight className="w-6 h-6 text-black" />
           </button>
 
-          {/* Bottom thumbnail strip in lightbox */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
             {images.map((img, index) => (
               <button
-                key={index}
+                key={img.id || index}
                 onClick={() => setActiveIndex(index)}
-                className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition-all bg-gray-50 ${
+                className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all bg-gray-50 ${
                   activeIndex === index
                     ? "border-black opacity-100"
                     : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
                 {img.url && (
-                  <img
+                  <Image
                     src={img.url}
                     alt=""
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                    quality={75}
                   />
                 )}
               </button>

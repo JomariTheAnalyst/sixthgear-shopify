@@ -1,4 +1,8 @@
+ "use client"
+
 import { HttpTypes } from "@medusajs/types"
+import { useParams, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type BreadcrumbProps = {
@@ -6,16 +10,47 @@ type BreadcrumbProps = {
 }
 
 export default function Breadcrumb({ product }: BreadcrumbProps) {
+  const { countryCode } = useParams<{ countryCode: string }>()
+  const searchParams = useSearchParams()
+
+  const sourceHref = searchParams.get("from")
+  const sourceLabel = searchParams.get("fromLabel")?.trim()
+  const safeSourceHref =
+    sourceHref &&
+    countryCode &&
+    (sourceHref === `/${countryCode}` || sourceHref.startsWith(`/${countryCode}/`))
+      ? sourceHref
+      : null
+
+  const derivedSourceLabel = (() => {
+    if (sourceLabel) {
+      return sourceLabel
+    }
+
+    if (!safeSourceHref) {
+      return "Store"
+    }
+
+    if (safeSourceHref.includes("/store")) {
+      return "Store"
+    }
+
+    if (safeSourceHref.includes("/collections/")) {
+      return "Collection"
+    }
+
+    if (safeSourceHref.includes("/search")) {
+      return "Search"
+    }
+
+    return "Store"
+  })()
+
   const items = [
     { label: "Home", href: "/" },
-    ...(product.collection
-      ? [
-          {
-            label: product.collection.title || "Collection",
-            href: `/collections/${product.collection.handle}`,
-          },
-        ]
-      : [{ label: "Store", href: "/store" }]),
+    ...(safeSourceHref && derivedSourceLabel !== "Home"
+      ? [{ label: derivedSourceLabel, href: safeSourceHref, localized: false }]
+      : [{ label: "Store", href: "/store", localized: true }]),
     { label: product.title || "Product" },
   ]
 
@@ -28,12 +63,21 @@ export default function Breadcrumb({ product }: BreadcrumbProps) {
               <span className="text-gray-300">/</span>
             )}
             {item.href ? (
-              <LocalizedClientLink
-                href={item.href}
-                className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
-              >
-                {item.label}
-              </LocalizedClientLink>
+              item.localized === false ? (
+                <Link
+                  href={item.href}
+                  className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <LocalizedClientLink
+                  href={item.href}
+                  className="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                >
+                  {item.label}
+                </LocalizedClientLink>
+              )
             ) : (
               <span className="text-gray-700 font-medium" aria-current="page">
                 {item.label}

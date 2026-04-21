@@ -22,7 +22,6 @@ import ProductCard, {
 } from "@modules/home/components/product-sections/product-card"
 import SkeletonProductCard from "@modules/home/components/product-sections/product-card/skeleton-product-card"
 import CollectionHero from "@modules/collections/components/CollectionHero"
-import type { SanityCollectionHero } from "@lib/cms/types"
 
 type CollectionTemplateProps = {
   collection: {
@@ -38,7 +37,9 @@ type CollectionTemplateProps = {
   initialFilterState: FilterState
   countryCode: string
   collectionsMenu?: { handle: string; title: string }[]
-  heroData?: SanityCollectionHero | null
+  heroTitle: string
+  heroDescription?: string
+  heroImageUrl?: string | null
   currentPage?: number
 }
 
@@ -120,7 +121,9 @@ export default function CollectionTemplate({
   initialFilterState,
   countryCode,
   collectionsMenu,
-  heroData,
+  heroTitle,
+  heroDescription,
+  heroImageUrl,
   currentPage = 1,
 }: CollectionTemplateProps) {
   const router = useRouter()
@@ -220,9 +223,9 @@ export default function CollectionTemplate({
   return (
     <div className="min-h-screen bg-white">
       <CollectionHero
-        data={heroData ?? null}
-        fallbackTitle={collection.title}
-        fallbackDescription={collection.description}
+        title={heroTitle}
+        description={heroDescription}
+        backgroundImageUrl={heroImageUrl}
       />
       <div className="border-b border-gray-100 bg-gray-50/60">
         <div className="mx-auto max-w-[1440px] px-4 pb-4 pt-4 sm:px-6 lg:px-12">
@@ -501,6 +504,7 @@ function PLPProductCard({
         product={mapShopifyProductToSharedCard(product)}
         countryCode={countryCode}
         badges={getBadgesFromTags(product.tags)}
+        preserveSource
       />
     </div>
   )

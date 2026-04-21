@@ -1,11 +1,10 @@
-"use client"
-
 /**
  * Satisfied Customers Section
  * Polaroid marquee with alternating row directions
  * Paper cut design top/bottom
  */
 
+import Image from "next/image"
 import PolaroidCard from "./PolaroidCard"
 import styles from "./polaroid.module.css"
 import { lato } from "@lib/fonts"
@@ -79,9 +78,11 @@ export default function SatisfiedCustomers({
     <section className="relative">
       {/* Top Paper Cut */}
       <div className="w-full -mb-1">
-        <img
+        <Image
           src="/images/polaroid-marquee/top.svg"
           alt=""
+          width={1600}
+          height={120}
           className="w-full h-auto"
         />
       </div>
@@ -141,9 +142,11 @@ export default function SatisfiedCustomers({
 
       {/* Bottom Paper Cut */}
       <div className="w-full -mt-1">
-        <img
+        <Image
           src="/images/polaroid-marquee/bottom.svg"
           alt=""
+          width={1600}
+          height={120}
           className="w-full h-auto"
         />
       </div>

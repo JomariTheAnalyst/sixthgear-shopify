@@ -3,16 +3,12 @@ import { Suspense } from "react"
 
 import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
-import OurServices from "@modules/home/components/our-services"
 import ShopByCategories from "@modules/home/components/categories"
 import SatisfiedCustomers from "@modules/home/components/satisfied-customers"
 import CoffeeShowcase from "@modules/home/components/coffee-showcase"
-import ClientTestimonials from "@modules/home/components/client-testimonials"
 import CTABanner from "@modules/home/components/cta-banner"
 import Franchise from "@modules/home/components/franchise"
-import OurTeam from "@modules/home/components/our-team"
 import Stats from "@modules/home/components/stats"
-import ProjectsSection from "@modules/home/components/projects"
 import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
@@ -28,12 +24,10 @@ import type {
 } from "@lib/cms/types"
 import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
-import { getCollection, getProducts, getCollections } from "@lib/shopify"
+import { getCollection, getProducts } from "@lib/shopify"
 import type { ShopifyProductCard } from "@lib/shopify/types"
 import { HttpTypes } from "@medusajs/types"
 
-import { getMarketingForPath } from "@lib/data/marketing"
-import { BannerSlot, PopupAds } from "@modules/marketing"
 import { fetchHomeContent } from "@lib/strapi/home"
 import {
   getAboutWithFallbacks,
@@ -44,21 +38,29 @@ import {
   getHomepageAbout,
   getHomepageCategories,
   getHomepageHero,
-  getHomepageServices,
   getHomepageShopByBrands,
   getCoffeeShowcase,
-  getSpaceExperiences,
   getServiceBrandsSection,
   getSatisfiedCustomers,
   getFranchiseSection,
-  getOurTeamSection,
-  getClientTestimonials,
   getStoreLocation,
   getCtaBanner,
   getHomepageCollectionSections,
   getMarketingData,
 } from "@lib/cms/client"
 import { getLocalizedCanonicalPath } from "@lib/seo"
+import {
+  DeferredClientTestimonialsSection,
+  DeferredOurServicesSection,
+  DeferredOurTeamSection,
+  DeferredProjectsSection,
+} from "@modules/home/components/deferred-homepage-sections"
+import {
+  ExperiencesSectionSkeleton,
+  ServicesSectionSkeleton,
+  TeamSectionSkeleton,
+  TestimonialsSectionSkeleton,
+} from "@modules/home/components/homepage-section-skeletons"
 
 export const revalidate = 60
 
@@ -70,7 +72,9 @@ export async function generateMetadata({
   const { countryCode } = await params
 
   return {
-    title: "Motorcycle Gear, Parts, Services & Coffee",
+    title: {
+      absolute: "SixthgearMoto | Motorcycle Gear, Parts, Services & Coffee",
+    },
     description:
       "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at SixthgearMoto in the Philippines.",
     alternates: {
@@ -114,40 +118,30 @@ export default async function Home(props: {
     homepageShopByBrands,
     homepageAbout,
     homepageCategories,
-    homepageServices,
     coffeeShowcase,
-    spaceExperiences,
     serviceBrandsSection,
     satisfiedCustomers,
     franchiseSection,
-    ourTeamSection,
-    clientTestimonialsData,
     storeLocation,
     ctaBanner,
     marketingData,
     collectionSections,
     featuredProductsResp,
-    collections,
     newArrivalsResp,
   ] = await Promise.all([
     getHomepageHero(),
     getHomepageShopByBrands(),
     getHomepageAbout(),
     getHomepageCategories(),
-    getHomepageServices(),
     getCoffeeShowcase(),
-    getSpaceExperiences(),
     getServiceBrandsSection(),
     getSatisfiedCustomers(),
     getFranchiseSection(),
-    getOurTeamSection(),
-    getClientTestimonials(),
     getStoreLocation(),
     getCtaBanner(),
     getMarketingData(),
     getHomepageCollectionSections(),
     getProducts({ first: 8, query: 'tag:featured' }),
-    getCollections(8),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
   ])
 
@@ -225,8 +219,6 @@ export default async function Home(props: {
     (item): item is HomepageCollectionRailData => item !== null
   )
 
-  const marketing = await getMarketingForPath("/")
-
   const homeContent = await fetchHomeContent()
   const aboutContent = await getAboutWithFallbacks(homeContent)
   const shopByBrandsContent = getShopByBrandsWithFallbacks(homeContent)
@@ -258,12 +250,6 @@ export default async function Home(props: {
         sectionTitle={shopByBrandsContent.sectionTitle}
         brands={shopByBrandsContent.brands}
         showNavDesktop={shopByBrandsContent.showNavDesktop}
-      />
-
-      <BannerSlot
-        banners={marketing.banners}
-        placement="home_hero_below"
-        className="px-4 md:px-8 lg:px-16 py-4 max-w-7xl mx-auto"
       />
 
       <AboutSection
@@ -305,12 +291,6 @@ export default async function Home(props: {
           />
         )}
       </Suspense>
-
-      <BannerSlot
-        banners={marketing.banners}
-        placement="home_mid"
-        className="px-4 md:px-8 lg:px-16 py-8 max-w-7xl mx-auto"
-      />
 
       <Suspense fallback={<ProductSectionSkeleton />}>
         {featuredProducts.length > 0 && (
@@ -362,31 +342,15 @@ export default async function Home(props: {
       <FeaturedCollectionBanner data={getFeatured("after_coffee")} />
       <PromoBanner data={getPromo("after_coffee")} />
 
-      <OurServices data={homepageServices} />
+      <Suspense fallback={<ServicesSectionSkeleton />}>
+        <DeferredOurServicesSection />
+      </Suspense>
       <FeaturedCollectionBanner data={getFeatured("after_services")} />
       <PromoBanner data={getPromo("after_services")} />
 
-      <ProjectsSection
-        sectionTitle={
-          spaceExperiences?.sectionTitle ?? undefined
-        }
-        sectionDescription={
-          spaceExperiences?.sectionDescription ?? undefined
-        }
-        items={
-          spaceExperiences?.items
-            ?.filter((item) => item.isEnabled)
-            ?.map((item, index) => ({
-              id: index + 1,
-              title: item.title,
-              description: item.description,
-              imageUrl:
-                item.imageUrl ??
-                "/images/homepage/projects/coffee.jpg",
-              isEnabled: item.isEnabled,
-            })) ?? undefined
-        }
-      />
+      <Suspense fallback={<ExperiencesSectionSkeleton />}>
+        <DeferredProjectsSection />
+      </Suspense>
       <FeaturedCollectionBanner data={getFeatured("after_projects")} />
       <PromoBanner data={getPromo("after_projects")} />
 
@@ -478,61 +442,15 @@ export default async function Home(props: {
       <FeaturedCollectionBanner data={getFeatured("after_franchise")} />
       <PromoBanner data={getPromo("after_franchise")} />
 
-      <OurTeam
-        sectionTitle={
-          ourTeamSection?.sectionTitle 
-          ?? undefined}
-        sectionDescription={
-          ourTeamSection?.sectionDescription 
-          ?? undefined}
-        teamMembers={
-          ourTeamSection?.teamMembers
-            ?.map((member, index) => ({
-              id: index + 1,
-              name: member.name,
-              role: member.role,
-              title: member.title ?? "",
-              description: 
-                member.description ?? "",
-              image: member.photoUrl ?? 
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=face",
-              socialLinks: {
-                facebook: 
-                  member.socialLinks
-                    ?.facebook ?? undefined,
-                instagram: 
-                  member.socialLinks
-                    ?.instagram ?? undefined,
-                tiktok: 
-                  member.socialLinks
-                    ?.tiktok ?? undefined,
-              },
-            })) ?? undefined}
-      />
+      <Suspense fallback={<TeamSectionSkeleton />}>
+        <DeferredOurTeamSection />
+      </Suspense>
       <FeaturedCollectionBanner data={getFeatured("after_team")} />
       <PromoBanner data={getPromo("after_team")} />
 
-      <ClientTestimonials
-        sectionTitle={
-          clientTestimonialsData
-            ?.sectionTitle 
-          ?? undefined}
-        sectionDescription={
-          clientTestimonialsData
-            ?.sectionDescription 
-          ?? undefined}
-        testimonials={
-          clientTestimonialsData
-            ?.testimonials
-            ?.map((t, index) => ({
-              id: index + 1,
-              name: t.name,
-              role: t.role ?? 
-                "Verified Rider",
-              quote: t.quote,
-              avatar: "",
-            })) ?? undefined}
-      />
+      <Suspense fallback={<TestimonialsSectionSkeleton />}>
+        <DeferredClientTestimonialsSection />
+      </Suspense>
       <FeaturedCollectionBanner data={getFeatured("after_testimonials")} />
       <PromoBanner data={getPromo("after_testimonials")} />
 
@@ -594,8 +512,6 @@ export default async function Home(props: {
           storeLocation?.googleMapsUrl 
           ?? undefined}
       />
-
-      <PopupAds popups={marketing.popups} />
     </>
   )
 }

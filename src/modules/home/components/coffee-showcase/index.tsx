@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { interDisplay, lato } from "@lib/fonts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -84,9 +85,11 @@ export default function CoffeeShowcase({
   return (
     <section className="relative">
       <div className="w-full -mb-1 relative z-10">
-        <img
+        <Image
           src="/images/firstgear-coffee/imgi_13_691aef1ff3fe8593c72c20e1_Frame 2147239539.svg"
           alt=""
+          width={1600}
+          height={120}
           className="w-full h-auto"
         />
       </div>
@@ -106,18 +109,22 @@ export default function CoffeeShowcase({
                       zIndex: index + 1,
                     }}
                   >
-                    <img
+                    <Image
                       src={image}
                       alt=""
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(max-width: 1024px) 54vw, 420px"
+                      className="object-cover"
                     />
                   </div>
                 ))}
 
                 <div className="absolute inset-y-0 left-[10%] right-0 rounded-2xl overflow-hidden border-2 border-[#dd7a53] bg-white shadow-[0_30px_70px_rgba(0,0,0,0.24)] z-10">
-                  <img
+                  <Image
                     src={galleryImages[visibleImage % galleryImages.length]}
                     alt="Coffee showcase"
+                    fill
+                    sizes="(max-width: 1024px) 72vw, 560px"
                     className={`w-full h-full object-cover transition-all duration-500 ease-out ${
                       isImageVisible
                         ? "opacity-100 scale-100"
@@ -148,10 +155,13 @@ export default function CoffeeShowcase({
             </div>
 
             <div className="flex flex-col items-center text-center lg:px-8">
-              <img
+              <Image
                 src={coffeeIconUrl || "/images/firstgear-coffee/download.svg"}
                 alt="First Gear Coffee icon"
-                className="w-32 md:w-40 h-auto mb-8"
+                width={160}
+                height={160}
+                className="w-32 md:w-40 mb-8"
+                style={{ height: "auto" }}
               />
 
               <h2
@@ -181,9 +191,11 @@ export default function CoffeeShowcase({
       </div>
 
       <div className="w-full -mt-1 relative z-10">
-        <img
+        <Image
           src="/images/firstgear-coffee/imgi_16_691c021fe5be5a70061df439_Frame 2147239540.svg"
           alt=""
+          width={1600}
+          height={120}
           className="w-full h-auto block"
         />
       </div>

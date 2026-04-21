@@ -3,8 +3,6 @@
  * Modern, professional grid layout with hover effects
  */
 
-"use client"
-
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -23,7 +21,7 @@ const FALLBACK_CATEGORIES_SECTION = {
     image: "/images/product-categories/bags-and-boxes (1).png",
     imageAlt: "Black motorcycle top box and luggage case",
     buttonLabel: "Shop Now",
-    buttonLink: "/collections/bags-and-luggage",
+    buttonLink: "/collections/bags-and-luggages",
   },
   {
     name: "COMMUNICATIONS",
@@ -39,7 +37,7 @@ const FALLBACK_CATEGORIES_SECTION = {
     image: "/images/product-categories/helmets.png",
     imageAlt: "Black off-road motorcycle helmet",
     buttonLabel: "Shop Now",
-    buttonLink: "/collections/helmets",
+    buttonLink: "/collections/helmet",
   },
   {
     name: "PARTS AND ACCESSORIES",
@@ -68,6 +66,27 @@ const FALLBACK_CATEGORIES_SECTION = {
 ]
 }
 
+const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
+  const rawHref = buttonLink?.trim()
+
+  if (rawHref) {
+    if (/^https?:\/\//i.test(rawHref)) {
+      return rawHref
+    }
+
+    const withoutLocalePrefix = rawHref.replace(/^\/[a-z]{2}(?=\/)/i, "")
+    return withoutLocalePrefix.startsWith("/")
+      ? withoutLocalePrefix
+      : `/${withoutLocalePrefix}`
+  }
+
+  if (slug) {
+    return `/collections/${slug}`
+  }
+
+  return "#"
+}
+
 function CategoryCard({
   name,
   slug,
@@ -83,7 +102,7 @@ function CategoryCard({
   buttonLabel?: string | null
   buttonLink?: string | null
 }) {
-  const href = buttonLink || (slug ? `/store?category=${slug}` : "#")
+  const href = normalizeCategoryHref(buttonLink, slug)
   const ctaLabel = buttonLabel || "Shop Now"
 
   return (
@@ -114,6 +133,7 @@ function CategoryCard({
               alt={imageAlt || name}
               fill
               className="object-contain object-right md:object-right-bottom origin-bottom-right transition-transform duration-700 ease-out group-hover:scale-[1.10] drop-shadow-[0_15px_20px_rgba(0,0,0,0.12)] scale-[1.05]"
+              sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
             />
           </div>
         </div>
@@ -172,19 +192,16 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
             className={`${montserrat.className} group relative inline-flex items-center justify-center px-16 py-4 bg-[#ff4e00] text-white font-medium text-[13px] tracking-[0.1em] uppercase overflow-hidden shadow-[0_8px_20px_rgba(255,78,0,0.2)] hover:shadow-[0_12px_25px_rgba(255,78,0,0.3)] transition-all duration-300`}
           >
             {/* Dark triangle cutout on bottom right visual effect */}
-            <div className="absolute bottom-0 right-0 w-4 h-4 bg-[#fafafa] clip-triangle transform rotate-180 transition-transform group-hover:scale-110" />
+            <div
+              className="absolute bottom-0 right-0 w-4 h-4 bg-[#fafafa] transform rotate-180 transition-transform group-hover:scale-110"
+              style={{ clipPath: "polygon(100% 0, 0% 100%, 100% 100%)" }}
+            />
             <span className="z-10 transition-transform duration-300">
               {viewAllLabel}
             </span>
           </LocalizedClientLink>
         </div>
       </div>
-
-      <style jsx>{`
-        .clip-triangle {
-          clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-        }
-      `}</style>
     </section>
   )
 }

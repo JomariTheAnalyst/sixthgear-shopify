@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import type { SanityPopupAd } from "@lib/cms/types"
 import { interDisplay, lato } from "@lib/fonts"
@@ -100,10 +101,13 @@ export default function PopupAd({ data }: PopupAdProps) {
           {...(imageWrapperProps as any)}
           className={data.imageLink ? "block cursor-pointer" : "block"}
         >
-          <img
+          <Image
             src={data.imageUrl}
             alt={data.heading || "Promotional offer"}
-            style={{ width: "100%", height: "auto", display: "block" }}
+            width={960}
+            height={720}
+            className="w-full h-auto block"
+            sizes="(max-width: 768px) 100vw, 480px"
           />
         </ImageWrapper>
 

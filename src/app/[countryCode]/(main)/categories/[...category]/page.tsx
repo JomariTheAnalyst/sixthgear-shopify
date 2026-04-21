@@ -32,7 +32,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     const categoryPath = `/categories/${params.category.join("/")}`
 
     return {
-      title: `${title} | SixthgearMoto`,
+      title,
       description,
       alternates: {
         canonical: getLocalizedCanonicalPath(params.countryCode, categoryPath),

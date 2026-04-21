@@ -7,7 +7,6 @@ import {
   buildShopifyFilters,
   listCollections,
 } from "@lib/data/collections";
-import { getCollectionHero } from "@lib/cms/client";
 import { parseSearchParams, getDefaultFilterState } from "@lib/util/filterParams";
 import JsonLd from "@modules/common/components/json-ld";
 import {
@@ -31,7 +30,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   if (!result) notFound();
 
   return {
-    title: `${result.collection.title} | SixthgearMoto`,
+    title: result.collection.title,
     description:
       result.collection.description ||
       `${result.collection.title} collection`,
@@ -64,8 +63,8 @@ export default async function CollectionPage(props: Props) {
   // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
 
-  // Parallel fetches: Shopify filtered products, sidebar filters, collections menu, CMS hero
-  const [result, sidebarFilters, { collections }, collectionHero] = await Promise.all([
+  // Parallel fetches: Shopify filtered products, sidebar filters, collections menu
+  const [result, sidebarFilters, { collections }] = await Promise.all([
     getFilteredCollection(params.handle, {
       filters: shopifyFilters,
       sortKey: filterState.sortKey,
@@ -75,7 +74,6 @@ export default async function CollectionPage(props: Props) {
     }),
     getCollectionFilters(params.handle),
     listCollections({ limit: 100 }),
-    getCollectionHero(params.handle),
   ]);
 
   if (!result) notFound();
@@ -108,7 +106,9 @@ export default async function CollectionPage(props: Props) {
         initialFilterState={filterState}
         countryCode={params.countryCode}
         collectionsMenu={collectionsMenu}
-        heroData={collectionHero}
+        heroTitle={result.collection.title}
+        heroDescription={result.collection.description}
+        heroImageUrl={result.collection.image?.url ?? null}
       />
     </>
   );

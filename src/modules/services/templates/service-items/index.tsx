@@ -2,184 +2,153 @@
 
 /**
  * Service Items Template
- * Accordion layout with image on left side
+ * Editorial row-based accordion for service detail pages
  */
 
-import { useState } from "react"
-import Image from "next/image"
+import { useMemo, useState } from "react"
+
+import { inter, poppins } from "@lib/fonts"
 import { ServiceCategory } from "@lib/services-data"
 
 interface ServiceItemsProps {
   service: ServiceCategory
 }
 
+function buildItemDetail(item: string, service: ServiceCategory) {
+  const relatedItems = service.items
+    .filter((candidate) => candidate !== item)
+    .slice(0, 3)
+
+  const supportingScope =
+    relatedItems.length > 0
+      ? `Where relevant, this is reviewed alongside related work such as ${relatedItems.join(", ").toLowerCase()} so the final result reflects the actual condition of the motorcycle instead of treating one task in isolation.`
+      : "The work is reviewed in the context of the motorcycle's overall condition so the scope remains mechanically relevant and professionally executed."
+
+  return `This covers ${item.toLowerCase()} with the inspection, setup, and workshop attention required to achieve a dependable and properly finished result. ${supportingScope}`
+}
+
 export default function ServiceItems({ service }: ServiceItemsProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
-  const toggleAccordion = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index)
-  }
-
-  // Use detailImage if available, fallback to image
-  const sideImage = service.detailImage || service.image
+  const rows = useMemo(
+    () =>
+      service.items.map((item) => ({
+        title: item,
+        detail: buildItemDetail(item, service),
+      })),
+    [service]
+  )
 
   return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <span
-            className="text-[#F16D34] text-sm md:text-base font-semibold uppercase tracking-widest"
-            style={{ fontFamily: "Inter Display, sans-serif" }}
+    <section className="bg-white py-14 md:py-18 lg:py-24">
+      <div className="mx-auto max-w-[1440px] px-4 md:px-8">
+        <div className="mb-8 md:mb-10 lg:mb-12">
+          <p
+            className={`${inter.className} mb-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-400 md:text-xs`}
           >
             What We Offer
-          </span>
+          </p>
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl text-[#1a1a1a] uppercase leading-tight mt-3"
-            style={{ fontFamily: "Tanker, sans-serif" }}
+            className={`${poppins.className} max-w-5xl text-[2.25rem] font-bold leading-[0.98] tracking-[-0.05em] text-black sm:text-[3rem] md:text-[4rem] lg:text-[4.5rem]`}
           >
-            Service <span className="text-[#F16D34]">Details</span>
+            Our Services 
           </h2>
         </div>
 
-        {/* Content Layout - Image Left, Accordion Right */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          {/* Image - Left Side */}
-          {sideImage && (
-            <div className="w-full lg:w-2/5">
-              <div className="relative aspect-[4/3] lg:aspect-[3/4] rounded-2xl overflow-hidden sticky top-24">
-                <Image
-                  src={sideImage}
-                  alt={service.title}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        <div
+          className="relative"
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
+          <div className="border-t border-gray-200">
+            {rows.map((row, index) => {
+              const isOpen = openIndex === index
+              const isDimmed = hoveredIndex !== null && hoveredIndex !== index
 
-                {/* Overlay Title */}
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3
-                    className="text-white text-xl md:text-2xl uppercase"
-                    style={{ fontFamily: "Tanker, sans-serif" }}
-                  >
-                    {service.title}
-                  </h3>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Accordion - Right Side */}
-          <div className={`w-full ${sideImage ? "lg:w-3/5" : "lg:w-full"}`}>
-            <div className="space-y-3">
-              {service.items.map((item, index) => (
+              return (
                 <div
-                  key={index}
-                  className={`
-                    border rounded-xl overflow-hidden transition-all duration-300
-                    ${
-                      openIndex === index
-                        ? "border-[#F16D34] bg-[#F16D34]/5"
-                        : "border-gray-200 bg-white hover:border-gray-300"
-                    }
-                  `}
+                  key={`${row.title}-${index}`}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  className={`relative border-b border-gray-200 transition-colors duration-300 ${
+                    isOpen ? "bg-[#f5f5f1]" : "bg-white"
+                  }`}
+                  style={{
+                    opacity: isDimmed ? 0.34 : 1,
+                  }}
                 >
-                  {/* Accordion Header */}
                   <button
-                    onClick={() => toggleAccordion(index)}
-                    className="w-full flex items-center justify-between p-5 md:p-6 text-left"
+                    type="button"
+                    aria-expanded={isOpen}
+                    onFocus={() => setHoveredIndex(index)}
+                    onBlur={() => setHoveredIndex(null)}
+                    onClick={() =>
+                      setOpenIndex((current) => (current === index ? null : index))
+                    }
+                    className="w-full text-left transition-opacity duration-200"
                   >
-                    <div className="flex items-center gap-4">
-                      {/* Number */}
-                      <span
-                        className={`
-                          w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                          transition-colors duration-300
-                          ${
-                            openIndex === index
-                              ? "bg-[#F16D34] text-white"
-                              : "bg-gray-100 text-gray-500"
-                          }
-                        `}
-                        style={{ fontFamily: "Inter Display, sans-serif" }}
-                      >
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
+                    <div className="grid grid-cols-1 gap-4 px-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-6 md:px-6 lg:px-8">
+                      <div className="min-w-0">
+                        <h3
+                          className={`${poppins.className} text-xl font-bold leading-[1.02] tracking-[-0.04em] transition-colors duration-200 ${
+                            isDimmed ? "text-gray-400" : "text-black"
+                          } md:text-2xl lg:text-[2rem]`}
+                        >
+                          {row.title}
+                        </h3>
+                      </div>
 
-                      {/* Title */}
-                      <h4
-                        className={`
-                          text-base md:text-lg font-semibold transition-colors duration-300
-                          ${
-                            openIndex === index
-                              ? "text-[#F16D34]"
-                              : "text-[#1a1a1a]"
-                          }
-                        `}
-                        style={{ fontFamily: "Inter Display, sans-serif" }}
-                      >
-                        {item}
-                      </h4>
-                    </div>
-
-                    {/* Toggle Icon */}
-                    <div
-                      className={`
-                        w-10 h-10 rounded-full flex items-center justify-center
-                        transition-all duration-300
-                        ${
-                          openIndex === index
-                            ? "bg-[#F16D34] rotate-180"
-                            : "bg-gray-100"
-                        }
-                      `}
-                    >
-                      <svg
-                        className={`w-5 h-5 transition-colors duration-300 ${
-                          openIndex === index ? "text-white" : "text-gray-500"
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <div className="flex justify-start md:justify-end">
+                        <span
+                          className={`flex h-12 w-12 items-center justify-center rounded-full border text-black transition-all duration-300 ${
+                            isOpen
+                              ? "border-[#a8b59a] bg-[#a8b59a]"
+                              : isDimmed
+                                ? "border-gray-200 bg-white"
+                                : "border-gray-200 bg-white"
+                          }`}
+                        >
+                          <svg
+                            className={`h-5 w-5 transition-all duration-300 ${
+                              isOpen ? "-rotate-45" : "rotate-0"
+                            } ${isDimmed ? "text-gray-400" : "text-black"}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.8}
+                              d="M7 17 17 7M9 7h8v8"
+                            />
+                          </svg>
+                        </span>
+                      </div>
                     </div>
                   </button>
 
-                  {/* Accordion Content */}
                   <div
-                    className={`
-                      overflow-hidden transition-all duration-300 ease-in-out
-                      ${
-                        openIndex === index
-                          ? "max-h-48 opacity-100"
-                          : "max-h-0 opacity-0"
-                      }
-                    `}
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    }`}
                   >
-                    <div className="px-5 md:px-6 pb-5 md:pb-6 pt-0">
-                      <div className="pl-12">
-                        <p
-                          className="text-gray-600 text-sm md:text-base leading-relaxed"
-                          style={{ fontFamily: "Inter Display, sans-serif" }}
-                        >
-                          Professional {item.toLowerCase()} service performed by
-                          our expert technicians using quality parts and
-                          equipment. We ensure your motorcycle receives the best
-                          care possible.
-                        </p>
+                    <div className="overflow-hidden">
+                      <div className="grid grid-cols-1 gap-5 px-4 pb-6 md:px-6 md:pb-7 lg:px-8">
+                        <div className="min-w-0 max-w-[72ch]">
+                          <p
+                            className={`${inter.className} text-sm leading-7 transition-colors duration-200 ${
+                              isDimmed ? "text-gray-400" : "text-gray-700"
+                            } md:text-[15px]`}
+                          >
+                            {row.detail}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              )
+            })}
           </div>
         </div>
       </div>

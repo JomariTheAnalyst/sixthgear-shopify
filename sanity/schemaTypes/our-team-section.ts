@@ -2,7 +2,7 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'ourTeamSection',
-  title: 'Homepage Our Team Section',
+  title: 'Meet the Team Section',
   type: 'object',
   fields: [
     defineField({
@@ -14,7 +14,7 @@ export default defineType({
     }),
     defineField({
       name: 'sectionDescription',
-      title: 'Small heading under the title',
+      title: 'Short supporting text',
       type: 'string',
       description:
         'A short supporting line shown below the main heading. Keep this short and easy to read.',

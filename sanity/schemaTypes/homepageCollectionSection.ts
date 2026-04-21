@@ -2,40 +2,42 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'homepageCollectionSection',
-  title: 'Homepage Collection Rail',
+  title: 'Homepage Product Row',
   type: 'object',
   fields: [
     defineField({
       name: 'collectionHandle',
-      title: 'Shopify Collection Handle',
+      title: 'Shopify collection handle',
       type: 'string',
       description:
-        'Exact handle from Shopify admin. Example: helmets, riding-jackets, new-arrivals.',
+        'Exact collection handle from Shopify. Example: helmets, riding-jackets, new-arrivals.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'sectionTitle',
-      title: 'Section Title',
+      title: 'Custom heading for this product row',
       type: 'string',
       description:
-        "Display title shown above the rail on the storefront. Leave blank to use Shopify's collection title.",
+        "Optional custom title shown above this product row. Leave blank to use the collection title from Shopify.",
     }),
     defineField({
       name: 'buttonLabel',
-      title: 'Button Text',
+      title: 'Button text',
       type: 'string',
       description:
-        'Text shown on the button beside the section title. Example: Shop the Collection. Leave blank to use the default button text.',
+        'Text shown on the button beside the heading. Leave blank to use the default button text.',
     }),
     defineField({
       name: 'enabled',
-      title: 'Show on Homepage',
+      title: 'Show this product row on the homepage',
       type: 'boolean',
+      description:
+        'Turn this on to show this product row on the homepage.',
       initialValue: true,
     }),
     defineField({
       name: 'displayOrder',
-      title: 'Display Order',
+      title: 'Display order',
       type: 'number',
       description:
         'Lower numbers appear first. Use 1, 2, 3 and so on.',

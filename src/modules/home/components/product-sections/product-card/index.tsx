@@ -6,13 +6,21 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
 import { ShoppingCart, Plus } from "lucide-react"
 
 import { getProductPricing } from "@lib/util/get-product-pricing"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import QuickShopModal from "@modules/common/components/quick-shop-modal"
+
+const QuickShopModal = dynamic(
+  () => import("@modules/common/components/quick-shop-modal"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+)
 
 export type BadgeMode = "discount" | "rank" | "new" | "hot"
 
@@ -24,6 +32,7 @@ interface ProductCardProps {
   countryCode?: string
   inventoryMap?: Record<string, number>
   rating?: { average_rating: number; count: number }
+  preserveSource?: boolean
 }
 
 export function getBadgesFromTags(tags: string[] = []): BadgeMode[] {
@@ -49,6 +58,7 @@ export default function ProductCard({
   region,
   countryCode,
   inventoryMap,
+  preserveSource = false,
 }: ProductCardProps) {
   const [showQuickShop, setShowQuickShop] = useState(false)
 
@@ -129,6 +139,7 @@ export default function ProductCard({
 
         <LocalizedClientLink
           href={`/products/${product.handle}`}
+          preserveSource={preserveSource}
           className="absolute inset-0 w-full h-full block"
         >
           {imageUrl ? (
@@ -141,7 +152,6 @@ export default function ProductCard({
                   hoverImageUrl ? "group-hover:opacity-0" : ""
                 }`}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                unoptimized
               />
 
               {hoverImageUrl && (
@@ -151,7 +161,6 @@ export default function ProductCard({
                   fill
                   className="absolute inset-0 object-contain p-5 sm:p-6 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  unoptimized
                 />
               )}
             </>
@@ -177,14 +186,22 @@ export default function ProductCard({
       {/* ── Text Section ── */}
       <div className="flex flex-col flex-1 pt-4 px-4 pb-4">
         {/* Vendor */}
-        <LocalizedClientLink href={`/products/${product.handle}`} className="block">
+        <LocalizedClientLink
+          href={`/products/${product.handle}`}
+          preserveSource={preserveSource}
+          className="block"
+        >
           <p className="text-[10px] sm:text-[11px] font-normal uppercase tracking-[0.1em] text-gray-400 leading-none mb-1">
             {brandName}
           </p>
         </LocalizedClientLink>
 
         {/* Product Title — max 2 lines */}
-        <LocalizedClientLink href={`/products/${product.handle}`} className="block">
+        <LocalizedClientLink
+          href={`/products/${product.handle}`}
+          preserveSource={preserveSource}
+          className="block"
+        >
           <h3 className="text-[14px] sm:text-[15px] font-bold text-[#111] leading-snug line-clamp-2">
             {product.title}
           </h3>
@@ -245,12 +262,14 @@ export default function ProductCard({
       </div>
 
       {/* QuickShop Modal */}
-      <QuickShopModal
-        product={product}
-        countryCode={resolvedCountryCode}
-        isOpen={showQuickShop}
-        onClose={() => setShowQuickShop(false)}
-      />
+      {showQuickShop && (
+        <QuickShopModal
+          product={product}
+          countryCode={resolvedCountryCode}
+          isOpen={showQuickShop}
+          onClose={() => setShowQuickShop(false)}
+        />
+      )}
     </article>
   )
 }

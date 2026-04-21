@@ -5,12 +5,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
+import { TextRoll } from "components/ui/text-roll"
 import type {
   SanityServiceItem,
   SanityServicesSection,
 } from "@lib/cms/types"
 import { inter, montserrat } from "@lib/fonts"
-import { TextRoll } from "components/ui/text-roll"
 
 export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
   useCustomServices: false,
@@ -49,7 +49,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       description:
         "Tyres, chains, sprockets, and handling components serviced and aligned for stability, control, and confident riding.",
       image:
-        "https://images.unsplash.com/photo-1571293521801-fd3dbf02a4f2?w=800&q=80",
+        "https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800&q=80",
       slug: "wheels-drivetrain",
       link: null,
     },
@@ -260,8 +260,7 @@ export default function OurServices({
                   alt={service.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  sizes="(max-width: 640px) 75vw, (max-width: 768px) 60vw, 400px"
-                  unoptimized
+                  sizes="(max-width: 639px) 75vw, (max-width: 767px) 60vw, (max-width: 1023px) 350px, 400px"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-85" />
@@ -277,7 +276,7 @@ export default function OurServices({
                       href={linkHref}
                       className={`${montserrat.className} inline-flex items-center border border-white/80 px-4 py-2.5 text-xs md:text-sm font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-white hover:text-black`}
                     >
-                      <TextRoll className="inline-flex items-center" transition={{ duration: 0.35 }}>
+                      <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
                         Learn More
                       </TextRoll>
                     </Link>
@@ -285,7 +284,9 @@ export default function OurServices({
                     <span
                       className={`${montserrat.className} inline-flex items-center border border-white/60 px-4 py-2.5 text-xs md:text-sm font-semibold uppercase tracking-[0.08em] text-white/80`}
                     >
-                      Learn More
+                      <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
+                        Learn More
+                      </TextRoll>
                     </span>
                   )}
                 </div>

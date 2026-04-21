@@ -2,28 +2,31 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'serviceBrandsSection',
-  title: 'Motorcycle Brands',
+  title: 'Motorcycle Brands We Service',
   type: 'object',
   fields: [
     defineField({
       name: 'sectionTitle',
-      title: 'Section Title',
+      title: 'Section heading',
       type: 'string',
-      description: 'Main heading. Default: Motorcycle Brands We Service & Support',
+      description:
+        'Main title shown above the brand logos. Example: Motorcycle Brands We Service & Support',
     }),
     defineField({
       name: 'sectionDescription',
-      title: 'Section Description',
+      title: 'Short supporting text',
       type: 'text',
       rows: 2,
-      description: 'Subtitle below heading. Default: Experienced in servicing Japanese, American, and European motorcycles with proper tools, care, and attention to detail.',
+      description:
+        'Short paragraph shown under the title. Keep this easy to read and focused on customer trust.',
     }),
     defineField({
       name: 'brands',
-      title: 'Brands',
+      title: 'Brand logos',
       type: 'array',
       of: [{ type: 'serviceBrandItem' }],
-      description: 'Brand logos to display. Leave empty to show the default hardcoded brands. No maximum limit — the grid adjusts automatically.',
+      description:
+        'Upload the motorcycle brand logos shown in this section. Leave empty if you want the website to use its built-in default logos.',
     }),
   ],
 })

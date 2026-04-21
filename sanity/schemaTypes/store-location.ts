@@ -1,42 +1,40 @@
 import { defineField, defineType } from 'sanity'
 
-// Business information for the store location section. The Google Maps embed and coordinates are hardcoded in the frontend — only update the display text and directions URL here.
-// WARNING: Do not add coordinate fields. The map iframe is separate from this data and must be updated in code.
-
 export default defineType({
   name: 'storeLocation',
-  title: 'Store Location',
+  title: 'Store Location and Contact Details',
   type: 'object',
   fields: [
     defineField({
       name: 'storeName',
-      title: 'Store Name',
+      title: 'Store name',
       type: 'string',
-      description: 'Full store name shown in the info card. Default: Sixth Gear Moto Supply Café + Lounge',
+      description: 'Store name shown in the location section on the homepage.',
     }),
     defineField({
       name: 'address',
       title: 'Address',
       type: 'string',
-      description: 'Display address shown to customers. Default: 3610 Bautista St, Makati City, Metro Manila. NOTE: Changing this does NOT move the map pin — contact your developer to update the map coordinates.',
+      description:
+        'Address shown to customers in the homepage location section. This updates the text only, not the map pin location.',
     }),
     defineField({
       name: 'phone',
-      title: 'Phone Number',
+      title: 'Phone number',
       type: 'string',
       description: 'Contact number with spaces for readability. Example: 0995 093 0157',
     }),
     defineField({
       name: 'hours',
-      title: 'Store Hours',
+      title: 'Opening hours',
       type: 'string',
       description: 'Opening hours display text. Example: Monday - Friday | 9:00 AM - 8:00 PM',
     }),
     defineField({
       name: 'googleMapsUrl',
-      title: 'Google Maps URL',
+      title: 'Directions button link',
       type: 'url',
-      description: 'The Google Maps short link for the Get Directions button. Get this from Google Maps by clicking Share and copying the short link. Current: https://maps.app.goo.gl/MAiATmPJ3BmQYXoH7',
+      description: 'Google Maps link used for the Get Directions button.',
     }),
   ],
 })

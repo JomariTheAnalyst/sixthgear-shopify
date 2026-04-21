@@ -122,10 +122,10 @@ const Hero = ({ data }: HeroProps) => {
               src={slide.imageUrl}
               alt={slide.imageAlt || `Hero Background slide ${idx + 1}`}
               fill
-              quality={100}
+              quality={85}
               className="hidden md:block object-cover object-right sm:object-center"
               style={{ objectPosition: desktopObjectPosition }}
-              sizes="100vw"
+              sizes="(max-width: 767px) 0px, 100vw"
               priority={idx === 0}
             />
 
@@ -133,10 +133,10 @@ const Hero = ({ data }: HeroProps) => {
               src={mobileImageSrc}
               alt={slide.imageAlt || `Hero Background slide ${idx + 1}`}
               fill
-              quality={100}
+              quality={85}
               className="block md:hidden object-cover"
               style={{ objectPosition: mobileObjectPosition }}
-              sizes="100vw"
+              sizes="(max-width: 767px) 100vw, 0px"
               priority={idx === 0}
             />
 

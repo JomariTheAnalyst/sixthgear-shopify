@@ -1,69 +1,64 @@
 import { defineType, defineField } from 'sanity'
 
-// Controls the Franchise homepage section.
-// All hover animations, image rotations,
-// and the gear SVG are hardcoded in the
-// frontend and cannot be changed here.
-// Only text content, images, and links
-// are managed via this document.
 export default defineType({
   name: 'franchiseSection',
-  title: 'Franchise Section',
+  title: 'Franchise Invitation Section',
   type: 'object',
   fields: [
     defineField({
       name: 'mainTitle',
-      title: 'Main Title',
+      title: 'Main heading',
       type: 'string',
-      description: 'Large animated heading. Default: Become A Franchise Partner. Note: line breaks are handled automatically by the component — just write the full title as one line.',
+      description:
+        'Large headline shown in this section. Write it as a normal sentence or phrase.',
     }),
     defineField({
       name: 'subtitle',
-      title: 'Subtitle',
+      title: 'Short supporting paragraph',
       type: 'text',
       rows: 3,
-      description: 'Paragraph below the title. Default: Become a franchise partner and offer your customers premium motorcycle gear, services, and great coffee at the highest level.',
+      description: 'Short paragraph shown under the main heading.',
     }),
     defineField({
       name: 'badge1Text',
-      title: 'Orange Badge Text',
+      title: 'Top highlight note',
       type: 'text',
       rows: 2,
-      description: 'Text on the orange badge top right. Appears on hover. Default: Do you dream of opening your own moto shop and café?',
+      description: 'Short note shown in the upper highlight box inside this section.',
     }),
     defineField({
       name: 'badge2Text',
-      title: 'Yellow Badge Text',
+      title: 'Bottom highlight note',
       type: 'text',
       rows: 3,
-      description: 'Text on the yellow badge bottom left. Appears on hover. Default: With Sixthgear, you have the opportunity to become part of an innovative brand.',
+      description: 'Short note shown in the lower highlight box inside this section.',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'CTA Button Label',
+      title: 'Button text',
       type: 'string',
-      description: 'Text on the button. Default: Contact us',
+      description: 'Text shown on the button in this section. Example: Contact Us',
     }),
     defineField({
       name: 'ctaLink',
-      title: 'CTA Button Link',
+      title: 'Button link',
       type: 'string',
-      description: 'Where the button links to. Default: /contact — update this to /franchise once that page is built.',
+      description: 'Where the button should go when clicked.',
     }),
     defineField({
       name: 'leftImage',
-      title: 'Left Image',
+      title: 'Left photo',
       type: 'image',
-      description: 'Photo that appears tilted on the left side on hover. Portrait ratio 4:5 recommended.',
+      description: 'Photo shown on the left side of this section. A portrait image works best.',
       options: {
         hotspot: true,
       },
     }),
     defineField({
       name: 'rightImage',
-      title: 'Right Image',
+      title: 'Right photo',
       type: 'image',
-      description: 'Photo that appears tilted on the right side on hover. Portrait ratio 4:5 recommended.',
+      description: 'Photo shown on the right side of this section. A portrait image works best.',
       options: {
         hotspot: true,
       },

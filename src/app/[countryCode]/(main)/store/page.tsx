@@ -9,7 +9,6 @@ import {
 } from "@lib/data/collections";
 import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
-import { getCollectionHero } from "@lib/cms/client";
 import { storePageCursor, getPageCursor, hashFilters } from "@lib/cache/page-cursors";
 import {
   getBreadcrumbStructuredData,
@@ -54,7 +53,7 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
   const { countryCode } = await props.params;
 
   return {
-    title: "Shop Motorcycle Gear, Parts & Accessories",
+    title: "Shop",
     description:
       "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.",
     alternates: {
@@ -120,7 +119,7 @@ export default async function StorePage(props: Params) {
       }
     }
 
-    const [searchResult, sidebarFilters, { collections }, storeHero] =
+    const [searchResult, sidebarFilters, { collections }] =
       await Promise.all([
         searchProducts(searchQuery, {
           first: PAGE_SIZE,
@@ -129,7 +128,6 @@ export default async function StorePage(props: Params) {
         }),
         getCollectionFilters(selectedCollectionHandle),
         listCollections({ limit: 100 }),
-        getCollectionHero(selectedCollectionHandle),
       ]);
 
     // Store cursor for the NEXT page
@@ -171,7 +169,9 @@ export default async function StorePage(props: Params) {
           initialFilterState={filterState}
           countryCode={params.countryCode}
           collectionsMenu={collectionsMenu}
-          heroData={storeHero}
+          heroTitle={searchCollection.title}
+          heroDescription={searchCollection.description}
+          heroImageUrl={null}
           currentPage={requestedPage}
         />
       </>
@@ -188,7 +188,7 @@ export default async function StorePage(props: Params) {
     afterCursor = cursor || undefined;
   }
 
-  const [result, sidebarFilters, { collections }, storeHero] = await Promise.all([
+  const [result, sidebarFilters, { collections }] = await Promise.all([
     getFilteredCollection(selectedCollectionHandle, {
       filters: shopifyFilters,
       sortKey: filterState.sortKey,
@@ -198,7 +198,6 @@ export default async function StorePage(props: Params) {
     }),
     getCollectionFilters(selectedCollectionHandle),
     listCollections({ limit: 100 }),
-    getCollectionHero(selectedCollectionHandle),
   ]);
 
   if (!result) {
@@ -243,7 +242,9 @@ export default async function StorePage(props: Params) {
         initialFilterState={filterState}
         countryCode={params.countryCode}
         collectionsMenu={collectionsMenu}
-        heroData={storeHero}
+        heroTitle={result.collection.title}
+        heroDescription={result.collection.description}
+        heroImageUrl={result.collection.image?.url ?? null}
         currentPage={requestedPage}
       />
     </>

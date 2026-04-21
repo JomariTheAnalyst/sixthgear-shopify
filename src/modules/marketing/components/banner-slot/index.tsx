@@ -1,5 +1,3 @@
-"use client"
-
 import { MarketingItem } from "../../../../types/marketing"
 import Image from "next/image"
 import Link from "next/link"

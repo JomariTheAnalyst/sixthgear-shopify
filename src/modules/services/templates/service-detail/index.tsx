@@ -6,7 +6,7 @@
  */
 
 import { ServiceCategory } from "@lib/services-data"
-import ServiceHero from "@modules/services/components/service-hero"
+import ServiceDetailHero from "@modules/services/components/service-detail-hero"
 import ServiceItems from "../service-items"
 import CTABanner from "@modules/home/components/cta-banner"
 import OtherServices from "../other-services"
@@ -22,7 +22,7 @@ export default function ServiceDetailTemplate({
 }: ServiceDetailTemplateProps) {
   return (
     <>
-      <ServiceHero service={service} />
+      <ServiceDetailHero service={service} />
       <ServiceItems service={service} />
       <OtherServices services={otherServices} currentSlug={service.slug} />
       <CTABanner/>

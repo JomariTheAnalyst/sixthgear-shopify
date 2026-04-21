@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { countryCode } = await params
 
   return {
-    title: "Motorcycle Services & Workshop",
+    title: "Services",
     description:
       "Book motorcycle maintenance, diagnostics, repairs, detailing, and upgrade work with the SixthgearMoto workshop.",
     alternates: {

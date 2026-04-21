@@ -1,8 +1,5 @@
-"use client"
-
 import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
-import { TextRoll } from "components/ui/text-roll"
 
 interface CTABannerProps {
   preTitle?: string | null
@@ -33,7 +30,7 @@ export default function CTABanner({
   const activeButtonLabel = buttonLabel || "Shop Now"
   const activeButtonLink = buttonLink || "/store"
 
-  const activeFooterTagline = footerTagline || "Sixth Gear Moto Supply® is a premium service center. Based in Makati City, Working nationwide."
+  const activeFooterTagline = footerTagline || "Sixth Gear Moto Supply  is a premium motorcycle supply shop and motorcycle service center. Based in Makati City."
 
   const activeSocialLinks = {
     instagram: socialLinks?.instagram || "https://www.instagram.com/sixthgear_moto_supply/",
@@ -111,9 +108,7 @@ export default function CTABanner({
                 href={activeButtonLink}
                 className="w-12 h-12 md:w-14 md:h-14 bg-[#F2F2F2] text-[#111] rounded-full flex items-center justify-center transition-all hover:bg-[#F16D34] hover:text-white"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 17l9.2-9.2M17 17V7H7" />
-                </svg>
+               
               </Link>
             </div>
           </div>
@@ -128,7 +123,7 @@ export default function CTABanner({
                 rel="noreferrer"
                 className={`${inter.className} text-white text-base font-bold hover:text-[#F16D34] transition-colors`}
               >
-                <TextRoll center={false}>{social.name}</TextRoll>
+                {social.name}
               </a>
             ))}
           </div>
@@ -148,7 +143,7 @@ export default function CTABanner({
                 rel="noreferrer"
                 className={`${inter.className} text-white text-[1.4rem] font-bold hover:text-[#F16D34] transition-colors tracking-tight`}
               >
-              <TextRoll center={false}>{social.name}</TextRoll>
+              {social.name}
             </a>
           ))}
         </div>

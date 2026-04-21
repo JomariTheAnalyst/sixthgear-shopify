@@ -2,27 +2,30 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'spaceExperiences',
-  title: 'Space & Experiences',
+  title: 'Our Space and Experience Section',
   type: 'object',
   fields: [
     defineField({
       name: 'sectionTitle',
-      title: 'Section Title',
+      title: 'Section heading',
       type: 'string',
-      description: 'Main heading of the section. Default: Our Space & Experiences',
+      description:
+        'Main title shown above this section on the homepage. Example: Our Space & Experiences',
     }),
     defineField({
       name: 'sectionDescription',
-      title: 'Section Description',
+      title: 'Short supporting text',
       type: 'string',
-      description: 'Tagline below the heading. Default: Great Coffee, Good Rides, Better Conversations',
+      description:
+        'Short line shown under the title. Example: Great Coffee, Good Rides, Better Conversations',
     }),
     defineField({
       name: 'items',
-      title: 'Experience Items',
+      title: 'Cards in this section',
       type: 'array',
       of: [{ type: 'experienceItem' }],
-      description: 'Cards to display in this section. Maximum 6 are shown. Leave empty to use the hardcoded default items.',
+      description:
+        'Add the cards shown in this section. Leave empty if you want the website to use its built-in default items.',
       validation: (Rule) => Rule.max(8),
     }),
   ],

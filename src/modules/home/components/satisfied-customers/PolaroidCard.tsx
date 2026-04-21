@@ -1,5 +1,4 @@
-"use client"
-
+import Image from "next/image"
 import { CustomerItem } from "./rows.data"
 import { handwritten } from "@lib/fonts"
 import styles from "./polaroid.module.css"
@@ -26,10 +25,12 @@ export default function PolaroidCard({
       {/* Photo area */}
       <div className="p-2 md:p-3 pb-0">
         <div className="relative aspect-[3/4] overflow-hidden bg-gray-200">
-          <img
+          <Image
             src={item.image}
             alt={item.label}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 767px) 240px, (max-width: 1023px) 300px, 340px"
+            className="object-cover"
           />
         </div>
       </div>

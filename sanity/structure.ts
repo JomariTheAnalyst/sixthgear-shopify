@@ -6,7 +6,7 @@ export const structure: StructureResolver = (S) =>
     .title('Content')
     .items([
       S.listItem()
-        .title('Homepage')
+        .title('Homepage Settings')
         .id('homepage')
         .child(
           S.document()

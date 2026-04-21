@@ -30,10 +30,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${product.title} | SixthgearMoto`,
+    title: product.title,
     description: product.description,
     openGraph: {
-      title: `${product.title} | SixthgearMoto`,
+      title: product.title,
       description: product.description,
       images: product.featuredImage ? [product.featuredImage.url] : [],
     },
@@ -89,6 +89,9 @@ export default async function ProductPage(props: Props) {
     images: shopifyProduct.images.edges.map((edge) => ({
       id: edge.node.url,
       url: edge.node.url,
+      width: edge.node.width,
+      height: edge.node.height,
+      altText: edge.node.altText || "",
     })),
     variants: shopifyProduct.variants.edges.map((edge) => {
       const v = edge.node;
@@ -120,7 +123,14 @@ export default async function ProductPage(props: Props) {
           original_amount: v.compareAtPrice ? parseFloat(v.compareAtPrice.amount) : null,
           currency_code: v.price?.currencyCode || "php"
         },
-        image: v.image ? { url: v.image.url, altText: v.image.altText || "" } : null,
+        image: v.image
+          ? {
+              url: v.image.url,
+              altText: v.image.altText || "",
+              width: v.image.width,
+              height: v.image.height,
+            }
+          : null,
       }
     }),
     metadata: shopifyProduct.metafields?.reduce((acc: any, field: any) => {
@@ -141,7 +151,13 @@ export default async function ProductPage(props: Props) {
     const variantNode = shopifyProduct.variants.edges.find(e => e.node.id === selectedVariantId)?.node;
     if (variantNode?.image?.url) {
       displayImages = [
-        { id: variantNode.image.url, url: variantNode.image.url },
+        {
+          id: variantNode.image.url,
+          url: variantNode.image.url,
+          width: variantNode.image.width,
+          height: variantNode.image.height,
+          altText: variantNode.image.altText || "",
+        },
         ...mappedProduct.images.filter((img: any) => img.url !== variantNode.image?.url)
       ];
     }

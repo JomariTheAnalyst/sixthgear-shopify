@@ -5,89 +5,131 @@ export default defineType({
   name: 'homepage',
   title: 'Homepage',
   type: 'document',
+  preview: {
+    prepare() {
+      return {
+        title: 'Homepage Settings',
+        subtitle: 'Edit the sections and content shown on the homepage',
+      }
+    },
+  },
   fields: [
     defineField({
       name: 'hero',
-      title: 'Hero',
+      title: 'First Section of Homepage - Main Banner',
       type: 'heroSection',
+      description:
+        'This controls the very first banner area people see when they open the homepage.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'shopByBrands',
-      title: 'Shop by Brands',
+      title: 'Brands Section on Homepage - 2nd section',
       type: 'shopByBrandsSection',
+      description:
+        'This section highlights motorcycle brands and appears near the top of the homepage.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'about',
-      title: 'About Section',
+      title: 'About Section on Homepage - 3rd section',
       type: 'aboutSection',
+      description:
+        'This section introduces the brand, workshop, and what customers can expect from SixthGear.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'categories',
-      title: 'Categories Section',
+      title: 'Product Categories Section on Homepage - 4th section',
       type: 'categoriesSection',
+      description:
+        'This section shows the main shopping categories that help people jump into the store quickly.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'productCollectionSections',
-      title: 'Homepage Collection Rails',
+      title: 'Product Rows on Homepage - 5th section',
       type: 'array',
       of: [{ type: 'homepageCollectionSection' }],
       description:
-        'Select Shopify collections to display as scrollable rails below the product categories section. Ordered by Display Order.',
+        'Choose which Shopify collections should appear as product rows on the homepage, and arrange the order they appear in.',
     }),
     defineField({
       name: 'coffeeShowcase',
-      title: 'Coffee Showcase',
+      title: 'Coffee Section on Homepage - 6th section',
       type: 'coffeeShowcase',
+      description:
+        'This section highlights the coffee side of the business and appears in the middle of the homepage.',
     }),
-    defineField({
-      name: 'spaceExperiences',
-      title: 'Space & Experiences',
-      type: 'spaceExperiences',
-    }),
-    defineField({
-      name: 'serviceBrandsSection',
-      title: 'Motorcycle Brands',
-      type: 'serviceBrandsSection',
-    }),
-    defineField({
-      name: 'satisfiedCustomers',
-      title: 'Satisfied Customers',
-      type: 'satisfiedCustomers',
-    }),
-    defineField({
+
+     defineField({
       name: 'services',
-      title: 'Services Section',
+      title: 'Motorcycle Services Section on Homepage - 7th section',
       type: 'servicesSection',
+      description:
+        'This section promotes the services offered by the workshop and service center.',
       validation: (Rule) => Rule.required(),
     }),
+
+     defineField({
+      name: 'spaceExperiences',
+      title: 'Our Space and Experience Section - 8th section',
+      type: 'spaceExperiences',
+      description:
+        'This section highlights the in-store atmosphere, lounge, and customer experience.',
+    }),
+   
+    defineField({
+      name: 'serviceBrandsSection',
+      title: 'Motorcycle Brands We Service - 9th section',
+      type: 'serviceBrandsSection',
+      description:
+        'This section shows the motorcycle brands the workshop supports and services.',
+    }),
+
+    
+    defineField({
+      name: 'satisfiedCustomers',
+      title: 'Customer Photos Section - 10th section',
+      type: 'satisfiedCustomers',
+      description:
+        'This section shows customer photos in the moving photo strip on the homepage.',
+    }),
+   
     defineField({
       name: 'franchiseSection',
-      title: 'Franchise Section',
+      title: 'Franchise Invitation Section - 11th section',
       type: 'franchiseSection',
+      description:
+        'This section invites interested partners to inquire about franchise opportunities.',
     }),
     defineField({
       name: 'ourTeamSection',
-      title: 'Our Team Section',
+      title: 'Meet the Team Section - 12th section',
       type: 'ourTeamSection',
+      description:
+        'This section introduces team members and appears lower on the homepage.',
     }),
     defineField({
       name: 'clientTestimonials',
-      title: 'Client Testimonials',
+      title: 'Customer Reviews Section - 13th section',
       type: 'clientTestimonials',
+      description:
+        'This section shows customer reviews and testimonials on the homepage.',
     }),
     defineField({
       name: 'storeLocation',
-      title: 'Store Location',
+      title: 'Store Location and Contact Section - 14th section',
       type: 'storeLocation',
+      description:
+        'This section shows the store name, address, hours, and directions button.',
     }),
     defineField({
       name: 'ctaBanner',
-      title: 'CTA Banner',
+      title: 'Final Call to Action Banner - 15th section',
       type: 'ctaBanner',
+      description:
+        'This is the final banner near the bottom of the homepage that encourages people to keep shopping.',
     }),
   ],
 })

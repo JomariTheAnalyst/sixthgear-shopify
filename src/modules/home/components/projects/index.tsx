@@ -33,7 +33,7 @@ const defaultExperiences: ExperienceItem[] = [
     title: "Rider Lounge & Hangout",
     description:
       "A relaxed café and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
-    imageUrl: "https://images.unsplash.com/photo-1555529733-0e670560f8e1?q=80&w=800&auto=format&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop",
     isEnabled: true,
   },
   {
@@ -136,8 +136,7 @@ const ProjectsSection = ({
                     alt={item.title}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 640px) 80vw, (max-width: 1024px) 60vw, 45vw"
-                    unoptimized
+                    sizes="(max-width: 639px) 80vw, (max-width: 1023px) 60vw, 45vw"
                   />
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
@@ -290,7 +289,7 @@ const ProjectsSection = ({
                             alt={item.title}
                             fill
                             className="object-cover group-hover:scale-110 transition-transform duration-700"
-                            sizes="33vw"
+                            sizes="(max-width: 1279px) 45vw, 360px"
                           />
                           {/* Gradient Overlay */}
                           <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
@@ -342,8 +341,7 @@ const ProjectsSection = ({
                       alt={item.title}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      sizes="33vw"
-                      unoptimized
+                      sizes="(max-width: 1279px) 45vw, 360px"
                     />
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />

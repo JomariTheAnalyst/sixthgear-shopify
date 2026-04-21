@@ -14,7 +14,7 @@ export async function generateMetadata({
   const { countryCode } = await params
 
   return {
-    title: "Contact SixthgearMoto",
+    title: "Contact Us",
     description:
       "Contact SixthgearMoto for product questions, workshop bookings, and store support.",
     alternates: {

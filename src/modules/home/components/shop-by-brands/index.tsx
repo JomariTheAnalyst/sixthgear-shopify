@@ -2,7 +2,6 @@ import Image from "next/image"
 
 import type { SanityShopByBrandsSection } from "@lib/cms/types"
 import { inter, montserrat } from "@lib/fonts"
-import { TextRoll } from "components/ui/text-roll"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const FALLBACK_SHOP_BY_BRANDS: SanityShopByBrandsSection = {
@@ -139,9 +138,9 @@ function BrandCard({
 
         <div className="flex justify-start">
           <span className={`${montserrat.className} inline-flex items-center gap-3 border border-white/20 bg-white/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white backdrop-blur-md transition-colors duration-300 group-hover:bg-white/20 group-hover:text-white sm:text-sm rounded-none`}>
-            <TextRoll className={`${montserrat.className} font-bold tracking-[0.08em] uppercase`}>
+            <span className={`${montserrat.className} font-bold tracking-[0.08em] uppercase`}>
               {brand.buttonText}
-            </TextRoll>
+            </span>
             <svg
               className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
               fill="none"

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Image from "next/image"
 import { inter, montserrat } from "@lib/fonts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -104,9 +105,11 @@ export default function OurTeam({
     <section className="relative">
       {/* Top Paper Cut */}
       <div className="w-full -mb-1 relative z-10">
-        <img
+        <Image
           src="/images/polaroid-marquee/top.svg"
           alt=""
+          width={1600}
+          height={120}
           className="w-full h-auto block"
         />
       </div>
@@ -171,10 +174,12 @@ export default function OurTeam({
                       
                       {/* Image Container */}
                       <div className="relative aspect-[4/5] overflow-hidden bg-gray-200">
-                        <img
+                        <Image
                           src={member.image}
                           alt={member.name}
-                          className="absolute inset-0 w-full h-full object-cover grayscale opacity-95 transition-all duration-700 group-hover/card:scale-105"
+                          fill
+                          sizes="(max-width: 639px) 85vw, (max-width: 1023px) 50vw, 33vw"
+                          className="object-cover grayscale opacity-95 transition-all duration-700 group-hover/card:scale-105"
                         />
                         {/* Gradient Overlay */}
                         <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/80 via-black/20 to-transparent mix-blend-multiply" />
@@ -216,9 +221,11 @@ export default function OurTeam({
 
       {/* Bottom Paper Cut */}
       <div className="w-full -mt-1 relative z-10">
-        <img
+        <Image
           src="/images/polaroid-marquee/bottom.svg"
           alt=""
+          width={1600}
+          height={120}
           className="w-full h-auto block"
         />
       </div>

@@ -18,6 +18,15 @@ interface BrandsSectionProps {
   brands?: BrandItem[] | null
 }
 
+const brandLogoMap: Record<string, string> = {
+  Suzuki: "/images/brands/brands-logo/suzuki-logo.svg",
+  Yamaha: "/images/brands/brands-logo/yamaha.svg",
+  KTM: "/images/brands/brands-logo/ktm-logo.svg",
+  Kawasaki: "/images/brands/brands-logo/kawasaki-logo.svg",
+  BMW: "/images/brands/brands-logo/bmw-logo.svg",
+  "Royal Enfield": "/images/brands/brands-logo/royal-enfield-logo.svg",
+}
+
 const brandImageMap: Record<string, string> = {
   Suzuki: "/images/brands/motorcycle-images/motosm.png",
   Yamaha: "/images/brands/motorcycle-images/yamaha.webp",
@@ -78,7 +87,11 @@ export default function Brands({
   const activeBrandImage =
     brandImageMap[activeBrand?.name] ||
     activeBrand?.logo ||
-    "/images/brands/brand1.png"
+    "/images/brands/motorcycle-images/motosm.png"
+  const activeBrandLogo =
+    brandLogoMap[activeBrand?.name] ||
+    activeBrand?.logo ||
+    "/images/brands/brands-logo/suzuki-logo.svg"
 
   if (!activeBrand) {
     return null
@@ -178,15 +191,22 @@ export default function Brands({
           </div>
 
           <div className="order-1 lg:order-2">
-            <div className="relative aspect-[4/4.6] sm:aspect-[4/3] lg:aspect-[5/4] rounded-[28px] overflow-hidden bg-gray-50 border border-gray-200">
+            <div className="group relative aspect-[4/4.6] sm:aspect-[4/3] lg:aspect-[5/4] rounded-[28px] overflow-hidden bg-gray-50 border border-gray-200">
               <Image
-                key={`${activeBrand.name}-${activeBrandImage}`}
-                src={activeBrandImage}
-                alt={activeBrand.name}
+                key={`${activeBrand.name}-${activeBrandLogo}-logo`}
+                src={activeBrandLogo}
+                alt={`${activeBrand.name} logo`}
                 fill
-                className="object-contain p-6 md:p-8 lg:p-10 transition-opacity duration-300"
+                className="object-contain p-8 md:p-10 lg:p-12 transition-opacity duration-300 opacity-100 group-hover:opacity-0"
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                priority
+              />
+              <Image
+                key={`${activeBrand.name}-${activeBrandImage}-motorcycle`}
+                src={activeBrandImage}
+                alt={`${activeBrand.name} motorcycle`}
+                fill
+                className="object-contain p-6 md:p-8 lg:p-10 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                sizes="(max-width: 1024px) 100vw, 60vw"
               />
             </div>
           </div>

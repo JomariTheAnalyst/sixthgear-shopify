@@ -14,8 +14,8 @@ import "styles/globals.css"
 export const metadata: Metadata = {
   metadataBase: getSeoMetadataBase(),
   title: {
-    default: "SixthgearMoto Philippines | Motorcycle Gear, Parts, Services",
-    template: "%s | SixthgearMoto Philippines",
+    default: "SixthgearMoto | Motorcycle Gear, Parts, Services",
+    template: "%s - SixthgearMoto",
   },
   description:
     "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthgearMoto in the Philippines.",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     type: "website",
     url: getBaseURL(),
     siteName: "SixthgearMoto",
-    title: "SixthgearMoto Philippines | Motorcycle Gear, Parts, Services",
+    title: "SixthgearMoto | Motorcycle Gear, Parts, Services",
     description:
       "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthgearMoto in the Philippines.",
   },

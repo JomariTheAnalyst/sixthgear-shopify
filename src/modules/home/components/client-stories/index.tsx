@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import Image from "next/image"
 import { inter, montserrat } from "@lib/fonts"
 
 interface Story {
@@ -109,10 +110,12 @@ export default function ClientStories({
               className="flex-shrink-0 w-[82vw] sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-gray-200 bg-white p-3 md:p-4"
             >
               <div className="relative aspect-[4/5] overflow-hidden border border-gray-200">
-                <img
+                <Image
                   src={story.image}
                   alt={story.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 639px) 82vw, (max-width: 1023px) 45vw, 33vw"
+                  className="object-cover"
                 />
                 <div className="absolute top-3 left-3">
                   <span className={`${inter.className} inline-flex items-center gap-2 bg-black/45 px-3 py-1.5 text-white text-xs font-medium backdrop-blur-sm`}>

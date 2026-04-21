@@ -2,7 +2,7 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'categoriesSection',
-  title: 'Homepage Categories Section',
+  title: 'Product Categories Section',
   type: 'object',
   fields: [
     defineField({
@@ -15,14 +15,14 @@ export default defineType({
     }),
     defineField({
       name: 'title',
-      title: 'Section heading',
+      title: 'Main heading',
       type: 'string',
       description:
         'Main title shown above the category cards. Example: Product Categories',
     }),
     defineField({
       name: 'watermarkText',
-      title: 'Large background word',
+      title: 'Large background word on desktop',
       type: 'string',
       description:
         'Large faded word shown behind the section heading on desktop screens. Example: CATEGORIES',
@@ -43,7 +43,7 @@ export default defineType({
     }),
     defineField({
       name: 'items',
-      title: 'Category cards',
+      title: 'Category cards in this section',
       type: 'array',
       of: [{ type: 'categoryItem' }],
       description:

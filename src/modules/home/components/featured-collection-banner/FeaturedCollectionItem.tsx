@@ -138,7 +138,6 @@ export default async function FeaturedCollectionItem({
             alt={heading}
             fill
             className="object-cover"
-            priority
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
 

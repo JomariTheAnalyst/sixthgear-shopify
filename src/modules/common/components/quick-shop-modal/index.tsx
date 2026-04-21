@@ -506,6 +506,7 @@ export default function QuickShopModal({
               {/* View Product Link */}
               <LocalizedClientLink
                 href={`/products/${product.handle}`}
+                preserveSource
                 className="mt-3 flex items-center justify-center gap-1.5 text-xs font-medium text-gray-500 hover:text-[#111] transition-colors"
               >
                 View Full Details

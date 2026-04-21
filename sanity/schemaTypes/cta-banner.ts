@@ -1,70 +1,69 @@
 import { defineField, defineType } from 'sanity'
 
-// Controls the CTA banner section at the bottom of the homepage.
-// The headline, highlight text, button, pre-title, social links, and footer tagline
-// are all managed here. Layout and styling remain hardcoded.
-
 export default defineType({
   name: 'ctaBanner',
-  title: 'CTA Banner',
+  title: 'Final Call to Action Banner',
   type: 'object',
   fields: [
     defineField({
       name: 'preTitle',
-      title: 'Pre-Title Text',
+      title: 'Small line above the main message',
       type: 'string',
-      description: "Text shown after 'Not sure where to start?' on the same line. Default: Ready to upgrade your ride?",
+      description: 'Short line shown above the main banner message.',
     }),
     defineField({
       name: 'headline',
-      title: 'Main Headline',
+      title: 'Main banner message',
       type: 'text',
       rows: 4,
-      description: 'The large headline text. Use line breaks for each line. Default: We\'ve got\nthe gear\nwaiting for you.',
+      description:
+        'Large text shown in the final homepage banner. You can use line breaks if you want to control where the text wraps.',
     }),
     defineField({
       name: 'headlineHighlight',
-      title: 'Highlight Text',
+      title: 'Words to highlight in orange',
       type: 'string',
-      description: 'The exact phrase from the headline to color orange. Example: for you. — This is case-insensitive.',
+      description:
+        'Write the exact word or phrase from the main banner message that should appear in orange.',
     }),
     defineField({
       name: 'buttonLabel',
-      title: 'Button Label',
+      title: 'Button text',
       type: 'string',
-      description: 'Text for the CTA button. Default: Shop Now',
+      description: 'Text shown on the button.',
     }),
     defineField({
       name: 'buttonLink',
-      title: 'Button Link',
+      title: 'Button link',
       type: 'string',
-      description: 'URL the button navigates to. Default: /store',
+      description: 'Where the button should go when clicked.',
     }),
     defineField({
       name: 'footerTagline',
-      title: 'Footer Tagline',
+      title: 'Small text at the bottom',
       type: 'string',
-      description: 'Small text at the bottom of the banner. Default: Sixth Gear Moto Supply® is a premium service center. Based in Makati City, Working nationwide.',
+      description: 'Short supporting text shown at the bottom of the banner.',
     }),
     defineField({
       name: 'socialLinks',
-      title: 'Social Media Links',
+      title: 'Social media links',
       type: 'object',
-      description: 'Links shown as text with hover animation. Leave any field empty to hide that platform.',
+      description:
+        'Add the social links shown in the final homepage banner. Leave any field empty to hide that platform.',
       fields: [
         defineField({
           name: 'instagram',
-          title: 'Instagram URL',
+          title: 'Instagram link',
           type: 'url',
         }),
         defineField({
           name: 'facebook',
-          title: 'Facebook URL',
+          title: 'Facebook link',
           type: 'url',
         }),
         defineField({
           name: 'tiktok',
-          title: 'TikTok URL',
+          title: 'TikTok link',
           type: 'url',
         }),
       ],

@@ -2,11 +2,12 @@
 
 /**
  * Service Hero Section
- * Hero banner for individual service pages
+ * Hero banner for main services page
  */
 
 import Image from "next/image"
 import { useParams } from "next/navigation"
+
 import { ServiceCategory } from "@lib/services-data"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -74,10 +75,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 items-start justify-start">
             <LocalizedClientLink
-              href="/services"
+              href={countryCode ? `/${countryCode}/contact` : "/contact"}
               className="w-full sm:w-auto px-6 py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-xs sm:text-sm"
             >
-              Services
+              Contact Us
             </LocalizedClientLink>
           </div>
         </div>

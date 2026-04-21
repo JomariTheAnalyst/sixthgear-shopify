@@ -2,15 +2,15 @@ import { defineType, defineField } from 'sanity'
 
 export default defineType({
   name: 'coffeeShowcase',
-  title: 'Coffee Showcase',
+  title: 'Coffee Section',
   type: 'object',
   fields: [
     defineField({
       name: 'sectionHeading',
       type: 'text',
-      title: 'Main Heading',
+      title: 'Main heading',
       rows: 3,
-      description: `The large bold title shown above the description. You can write it on two lines - just press Enter between the lines and each line will appear separately on the website. Example:
+      description: `The large bold title shown above the description. You can write it on two lines by pressing Enter between the lines. Example:
 
 More Than Riding Gear
 We Serve Great Coffee Too
@@ -20,9 +20,10 @@ Tip: keep each line short so it fits nicely on all screen sizes.`,
     defineField({
       name: 'coffeeIcon',
       type: 'image',
-      title: 'Coffee Section Icon',
+      title: 'Coffee section icon',
       options: { hotspot: false },
-      description: `The small illustrated icon shown above the main heading on the right side of this section. Upload a PNG or SVG file. If you leave this empty the website will automatically use the default coffee icon. Recommended size: at least 200x200 pixels. Use a transparent background.`,
+      description:
+        'Small icon shown above the heading in this section. If left empty, the website uses the default coffee icon.',
     }),
     defineField({
       name: 'descriptionText',
@@ -35,7 +36,7 @@ Tip: keep each line short so it fits nicely on all screen sizes.`,
       name: 'buttonText',
       title: 'Button text',
       type: 'string',
-      description: 'Text shown on the button under the description. Example: Explore Our Product',
+      description: 'Text shown on the button under the description. Example: Explore Our Products',
     }),
     defineField({
       name: 'buttonLink',
@@ -49,7 +50,7 @@ Tip: keep each line short so it fits nicely on all screen sizes.`,
       title: 'Gallery photos',
       type: 'array',
       of: [{ type: 'coffeeItem' }],
-      description: 'Upload the photos used in the coffee image slider. These are visual gallery images only. The website does not show drink names or drink descriptions here.',
+      description: 'Upload the photos used in the coffee image slider. These are visual gallery images only.',
       validation: (Rule) => Rule.max(8),
     }),
   ],
