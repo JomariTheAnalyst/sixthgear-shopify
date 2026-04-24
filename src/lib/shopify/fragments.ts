@@ -19,6 +19,7 @@ export const PRODUCT_CARD_FRAGMENT = `
     id
     title
     handle
+    description
     featuredImage {
       ...ImageFragment
     }
@@ -52,6 +53,7 @@ export const PRODUCT_CARD_FRAGMENT = `
       edges {
         node {
           id
+          title
           availableForSale
           price {
             ...MoneyFragment

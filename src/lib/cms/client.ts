@@ -23,7 +23,16 @@ import type {
   SanityService,
   SanityServicesPage,
   HomepageCollectionSection,
+  SanityBlogCategory,
+  SanityBlogPost,
+  SanityBlogPostListItem,
 } from './types'
+import {
+  latestBlogPostsQuery,
+  blogPostBySlugQuery,
+  homepageBlogPostsQuery,
+  blogCategoriesQuery,
+} from "./queries"
 
 export const client = createClient({
   projectId,
@@ -551,5 +560,85 @@ export async function getServiceBySlug(slug: string): Promise<SanityService | nu
   } catch (error) {
     console.error(error)
     return null
+  }
+}
+
+export async function getLatestBlogPosts(): Promise<SanityBlogPostListItem[]> {
+  try {
+    const result = await client.fetch<SanityBlogPostListItem[] | null>(
+      latestBlogPostsQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ["sanity"],
+        },
+      }
+    )
+
+    return Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getHomepageBlogPosts(): Promise<SanityBlogPostListItem[]> {
+  try {
+    const result = await client.fetch<SanityBlogPostListItem[] | null>(
+      homepageBlogPostsQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ["sanity"],
+        },
+      }
+    )
+
+    return Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error(error)
+    return []
+  }
+}
+
+export async function getBlogPostBySlug(slug: string): Promise<SanityBlogPost | null> {
+  try {
+    const result = await client.fetch<SanityBlogPost | null>(
+      blogPostBySlugQuery,
+      { slug },
+      {
+        next: {
+          revalidate: 60,
+          tags: ["sanity"],
+        },
+      }
+    )
+
+    return result ?? null
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+export async function getBlogCategories(): Promise<SanityBlogCategory[]> {
+  try {
+    const result = await client.fetch<SanityBlogCategory[] | null>(
+      blogCategoriesQuery,
+      {},
+      {
+        next: {
+          revalidate: 300,
+          tags: ["sanity"],
+        },
+      }
+    )
+
+    return Array.isArray(result) ? result : []
+  } catch (error) {
+    console.error(error)
+    return []
   }
 }

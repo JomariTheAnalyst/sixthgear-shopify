@@ -1,28 +1,26 @@
 "use client"
 
 import { useRef } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 
-import { TextRoll } from "components/ui/text-roll"
 import type {
   SanityServiceItem,
   SanityServicesSection,
 } from "@lib/cms/types"
+import { getServiceImageBySlug } from "@lib/services-data"
 import { inter, montserrat } from "@lib/fonts"
+import ServiceCard from "@modules/services/components/service-card"
 
 export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
   useCustomServices: false,
   sectionTitle: "Motorcycle Services",
-  sectionDescription: "Bike Repair & Maintenance Services",
+  sectionDescription: "Workshop care, repairs, upgrades, and rider support.",
   services: [
     {
       title: "Service & Preventive Maintenance",
       description:
         "Scheduled servicing, PMS, and inspections to keep your motorcycle reliable, safe, and ready for daily rides or long journeys.",
-      image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+      image: getServiceImageBySlug("preventive-maintenance"),
       slug: "preventive-maintenance",
       link: null,
     },
@@ -30,8 +28,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Repairs & Diagnostics",
       description:
         "Accurate troubleshooting and professional repairs using proper tools, experience, and diagnostics for dependable motorcycle performance.",
-      image:
-        "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=80",
+      image: getServiceImageBySlug("repairs-diagnostics"),
       slug: "repairs-diagnostics",
       link: null,
     },
@@ -39,8 +36,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Accessories & Custom Installation",
       description:
         "Professional installation of accessories, electronics, protection, and touring upgrades, ensuring correct fitment, safety, and clean integration.",
-      image:
-        "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=800&q=80",
+      image: getServiceImageBySlug("accessories-installation"),
       slug: "accessories-installation",
       link: null,
     },
@@ -48,8 +44,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Wheels, Drivetrain & Handling",
       description:
         "Tyres, chains, sprockets, and handling components serviced and aligned for stability, control, and confident riding.",
-      image:
-        "https://images.unsplash.com/photo-1558981852-426c6c22a060?w=800&q=80",
+      image: getServiceImageBySlug("wheels-drivetrain"),
       slug: "wheels-drivetrain",
       link: null,
     },
@@ -57,8 +52,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Detailing, Care & Protection",
       description:
         "Thorough cleaning, detailing, and protective treatments to restore, preserve, and enhance your motorcycle's appearance and condition.",
-      image:
-        "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80",
+      image: getServiceImageBySlug("detailing-protection"),
       slug: "detailing-protection",
       link: null,
     },
@@ -66,8 +60,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Performance & Upgrade Services",
       description:
         "Carefully selected performance upgrades and tuning support to improve power delivery, efficiency, and overall riding experience.",
-      image:
-        "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80",
+      image: getServiceImageBySlug("performance-upgrades"),
       slug: "performance-upgrades",
       link: null,
     },
@@ -75,8 +68,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Roadside Assistance & Recovery",
       description:
         "Emergency motorcycle towing, rescue, and recovery services to get you and your bike to safety when needed.",
-      image:
-        "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80",
+      image: getServiceImageBySlug("roadside-assistance"),
       slug: "roadside-assistance",
       link: null,
     },
@@ -84,8 +76,7 @@ export const FALLBACK_SERVICES_SECTION: SanityServicesSection = {
       title: "Rider Support & Convenience",
       description:
         "Consultation, inspections, and after-service support designed to help riders make informed decisions and ride with confidence.",
-      image:
-        "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80",
+      image: getServiceImageBySlug("rider-support"),
       slug: "rider-support",
       link: null,
     },
@@ -129,9 +120,12 @@ function mergeServiceItem(
       fallbackService?.description ||
       "Service details coming soon.",
     image:
-      source.image ||
+      getServiceImageBySlug(
+        source.slug || fallbackService?.slug || "",
+        source.image || undefined
+      ) ||
       fallbackService?.image ||
-      "/images/services/default.jpg",
+      "/images/services/service1.png",
     slug: source.slug || fallbackService?.slug || null,
     link: source.link || fallbackService?.link || null,
   }
@@ -216,14 +210,16 @@ export default function OurServices({
   return (
     <section className="py-16 md:py-20 bg-white overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 md:mb-12 gap-4 md:gap-6">
-          <div className="flex-1 text-center w-full">
+        <div className="mb-10 md:mb-14 lg:mb-16">
+          <div className="mx-auto w-full max-w-[1200px] text-center">
             <h2
-              className={`${montserrat.className} text-3xl md:text-4xl lg:text-5xl font-black tracking-[0.01em] text-black mb-2`}
+              className={`${montserrat.className} whitespace-nowrap text-[clamp(2.5rem,6.6vw,6.5rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
             >
               {content.title}
             </h2>
-            <p className={`${inter.className} text-lg md:text-xl lg:text-2xl text-gray-500 font-medium`}>
+            <p
+              className={`${inter.className} mx-auto max-w-[860px] text-lg md:text-[28px] lg:text-[34px] leading-[1.1] tracking-[-0.03em] text-black/88`}
+            >
               {content.description}
             </p>
           </div>
@@ -253,53 +249,15 @@ export default function OurServices({
               fallbackService?._key ||
               `service-${index}`
 
-            const cardContent = (
-              <>
-                <Image
-                  src={service.image}
-                  alt={service.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  sizes="(max-width: 639px) 75vw, (max-width: 767px) 60vw, (max-width: 1023px) 350px, 400px"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-85" />
-
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 transform transition-transform duration-300">
-                  <h3
-                    className={`${montserrat.className} text-xl md:text-2xl font-bold tracking-[0.03em] text-white mb-4 md:mb-5 max-w-[16ch]`}
-                  >
-                    {service.title}
-                  </h3>
-                  {isClickable ? (
-                    <Link
-                      href={linkHref}
-                      className={`${montserrat.className} inline-flex items-center border border-white/80 px-4 py-2.5 text-xs md:text-sm font-semibold uppercase tracking-[0.08em] text-white transition-colors duration-300 hover:bg-white hover:text-black`}
-                    >
-                      <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
-                        Learn More
-                      </TextRoll>
-                    </Link>
-                  ) : (
-                    <span
-                      className={`${montserrat.className} inline-flex items-center border border-white/60 px-4 py-2.5 text-xs md:text-sm font-semibold uppercase tracking-[0.08em] text-white/80`}
-                    >
-                      <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
-                        Learn More
-                      </TextRoll>
-                    </span>
-                  )}
-                </div>
-              </>
-            )
-
             return (
-              <div
+              <ServiceCard
                 key={cardKey}
-                className="relative flex-shrink-0 w-[75vw] sm:w-[60vw] md:w-[350px] lg:w-[400px] h-[400px] md:h-[450px] lg:h-[500px] snap-center rounded-2xl overflow-hidden group"
-              >
-                {cardContent}
-              </div>
+                title={service.title}
+                description={service.description}
+                image={service.image}
+                href={isClickable ? linkHref : null}
+                className="relative flex-shrink-0 w-[75vw] sm:w-[60vw] md:w-[350px] lg:w-[400px] h-[400px] md:h-[450px] lg:h-[500px] snap-center"
+              />
             )
           })}
         </div>
@@ -307,15 +265,16 @@ export default function OurServices({
         <div className="flex justify-center gap-3 mt-6 md:mt-8">
           <button
             onClick={() => scroll("left")}
-            className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-lg bg-[#FF5000] hover:bg-[#e54800] text-white transition-all hover:scale-105 active:scale-95"
+            className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
+            aria-label="Previous services"
           >
             <svg
-              width="22"
-              height="22"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -324,15 +283,16 @@ export default function OurServices({
           </button>
           <button
             onClick={() => scroll("right")}
-            className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center rounded-lg bg-[#FF5000] hover:bg-[#e54800] text-white transition-all hover:scale-105 active:scale-95"
+            className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
+            aria-label="Next services"
           >
             <svg
-              width="22"
-              height="22"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             >

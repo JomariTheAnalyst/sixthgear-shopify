@@ -28,7 +28,7 @@ function buildItemDetail(item: string, service: ServiceCategory) {
 }
 
 export default function ServiceItems({ service }: ServiceItemsProps) {
-  const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const rows = useMemo(
@@ -99,18 +99,18 @@ export default function ServiceItems({ service }: ServiceItemsProps) {
 
                       <div className="flex justify-start md:justify-end">
                         <span
-                          className={`flex h-12 w-12 items-center justify-center rounded-full border text-black transition-all duration-300 ${
+                          className={`flex h-12 w-12 items-center justify-center rounded-full border transition-all duration-300 ${
                             isOpen
-                              ? "border-[#a8b59a] bg-[#a8b59a]"
+                              ? "border-[#FF5000] bg-[#FF5000] text-white"
                               : isDimmed
-                                ? "border-gray-200 bg-white"
-                                : "border-gray-200 bg-white"
+                                ? "border-gray-200 bg-white text-gray-400"
+                                : "border-gray-200 bg-white text-[#FF5000]"
                           }`}
                         >
                           <svg
                             className={`h-5 w-5 transition-all duration-300 ${
                               isOpen ? "-rotate-45" : "rotate-0"
-                            } ${isDimmed ? "text-gray-400" : "text-black"}`}
+                            }`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"

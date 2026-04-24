@@ -6,6 +6,17 @@ export const structure: StructureResolver = (S) =>
     .title('Content')
     .items([
       S.listItem()
+        .title('Blog')
+        .id('blog')
+        .child(
+          S.list()
+            .title('Blog')
+            .items([
+              S.documentTypeListItem('blogPost').title('Blog Posts'),
+              S.documentTypeListItem('blogCategory').title('Blog Categories'),
+            ])
+        ),
+      S.listItem()
         .title('Homepage Settings')
         .id('homepage')
         .child(
@@ -41,6 +52,6 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       ...S.documentTypeListItems()
         .filter((item: any) =>
-          !['homepage', 'marketing', 'servicesPage', 'aboutPage', 'service'].includes(item.getId())
+          !['homepage', 'marketing', 'servicesPage', 'aboutPage', 'service', 'blogPost', 'blogCategory'].includes(item.getId())
         ),
     ])

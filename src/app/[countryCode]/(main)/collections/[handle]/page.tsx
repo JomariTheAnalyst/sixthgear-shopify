@@ -7,7 +7,7 @@ import {
   buildShopifyFilters,
   listCollections,
 } from "@lib/data/collections";
-import { parseSearchParams, getDefaultFilterState } from "@lib/util/filterParams";
+import { parseSearchParams } from "@lib/util/filterParams";
 import JsonLd from "@modules/common/components/json-ld";
 import {
   getBreadcrumbStructuredData,
@@ -47,7 +47,6 @@ export default async function CollectionPage(props: Props) {
   const params = await props.params;
   const rawSearchParams = await props.searchParams;
 
-  // Convert raw searchParams object to URLSearchParams
   const urlParams = new URLSearchParams();
   Object.entries(rawSearchParams).forEach(([key, value]) => {
     if (Array.isArray(value)) {
@@ -57,20 +56,20 @@ export default async function CollectionPage(props: Props) {
     }
   });
 
-  // Parse filter state from URL
   const filterState = parseSearchParams(urlParams);
-
-  // Build Shopify ProductFilter[] from our clean state
   const shopifyFilters = buildShopifyFilters(filterState);
+  const afterCursor = urlParams.get("after") || undefined;
+  const beforeCursor = urlParams.get("before") || undefined;
 
-  // Parallel fetches: Shopify filtered products, sidebar filters, collections menu
   const [result, sidebarFilters, { collections }] = await Promise.all([
     getFilteredCollection(params.handle, {
       filters: shopifyFilters,
       sortKey: filterState.sortKey,
       reverse: filterState.reverse,
-      first: 24,
-      after: urlParams.get("after") || undefined,
+      first: beforeCursor ? undefined : 24,
+      after: beforeCursor ? undefined : afterCursor,
+      last: beforeCursor ? 24 : undefined,
+      before: beforeCursor,
     }),
     getCollectionFilters(params.handle),
     listCollections({ limit: 100 }),

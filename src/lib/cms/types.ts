@@ -431,3 +431,53 @@ export interface SanityMarketingData {
   featuredCollections: SanityFeaturedCollectionItem[]
   promoBanners: SanityPromoBanner[]
 }
+
+export interface SanityBlogCategory {
+  title: string | null
+  slug: string | null
+  description?: string | null
+}
+
+export interface SanityPortableTextSpan {
+  _type: "span"
+  _key: string
+  text: string
+  marks?: string[]
+}
+
+export interface SanityPortableTextBlock {
+  _type: string
+  _key?: string
+  style?: string
+  listItem?: "bullet" | "number"
+  level?: number
+  children?: SanityPortableTextSpan[]
+  markDefs?: Array<{
+    _key: string
+    _type: string
+    href?: string
+  }>
+  alt?: string | null
+  url?: string | null
+}
+
+export interface SanityBlogPostListItem {
+  _id: string
+  title: string | null
+  slug: string | null
+  excerpt: string | null
+  publishedAt: string | null
+  authorName: string | null
+  featured: boolean | null
+  featuredImageUrl: string | null
+  featuredImageAlt?: string | null
+  socialImageUrl?: string | null
+  category: SanityBlogCategory | null
+  tags?: string[] | null
+}
+
+export interface SanityBlogPost extends SanityBlogPostListItem {
+  seoTitle: string | null
+  seoDescription: string | null
+  body: SanityPortableTextBlock[] | null
+}

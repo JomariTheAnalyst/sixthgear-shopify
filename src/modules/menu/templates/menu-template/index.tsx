@@ -15,6 +15,10 @@ import GallerySection from "../../components/gallery-section"
 import BlogsSection from "../../components/blogs-section"
 import FaqsSection from "../../components/faqs-section"
 import NewsletterSection from "../../components/newsletter-section"
+import FirstGearHero, {
+  type FirstGearHeroData,
+} from "../../components/first-gear-hero"
+import type { FeaturedMenuProduct } from "../../components/featured-menu-section"
 
 /**
  * First Gear Coffee Menu Template - Revamped
@@ -44,119 +48,6 @@ function convertLegacyMenuData(): MenuCategoryUI[] {
         })) || [],
     })),
   }))
-}
-
-// Hero Props Interface
-interface MenuHeroProps {
-  pageTitle?: string
-  pageSubtitle?: string
-  backgroundImage?: string | null
-}
-
-const heroFeatureCards = [
-  {
-    title: "QUALITY FIRST",
-    icon: (
-      <svg
-        className="h-6 w-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M4 10h11a3 3 0 0 1 0 6H4v-6Z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M15 11h2.5a2.5 2.5 0 0 1 0 5H15"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M7 6c0-1 1-1.5 1-3M11 6c0-1 1-1.5 1-3"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "QUALITY FIRST",
-    icon: (
-      <svg
-        className="h-6 w-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M12 3c3.5 0 6 2.3 6 5.4 0 3.8-3.2 6.2-6 12.6-2.8-6.4-6-8.8-6-12.6C6 5.3 8.5 3 12 3Z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M12 6.5c1.2 1.2 1.2 3.8 0 5"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "COFFEE COMMUNITY",
-    icon: (
-      <svg
-        className="h-6 w-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M7 4h10"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M9 4v2M15 4v2M6 10h12"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M8 10v6.5A1.5 1.5 0 0 0 9.5 18h5A1.5 1.5 0 0 0 16 16.5V10"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.7}
-          d="M10 13h4"
-        />
-      </svg>
-    ),
-  },
-]
-
-const heroFallbackCopy = {
-  title: "START YOUR DAY RIGHT WITH FRESHLY BREWED COFFEE",
-  description:
-    "Start your day right with freshly brewed coffee made to energize your mornings and satisfy your senses.",
-}
-
-const heroFallbackImages = {
-  portrait:
-    "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
-  polaroid:
-    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80",
 }
 
 // Menu Item Card Component - Card with image, fixed height, no hover
@@ -356,9 +247,11 @@ const CategorySection = ({ category }: { category: MenuCategoryUI }) => {
 export default function MenuTemplate({
   heroData,
   categories,
+  featuredMenuItems,
 }: {
-  heroData?: MenuHeroProps | null
+  heroData?: FirstGearHeroData | null
   categories?: MenuCategoryUI[]
+  featuredMenuItems?: FeaturedMenuProduct[]
 }) {
   // Log props on mount for debugging
   useEffect(() => {
@@ -422,11 +315,6 @@ export default function MenuTemplate({
     scrollToCategory(menuCategories[0]?.id || "hot-coffee")
   }
 
-  const heroDescription = heroData?.pageSubtitle || heroFallbackCopy.description
-  const heroPortraitImage =
-    heroData?.backgroundImage || heroFallbackImages.portrait
-  const heroPolaroidImage = heroFallbackImages.polaroid
-
   return (
     <div className="min-h-screen bg-white">
       {/* Custom CSS for hiding scrollbars */}
@@ -462,133 +350,7 @@ export default function MenuTemplate({
         }
       `}</style>
 
-      {/* Hero Section — Light Design (White) */}
-      <section className="relative bg-white pt-8 sm:pt-16 md:pt-24 lg:pt-32 pb-16 sm:pb-24 md:pb-40 overflow-hidden">
-        {/* Torn paper bottom edge (Blends with white content area below, but kept for structure) */}
-        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10 text-white">
-          <svg viewBox="0 0 1200 40" preserveAspectRatio="none" className="w-[calc(100%+1px)] h-[16px] sm:h-[24px] md:h-[40px] block" fill="currentColor">
-            <path d="M1200,40H0V28l37,12l42-12l38,10l44-15l39,12l41-11l43,14l36-12l45,15l39-10l42,16l38-14l44,11l40-15l41,12l43-10l37,14l42-13l39,15l44-11l38,12l41-16l43,14l36-10l45,13l39-15l42,11l38-14l44,16l40-12l41,15l43-13l37,9V40z" />
-          </svg>
-        </div>
-
-        <div className="max-w-[1300px] mx-auto px-5 sm:px-8 md:px-12 lg:px-16 relative z-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-8 items-center">
-            
-            {/* Left Column (Content) */}
-            <div className="relative z-10 lg:pr-6 flex flex-col items-center text-center md:items-start md:text-left mt-8 lg:mt-0">
-              
-              {/* Brand Establishment Tagline */}
-              <div 
-                className="text-[#f16d34] text-[10px] sm:text-xs font-bold tracking-[2px] sm:tracking-[3px] uppercase mb-4 sm:mb-6"
-                style={{ fontFamily: "var(--font-montserrat), sans-serif" }}
-              >
-                FIRST GEAR COFFEE. EST 2023 - MAKATI, PHILIPPINES
-              </div>
-
-              {/* Heading Container */}
-              <div className="relative inline-block z-20">
-                <h1 
-                  className="text-[#222222] text-[44px] sm:text-[56px] md:text-[64px] lg:text-[70px] xl:text-[80px] leading-[1.05] tracking-tight uppercase"
-                  style={{ fontFamily: "var(--font-montserrat), sans-serif", fontWeight: 900 }}
-                >
-                  PRECISION
-                  <br />
-                  <span className="text-[#f16d34]">IN EVERY</span>
-                  <br />
-                  POUR.
-                </h1>
-                
-                {/* Overlapping "GOOD VIBES" Starburst Badge - Safely contained to avoid image overlap */}
-                <div className="hidden md:block absolute top-[50%] -right-[8%] md:-right-[10%] lg:-right-[12%] transform rotate-[10deg] pointer-events-none drop-shadow-lg scale-90 lg:scale-100 h-fit w-fit">
-                  <svg width="120" height="120" viewBox="-10 -10 120 120" className="overflow-visible">
-                    <path
-                      d="M50 0L56.1264 16.3533L72.8252 6.09673L74.0152 23.447L92.7441 19.3005L88.0827 37.8924L103.951 40.4074L93.2081 55.4338L103.012 73.1362L86.1366 77.2657L89.4312 95.8277L72.2605 92.5152L64.2127 108.318L50 96L35.7873 108.318L27.7395 92.5152L10.5688 95.8277L13.8634 77.2657L-3.01184 73.1362L6.79189 55.4338L-3.95115 40.4074L11.9173 37.8924L7.25595 19.3005L25.9848 23.447L27.1748 6.09673L43.8736 16.3533L50 0Z"
-                      fill="#222222"
-                      stroke="#f16d34"
-                      strokeWidth="4"
-                      strokeLinejoin="round"
-                    />
-                    <text x="50" y="47" fill="white" fontSize="14" fontWeight="800" fontFamily="var(--font-montserrat), sans-serif" textAnchor="middle" letterSpacing="1" transform="rotate(-5, 50, 50)">GOOD</text>
-                    <text x="50" y="65" fill="white" fontSize="14" fontWeight="800" fontFamily="var(--font-montserrat), sans-serif" textAnchor="middle" letterSpacing="1" transform="rotate(-5, 50, 50)">VIBES</text>
-                  </svg>
-                </div>
-              </div>
-
-              {/* Subheading text */}
-              <p 
-                className="mt-6 md:mt-8 text-[#222222]/80 text-sm md:text-[15px] font-medium max-w-[420px] leading-relaxed" 
-                style={{ fontFamily: "var(--font-inter), sans-serif" }}
-              >
-                {heroData?.pageSubtitle || "Start your day right with freshly brewed coffee made to energize your mornings and satisfy your senses."}
-              </p>
-
-              {/* CTA Button */}
-              <div className="mt-8 md:mt-10">
-                <button 
-                  onClick={scrollToFirstCategory}
-                  className="bg-[#f16d34] text-white text-xs md:text-[13px] font-bold tracking-wider uppercase px-8 py-3.5 rounded-xl border border-transparent hover:brightness-110 transition-all active:translate-y-1 w-full sm:w-auto"
-                  style={{ 
-                    fontFamily: "var(--font-montserrat), sans-serif",
-                    boxShadow: '0 6px 0 0 rgba(0,0,0,0.15)'
-                  }}
-                >
-                  SEE THE MENU
-                </button>
-              </div>
-
-              {/* Features Boxes */}
-              <div className="mt-12 md:mt-16 sm:mt-20 grid grid-cols-3 gap-2 sm:gap-4 max-w-[340px] w-full">
-                {/* Box 1 - Quality */}
-                <div className="border border-[#222222]/10 rounded-xl p-2 sm:p-3 bg-gradient-to-br from-[#222222]/5 to-transparent flex flex-col items-center justify-center aspect-square shadow-sm">
-                  <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#f16d34] mb-2 sm:mb-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                  </svg>
-                  <span className="text-[9px] sm:text-[11px] font-bold text-center text-[#222222] leading-tight" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>QUALITY<br/>FIRST</span>
-                </div>
-
-                {/* Box 2 - Fresh Beans */}
-                <div className="border border-[#222222]/10 rounded-xl p-2 sm:p-3 bg-gradient-to-br from-[#222222]/5 to-transparent flex flex-col items-center justify-center aspect-square shadow-sm">
-                  <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#f16d34] mb-2 sm:mb-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 20A7 7 0 0 1 4 13C4 8.6 7 5 11 5a7 7 0 0 1 7 7c0 4.4-3 8-7 8Z"></path><path d="M11 5v15"></path><path d="M11 13a4 4 0 0 0 4-4"></path>
-                  </svg>
-                  <span className="text-[9px] sm:text-[11px] font-bold text-center text-[#222222] leading-tight" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>FRESH<br/>BEANS</span>
-                </div>
-
-                {/* Box 3 - Community */}
-                <div className="border border-[#222222]/10 rounded-xl p-2 sm:p-3 bg-gradient-to-br from-[#222222]/5 to-transparent flex flex-col items-center justify-center aspect-square shadow-sm">
-                  <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#f16d34] mb-2 sm:mb-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                  </svg>
-                  <span className="text-[9px] sm:text-[11px] font-bold text-center text-[#222222] leading-tight" style={{ fontFamily: "var(--font-montserrat), sans-serif" }}>COFFEE<br/>COMMUNITY</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column (Offset Images) - Hidden on mobile, shown on md (tablet) and up */}
-            <div className="hidden md:flex relative w-full h-[450px] md:h-[550px] lg:h-[700px] mt-2 lg:mt-0 items-center justify-center pointer-events-none drop-shadow-2xl">
-              
-              {/* Back Image (Large Barista Portrait) */}
-              <div className="absolute top-[12%] right-[10%] lg:right-[4%] w-[65%] lg:w-[85%] aspect-[3/4] border-[12px] border-white rounded-[4px] shadow-lg transform rotate-[6deg] overflow-hidden bg-gray-200">
-                <img 
-                  src={heroPortraitImage || "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800&q=80"} 
-                  alt="Barista brewing fresh coffee" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Front Image (Small Latte Square) */}
-              <div className="absolute bottom-[10%] top-[50%] left-[10%] lg:left-[-33%] w-[45%] lg:w-[65%] aspect-square border-[12px] border-white rounded-[4px] shadow-[0_15px_40px_rgba(0,0,0,0.3)] transform -rotate-[22deg] overflow-hidden bg-gray-200">
-                <img 
-                  src={heroPolaroidImage || "/images/firstgear-coffee/hazelnut.png"} 
-                  alt="Beautiful latte art" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
+      <FirstGearHero heroData={heroData} onMenuClick={scrollToFirstCategory} />
 
       {/* Infinite Marquee Banner Divider */}
       <Marquee />
@@ -597,28 +359,28 @@ export default function MenuTemplate({
       <AboutUsSection />
 
       {/* Featured Menu Selection Grid */}
-      <FeaturedMenuSection />
+      <FeaturedMenuSection items={featuredMenuItems} />
 
       {/* Coffee Categories Grid */}
       {/* <CoffeeCategorySection /> */}
 
         {/* Why Choose Us Section */}
-      <AdsSection />
+      {/* <AdsSection /> */}
 
       {/* Why Choose Us Section */}
       <WhyChooseUsSection />
 
       {/* Stats Section */}
-      <StatsSection />
+      {/* <StatsSection /> */}
 
-      {/* Client Testimonials Section */}
-      <ClientTestimonialsSection />
+      
 
       {/* Gallery Section */}
       <GallerySection />
 
-      {/* Blogs Section */}
-      <BlogsSection />
+      {/* Client Testimonials Section */}
+      <ClientTestimonialsSection />
+
 
       {/* FAQS Section */}
       <FaqsSection />

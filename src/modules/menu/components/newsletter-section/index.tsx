@@ -23,13 +23,7 @@ const NewsletterSection = () => {
           COME FOR THE COFFEE, STAY FOR<br className="hidden md:block" /> THE CREW. WE ARE YOUR DAILY<br className="hidden md:block" /> HANGOUT SPOT.
         </h2>
 
-        {/* Subtext */}
-        <p 
-          className="text-white/95 text-[14px] sm:text-[16px] md:text-[18px] mb-10 sm:mb-12 relative z-10"
-          style={{ fontFamily: "var(--font-inter), sans-serif" }}
-        >
-          Get 25% off on your first order just by subscribing to our newsletter
-        </p>
+       
 
         {/* Form Container */}
         <form 

@@ -38,7 +38,7 @@ export default function ServiceDetailHero({
   return (
     <section className="bg-white pt-12 pb-10 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16">
       <div className="mx-auto max-w-[1440px] px-4 md:px-8">
-        <div className="mb-8 max-w-6xl md:mb-10 lg:mb-12">
+        <div className="mb-8 max-w-6xl md:mb-10 lg:mb-12 mx-auto text-center">
           <h1
             className={`${poppins.className} text-[2.5rem] font-bold leading-[0.96] tracking-[-0.05em] text-black sm:text-[3.5rem] md:text-[4.5rem] lg:text-[5.25rem]`}
           >

@@ -9,6 +9,7 @@ import { useParams, usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
+import StoreInfoDrawer from "../store-info-drawer"
 import { useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useCartLimitModal } from "@lib/context/cart-limit-modal-context"
@@ -73,6 +74,7 @@ export default function ProductActions({
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
+  const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const countryCode = useParams().countryCode as string
   const showsVariantOptions = (product.variants?.length ?? 0) > 1
@@ -324,6 +326,11 @@ export default function ProductActions({
 
   return (
     <>
+      <StoreInfoDrawer
+        open={isStoreInfoOpen}
+        onClose={() => setIsStoreInfoOpen(false)}
+      />
+
       <div className="flex flex-col gap-y-5" ref={actionsRef}>
         {/* Price */}
         <ProductPrice product={product} variant={selectedVariant} />
@@ -377,18 +384,30 @@ export default function ProductActions({
                 </p>
               </div>
               <div className="space-y-1.5">
-              
-                <ul className="space-y-1.5">
-                  {PICKUP_PROOF_ITEMS.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-start gap-2 text-sm leading-6 text-gray-700"
-                    >
-                      <span className="mt-[9px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#F16D34]" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                {PICKUP_PROOF_ITEMS.length > 0 && (
+                  <ul className="space-y-1.5">
+                    {PICKUP_PROOF_ITEMS.map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-start gap-2 text-sm leading-6 text-gray-700"
+                      >
+                        <span className="mt-[9px] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#F16D34]" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsStoreInfoOpen(true)}
+                  className="inline-flex items-center gap-2 pt-1 text-sm font-medium text-gray-700 transition-colors hover:text-gray-950"
+                >
+                  <span>View store information</span>
+                  <ChevronDown
+                    className="h-4 w-4 -rotate-90"
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
             </div>
           </div>

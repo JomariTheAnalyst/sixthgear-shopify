@@ -1,8 +1,7 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
 
 interface ExperienceItem {
@@ -25,15 +24,17 @@ const defaultExperiences: ExperienceItem[] = [
     title: "Signature Coffee & Brews",
     description:
       "Carefully crafted coffee using quality beans, brewed to fuel riders, creatives, and everyday coffee lovers.",
-    imageUrl: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop",
     isEnabled: true,
   },
   {
     id: 2,
     title: "Rider Lounge & Hangout",
     description:
-      "A relaxed café and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
-    imageUrl: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop",
+      "A relaxed cafe and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop",
     isEnabled: true,
   },
   {
@@ -41,7 +42,8 @@ const defaultExperiences: ExperienceItem[] = [
     title: "Community & Meetups",
     description:
       "A welcoming space for rider meetups, small events, and casual gatherings built around coffee and motorcycle culture.",
-    imageUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
     isEnabled: true,
   },
 ]
@@ -52,72 +54,33 @@ const ProjectsSection = ({
   items,
 }: ProjectsSectionProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
 
-  const activeTitle = sectionTitle || "Our Space & Experiences"
-  const activeDesc = sectionDescription || "Great Coffee, Good Rides, Better Conversations"
+  const activeTitle = sectionTitle || "Our Space & Experience"
+  const activeDescription =
+    sectionDescription || "Great coffee, good rides, and better conversations."
   const currentItems = items && items.length > 0 ? items : defaultExperiences
-
-  const totalItems = currentItems.length
-  const maxDisplayItems = 6
-  const displayItems = currentItems.slice(0, maxDisplayItems)
-  const hasMoreItems = totalItems > maxDisplayItems
-  const showCarousel = displayItems.length > 3
-  const itemsPerPage = 3
-  const maxIndex = Math.max(0, displayItems.length - itemsPerPage)
-
-  const scroll = (direction: "left" | "right") => {
-    if (direction === "left") {
-      setCurrentIndex((prev) => Math.max(0, prev - 1))
-    } else {
-      setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
-    }
-  }
+  const displayItems = currentItems.slice(0, 3)
 
   return (
-    <section className="bg-[#2a2a2a] py-12 md:py-16 lg:py-24">
-      <div className="max-w-[1440px] mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8 md:mb-12 lg:mb-16 px-4 md:px-8">
-          {/* Icon */}
-          <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-[#F97316] to-[#D97706] rounded-full flex items-center justify-center">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-                <circle cx="7" cy="17" r="2" />
-                <path d="M9 17h6" />
-                <circle cx="17" cy="17" r="2" />
-              </svg>
-            </div>
-          </div>
-
-          {/* Heading */}
+    <section className="bg-white py-14 md:py-18 lg:py-24">
+      <div className="mx-auto max-w-[1440px] px-4 md:px-8">
+        <div className="mb-10 text-center md:mb-12 lg:mb-14">
           <h2
-            className={`${montserrat.className} text-2xl md:text-4xl lg:text-5xl font-bold tracking-[0.025em] text-white mb-3 md:mb-4`}
+            className={`${montserrat.className} mx-auto max-w-[14ch] text-[clamp(2.5rem,6.6vw,6.5rem)] font-black leading-[0.88] tracking-[-0.06em] text-[#191b22]`}
           >
             {activeTitle}
           </h2>
-
-          {/* Subheading */}
-          <p className={`${inter.className} text-gray-400 text-sm md:text-base lg:text-lg max-w-2xl mx-auto`}>
-            {activeDesc}
+          <p
+            className={`${inter.className} mx-auto mt-4 max-w-[42rem] text-sm font-medium leading-[1.5] text-black/60 md:text-base`}
+          >
+            {activeDescription}
           </p>
         </div>
 
-        {/* Mobile/Tablet: Horizontal Scroll */}
         <div className="lg:hidden">
           <div
             ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide px-4 md:px-8"
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-0 pb-4 scrollbar-hide"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -125,38 +88,37 @@ const ProjectsSection = ({
             }}
           >
             {displayItems.map((item) => (
-              <div
+              <article
                 key={item.id}
-                className="group flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-[45vw] bg-[#1a1a1a] rounded-2xl overflow-hidden snap-center"
+                className="group flex w-[82vw] flex-shrink-0 snap-center flex-col overflow-hidden rounded-[24px] bg-[#f5efe7] sm:w-[62vw] md:w-[46vw]"
               >
-                {/* Image Container */}
-                <div className="relative h-48 sm:h-56 overflow-hidden">
+                <div className="relative aspect-[1.06/0.7] overflow-hidden rounded-t-[24px]">
                   <Image
                     src={item.imageUrl}
                     alt={item.title}
                     fill
-                    className="object-cover"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                     sizes="(max-width: 639px) 80vw, (max-width: 1023px) 60vw, 45vw"
                   />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
                 </div>
 
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold tracking-[0.03em] text-white mb-2`}>
+                <div className="flex flex-1 flex-col p-5 md:p-6">
+                  <h3
+                    className={`${montserrat.className} min-h-[6.2rem] max-w-[11ch] text-[clamp(2rem,4.5vw,3rem)] font-bold leading-[0.98] tracking-[-0.06em] text-[#232228]`}
+                  >
                     {item.title}
                   </h3>
-                  <p className={`${inter.className} text-gray-400 text-sm leading-relaxed`}>
+                  <p
+                    className={`${inter.className} mt-6 text-sm leading-[1.4] text-black/68 md:text-[15px]`}
+                  >
                     {item.description}
                   </p>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
 
-          {/* Navigation Arrows - Mobile/Tablet */}
-          <div className="flex justify-center gap-3 mt-6 px-4">
+          <div className="mt-6 flex justify-center gap-3">
             <button
               onClick={() => {
                 if (scrollContainerRef.current) {
@@ -166,7 +128,7 @@ const ProjectsSection = ({
                   })
                 }
               }}
-              className="w-11 h-11 bg-[#F97316] hover:bg-[#EA580C] rounded-lg flex items-center justify-center transition-colors active:scale-95"
+              className="flex h-11 w-11 items-center justify-center bg-[#191b22] text-white transition-colors duration-300 hover:bg-black active:scale-95"
               aria-label="Previous"
             >
               <svg
@@ -191,7 +153,7 @@ const ProjectsSection = ({
                   })
                 }
               }}
-              className="w-11 h-11 bg-[#F97316] hover:bg-[#EA580C] rounded-lg flex items-center justify-center transition-colors active:scale-95"
+              className="flex h-11 w-11 items-center justify-center bg-[#191b22] text-white transition-colors duration-300 hover:bg-black active:scale-95"
               aria-label="Next"
             >
               <svg
@@ -208,182 +170,38 @@ const ProjectsSection = ({
               </svg>
             </button>
           </div>
-
-       
         </div>
 
-        {/* Desktop: Carousel or Grid Layout */}
-        <div className="hidden lg:block relative">
-          {showCarousel ? (
-            /* Carousel Mode - More than 3 items */
-            <div className="relative px-16">
-              {/* Navigation Arrows */}
-              <button
-                onClick={() => scroll("left")}
-                disabled={currentIndex === 0}
-                className={`absolute -left-2 top-1/3 -translate-y-1/2 z-10 w-12 h-12 bg-[#F97316] hover:bg-[#EA580C] rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                  currentIndex === 0
-                    ? "opacity-0 pointer-events-none"
-                    : "opacity-100 hover:scale-110"
-                }`}
-                aria-label="Previous"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button
-                onClick={() => scroll("right")}
-                disabled={currentIndex >= maxIndex}
-                className={`absolute -right-2 top-1/3 -translate-y-1/2 z-10 w-12 h-12 bg-[#F97316] hover:bg-[#EA580C] rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                  currentIndex >= maxIndex
-                    ? "opacity-0 pointer-events-none"
-                    : "opacity-100 hover:scale-110"
-                }`}
-                aria-label="Next"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
-
-              {/* Carousel Container */}
-              <div className="overflow-hidden">
-                <div
-                  className="flex gap-8 transition-transform duration-700 ease-in-out"
-                  style={{
-                    transform: `translateX(-${
-                      currentIndex * (100 / itemsPerPage)
-                    }%)`,
-                  }}
-                >
-                  {displayItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="group flex-shrink-0"
-                      style={{ width: "calc(33.333% - 21.33px)" }}
-                    >
-                      <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 hover:-translate-y-2">
-                        {/* Image Container */}
-                        <div className="relative h-64 overflow-hidden">
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.title}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                            sizes="(max-width: 1279px) 45vw, 360px"
-                          />
-                          {/* Gradient Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6">
-                          <h3 className={`${montserrat.className} text-xl md:text-2xl font-bold tracking-[0.03em] text-white mb-3 group-hover:text-[#F97316] transition-colors`}>
-                            {item.title}
-                          </h3>
-                          <p className={`${inter.className} text-gray-400 text-sm md:text-base leading-relaxed`}>
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+        <div className="hidden lg:grid lg:grid-cols-3 lg:gap-6 xl:gap-8">
+          {displayItems.map((item) => (
+            <article
+              key={item.id}
+              className="group overflow-hidden rounded-[24px] bg-[#f5efe7] transition-transform duration-300 hover:-translate-y-1"
+            >
+              <div className="relative aspect-[1.06/0.7] overflow-hidden rounded-t-[24px]">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                  sizes="(max-width: 1279px) 32vw, 420px"
+                />
               </div>
 
-              {/* Carousel Indicators */}
-              <div className="flex justify-center gap-2 mt-8">
-                {Array.from({ length: maxIndex + 1 }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      currentIndex === index
-                        ? "w-8 bg-[#F97316]"
-                        : "w-2 bg-gray-600 hover:bg-gray-500"
-                    }`}
-                    aria-label={`Go to page ${index + 1}`}
-                  />
-                ))}
+              <div className="flex min-h-[18rem] flex-col p-8">
+                <h3
+                  className={`${montserrat.className} min-h-[8.75rem] max-w-[11ch] text-[clamp(2.25rem,2.7vw,3.6rem)] font-bold leading-[0.98] tracking-[-0.065em] text-[#232228]`}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className={`${inter.className} mt-7 text-[15px] leading-[1.45] text-black/68`}
+                >
+                  {item.description}
+                </p>
               </div>
-            </div>
-          ) : (
-            /* Grid Mode - 3 or fewer items */
-            <div className="grid lg:grid-cols-3 gap-8 px-4 md:px-8">
-              {displayItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="group bg-[#1a1a1a] rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 hover:-translate-y-2"
-                >
-                  {/* Image Container */}
-                  <div className="relative h-64 overflow-hidden">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      sizes="(max-width: 1279px) 45vw, 360px"
-                    />
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-60" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <h3 className={`${montserrat.className} text-xl md:text-2xl font-bold tracking-[0.03em] text-white mb-3 group-hover:text-[#F97316] transition-colors`}>
-                      {item.title}
-                    </h3>
-                    <p className={`${inter.className} text-gray-400 text-sm md:text-base leading-relaxed`}>
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* View All Button - Desktop */}
-          {hasMoreItems && (
-            <div className="flex justify-center mt-12">
-              <Link
-                href="/experiences"
-                className={`${montserrat.className} bg-[#F97316] hover:bg-[#EA580C] text-white font-bold px-8 py-4 rounded-lg transition-all duration-300 inline-flex items-center gap-3 text-lg hover:scale-105`}
-              >
-                <span>View All {totalItems} Experiences</span>
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          )}
+            </article>
+          ))}
         </div>
       </div>
     </section>

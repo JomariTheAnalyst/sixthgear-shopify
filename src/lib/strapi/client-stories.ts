@@ -42,7 +42,7 @@ export interface ClientStoriesContent {
 }
 
 // Hardcoded fallback values
-const CLIENT_STORIES_FALLBACKS = {
+export const CLIENT_STORIES_FALLBACKS = {
   sectionTitle: "Rider Stories & Garage Notes",
   sectionDescription:
     "Tips, stories, and insights from the workshop, the road, and the rider lounge",

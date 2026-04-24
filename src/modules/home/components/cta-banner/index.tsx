@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
+import { TextRoll } from "components/ui/text-roll"
 
 interface CTABannerProps {
   preTitle?: string | null
@@ -104,12 +105,7 @@ export default function CTABanner({
               >
                 {activeButtonLabel}
               </Link>
-              <Link
-                href={activeButtonLink}
-                className="w-12 h-12 md:w-14 md:h-14 bg-[#F2F2F2] text-[#111] rounded-full flex items-center justify-center transition-all hover:bg-[#F16D34] hover:text-white"
-              >
-               
-              </Link>
+    
             </div>
           </div>
 
@@ -123,7 +119,9 @@ export default function CTABanner({
                 rel="noreferrer"
                 className={`${inter.className} text-white text-base font-bold hover:text-[#F16D34] transition-colors`}
               >
-                {social.name}
+                <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
+                  {social.name}
+                </TextRoll>
               </a>
             ))}
           </div>
@@ -143,7 +141,9 @@ export default function CTABanner({
                 rel="noreferrer"
                 className={`${inter.className} text-white text-[1.4rem] font-bold hover:text-[#F16D34] transition-colors tracking-tight`}
               >
-              {social.name}
+                <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
+                  {social.name}
+                </TextRoll>
             </a>
           ))}
         </div>

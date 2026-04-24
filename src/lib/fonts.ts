@@ -68,6 +68,18 @@ export const interDisplay = localFont({
     display: "swap",
 })
 
+export const interDisplayMedium = localFont({
+    src: [
+        {
+            path: "../../public/fonts/6915c8332ea6e8104f5a63fd_InterDisplay-Medium.woff",
+            weight: "500",
+            style: "normal",
+        },
+    ],
+    variable: "--font-inter-display-medium",
+    display: "swap",
+})
+
 export const handwritten = localFont({
     src: [
         {
@@ -77,5 +89,17 @@ export const handwritten = localFont({
         },
     ],
     variable: "--font-handwritten",
+    display: "swap",
+})
+
+export const silka = localFont({
+    src: [
+        {
+            path: "../../public/fonts/silka-regular-webfont.woff2",
+            weight: "400",
+            style: "normal",
+        },
+    ],
+    variable: "--font-silka",
     display: "swap",
 })

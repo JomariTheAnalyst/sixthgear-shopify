@@ -50,6 +50,7 @@ export interface ShopifyProductCard {
   id: string;
   title: string;
   handle: string;
+  description?: string | null;
   featuredImage: ShopifyImage | null;
   productType: string;
   priceRange: {
@@ -71,6 +72,7 @@ export interface ShopifyProductCard {
     edges: {
       node: {
         id: string;
+        title?: string;
         availableForSale?: boolean;
         price?: ShopifyMoney;
         compareAtPrice?: ShopifyMoney | null;

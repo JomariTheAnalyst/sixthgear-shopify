@@ -19,6 +19,21 @@ export interface ServiceCategory {
   items: string[]
 }
 
+export const SERVICE_IMAGE_BY_SLUG: Record<string, string> = {
+  "preventive-maintenance": "/images/services/service1.png",
+  "repairs-diagnostics": "/images/services/service2.png",
+  "accessories-installation": "/images/services/service5.png",
+  "wheels-drivetrain": "/images/services/service4.png",
+  "detailing-protection": "/images/services/service3.png",
+  "performance-upgrades": "/images/services/service6.png",
+  "roadside-assistance": "/images/services/service7.png",
+  "rider-support": "/images/services/services8.jpg",
+}
+
+export function getServiceImageBySlug(slug: string, fallback?: string) {
+  return SERVICE_IMAGE_BY_SLUG[slug] || fallback || "/images/services/service1.png"
+}
+
 export const servicesData: ServiceCategory[] = [
   {
     id: "preventive-maintenance",
@@ -27,8 +42,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Preventive Maintenance",
     description:
       "Keep your motorcycle running at peak performance with our comprehensive preventive maintenance services. From routine PMS to seasonal care, we ensure your bike is always road-ready.",
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+    image: getServiceImageBySlug("preventive-maintenance"),
     items: [
       "Periodic Maintenance Service (PMS)",
       "Oil Change & Fluid Replacement",
@@ -46,8 +60,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Repairs & Diagnostics",
     description:
       "Advanced diagnostic equipment and expert technicians to identify and fix any issue. From brake systems to ECU diagnostics, we handle it all with precision.",
-    image:
-      "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=80",
+    image: getServiceImageBySlug("repairs-diagnostics"),
     items: [
       "Brake System Repair & Bleeding",
       "Clutch Adjustment & Replacement",
@@ -67,8 +80,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Custom Installation",
     description:
       "Transform your ride with professional accessory installation. From lighting upgrades to luggage systems, we ensure perfect fitment and functionality.",
-    image:
-      "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=800&q=80",
+    image: getServiceImageBySlug("accessories-installation"),
     items: [
       "Accessory Installation & Calibration",
       "Lighting Upgrades (Aux Lights, LEDs)",
@@ -87,8 +99,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Wheels & Drivetrain",
     description:
       "Expert care for your motorcycle's wheels and drivetrain. Proper alignment, balanced wheels, and smooth power delivery for the ultimate riding experience.",
-    image:
-      "https://images.unsplash.com/photo-1571293521801-fd3dbf02a4f2?w=800&q=80",
+    image: getServiceImageBySlug("wheels-drivetrain"),
     items: [
       "Tyre Replacement & Wheel Balancing",
       "Chain and Sprocket Replacement",
@@ -104,8 +115,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Detailing & Care",
     description:
       "Keep your motorcycle looking showroom-fresh with our professional detailing services. From basic wash to ceramic coating, we protect your investment.",
-    image:
-      "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80",
+    image: getServiceImageBySlug("detailing-protection"),
     items: [
       "Bike Washing & Professional Detailing",
       "Paint, Plastic & Metal Restoration",
@@ -121,8 +131,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Performance Upgrades",
     description:
       "Unlock your motorcycle's full potential with performance upgrades. Expert installation of exhaust systems, intake upgrades, and tuning support.",
-    image:
-      "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80",
+    image: getServiceImageBySlug("performance-upgrades"),
     items: [
       "Exhaust Installation (Slip-On / Full System)",
       "Intake & Air Filter Upgrades",
@@ -137,8 +146,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Roadside Assistance",
     description:
       "Stranded on the road? Our emergency recovery team is ready to help. Fast response times and professional handling of your motorcycle.",
-    image:
-      "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80",
+    image: getServiceImageBySlug("roadside-assistance"),
     items: [
       "Motorcycle Towing Service",
       "Emergency Bike Rescue & Recovery",
@@ -153,8 +161,7 @@ export const servicesData: ServiceCategory[] = [
     shortTitle: "Rider Support",
     description:
       "Beyond repairs, we offer comprehensive rider support services. From pre-purchase inspections to warranty assistance, we've got you covered.",
-    image:
-      "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=80",
+    image: getServiceImageBySlug("rider-support"),
     items: [
       "Pre-Purchase Motorcycle Inspection",
       "Troubleshooting & Consultation",

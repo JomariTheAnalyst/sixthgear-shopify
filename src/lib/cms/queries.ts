@@ -417,3 +417,60 @@ export const aboutPageQuery = groq`
     }
   }
 `
+
+const blogPostListProjection = `
+  _id,
+  title,
+  "slug": slug.current,
+  excerpt,
+  publishedAt,
+  authorName,
+  featured,
+  "featuredImageUrl": featuredImage.asset->url,
+  "featuredImageAlt": featuredImage.alt,
+  "socialImageUrl": socialImage.asset->url,
+  "category": category->{
+    title,
+    "slug": slug.current,
+    description
+  },
+  tags
+`
+
+export const latestBlogPostsQuery = groq`
+  *[_type == "blogPost" && defined(slug.current) && defined(publishedAt)]
+  | order(publishedAt desc)[0...12]{
+    ${blogPostListProjection}
+  }
+`
+
+export const homepageBlogPostsQuery = groq`
+  *[_type == "blogPost" && defined(slug.current) && defined(publishedAt)]
+  | order(featured desc, publishedAt desc)[0...6]{
+    ${blogPostListProjection}
+  }
+`
+
+export const blogPostBySlugQuery = groq`
+  *[_type == "blogPost" && slug.current == $slug && defined(publishedAt)][0]{
+    ${blogPostListProjection},
+    seoTitle,
+    seoDescription,
+    body[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "url": asset->url
+      }
+    }
+  }
+`
+
+export const blogCategoriesQuery = groq`
+  *[_type == "blogCategory" && defined(slug.current)]
+  | order(title asc){
+    title,
+    "slug": slug.current,
+    description
+  }
+`

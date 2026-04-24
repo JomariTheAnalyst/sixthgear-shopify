@@ -7,9 +7,10 @@ import {
   buildShopifyFilters,
   listCollections,
 } from "@lib/data/collections";
+import { getCollectionProductsByHandle } from "@lib/shopify";
+import type { ShopifyProductCard } from "@lib/shopify/types";
 import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
-import { storePageCursor, getPageCursor, hashFilters } from "@lib/cache/page-cursors";
 import {
   getBreadcrumbStructuredData,
   getLocalizedCanonicalPath,
@@ -23,6 +24,13 @@ export const dynamic = "force-dynamic";
 // Shopify filters only work inside collection.products() queries,
 // so we must route through a collection handle.
 const STORE_COLLECTION_HANDLE = "all-products";
+const FIRST_GEAR_COLLECTION_HANDLE = "first-gear-coffee";
+const FIRST_GEAR_FILTER_LABELS = new Set([
+  "first gear coffee",
+  "coffee drinks",
+  "non-coffee drinks",
+  "snacks",
+]);
 const PAGE_SIZE = 24;
 
 function mapSearchSort(
@@ -42,6 +50,41 @@ function mapSearchSort(
     default:
       return { sortKey: "RELEVANCE", reverse: false };
   }
+}
+
+function isFirstGearCollection(handle?: string | null) {
+  return handle?.trim().toLowerCase() === FIRST_GEAR_COLLECTION_HANDLE;
+}
+
+function normalizeFilterLabel(label?: string | null) {
+  return label?.trim().toLowerCase() || "";
+}
+
+function filterStoreCollections(collections: any[]) {
+  return collections
+    .filter((collection: any) => !isFirstGearCollection(collection.handle))
+    .map((collection: any) => ({
+      handle: collection.handle,
+      title: collection.title,
+    }));
+}
+
+function filterStoreSidebarFilters(filters: Awaited<ReturnType<typeof getCollectionFilters>>) {
+  return filters
+    .map((filter) => ({
+      ...filter,
+      values: filter.values.filter(
+        (value) => !FIRST_GEAR_FILTER_LABELS.has(normalizeFilterLabel(value.label))
+      ),
+    }))
+    .filter((filter) => filter.values.length > 0);
+}
+
+function filterFirstGearProducts(
+  products: ShopifyProductCard[],
+  blockedProductIds: Set<string>
+) {
+  return products.filter((product) => !blockedProductIds.has(product.id));
 }
 
 type Params = {
@@ -73,7 +116,6 @@ export default async function StorePage(props: Params) {
     ]
   );
 
-  // Convert raw searchParams to URLSearchParams
   const urlParams = new URLSearchParams();
   Object.entries(rawSearchParams).forEach(([key, value]) => {
     if (Array.isArray(value)) {
@@ -83,72 +125,52 @@ export default async function StorePage(props: Params) {
     }
   });
 
-  // Detect search mode
   const searchQuery = urlParams.get("query")?.trim() || "";
-
-  // Parse filter state from URL
   const filterState = parseSearchParams(urlParams);
   const selectedCollectionHandle =
     filterState.collection?.trim() || STORE_COLLECTION_HANDLE;
 
-  // Build Shopify ProductFilter[] from our clean state
+  if (isFirstGearCollection(selectedCollectionHandle)) {
+    notFound();
+  }
+
   const shopifyFilters = buildShopifyFilters(filterState);
+  const afterCursor = urlParams.get("after") || undefined;
+  const beforeCursor = urlParams.get("before") || undefined;
+  const firstGearProducts = await getCollectionProductsByHandle(
+    FIRST_GEAR_COLLECTION_HANDLE,
+    250
+  );
+  const firstGearProductIds = new Set(
+    firstGearProducts.map((product) => product.id)
+  );
 
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Pagination: read `page` from URL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-  const requestedPage = Math.max(1, parseInt(urlParams.get("page") || "1", 10));
-  const isFirstPage = requestedPage <= 1;
-
-  // Ã¢â€â‚¬Ã¢â€â‚¬ Build scope for cursor lookup Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-  const filterHash = hashFilters(shopifyFilters, filterState.reverse);
-  const sortKeyStr = filterState.sortKey || "COLLECTION_DEFAULT";
-
-  // --- SEARCH MODE ---
   if (searchQuery) {
     const searchSort = mapSearchSort(filterState.sortKey);
-    const searchScope = `search:${searchQuery}`;
-
-    // Resolve cursor for the requested page
-    let afterCursor: string | undefined;
-    if (!isFirstPage) {
-      const cursor = await getPageCursor(searchScope, searchSort.sortKey, filterHash, requestedPage);
-      if (!cursor) {
-        // Cursor not found Ã¢â‚¬â€ redirect to page 1
-        afterCursor = undefined;
-      } else {
-        afterCursor = cursor;
-      }
-    }
 
     const [searchResult, sidebarFilters, { collections }] =
       await Promise.all([
         searchProducts(searchQuery, {
-          first: PAGE_SIZE,
-          after: afterCursor,
+          first: beforeCursor ? undefined : PAGE_SIZE,
+          after: beforeCursor ? undefined : afterCursor,
+          last: beforeCursor ? PAGE_SIZE : undefined,
+          before: beforeCursor,
           sortKey: searchSort.sortKey,
         }),
         getCollectionFilters(selectedCollectionHandle),
         listCollections({ limit: 100 }),
       ]);
 
-    // Store cursor for the NEXT page
-    if (searchResult.pageInfo.endCursor) {
-      await storePageCursor(
-        searchScope,
-        searchSort.sortKey,
-        filterHash,
-        requestedPage + 1,
-        searchResult.pageInfo.endCursor
-      );
-    }
-
     const searchProductsForView = searchSort.reverse
       ? [...searchResult.products].reverse()
       : searchResult.products;
 
-    const collectionsMenu = collections.map((c: any) => ({
-      handle: c.handle,
-      title: c.title,
-    }));
+    const collectionsMenu = filterStoreCollections(collections);
+    const sidebarFiltersForView = filterStoreSidebarFilters(sidebarFilters);
+    const searchProductsWithoutCoffee = filterFirstGearProducts(
+      searchProductsForView,
+      firstGearProductIds
+    );
 
     const searchCollection = {
       id: "search-results",
@@ -162,9 +184,9 @@ export default async function StorePage(props: Params) {
         <JsonLd id="store-breadcrumbs" data={breadcrumbStructuredData} />
         <CollectionTemplate
           collection={searchCollection}
-          products={searchProductsForView}
+          products={searchProductsWithoutCoffee}
           filters={[]}
-          sidebarFilters={sidebarFilters}
+          sidebarFilters={sidebarFiltersForView}
           pageInfo={searchResult.pageInfo}
           initialFilterState={filterState}
           countryCode={params.countryCode}
@@ -172,20 +194,9 @@ export default async function StorePage(props: Params) {
           heroTitle={searchCollection.title}
           heroDescription={searchCollection.description}
           heroImageUrl={null}
-          currentPage={requestedPage}
         />
       </>
     );
-  }
-
-  // --- BROWSE MODE (existing logic) ---
-  const browseScope = `collection:${selectedCollectionHandle}`;
-
-  // Resolve cursor for the requested page
-  let afterCursor: string | undefined;
-  if (!isFirstPage) {
-    const cursor = await getPageCursor(browseScope, sortKeyStr, filterHash, requestedPage);
-    afterCursor = cursor || undefined;
   }
 
   const [result, sidebarFilters, { collections }] = await Promise.all([
@@ -193,8 +204,10 @@ export default async function StorePage(props: Params) {
       filters: shopifyFilters,
       sortKey: filterState.sortKey,
       reverse: filterState.reverse,
-      first: PAGE_SIZE,
-      after: afterCursor,
+      first: beforeCursor ? undefined : PAGE_SIZE,
+      after: beforeCursor ? undefined : afterCursor,
+      last: beforeCursor ? PAGE_SIZE : undefined,
+      before: beforeCursor,
     }),
     getCollectionFilters(selectedCollectionHandle),
     listCollections({ limit: 100 }),
@@ -204,23 +217,14 @@ export default async function StorePage(props: Params) {
     notFound();
   }
 
-  // Store cursor for the NEXT page
-  if (result.pageInfo.endCursor) {
-    await storePageCursor(
-      browseScope,
-      sortKeyStr,
-      filterHash,
-      requestedPage + 1,
-      result.pageInfo.endCursor
-    );
-  }
+  const collectionsMenu = filterStoreCollections(collections);
+  const sidebarFiltersForView = filterStoreSidebarFilters(sidebarFilters);
+  const filtersForView = filterStoreSidebarFilters(result.filters);
+  const productsForView = filterFirstGearProducts(
+    result.products,
+    firstGearProductIds
+  );
 
-  const collectionsMenu = collections.map((c: any) => ({
-    handle: c.handle,
-    title: c.title,
-  }));
-
-  // Override collection title to "Shop" for the store page
   const storeCollection =
     selectedCollectionHandle === STORE_COLLECTION_HANDLE
       ? {
@@ -235,9 +239,9 @@ export default async function StorePage(props: Params) {
       <JsonLd id="store-breadcrumbs" data={breadcrumbStructuredData} />
       <CollectionTemplate
         collection={storeCollection}
-        products={result.products}
-        filters={result.filters}
-        sidebarFilters={sidebarFilters}
+        products={productsForView}
+        filters={filtersForView}
+        sidebarFilters={sidebarFiltersForView}
         pageInfo={result.pageInfo}
         initialFilterState={filterState}
         countryCode={params.countryCode}
@@ -245,7 +249,6 @@ export default async function StorePage(props: Params) {
         heroTitle={result.collection.title}
         heroDescription={result.collection.description}
         heroImageUrl={result.collection.image?.url ?? null}
-        currentPage={requestedPage}
       />
     </>
   );

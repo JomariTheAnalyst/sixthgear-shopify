@@ -8,6 +8,7 @@
 
 import { useState } from "react"
 import { inter, montserrat } from "@lib/fonts"
+import { storeDirectionsUrl, storeInfo, storeMapEmbedUrl } from "@lib/store-info"
 
 interface StoreLocationProps {
   storeName?: string | null
@@ -15,18 +16,6 @@ interface StoreLocationProps {
   phone?: string | null
   hours?: string | null
   googleMapsUrl?: string | null
-}
-
-const storeInfo = {
-  name: "Sixth Gear Moto Supply Café + Lounge",
-  address: "3610 Bautista St, Makati City, Metro Manila",
-  phone: "0995 093 0157",
-  coordinates: {
-    lat: 14.554651468423817,
-    lng: 121.00262199651827,
-  },
-  googleMapsUrl: "https://maps.app.goo.gl/MAiATmPJ3BmQYXoH7",
-  hours: "Monday - Friday | 9:00 AM - 8:00 PM",
 }
 
 export default function StoreLocation({
@@ -44,14 +33,10 @@ export default function StoreLocation({
   const activeGoogleMapsUrl = googleMapsUrl || storeInfo.googleMapsUrl
 
   const handleGetDirections = () => {
-    const { lat, lng } = storeInfo.coordinates
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
     if (isMobile) {
-      window.open(
-        `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
-        "_blank"
-      )
+      window.open(storeDirectionsUrl, "_blank")
     } else {
       window.open(activeGoogleMapsUrl, "_blank")
     }
@@ -77,7 +62,7 @@ export default function StoreLocation({
 
       <div className="relative overflow-hidden border-y border-black/10 shadow-2xl min-h-[520px] md:min-h-[620px] lg:min-h-[720px] bg-[#e8efe6]">
         <iframe
-          src="https://maps.google.com/maps?q=14.554651468423817,121.00262199651827&z=15&output=embed"
+          src={storeMapEmbedUrl}
           width="100%"
           height="100%"
           style={{ border: 0, minHeight: "520px" }}
@@ -117,7 +102,7 @@ export default function StoreLocation({
               <h3
                 className={`${montserrat.className} pr-14 text-[34px] leading-none md:text-[52px] lg:text-[64px] font-black uppercase tracking-[-0.03em] text-[#142224]`}
               >
-                Sixthgear Moto Supply
+                {storeInfo.shortName}
               </h3>
 
               <div className="mt-8 grid gap-6 md:grid-cols-[1.2fr_0.9fr] md:gap-10">

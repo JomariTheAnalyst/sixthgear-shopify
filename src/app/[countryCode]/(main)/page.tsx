@@ -19,6 +19,7 @@ import PopupAd from "@modules/home/components/popup-ad"
 import HomepageCollectionRail from "@modules/home/components/product-sections/homepage-collection-rail"
 import type {
   HomepageCollectionSection,
+  SanityBlogPostListItem,
   SanityFeaturedCollectionItem,
   SanityPromoBanner,
 } from "@lib/cms/types"
@@ -33,9 +34,9 @@ import {
   getAboutWithFallbacks,
 } from "@lib/strapi/home-with-fallbacks"
 import { getShopByBrandsWithFallbacks } from "@lib/strapi/shop-by-brands"
-import { getClientStoriesWithFallbacks } from "@lib/strapi/client-stories"
 import {
   getHomepageAbout,
+  getHomepageBlogPosts,
   getHomepageCategories,
   getHomepageHero,
   getHomepageShopByBrands,
@@ -125,6 +126,7 @@ export default async function Home(props: {
     storeLocation,
     ctaBanner,
     marketingData,
+    homepageBlogPosts,
     collectionSections,
     featuredProductsResp,
     newArrivalsResp,
@@ -140,6 +142,7 @@ export default async function Home(props: {
     getStoreLocation(),
     getCtaBanner(),
     getMarketingData(),
+    getHomepageBlogPosts(),
     getHomepageCollectionSections(),
     getProducts({ first: 8, query: 'tag:featured' }),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
@@ -222,7 +225,7 @@ export default async function Home(props: {
   const homeContent = await fetchHomeContent()
   const aboutContent = await getAboutWithFallbacks(homeContent)
   const shopByBrandsContent = getShopByBrandsWithFallbacks(homeContent)
-  const clientStoriesContent = getClientStoriesWithFallbacks(homeContent)
+  const clientStoriesContent: SanityBlogPostListItem[] = homepageBlogPosts
 
 
   const getFeatured = (position: string): SanityFeaturedCollectionItem | null =>
@@ -455,9 +458,7 @@ export default async function Home(props: {
       <PromoBanner data={getPromo("after_testimonials")} />
 
       <ClientStories
-        sectionTitle={clientStoriesContent.sectionTitle}
-        sectionDescription={clientStoriesContent.sectionDescription}
-        stories={clientStoriesContent.stories}
+        stories={clientStoriesContent}
       />
 
       <CTABanner

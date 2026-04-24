@@ -19,6 +19,7 @@ import ServiceHero from "@modules/services/components/service-hero"
 import BrandsWeService from "@modules/services/components/brands-we-service"
 import ExpertiseStats from "@modules/services/components/expertise-stats"
 import ModernServicesGrid from "@modules/services/components/modern-services-grid"
+import ProcessOfWork from "@modules/services/components/process-of-work"
 
 export const FALLBACK_SERVICES_HERO: ServiceCategory = {
   id: "services-main",
@@ -78,6 +79,8 @@ export default function ServicesListTemplate({
         useCustomServices={servicesGrid?.useCustomServices ?? false}
         featuredServices={servicesGrid?.featuredServices ?? null}
       />
+
+      <ProcessOfWork />
 
       <CTABanner />
     </>

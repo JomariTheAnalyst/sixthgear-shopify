@@ -40,7 +40,6 @@ type CollectionTemplateProps = {
   heroTitle: string
   heroDescription?: string
   heroImageUrl?: string | null
-  currentPage?: number
 }
 
 function mapShopifyProductToSharedCard(
@@ -124,12 +123,10 @@ export default function CollectionTemplate({
   heroTitle,
   heroDescription,
   heroImageUrl,
-  currentPage = 1,
 }: CollectionTemplateProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const isFirstPage = currentPage <= 1
 
   const [filterState, setFilterState] =
     useState<FilterState>(initialFilterState)
@@ -137,24 +134,25 @@ export default function CollectionTemplate({
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
 
-  // Build a URL with the current filter/sort/search state and a page number
-  const buildPageUrl = useCallback((page: number) => {
+  const buildCursorUrl = useCallback((
+    direction: "next" | "previous",
+    cursor: string
+  ) => {
     const params = serializeFilterState(filterState)
 
-    // Preserve search query if active
     const query = searchParams.get("query")
     if (query) {
       params.set("query", query)
     }
 
-    // Remove raw cursor params — we only use ?page=N
+    params.delete("page")
     params.delete("after")
     params.delete("before")
 
-    if (page > 1) {
-      params.set("page", String(page))
+    if (direction === "next") {
+      params.set("after", cursor)
     } else {
-      params.delete("page")
+      params.set("before", cursor)
     }
 
     const qs = params.toString()
@@ -172,7 +170,7 @@ export default function CollectionTemplate({
         params.set("query", query)
       }
 
-      // Reset to page 1 on filter change
+      // Reset pagination when filters change
       params.delete("page")
       params.delete("after")
       params.delete("before")
@@ -185,11 +183,14 @@ export default function CollectionTemplate({
     [router, pathname, searchParams]
   )
 
-  const goToPage = useCallback((page: number) => {
+  const goToCursor = useCallback((
+    direction: "next" | "previous",
+    cursor: string
+  ) => {
     startTransition(() => {
-      router.push(buildPageUrl(page))
+      router.push(buildCursorUrl(direction, cursor))
     })
-  }, [router, buildPageUrl])
+  }, [router, buildCursorUrl])
 
   const handleSortChange = useCallback(
     (sortKey: ProductCollectionSortKeys, reverse: boolean) => {
@@ -386,27 +387,13 @@ export default function CollectionTemplate({
                   )}
                 </div>
 
-                {!isPending && (pageInfo.hasNextPage || !isFirstPage) && (
+                {!isPending && (pageInfo.hasNextPage || pageInfo.hasPreviousPage) && (
                   <div className="mb-8 mt-12 flex items-center justify-center gap-2">
-                    {/* First Page */}
-                    {!isFirstPage && (
+                    {pageInfo.hasPreviousPage && pageInfo.startCursor && (
                       <button
-                        onClick={() => goToPage(1)}
-                        className="inline-flex items-center justify-center h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300"
-                        aria-label="First page"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-                    )}
-
-                    {/* Previous */}
-                    {!isFirstPage && (
-                      <button
-                        onClick={() => goToPage(currentPage - 1)}
+                        onClick={() => goToCursor("previous", pageInfo.startCursor!)}
                         className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300"
-                        aria-label="Previous page"
+                        aria-label="Previous products"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -415,17 +402,11 @@ export default function CollectionTemplate({
                       </button>
                     )}
 
-                    {/* Current Page Indicator */}
-                    <span className="inline-flex items-center justify-center h-10 min-w-[2.5rem] px-3 rounded-lg bg-gray-900 text-sm font-bold text-white">
-                      {currentPage}
-                    </span>
-
-                    {/* Next */}
-                    {pageInfo.hasNextPage && (
+                    {pageInfo.hasNextPage && pageInfo.endCursor && (
                       <button
-                        onClick={() => goToPage(currentPage + 1)}
+                        onClick={() => goToCursor("next", pageInfo.endCursor!)}
                         className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300"
-                        aria-label="Next page"
+                        aria-label="Next products"
                       >
                         Next
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
