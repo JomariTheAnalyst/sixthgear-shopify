@@ -461,7 +461,24 @@ export default async function Home(props: {
         stories={clientStoriesContent}
       />
 
-      <CTABanner
+      <StoreLocation
+        storeName={
+          storeLocation?.storeName 
+          ?? undefined}
+        address={
+          storeLocation?.address 
+          ?? undefined}
+        phone={
+          storeLocation?.phone 
+          ?? undefined}
+        hours={
+          storeLocation?.hours 
+          ?? undefined}
+        googleMapsUrl={
+          storeLocation?.googleMapsUrl 
+          ?? undefined}
+      />
+          <CTABanner
         preTitle={
           ctaBanner?.preTitle
           ?? undefined}
@@ -495,24 +512,7 @@ export default async function Home(props: {
               }
             : undefined}
       />
-
-      <StoreLocation
-        storeName={
-          storeLocation?.storeName 
-          ?? undefined}
-        address={
-          storeLocation?.address 
-          ?? undefined}
-        phone={
-          storeLocation?.phone 
-          ?? undefined}
-        hours={
-          storeLocation?.hours 
-          ?? undefined}
-        googleMapsUrl={
-          storeLocation?.googleMapsUrl 
-          ?? undefined}
-      />
     </>
+
   )
 }

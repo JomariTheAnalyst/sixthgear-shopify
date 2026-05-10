@@ -1,33 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { SanityServicesExpertiseStats } from "@lib/cms/types"
+import Image from "next/image"
 
-export const FALLBACK_EXPERTISE_STATS = {
-  sectionHeading: "Comprehensive Care for\nPremium Motorcycles",
-  sectionDescription:
-    "From routine maintenance to performance upgrades and emergency recovery, we provide end-to-end solutions. Our expert technicians combine advanced diagnostics with quality parts to keep your ride at its peak.",
-  buttonText: "Book a Service",
-  buttonLink: "/contact?subject=Service+Booking",
-  stats: [
-    {
-      number: "8",
-      label: "Core Service\nCategories",
-    },
-    {
-      number: "45+",
-      label: "Specialized\nProcedures",
-    },
-    {
-      number: "100%",
-      label: "Precision\n& Quality",
-    },
-    {
-      number: "24/7",
-      label: "Roadside\nRecovery",
-    },
-  ],
-} as const
+import { companyData } from "@lib/company-data"
+import { inter, montserrat } from "@lib/fonts"
+import { SanityServicesExpertiseStats } from "@lib/cms/types"
 
 type ExpertiseStatsProps = {
   countryCode: string
@@ -36,103 +14,88 @@ type ExpertiseStatsProps = {
 
 export default function ExpertiseStats({
   countryCode,
-  data,
 }: ExpertiseStatsProps) {
-  const normalizedButtonLink = (data?.buttonLink || FALLBACK_EXPERTISE_STATS.buttonLink).trim()
-  const baseButtonHref = /^https?:\/\//i.test(normalizedButtonLink)
+  const content = companyData.serviceExpertise
+  const normalizedButtonLink = content.assistance.buttonLink.trim()
+  const buttonHref = /^https?:\/\//i.test(normalizedButtonLink)
     ? normalizedButtonLink
-    : `/${countryCode}${normalizedButtonLink.startsWith("/") ? normalizedButtonLink : `/${normalizedButtonLink}`}`
-  const shouldAppendBookingSubject =
-    /\/contact(?:\?|$)/.test(baseButtonHref) &&
-    !/[?&]subject=Service\+Booking(?:&|$)/.test(baseButtonHref)
-  const buttonHref = shouldAppendBookingSubject
-    ? `${baseButtonHref}${baseButtonHref.includes("?") ? "&" : "?"}subject=Service+Booking`
-    : baseButtonHref
-
-  const activeContent = {
-    sectionHeading:
-      data?.sectionHeading?.trim() || FALLBACK_EXPERTISE_STATS.sectionHeading,
-    sectionDescription:
-      data?.sectionDescription?.trim() ||
-      FALLBACK_EXPERTISE_STATS.sectionDescription,
-    buttonText:
-      data?.buttonText?.trim() || FALLBACK_EXPERTISE_STATS.buttonText,
-    stats:
-      data?.stats && data.stats.length > 0
-        ? data.stats.map((stat, index) => ({
-            number:
-              stat.number?.trim() ||
-              FALLBACK_EXPERTISE_STATS.stats[index]?.number ||
-              "",
-            label:
-              stat.label?.trim() ||
-              FALLBACK_EXPERTISE_STATS.stats[index]?.label ||
-              "",
-          }))
-        : [...FALLBACK_EXPERTISE_STATS.stats],
-  }
+    : `/${countryCode}${
+        normalizedButtonLink.startsWith("/")
+          ? normalizedButtonLink
+          : `/${normalizedButtonLink}`
+      }`
 
   return (
-    <section className="bg-white py-20 md:py-32 w-full border-b border-[#EAEAEA]">
-      <div className="w-full lg:max-w-[95%] xl:max-w-[1500px] mx-auto px-6 md:px-12 lg:px-16">
-        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-          <div className="flex-1 w-full text-left">
+    <section className="w-full bg-white py-16 md:py-24 lg:py-28">
+      <div className="mx-auto grid min-h-[560px] max-w-[1440px] gap-12 px-5 md:px-8 lg:grid-cols-2 lg:gap-20 xl:px-12">
+        <div className="flex flex-col justify-center gap-9 lg:gap-11">
+          <article>
             <h2
-              className="text-3xl md:text-4xl lg:text-[2.75rem] xl:text-[3.25rem] text-[#111] leading-tight mb-8 font-semibold"
-              style={{
-                fontFamily: "'Inter Display', sans-serif",
-                letterSpacing: "normal",
-              }}
+              className={`${montserrat.className} truncate text-[1.25rem] font-black leading-none tracking-[-0.035em] text-black md:text-[1.65rem]`}
+              title={content.heading}
             >
-              {activeContent.sectionHeading.split("\n").map((line, index, lines) => (
-                <span key={index}>
-                  {line}
-                  {index < lines.length - 1 && (
-                    <>
-                      <br className="hidden sm:block" />
-                      <span className="sm:hidden"> </span>
-                    </>
-                  )}
-                </span>
-              ))}
+              {content.heading}
             </h2>
-
             <p
-              className="text-[#111]/80 text-base md:text-lg lg:text-xl leading-relaxed mb-10 font-normal lg:max-w-[90%]"
-              style={{ fontFamily: "'Inter', sans-serif" }}
+              className={`${inter.className} mt-3 max-w-[720px] text-sm font-normal leading-[1.6] text-black/58 md:text-base`}
             >
-              {activeContent.sectionDescription}
+              {content.description}
             </p>
+          </article>
 
-            <Link
-              href={buttonHref}
-              className="inline-flex items-center justify-center px-8 py-3.5 lg:px-10 lg:py-4 border border-[#111] rounded-md bg-transparent text-[#111] font-medium text-sm md:text-base transition-colors hover:bg-[#111] hover:text-white"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
-              {activeContent.buttonText}
-            </Link>
-          </div>
-
-          <div className="w-full lg:w-[50%] grid grid-cols-2 gap-5 md:gap-8">
-            {activeContent.stats.map((stat, index) => (
-              <div
-                key={`${stat.number}-${index}`}
-                className="bg-white rounded-[1.25rem] p-8 md:p-12 border border-[#EAEAEA] shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300"
-              >
-                <span
-                  className="text-[#111] text-[4rem] md:text-[5rem] leading-none font-bold mb-3 tracking-tighter"
-                  style={{ fontFamily: "'Inter Display', sans-serif" }}
+          <div className="space-y-8 md:space-y-10">
+            {content.highlights.map((item) => (
+              <article key={item.title}>
+                <h3
+                  className={`${montserrat.className} truncate text-[1.25rem] font-black leading-none tracking-[-0.035em] text-black md:text-[1.65rem]`}
+                  title={item.title}
                 >
-                  {stat.number}
-                </span>
-                <span
-                  className="text-[#111] text-sm md:text-base font-medium leading-snug whitespace-pre-line"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
+                  {item.title}
+                </h3>
+                <p
+                  className={`${inter.className} mt-3 max-w-[720px] text-sm font-normal leading-[1.6] text-black/58 md:text-base`}
                 >
-                  {stat.label}
-                </span>
-              </div>
+                  {item.description}
+                </p>
+              </article>
             ))}
+          </div>
+        </div>
+
+        <div className="relative min-h-[460px] overflow-hidden rounded-[28px] bg-black md:min-h-[560px]">
+          <Image
+            src="/images/sixthgear-workshop.jpg"
+            alt="Sixthgear workshop"
+            fill
+            sizes="(max-width: 1023px) 100vw, 50vw"
+            className="object-cover opacity-90"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+
+          <div className="absolute inset-x-0 bottom-0 z-10 p-6 md:p-8 lg:p-10">
+            <div className="max-w-[430px]">
+              <p
+                className={`${montserrat.className} text-[1.55rem] font-black leading-none tracking-[-0.035em] text-white md:text-[1.9rem]`}
+              >
+                {content.assistance.heading}
+              </p>
+              {/* <p
+                className={`${montserrat.className} mt-4 truncate text-[2.15rem] font-black leading-none tracking-[-0.05em] text-white md:text-[3rem]`}
+              >
+                {content.assistance.phone}
+              </p> */}
+              <p
+                className={`${inter.className} mt-5 text-sm font-medium leading-[1.65] text-white md:text-base`}
+              >
+                {content.assistance.description}
+              </p>
+              <Link
+                href={buttonHref}
+                className={`${inter.className} mt-7 inline-flex items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-[#F16D34] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]`}
+              >
+                {content.assistance.buttonText}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

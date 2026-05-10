@@ -12,6 +12,7 @@ import AboutMission from "./ceo-quote"
 import OurValues from "@modules/about/components/our-values"
 import WhyChooseUs from "@modules/about/components/why-choose-us"
 import CTABanner from "@modules/home/components/cta-banner"
+import { FALLBACK_ABOUT_MISSION } from "@modules/about/constants"
 import {
   AboutHeroContent,
   AboutMissionContent,
@@ -38,6 +39,8 @@ export default function AboutTemplate({
   whyChooseUsContent,
   ceoQuoteContent,
 }: AboutTemplateProps) {
+  const missionContent = ceoQuoteContent || FALLBACK_ABOUT_MISSION
+
   return (
     <>
       <AboutHero
@@ -45,23 +48,23 @@ export default function AboutTemplate({
         subtitle={heroContent.subtitle}
         backgroundImage={heroContent.backgroundImage}
       />
-      <div className="h-20 sm:h-28 md:h-36 lg:h-48 bg-white" />
+      <WhyChooseUs data={whyChooseUsContent} />
+      <div className="h-6 sm:h-8 md:h-10 lg:h-12 bg-white" />
       <AboutStory items={storyItems} />
       <div className="h-16 md:h-24 lg:h-32 bg-[#FAFAFA]" />
       <AboutServices data={whatWeOfferContent} />
       <div className="h-12 md:h-20 bg-white" />
       <OurValues data={ourValuesContent} />
-      <WhyChooseUs data={whyChooseUsContent} />
-      {ceoQuoteContent && (
-        <AboutMission
-          quoteText={ceoQuoteContent.quoteText}
-          highlightedPhrase={ceoQuoteContent.highlightedPhrase}
-          ceoName={ceoQuoteContent.ceoName}
-          ceoTitle={ceoQuoteContent.ceoTitle}
-          ceoPhoto={ceoQuoteContent.ceoPhoto ?? undefined}
-          ceoPhotoDescription={ceoQuoteContent.ceoPhotoDescription}
-        />
-      )}
+
+      <AboutMission
+        quoteText={missionContent.quoteText}
+        highlightedPhrase={missionContent.highlightedPhrase}
+        ceoName={missionContent.ceoName}
+        ceoTitle={missionContent.ceoTitle}
+        ceoPhoto={missionContent.ceoPhoto}
+        ceoPhotoDescription={missionContent.ceoPhotoDescription}
+      />
+
       <CTABanner />
     </>
   )

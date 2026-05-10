@@ -4,7 +4,7 @@ import Image from "next/image"
 import { SanityServicesBrandsWeService } from "@lib/cms/types"
 
 export const FALLBACK_BRANDS_WE_SERVICE = {
-  sectionHeading: "Brands We Service",
+  sectionHeading: "Brands We Service and support",
   brands: [
     { name: "BMW", logoUrl: "/images/brands/brands-logo/bmw-logo.svg" },
     { name: "KTM", logoUrl: "/images/brands/brands-logo/ktm-logo.svg" },

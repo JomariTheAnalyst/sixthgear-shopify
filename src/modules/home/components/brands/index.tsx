@@ -100,17 +100,19 @@ export default function Brands({
   return (
     <section className="py-14 md:py-18 lg:py-24 bg-white">
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-        <div className="text-center mb-8 md:mb-12 lg:mb-14">
+        <div className="mb-10 text-center md:mb-14 lg:mb-16">
+          <div className="mx-auto w-full max-w-[1200px] text-center">
           <h2
-            className={`${montserrat.className} text-2xl md:text-4xl lg:text-5xl font-bold tracking-[0.02em] text-gray-900 mb-3 md:mb-4`}
+            className={`${montserrat.className} whitespace-nowrap text-center text-[clamp(1.45rem,3.7vw,3.35rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
           >
             {activeTitle}
           </h2>
           <p
-            className={`${inter.className} text-base md:text-lg lg:text-xl text-gray-500 max-w-3xl mx-auto`}
+            className={`${inter.className} mx-auto max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}
           >
             {activeDescription}
           </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(320px,0.92fr)_minmax(0,1.08fr)] gap-8 lg:gap-12 items-start">

@@ -102,17 +102,19 @@ export default function ClientStories({
       className="relative py-14 md:py-18 lg:py-24 bg-white overflow-hidden"
     >
       <div className="relative max-w-[1440px] mx-auto px-4 md:px-8">
-        <div className="text-center mb-10 md:mb-14 lg:mb-16">
+        <div className="mb-10 md:mb-14 lg:mb-16">
+          <div className="mx-auto w-full max-w-[1200px] text-center">
           <h2
-            className={`${montserrat.className} inline-block text-black text-2xl md:text-4xl lg:text-5xl font-bold uppercase tracking-[0.02em]`}
+            className={`${montserrat.className} whitespace-nowrap text-center text-[clamp(1.7rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
           >
             {sectionTitle}
           </h2>
           <p
-            className={`${inter.className} mt-4 text-sm md:text-[15px] lg:text-base text-gray-500 max-w-3xl mx-auto`}
+            className={`${inter.className} mx-auto max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}
           >
             {sectionDescription}
           </p>
+          </div>
         </div>
 
         <>
@@ -128,11 +130,11 @@ export default function ClientStories({
             {displayStories.map((story) => (
               <article
                 key={story.key}
-                className="group flex flex-shrink-0 w-[82vw] flex-col sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-gray-200 bg-white p-3 md:p-4"
+                className="group flex flex-shrink-0 w-[82vw] flex-col sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-[#ede4d8] bg-[#f6f1e8] p-3 md:p-4"
               >
                 <div className="flex h-full flex-col">
                   {story.featuredImageUrl ? (
-                    <div className="relative aspect-[4/5] overflow-hidden border border-gray-200 bg-[#f3efe8]">
+                    <div className="relative aspect-[4/5] overflow-hidden border border-[#ede4d8] bg-[#f6f1e8]">
                       <Image
                         src={story.featuredImageUrl}
                         alt={story.title || "Rider story"}

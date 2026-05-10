@@ -7,6 +7,7 @@
 
 import React from "react"
 import Image from "next/image"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 interface AboutMissionProps {
   quoteText: string
@@ -107,6 +108,14 @@ export default function AboutMission({
                 {ceoTitle}
               </p>
             </div>
+
+            <LocalizedClientLink
+              href="/about/ceo-story"
+              className="mt-4 inline-flex items-center justify-center rounded-full bg-[#191b22] px-7 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white transition-colors duration-300 hover:bg-[#F16D34]"
+              style={{ fontFamily: "Inter Display, sans-serif" }}
+            >
+              Read Story
+            </LocalizedClientLink>
           </div>
         </div>
       </div>

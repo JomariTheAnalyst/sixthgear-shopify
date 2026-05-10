@@ -33,8 +33,7 @@ const teamMembersFallback: TeamMember[] = [
     title: "Workshop Head",
     description:
       "Experienced motorcycle technician specializing in diagnostics, repairs, and performance upgrades for big bikes and premium motorcycles.",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop&crop=face",
+    image: "/images/team/team1.png",
     socialLinks: {},
   },
   {
@@ -44,8 +43,7 @@ const teamMembersFallback: TeamMember[] = [
     title: "Service & Installation Specialist",
     description:
       "Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=800&fit=crop&crop=face",
+    image: "/images/team/team2.png",
     socialLinks: {},
   },
   {
@@ -55,19 +53,17 @@ const teamMembersFallback: TeamMember[] = [
     title: "Rider Support & Coordination",
     description:
       "Your point of contact for service consultations, job updates, and ensuring a smooth workshop experience from start to finish.",
-    image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop&crop=face",
+    image: "/images/team/team3.png",
     socialLinks: {},
   },
   {
     id: 4,
-    name: "SARAH",
+    name: "JEVAN",
     role: "Lead Barista",
     title: "First Gear Coffee",
     description:
       "Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&h=800&fit=crop&crop=face",
+    image: "/images/team/team4.png",
     socialLinks: {},
   },
 ]
@@ -120,16 +116,16 @@ export default function OurTeam({
           <div className="max-w-[1240px] mx-auto px-4 md:px-8">
             
             {/* Header */}
-            <div className="text-center mb-12 md:mb-16">
+            <div className="mb-10 text-center md:mb-12 lg:mb-14">
               <div className="flex justify-center mb-4">
               </div>
               <h2
-                className={`${montserrat.className} text-3xl md:text-4xl lg:text-[42px] font-bold tracking-tight text-white mb-4`}
+                className={`${montserrat.className} whitespace-nowrap text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-white`}
               >
                 {activeTitle}
               </h2>
               <p
-                className={`${inter.className} text-sm md:text-base text-gray-300 max-w-2xl mx-auto font-medium leading-relaxed whitespace-pre-line`}
+                className={`${inter.className} mx-auto mt-4 max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-white/70 md:text-xl lg:text-2xl whitespace-pre-line`}
               >
                 {activeDescription}
               </p>
@@ -170,10 +166,10 @@ export default function OurTeam({
                     key={member.id}
                     className="snap-center flex-shrink-0 w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
                   >
-                    <div className="bg-white rounded-3xl overflow-hidden h-full flex flex-col group/card shadow-lg hover:shadow-2xl hover:shadow-[#fca311]/5 border border-transparent hover:border-[#fca311]/10 transition-all duration-500">
+                    <div className="bg-[#f6f1e8] rounded-3xl overflow-hidden h-full flex flex-col group/card shadow-lg hover:shadow-2xl hover:shadow-[#fca311]/5 border border-transparent hover:border-[#fca311]/10 transition-all duration-500">
                       
                       {/* Image Container */}
-                      <div className="relative aspect-[4/5] overflow-hidden bg-gray-200">
+                      <div className="relative aspect-[4/5] overflow-hidden bg-[#f6f1e8]">
                         <Image
                           src={member.image}
                           alt={member.name}
@@ -187,7 +183,7 @@ export default function OurTeam({
                       </div>
 
                       {/* Content Section (White Bottom Card) */}
-                      <div className="px-6 py-8 md:py-10 text-center bg-white flex flex-col flex-grow items-center justify-center -mt-2 relative z-10 rounded-t-3xl">
+                      <div className="px-6 py-8 md:py-10 text-center bg-[#f6f1e8] flex flex-col flex-grow items-center justify-center -mt-2 relative z-10 rounded-t-3xl">
                         <h3
                           className={`${montserrat.className} text-[22px] font-bold tracking-tight text-[#111111] mb-1.5`}
                         >

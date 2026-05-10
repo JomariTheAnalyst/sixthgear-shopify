@@ -98,8 +98,7 @@ export default function WhyChooseUs({ data }: WhyChooseUsProps) {
   const bottomImage = {
     src: data?.bottomImage?.src || FALLBACK_WHY_CHOOSE_US.bottomImage.src,
     alt:
-      data?.bottomImage?.alt?.trim() ||
-      FALLBACK_WHY_CHOOSE_US.bottomImage.alt,
+      data?.bottomImage?.alt?.trim() || FALLBACK_WHY_CHOOSE_US.bottomImage.alt,
   }
 
   return (

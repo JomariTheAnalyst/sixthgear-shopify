@@ -47,12 +47,12 @@ export default function StoreLocation({
       <div className="mb-12 md:mb-16 max-w-7xl mx-auto px-4 md:px-8 lg:px-16">
         <div className="text-center">
           <h2
-            className={`${montserrat.className} text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.015em] text-black`}
+            className={`${montserrat.className} whitespace-nowrap text-center text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22]`}
           >
             Store Location
           </h2>
           <p
-            className={`${inter.className} text-gray-600 text-base md:text-lg mt-4 max-w-2xl mx-auto`}
+            className={`${inter.className} mx-auto mt-4 max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}
           >
             Visit us at our store in Makati City for premium motorcycle gear,
             professional services, and great coffee.

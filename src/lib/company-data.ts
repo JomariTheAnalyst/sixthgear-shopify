@@ -1,5 +1,5 @@
 export const companyData = {
-  name: "Sixthgear Motosupply",
+  name: "Sixthgear Motosupply and cafe + lounge",
 
   purpose: `The purpose of our company is to provide comprehensive motorcycle maintenance, servicing, upgrades, and customization services, and to establish, operate, and manage a professional motorcycle service center catering to both local and international brands.`,
 
@@ -199,6 +199,37 @@ Lastly, the company may acquire, lease, or manage properties necessary for the o
       { name: "BMW", image: "/images/brands/brand5.png" },
       { name: "Royal Enfield", image: "/images/brands/brand6.png" },
     ]
+  },
+
+  serviceExpertise: {
+    heading: "Advanced Tools & Precision Bike Care",
+    description:
+      "We use professional diagnostics, proper tools, and experienced hands to deliver reliable motorcycle servicing, repairs, and upgrades, done right the first time.",
+    highlights: [
+      {
+        title: "Precision Diagnostics",
+        description:
+          "Modern diagnostic tools and systematic checks to accurately identify issues and prevent costly repeat repairs.",
+      },
+      {
+        title: "Proper Installation Standards",
+        description:
+          "Accessories, parts, and upgrades installed with correct torque, routing, and fitment for safety and long-term reliability.",
+      },
+      {
+        title: "Experience-Driven Workmanship",
+        description:
+          "Hands-on expertise built from real-world riding and servicing, focused on quality, safety, and consistency.",
+      },
+    ],
+    assistance: {
+      heading: "Need Immediate Bike Assistance?",
+      phone: "0995 093 0157",
+      description:
+        "Emergency motorcycle towing, roadside assistance, and recovery when you need help on the road.",
+      buttonText: "Contact Us",
+      buttonLink: "/contact",
+    },
   }
 }
 

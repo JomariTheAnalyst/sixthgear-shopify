@@ -101,14 +101,11 @@ const NavClient = ({
 
   return (
     <>
-      <div
-        className={`inset-x-0 z-50 bg-white transition-all duration-300 ${
-          isScrolled ? "shadow-md" : ""
-        }`}
-      >
         <header
           ref={headerRef}
-          className="relative mx-auto border-b border-gray-100 bg-white"
+          className={`relative mx-auto border-b border-gray-100 bg-white transition-shadow duration-300 ${
+            isScrolled ? "shadow-md" : ""
+          }`}
         >
           <nav className="content-container w-full h-full flex flex-col">
             <div className="flex md:hidden items-center justify-between py-4">
@@ -308,7 +305,6 @@ const NavClient = ({
             </div>
           </nav>
         </header>
-      </div>
 
       <div
         className={`fixed inset-x-0 z-[100] bg-white shadow-2xl border-t border-gray-100 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1.0)] transform ${

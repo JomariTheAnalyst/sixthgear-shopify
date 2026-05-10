@@ -138,7 +138,7 @@ const Stars = ({ count = 5 }: { count?: number }) => (
 )
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
-  <div className="bg-[#F9F9F9] rounded-2xl p-6 md:p-8 flex flex-col h-full border border-gray-100 hover:shadow-lg hover:border-[#F16D34]/20 transition-all duration-300 min-w-[300px] md:min-w-[360px] max-w-[360px]">
+  <div className="bg-[#f6f1e8] rounded-2xl p-6 md:p-8 flex flex-col h-full border border-[#ede4d8] hover:shadow-lg hover:border-[#F16D34]/20 transition-all duration-300 min-w-[300px] md:min-w-[360px] max-w-[360px]">
     {/* Quote icon */}
     <div className="mb-3 flex justify-center">
       <QuoteIcon />
@@ -198,14 +198,14 @@ export default function ClientTestimonials({
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
 
         {/* Header row */}
-        <div className="mb-12 md:mb-16">
-          <div className="text-center max-w-2xl mx-auto">
+        <div className="mb-10 md:mb-14 lg:mb-16">
+          <div className="mx-auto w-full max-w-[1200px] text-center">
             <h2
-              className={`${montserrat.className} text-gray-900 text-4xl md:text-5xl lg:text-6xl font-bold tracking-[0.025em] mb-3 leading-tight`}
+              className={`${montserrat.className} whitespace-nowrap text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
             >
               {activeTitle}
             </h2>
-            <p className={`${inter.className} text-gray-500 text-base md:text-lg font-medium`}>
+            <p className={`${inter.className} mx-auto max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}>
               {activeDescription}
             </p>
           </div>

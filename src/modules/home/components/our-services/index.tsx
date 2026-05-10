@@ -213,12 +213,12 @@ export default function OurServices({
         <div className="mb-10 md:mb-14 lg:mb-16">
           <div className="mx-auto w-full max-w-[1200px] text-center">
             <h2
-              className={`${montserrat.className} whitespace-nowrap text-[clamp(2.5rem,6.6vw,6.5rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
+              className={`${montserrat.className} whitespace-nowrap text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
             >
               {content.title}
             </h2>
             <p
-              className={`${inter.className} mx-auto max-w-[860px] text-lg md:text-[28px] lg:text-[34px] leading-[1.1] tracking-[-0.03em] text-black/88`}
+              className={`${inter.className} mx-auto max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}
             >
               {content.description}
             </p>
