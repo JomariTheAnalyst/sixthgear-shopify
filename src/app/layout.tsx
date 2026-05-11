@@ -8,7 +8,6 @@ import { getBaseURL } from "@lib/util/env"
 import { Toaster } from "sonner"
 
 import { ConsoleWarning } from "../components/common/console-warning"
-import RouteProgress from "../components/common/route-progress"
 import { PreviewIndicator } from "../components/preview-indicator"
 import "styles/globals.css"
 
@@ -65,7 +64,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
       >
         <ConsoleWarning />
-        <RouteProgress />
         <PreviewIndicator />
         <main className="relative">{props.children}</main>
         <Toaster position="bottom-right" richColors />
