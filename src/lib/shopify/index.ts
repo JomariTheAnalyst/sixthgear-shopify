@@ -192,7 +192,7 @@ export async function getCollectionProductsByHandle(
 }
 
 export async function getCollections(first: number = 20): Promise<ShopifyCollection[]> {
-  const key = cacheKey("collections", "all");
+  const key = cacheKey("collections", "all", String(first));
 
   return getCached(
     key,

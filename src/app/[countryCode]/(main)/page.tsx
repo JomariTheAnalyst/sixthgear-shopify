@@ -12,7 +12,9 @@ import Stats from "@modules/home/components/stats"
 import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
-import ShopByBrands from "@modules/home/components/shop-by-brands"
+import ShopByBrands, {
+  type BrandCardItem,
+} from "@modules/home/components/shop-by-brands"
 import FeaturedCollectionBanner from "@modules/home/components/featured-collection-banner"
 import PromoBanner from "@modules/home/components/promo-banner"
 import PopupAd from "@modules/home/components/popup-ad"
@@ -25,15 +27,14 @@ import type {
 } from "@lib/cms/types"
 import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
-import { getCollection, getProducts } from "@lib/shopify"
-import type { ShopifyProductCard } from "@lib/shopify/types"
+import { getCollection, getCollections, getProducts } from "@lib/shopify"
+import type { ShopifyCollection, ShopifyProductCard } from "@lib/shopify/types"
 import { HttpTypes } from "@medusajs/types"
 
 import { fetchHomeContent } from "@lib/strapi/home"
 import {
   getAboutWithFallbacks,
 } from "@lib/strapi/home-with-fallbacks"
-import { getShopByBrandsWithFallbacks } from "@lib/strapi/shop-by-brands"
 import {
   getHomepageAbout,
   getHomepageBlogPosts,
@@ -64,6 +65,8 @@ import {
 } from "@modules/home/components/homepage-section-skeletons"
 
 export const revalidate = 60
+
+const BRAND_COLLECTION_HANDLE_PREFIX = "brand-"
 
 export async function generateMetadata({
   params,
@@ -102,6 +105,20 @@ function ProductSectionSkeleton() {
   )
 }
 
+function mapBrandCollectionToCard(
+  collection: ShopifyCollection
+): BrandCardItem {
+  return {
+    id: collection.id,
+    name: collection.title,
+    imageUrl: collection.image?.url ?? null,
+    imageAlt:
+      collection.image?.altText ?? `${collection.title} collection image`,
+    link: `/collections/${collection.handle}`,
+    buttonText: "SHOP NOW",
+  }
+}
+
 export default async function Home(props: {
   params: Promise<{ countryCode: string }>
 }) {
@@ -128,6 +145,7 @@ export default async function Home(props: {
     marketingData,
     homepageBlogPosts,
     collectionSections,
+    brandCollections,
     featuredProductsResp,
     newArrivalsResp,
   ] = await Promise.all([
@@ -144,6 +162,7 @@ export default async function Home(props: {
     getMarketingData(),
     getHomepageBlogPosts(),
     getHomepageCollectionSections(),
+    getCollections(100),
     getProducts({ first: 8, query: 'tag:featured' }),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
   ])
@@ -224,8 +243,12 @@ export default async function Home(props: {
 
   const homeContent = await fetchHomeContent()
   const aboutContent = await getAboutWithFallbacks(homeContent)
-  const shopByBrandsContent = getShopByBrandsWithFallbacks(homeContent)
   const clientStoriesContent: SanityBlogPostListItem[] = homepageBlogPosts
+  const shopifyBrandCards = brandCollections
+    .filter((collection) =>
+      collection.handle.startsWith(BRAND_COLLECTION_HANDLE_PREFIX)
+    )
+    .map(mapBrandCollectionToCard)
 
 
   const getFeatured = (position: string): SanityFeaturedCollectionItem | null =>
@@ -250,9 +273,7 @@ export default async function Home(props: {
 
       <ShopByBrands
         data={homepageShopByBrands}
-        sectionTitle={shopByBrandsContent.sectionTitle}
-        brands={shopByBrandsContent.brands}
-        showNavDesktop={shopByBrandsContent.showNavDesktop}
+        brands={shopifyBrandCards}
       />
 
       <AboutSection

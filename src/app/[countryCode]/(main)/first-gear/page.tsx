@@ -9,6 +9,8 @@ import type { FeaturedMenuProduct } from "@modules/menu/components/featured-menu
 export const revalidate = 60
 
 const FIRST_GEAR_COLLECTION_HANDLE = "first-gear-coffee"
+const FIRST_GEAR_FALLBACK_IMAGE =
+  "/images/firstgear-coffee/first%20gear%20coffee%20white%20bg.png"
 
 export const metadata: Metadata = {
   title: "Coffee Menu",
@@ -73,7 +75,7 @@ function mapCoffeeProductToMenuItem(
     image:
       product.featuredImage?.url ||
       product.images?.edges?.[0]?.node?.url ||
-      "/images/firstgear-coffee/firstgearcoffee-whitebg.png",
+      FIRST_GEAR_FALLBACK_IMAGE,
     name: product.title,
     description:
       product.description?.trim() ||

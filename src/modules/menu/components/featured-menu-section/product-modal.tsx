@@ -10,6 +10,9 @@ import { addToCart } from "@lib/data/cart"
 import { formatPrice } from "@lib/shopify"
 import type { FeaturedMenuProduct, FeaturedMenuVariant } from "./types"
 
+const FIRST_GEAR_FALLBACK_IMAGE =
+  "/images/firstgear-coffee/first%20gear%20coffee%20white%20bg.png"
+
 type ProductModalProps = {
   product: FeaturedMenuProduct | null
   countryCode: string
@@ -61,7 +64,7 @@ const ProductModal = ({ product, countryCode, onClose }: ProductModalProps) => {
   }, [product, selectedOptions, visibleOptions])
 
   const activeImage =
-    selectedVariant?.image?.url || product?.image || "/images/firstgear-coffee/firstgearcoffee-whitebg.png"
+    selectedVariant?.image?.url || product?.image || FIRST_GEAR_FALLBACK_IMAGE
   const variantOnSale = isSale(selectedVariant)
   const currentPrice = selectedVariant?.price ? formatPrice(selectedVariant.price) : product?.price
   const compareAtPrice =

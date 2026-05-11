@@ -14,6 +14,8 @@ const PREFERRED_CATEGORIES = [
   "Non-Coffee Drinks",
   "Snacks",
 ]
+const FIRST_GEAR_FALLBACK_IMAGE =
+  "/images/firstgear-coffee/first%20gear%20coffee%20white%20bg.png"
 
 export type { FeaturedMenuProduct } from "./types"
 
@@ -23,7 +25,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 1,
     category: "Coffee Drinks",
     handle: "espresso-shot",
-    image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "ESPRESSO SHOT",
     description: "Rich, bold, and freshly extracted. Pure intensity in every concentrated sip.",
     price: "₱120.00"
@@ -32,7 +34,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 2,
     category: "Coffee Drinks",
     handle: "caramel-latte",
-    image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "CARAMEL LATTE",
     description: "Silky steamed milk with caramel sweetness. A creamy delight that warms every moment.",
     price: "₱160.00"
@@ -41,7 +43,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 3,
     category: "Coffee Drinks",
     handle: "mocha-bliss",
-    image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "MOCHA BLISS",
     description: "Chocolate and coffee in perfect harmony. Smooth, sweet, and deeply satisfying.",
     price: "₱175.00"
@@ -50,7 +52,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 4,
     category: "Coffee Drinks",
     handle: "vietnamese-coffee",
-    image: "https://images.unsplash.com/photo-1517701604599-bb24b5e50741?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "VIETNAMESE COFFEE",
     description: "Authentic dark roast with condensed milk. Strong, sweet, and incredibly bold.",
     price: "₱150.00"
@@ -60,7 +62,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 5,
     category: "Non-Coffee Drinks",
     handle: "matcha-latte",
-    image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "MATCHA LATTE",
     description: "Premium ceremonial grade matcha with creamy steamed milk. Earthy and soothing.",
     price: "₱165.00"
@@ -69,7 +71,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 6,
     category: "Non-Coffee Drinks",
     handle: "berry-iced-tea",
-    image: "https://images.unsplash.com/photo-1544145945-f904253d0c71?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "BERRY ICED TEA",
     description: "Freshly brewed tea infused with wild berries. Refreshing and naturally sweet.",
     price: "₱140.00"
@@ -78,7 +80,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 7,
     category: "Non-Coffee Drinks",
     handle: "orange-sunrise",
-    image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "ORANGE SUNRISE",
     description: "Freshly squeezed oranges with a hint of grenadine. A bright start to your day.",
     price: "₱155.00"
@@ -87,7 +89,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 8,
     category: "Non-Coffee Drinks",
     handle: "chocolate-frapper",
-    image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "CHOCOLATE FRAPPER",
     description: "Rich dark chocolate blended with ice and topped with whipped cream.",
     price: "₱180.00"
@@ -97,7 +99,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 9,
     category: "Snacks",
     handle: "blueberry-muffin",
-    image: "https://images.unsplash.com/photo-1550617931-e17a7b70dce2?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "BLUEBERRY MUFFIN",
     description: "Freshly baked muffin bursting with real blueberries and a crumbly top layer.",
     price: "₱95.00"
@@ -106,7 +108,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 10,
     category: "Snacks",
     handle: "chocolate-croissant",
-    image: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "CHOCOLATE CROISSANT",
     description: "Flaky, buttery pastry filled with premium dark chocolate. Best served warm.",
     price: "₱110.00"
@@ -115,7 +117,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 11,
     category: "Snacks",
     handle: "avocado-toast",
-    image: "https://images.unsplash.com/photo-1582298538104-fe2e74c27f59?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "AVOCADO TOAST",
     description: "Sourdough bread topped with mashed avocado, chili flakes, and a poached egg.",
     price: "₱220.00"
@@ -124,7 +126,7 @@ const FALLBACK_MENU_ITEMS: FeaturedMenuProduct[] = [
     id: 12,
     category: "Snacks",
     handle: "cheesecake-slice",
-    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800",
+    image: FIRST_GEAR_FALLBACK_IMAGE,
     name: "CHEESECAKE SLICE",
     description: "New York style creamy cheesecake with a graham cracker crust and berry coulis.",
     price: "₱145.00"
