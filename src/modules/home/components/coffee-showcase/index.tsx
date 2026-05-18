@@ -107,7 +107,7 @@ export default function CoffeeShowcase({
   const [videoDurations, setVideoDurations] = useState<Record<string, number>>({})
   const sectionRef = useRef<HTMLElement | null>(null)
   const progressRef = useRef(0)
-  const intervalRef = useRef<ReturnType<typeof window.setInterval> | null>(null)
+  const intervalRef = useRef<number | null>(null)
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
 
   const activeHeading =
