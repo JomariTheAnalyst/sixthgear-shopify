@@ -56,12 +56,12 @@ const FALLBACK_WHY_CHOOSE_US: Required<
     },
   ],
   topImage: {
-    src: "/images/sixthgear-workshop.jpg",
-    alt: "Sixthgear Workshop",
+    src: "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090209/sixthgear-bikebeingserviced_nxzbdw.jpg",
+    alt: "Sixthgear technician servicing a motorcycle",
   },
   bottomImage: {
-    src: "/images/sixthgear-image1.jpg",
-    alt: "Rider community at Sixth Gear",
+    src: "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090175/rider-story_nhopsn.jpg",
+    alt: "Rider story moment at Sixth Gear",
   },
 }
 

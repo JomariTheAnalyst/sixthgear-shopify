@@ -25,8 +25,8 @@ const FALLBACK_ABOUT_STORY: AboutStoryItem[] = [
     heading: "No Shortcuts On Quality",
     body: "Riding isn't just transport; it's a lifestyle. That's why we stock only the gear, parts, and accessories that we personally trust and use on the open road. If we won't bet our own safety on a helmet or throw a specific brand of luggage on our own touring rigs, you won't find it on our shelves. We're committed to bringing you the absolute highest standard of rider apparel because we know exactly what is at stake when you twist the throttle.",
     image: {
-      src: "/images/firstgear.jpg",
-      alt: "Quality riding gear and accessories"
+      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779091975/sixthgear-shop_gxf8bi.png",
+      alt: "Sixthgear Moto shop interior with riding gear and accessories"
     }
   },
   {
@@ -34,8 +34,8 @@ const FALLBACK_ABOUT_STORY: AboutStoryItem[] = [
     heading: "Fueling The Community",
     body: "A great ride always starts or ends with great coffee. That's the reason we integrated First Gear Coffee right into our space. It's more than just an espresso machine in a waiting area—it's a sanctuary for the riding community. We organize events, foster real friendships, and provide a place where you can grab a solid cup of coffee, talk shop, and swap stories with people who share the exact same passion for two wheels.",
     image: {
-      src: "/images/sixthgear-image1.jpg",
-      alt: "First Gear Coffee and Rider Lounge"
+      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090174/sixthgear-event_ossb2m.jpg",
+      alt: "Sixthgear Moto rider community event"
     }
   }
 ]

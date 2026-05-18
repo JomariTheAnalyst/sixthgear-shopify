@@ -192,12 +192,12 @@ Lastly, the company may acquire, lease, or manage properties necessary for the o
       "Tire Changing"
     ],
     brands: [
-      { name: "Suzuki", image: "/images/brands/brand1.png" },
-      { name: "Yamaha", image: "/images/brands/brand2.png" },
-      { name: "KTM", image: "/images/brands/brand3.png" },
-      { name: "Kawasaki", image: "/images/brands/brand4.png" },
-      { name: "BMW", image: "/images/brands/brand5.png" },
-      { name: "Royal Enfield", image: "/images/brands/brand6.png" },
+      { name: "Suzuki", image: "/images/brands/motorcycle-images/motosm.png" },
+      { name: "Yamaha", image: "/images/brands/motorcycle-images/yamaha.webp" },
+      { name: "KTM", image: "/images/brands/motorcycle-images/ktm.png" },
+      { name: "Kawasaki", image: "/images/brands/motorcycle-images/kawasaki.png" },
+      { name: "BMW", image: "/images/brands/motorcycle-images/BMW.png" },
+      { name: "Royal Enfield", image: "/images/brands/motorcycle-images/royal-enfield.png" },
     ]
   },
 
