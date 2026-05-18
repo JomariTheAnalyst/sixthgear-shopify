@@ -2,8 +2,10 @@
 
 import { Fragment, useState, useEffect } from "react"
 import { Dialog, Transition } from "@headlessui/react"
-import { X, Search, Clock, TrendingUp } from "lucide-react"
+import { X, Search, Clock, TrendingUp, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getPredictiveSearch } from "@lib/data/search"
+import type { ShopifyPredictiveSearchResult } from "@lib/shopify/types"
 import RecentSearches, { addRecentSearch } from "../recent-searches"
 import PopularSuggestions from "../popular-suggestions"
 import HotDealsProducts from "../hot-deals-products"
@@ -18,14 +20,65 @@ interface EnhancedSearchModalProps {
 
 const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
   const [query, setQuery] = useState("")
+  const [debouncedQuery, setDebouncedQuery] = useState("")
+  const [results, setResults] = useState<ShopifyPredictiveSearchResult>({
+    products: [],
+    collections: [],
+    pages: [],
+  })
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   // Reset query when modal closes
   useEffect(() => {
     if (!isOpen) {
       setQuery("")
+      setDebouncedQuery("")
+      setResults({ products: [], collections: [], pages: [] })
+      setIsLoading(false)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim())
+    }, 200)
+
+    return () => clearTimeout(timer)
+  }, [query])
+
+  useEffect(() => {
+    if (debouncedQuery.length < 2) {
+      setResults({ products: [], collections: [], pages: [] })
+      setIsLoading(false)
+      return
+    }
+
+    let cancelled = false
+    setIsLoading(true)
+
+    getPredictiveSearch(debouncedQuery)
+      .then((nextResults) => {
+        if (!cancelled) {
+          setResults(nextResults)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        if (!cancelled) {
+          setResults({ products: [], collections: [], pages: [] })
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [debouncedQuery])
 
   // Handle ESC key
   useEffect(() => {
@@ -40,11 +93,8 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
 
   const handleSearchSubmit = () => {
     if (query.trim()) {
-      // Save to recent searches
       addRecentSearch(query)
-      // Navigate to store page with query
       router.push(`/store?query=${encodeURIComponent(query.trim())}`)
-      // Close modal
       onClose()
     }
   }
@@ -57,21 +107,37 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
 
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion)
-    // Save to recent searches
     addRecentSearch(suggestion)
   }
 
   const handleProductClick = (handle: string) => {
-    // Save search if there's a query
     if (query.trim()) {
       addRecentSearch(query)
     }
-    // Navigate to product
-    router.push(`/store/${handle}`)
+
+    router.push(`/products/${handle}`)
+    onClose()
+  }
+
+  const handleCollectionClick = (handle: string) => {
+    if (query.trim()) {
+      addRecentSearch(query)
+    }
+
+    router.push(`/collections/${handle}`)
+    onClose()
+  }
+
+  const handleSeeAllResults = () => {
+    if (!query.trim()) return
+
+    addRecentSearch(query)
+    router.push(`/store?query=${encodeURIComponent(query.trim())}`)
     onClose()
   }
 
   const isSearching = query.trim().length > 0
+  const showLoadingIndicator = isSearching && isLoading
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -113,6 +179,9 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
                       className="flex-1 border-0 focus:ring-0 text-base placeholder-gray-400 focus:outline-none"
                       autoFocus
                     />
+                    {showLoadingIndicator && (
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    )}
                     <button
                       onClick={onClose}
                       className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -131,7 +200,11 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
                         {/* Autocomplete Suggestions */}
                         <div className="border-b border-gray-200">
                           <AutocompleteSuggestions
-                            query={query}
+                            collections={results.collections.slice(0, 4)}
+                            loading={isLoading && results.collections.length === 0}
+                            query={debouncedQuery}
+                            onCollectionClick={handleCollectionClick}
+                            onSearchClick={handleSeeAllResults}
                             onSuggestionClick={handleSuggestionClick}
                           />
                         </div>
@@ -140,7 +213,7 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
                           <div className="flex items-center gap-2 mb-3">
                             <TrendingUp className="w-4 h-4 text-gray-400" />
                             <h3 className="text-sm font-medium text-gray-700">
-                              Recent Searches
+                              Popular Searches
                             </h3>
                           </div>
                           <PopularSuggestions
@@ -170,8 +243,11 @@ const EnhancedSearchModal = ({ isOpen, onClose }: EnhancedSearchModalProps) => {
                           Search Results
                         </h3>
                         <SearchResults
-                          query={query}
+                          query={debouncedQuery}
+                          products={results.products.slice(0, 6)}
+                          loading={isLoading && results.products.length === 0}
                           onProductClick={handleProductClick}
+                          onSeeAllResults={handleSeeAllResults}
                         />
                       </div>
                     ) : (

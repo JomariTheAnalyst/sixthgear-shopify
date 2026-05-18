@@ -6,7 +6,7 @@ import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
 import OurServices from "@modules/home/components/our-services"
 import ShopByCategories from "@modules/home/components/categories"
-import ShopByBrands from "@modules/home/components/shop-by-brands"
+import FeaturedBrand from "@modules/home/components/featured-brand"
 import SatisfiedCustomers from "@modules/home/components/satisfied-customers"
 import CoffeeShowcase from "@modules/home/components/coffee-showcase"
 import ClientTestimonials from "@modules/home/components/client-testimonials"
@@ -149,7 +149,7 @@ export default async function PreviewPage(props: {
         />
 
         {/* Shop By Brands Section */}
-        <ShopByBrands
+        <FeaturedBrand
           sectionTitle={shopByBrandsContent.sectionTitle}
           brands={shopByBrandsContent.brands}
           showNavDesktop={shopByBrandsContent.showNavDesktop}

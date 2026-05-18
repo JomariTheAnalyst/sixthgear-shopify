@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Returns and Warranty | Sixthgear Moto Supply",
+  title: "Returns and Warranty",
   description:
     "Returns and warranty policy for Sixthgear Moto Supply & Cafe purchases.",
 }

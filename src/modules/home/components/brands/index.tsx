@@ -25,6 +25,10 @@ const brandLogoMap: Record<string, string> = {
   Kawasaki: "/images/brands/brands-logo/kawasaki-logo.svg",
   BMW: "/images/brands/brands-logo/bmw-logo.svg",
   "Royal Enfield": "/images/brands/brands-logo/royal-enfield-logo.svg",
+  CFMOTO: "/images/brands/brands-logo/cfmoto.png",
+  "CF Moto": "/images/brands/brands-logo/cfmoto.png",
+  "CF Motor": "/images/brands/brands-logo/cfmoto.png",
+  Benda: "/images/brands/brands-logo/benda.jpg",
 }
 
 const brandImageMap: Record<string, string> = {
@@ -34,6 +38,10 @@ const brandImageMap: Record<string, string> = {
   Kawasaki: "/images/brands/motorcycle-images/kawasaki.png",
   BMW: "/images/brands/motorcycle-images/BMW.png",
   "Royal Enfield": "/images/brands/motorcycle-images/royal-enfield.png",
+  CFMOTO: "/images/brands/motorcycle-images/cf moto.png",
+  "CF Moto": "/images/brands/motorcycle-images/cf moto.png",
+  "CF Motor": "/images/brands/motorcycle-images/cf moto.png",
+  Benda: "/images/brands/motorcycle-images/benda.png",
 }
 
 const defaultBrands: BrandItem[] = [
@@ -47,21 +55,141 @@ const defaultBrands: BrandItem[] = [
   { name: "Kawasaki", logo: "/images/brands/brand4.png", link: null },
   { name: "BMW", logo: "/images/brands/brand5.png", link: null },
   { name: "Royal Enfield", logo: "/images/brands/brand6.png", link: null },
+  {
+    name: "CFMOTO",
+    logo: "/images/brands/brands-logo/cfmoto.png",
+    link: null,
+  },
+  {
+    name: "Benda",
+    logo: "/images/brands/brands-logo/benda.jpg",
+    link: null,
+  },
 ]
 
-const brandOverviewMap: Record<string, string> = {
-  Suzuki:
-    "Suzuki motorcycles are known for practical performance, reliability, and everyday rideability across commuter and sport platforms.",
-  Yamaha:
-    "Yamaha blends responsive engineering with rider-focused design, from urban commuters to high-performance machines.",
-  KTM:
-    "KTM brings aggressive styling, sharp handling, and performance-first engineering built for riders who want a more energetic machine.",
-  Kawasaki:
-    "Kawasaki motorcycles are recognized for strong road presence, balanced power delivery, and dependable versatility across segments.",
-  BMW:
-    "BMW motorcycles combine premium engineering, touring comfort, and advanced rider technology for long-distance confidence and everyday refinement.",
-  "Royal Enfield":
-    "Royal Enfield focuses on timeless styling, relaxed character, and mechanical simplicity that suits both city and open-road riding.",
+const requiredBrandAdditions: BrandItem[] = [
+  {
+    name: "CFMOTO",
+    logo: "/images/brands/brands-logo/cfmoto.png",
+    link: null,
+  },
+  {
+    name: "Benda",
+    logo: "/images/brands/brands-logo/benda.jpg",
+    link: null,
+  },
+]
+
+const brandDetailMap: Record<
+  string,
+  {
+    overview: string
+    keySentences: string[]
+  }
+> = {
+  Suzuki: {
+    overview:
+      "Suzuki motorcycles are known for practical performance, reliability, and everyday rideability across commuter, sport, touring, and adventure platforms. The brand has a strong reputation among riders who want machines that are easy to live with, honest to maintain, and capable of handling regular use without unnecessary complexity.",
+    keySentences: [
+      "Well-balanced engines make Suzuki bikes approachable for both daily riders and weekend riders.",
+      "The brand's parts ecosystem and broad model range make service planning straightforward.",
+      "Best suited for riders who value dependable performance, clean maintenance, and long-term usability.",
+    ],
+  },
+  Yamaha: {
+    overview:
+      "Yamaha blends responsive engineering with rider-focused design, from urban commuters to high-performance machines. Its motorcycles often feel sharp, refined, and predictable, giving riders confidence whether they are navigating city traffic, carving open roads, or maintaining a sport-oriented bike.",
+    keySentences: [
+      "Yamaha platforms reward precise setup, especially in suspension, braking, and throttle response.",
+      "The brand is popular because it balances performance character with everyday practicality.",
+      "A careful service approach helps preserve the smoothness and responsiveness Yamaha riders expect.",
+    ],
+  },
+  KTM: {
+    overview:
+      "KTM brings aggressive styling, sharp handling, and performance-first engineering built for riders who want a more energetic machine. The brand has a strong identity in lightweight performance, off-road influence, and bikes that feel direct, lively, and eager when properly maintained.",
+    keySentences: [
+      "KTM motorcycles benefit from close attention to fluids, cooling, chain care, and electronic diagnostics.",
+      "Their performance character makes correct setup more noticeable than on many softer commuter platforms.",
+      "Ideal for riders who enjoy a responsive motorcycle and want it maintained with precision.",
+    ],
+  },
+  Kawasaki: {
+    overview:
+      "Kawasaki motorcycles are recognized for strong road presence, balanced power delivery, and dependable versatility across segments. From approachable commuters to larger displacement sport and touring bikes, the brand appeals to riders who want confident acceleration, solid engineering, and a machine with personality.",
+    keySentences: [
+      "Kawasaki bikes often respond well to consistent preventive maintenance and correct drivetrain care.",
+      "The brand's broad lineup makes accurate model-specific inspection important.",
+      "A good service routine keeps the bike feeling strong, stable, and ready for longer rides.",
+    ],
+  },
+  BMW: {
+    overview:
+      "BMW motorcycles combine premium engineering, touring comfort, and advanced rider technology for long-distance confidence and everyday refinement. Their platforms can include sophisticated electronics, braking systems, suspension features, and service requirements that need a careful, methodical workshop approach.",
+    keySentences: [
+      "BMW service work should respect both mechanical condition and electronic system health.",
+      "Comfort, stability, and safety features depend on proper inspection and calibrated maintenance.",
+      "Best for riders who expect premium road manners and want details handled correctly.",
+    ],
+  },
+  "Royal Enfield": {
+    overview:
+      "Royal Enfield focuses on timeless styling, relaxed character, and mechanical simplicity that suits both city and open-road riding. These motorcycles carry a classic feel, but they still benefit from disciplined checks on fasteners, fluids, brakes, tires, and drivetrain condition.",
+    keySentences: [
+      "Royal Enfield bikes reward steady, thoughtful maintenance rather than rushed servicing.",
+      "The ownership experience is about character, comfort, and confidence over outright speed.",
+      "A clean service routine helps preserve the relaxed feel that makes the brand appealing.",
+    ],
+  },
+  CFMOTO: {
+    overview:
+      "CFMOTO is a modern powersports manufacturer founded in 1989 and headquartered in Hangzhou, China, with motorcycles and off-road vehicles sold across more than 100 countries and regions. The brand is known for bringing strong equipment levels, contemporary styling, and accessible performance to riders who want value without giving up technology.",
+    keySentences: [
+      "CFMOTO motorcycles often combine modern electronics, sharp design, and practical everyday usability.",
+      "Because many models are feature-rich, service should include mechanical checks and attention to sensors, controls, and rider-assist systems.",
+      "A good fit for riders who want a fresh, technology-forward motorcycle with sensible ownership costs.",
+    ],
+  },
+  "CF Moto": {
+    overview:
+      "CFMOTO is a modern powersports manufacturer founded in 1989 and headquartered in Hangzhou, China, with motorcycles and off-road vehicles sold across more than 100 countries and regions. The brand is known for bringing strong equipment levels, contemporary styling, and accessible performance to riders who want value without giving up technology.",
+    keySentences: [
+      "CFMOTO motorcycles often combine modern electronics, sharp design, and practical everyday usability.",
+      "Because many models are feature-rich, service should include mechanical checks and attention to sensors, controls, and rider-assist systems.",
+      "A good fit for riders who want a fresh, technology-forward motorcycle with sensible ownership costs.",
+    ],
+  },
+  "CF Motor": {
+    overview:
+      "CFMOTO is a modern powersports manufacturer founded in 1989 and headquartered in Hangzhou, China, with motorcycles and off-road vehicles sold across more than 100 countries and regions. The brand is known for bringing strong equipment levels, contemporary styling, and accessible performance to riders who want value without giving up technology.",
+    keySentences: [
+      "CFMOTO motorcycles often combine modern electronics, sharp design, and practical everyday usability.",
+      "Because many models are feature-rich, service should include mechanical checks and attention to sensors, controls, and rider-assist systems.",
+      "A good fit for riders who want a fresh, technology-forward motorcycle with sensible ownership costs.",
+    ],
+  },
+  Benda: {
+    overview:
+      "Benda is a design-led motorcycle brand from China with a strong focus on cruisers, distinctive silhouettes, and a more expressive riding personality. The brand stands out through bold styling, modern presentation, and motorcycles built for riders who want something less ordinary on the road.",
+    keySentences: [
+      "Benda bikes deserve careful setup because fit, finish, comfort, and visual details are a big part of the ownership experience.",
+      "Their cruiser-oriented character makes drivetrain smoothness, brake feel, tire condition, and ergonomics especially important.",
+      "Best for riders who want presence, style, and a motorcycle that feels personal rather than generic.",
+    ],
+  },
+}
+
+function normalizeBrandName(name: string) {
+  return name.trim().toLowerCase().replace(/[\s_-]+/g, "")
+}
+
+function withRequiredBrandAdditions(inputBrands: BrandItem[]) {
+  const seen = new Set(inputBrands.map((brand) => normalizeBrandName(brand.name)))
+  const additions = requiredBrandAdditions.filter(
+    (brand) => !seen.has(normalizeBrandName(brand.name))
+  )
+
+  return [...inputBrands, ...additions]
 }
 
 export default function Brands({
@@ -73,7 +201,9 @@ export default function Brands({
   const activeDescription =
     sectionDescription ||
     "Experienced in servicing Japanese, American, and European motorcycles with proper tools, care, and attention to detail."
-  const activeBrands = brands && brands.length > 0 ? brands : defaultBrands
+  const activeBrands = withRequiredBrandAdditions(
+    brands && brands.length > 0 ? brands : defaultBrands
+  )
 
   const [activeIndex, setActiveIndex] = useState<number | null>(0)
 
@@ -119,9 +249,14 @@ export default function Brands({
           <div className="order-2 lg:order-1 rounded-[28px] border border-gray-200 overflow-hidden bg-white">
             {activeBrands.map((brand, index) => {
               const isActive = index === activeIndex
-              const overview =
-                brandOverviewMap[brand.name] ||
-                "We support this brand with careful servicing, diagnostics, maintenance, and workshop experience tailored to its platform."
+              const detail = brandDetailMap[brand.name] || {
+                overview:
+                  "We support this brand with careful servicing, diagnostics, maintenance, and workshop experience tailored to its platform.",
+                keySentences: [
+                  "Every service starts with clear inspection and practical recommendations.",
+                  "The goal is to keep the motorcycle reliable, safe, and enjoyable to ride.",
+                ],
+              }
 
               return (
                 <div
@@ -174,8 +309,21 @@ export default function Brands({
                         <p
                           className={`${inter.className} text-sm md:text-base text-gray-600 leading-relaxed max-w-[52ch]`}
                         >
-                          {overview}
+                          {detail.overview}
                         </p>
+                        <ul
+                          className={`${inter.className} mt-4 space-y-2 text-sm md:text-base text-gray-700 leading-relaxed`}
+                        >
+                          {detail.keySentences.map((sentence) => (
+                            <li key={sentence} className="flex gap-2">
+                              <span
+                                className="mt-[0.62em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#F16D34]"
+                                aria-hidden="true"
+                              />
+                              <span>{sentence}</span>
+                            </li>
+                          ))}
+                        </ul>
                         {brand.link ? (
                           <Link
                             href={brand.link}

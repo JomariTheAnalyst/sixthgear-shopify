@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { countryCode } = await params
 
   return {
-    title: "Rider Stories | SixthgearMoto",
+    title: "Rider Stories",
     description:
       "Read rider stories, garage notes, and workshop articles from the SixthgearMoto team and community.",
     alternates: {

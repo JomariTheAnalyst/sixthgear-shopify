@@ -1,6 +1,11 @@
+import { Metadata } from "next"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { getReceiptOrderById } from "@lib/shopify/queries/orders"
+
+export const metadata: Metadata = {
+  title: "Order Receipt",
+}
 
 type Props = {
   params: Promise<{ countryCode: string; id: string }>

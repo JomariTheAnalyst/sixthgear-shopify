@@ -1,5 +1,10 @@
+import { Metadata } from "next"
 import { acceptTransferRequest } from "@lib/data/orders"
 import TransferImage from "@modules/order/components/transfer-image"
+
+export const metadata: Metadata = {
+  title: "Order Transfer Accepted",
+}
 
 export default async function TransferPage({
   params,

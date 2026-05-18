@@ -1,121 +1,183 @@
-# Sixthgear Moto Supply & Café — Headless E-Commerce Storefront
+# Sixthgear Moto Storefront
 
-> A high-performance, enterprise-grade Next.js storefront integrated with the Shopify Storefront API.
+Sixthgear Moto is a headless commerce storefront for motorcycle gear, parts,
+services, rider stories, and First Gear Coffee. The current application is built
+with Next.js, Shopify Storefront API, and Sanity CMS.
 
-![Next.js 15](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
-![Shopify](https://img.shields.io/badge/Shopify-Storefront_API-95BF47?style=flat-square&logo=shopify)
-![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=flat-square&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=flat-square&logo=tailwind-css)
+This repository previously carried Medusa and Strapi assumptions. The current
+runtime direction is Shopify-first. Some Medusa/Strapi compatibility files still
+exist in the codebase and should be treated as legacy migration residue unless a
+feature still imports them directly.
 
-## 📌 Executive Summary
+## Stack
 
-The Sixthgear Moto Frontend is a premium, headless e-commerce experience designed to merge retail motorcycle parts, service bookings, and café orders into a single, unified digital presence. By decoupling the frontend from the e-commerce engine, this architecture delivers unparalleled loading speeds, granular SEO control, and a fluid, app-like user experience.
+| Area | Technology |
+| --- | --- |
+| App framework | Next.js 15 App Router |
+| UI | React 19, TypeScript, Tailwind CSS |
+| Commerce | Shopify Storefront API |
+| CMS | Sanity, with Studio mounted at `/studio` |
+| Cart and customer actions | Next.js Server Actions backed by Shopify |
+| Email | Resend contact form endpoint |
+| Cache/rate limit helpers | Upstash Redis |
+| Testing | Playwright |
 
-## 🏗️ Architecture Overview
+## Main Features
 
-Our storefront utilizes a **Headless Commerce Architecture**, interacting with multiple modern backend services while serving a heavily optimized React frontend:
+- Storefront pages for home, store, collections, products, cart, checkout,
+  wishlist, account, services, about, contact, rider stories, and First Gear
+  Coffee.
+- Shopify product catalog, collections, filters, search, cart mutations,
+  checkout redirects, customer auth, addresses, and order data.
+- Store page filtering with collection, brand collection, price, product type,
+  tags, variant options, sale, and sold-out visibility controls.
+- Service detail overlays using Next.js parallel/intercepted routes.
+- Sanity-backed content helpers for homepage sections, service pages, about
+  content, marketing data, rider stories, and CMS previews.
+- Cloudinary, Shopify CDN, Sanity CDN, Unsplash, and local image support through
+  `next/image` remote patterns.
 
-- **Frontend Framework:** Next.js 15 (App Router) leveraging React Server Components (RSC) limits client-side JavaScript, boosting Core Web Vitals.
-- **E-Commerce Engine:** Shopify Storefront GraphQL API handles all product catalog, inventory, cart mutations, and checkout processing.
-- **Content Management:** Strapi CMS dynamically manages our custom service offerings and dynamic page content.
-- **State Management:** Strict separation of concerns where UI state is optimized via Zustand, but critical session data (like Cart IDs) is securely managed via `HttpOnly` server-side cookies and Next.js Server Actions.
+## Local Setup
 
----
-
-## ✨ Core Features
-
-### 🛒 Seamless Shopping & Checkout
-
-- **Instant Add-to-Cart:** Powered by Next.js Server Actions, allowing secure, JS-free cart creation and item mutations.
-- **Real-Time Drawer:** Fluid cart drawer UI synced with Shopify’s real-time inventory and pricing.
-- **Secure Direct Checkout:** Hands-off redirect to Shopify’s PCI-compliant hosted checkout (integrating Xendit for local payments like GCash/Maya).
-
-### ⚡ Performance & SEO
-
-- **Server-Side Rendering (SSR) & Static Generation:** High-priority pages are statically generated with ISR (Incremental Static Regeneration) for instant TTFB.
-- **Image Optimization:** Automated WebP/AVIF generation and lazy loading.
-- **SEO-Ready:** Deep metadata integration, semantic HTML, and dynamic OpenGraph image generation.
-
-### 🎨 Premium UI/UX
-
-- **Dynamic Framer-like Animations:** Cinematic page transitions, sliding reveals, and scroll-triggered animations.
-- **Responsive Design:** Mobile-first approach scaling beautifully up to ultra-wide desktop monitors.
-- **Accessible Components:** Built on Radix UI primitives ensuring screen-reader and keyboard navigation compliance.
-
----
-
-## 💻 Tech Stack Breakdown
-
-| Layer                | Technology              | Purpose                                           |
-| :------------------- | :---------------------- | :------------------------------------------------ |
-| **Core Framework**   | Next.js 15 (App Router) | Server/Client routing, SSR, ISR, Server Actions   |
-| **Logic/UI**         | React 19 / TypeScript   | Strict type-safe UI components                    |
-| **Styling**          | Tailwind CSS 3          | Utility-first responsive styling system           |
-| **API/Commerce**     | Shopify Storefront API  | GraphQL endpoint for all commerce capabilities    |
-| **State Management** | Zustand + React Context | Client-side UI state (side-drawers, mobile menus) |
-| **Testing**          | Playwright              | End-to-End visual and flow testing                |
-
----
-
-## 🚀 Local Development Setup
-
-### 1. Prerequisites
-
-- **Node.js**: v20.x or higher
-- **Package Manager**: npm or yarn
-- **Shopify Access Tokens**: Storefront API Public Token & Shopify Domain
-
-### 2. Environment Variables
-
-Create a `.env.local` based on `.env.template`:
-
-```env
-# Server-side overrides (Server Actions)
-SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-SHOPIFY_STOREFRONT_ACCESS_TOKEN=shpat_xxx
-SHOPIFY_API_VERSION=2025-01
-
-# Client-side configuration
-NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN=your_public_token
-```
-
-### 3. Install & Run
+Use Node.js 20 or newer.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Navigate to `http://localhost:7000`.
+The dev server runs on:
 
----
+```text
+http://localhost:7000
+```
 
-## 📁 Project Structure
+## Environment Variables
+
+Use `.env.example` as the current reference. `.env.template` still contains old
+Medusa migration values and should not be used for normal Shopify development.
+
+Minimum Shopify values:
+
+```env
+SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+SHOPIFY_STOREFRONT_ACCESS_TOKEN=your_storefront_access_token
+NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN=your_public_storefront_token
+SHOPIFY_API_VERSION=2025-10
+NEXT_PUBLIC_SITE_URL=http://localhost:7000
+NEXT_PUBLIC_SITE_NAME="Sixthgear Moto"
+```
+
+Common optional integrations:
+
+```env
+SHOPIFY_ADMIN_ACCESS_TOKEN=
+SHOPIFY_WEBHOOK_SECRET=
+
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2025-03-09
+SANITY_REVALIDATE_SECRET=
+SANITY_WEBHOOK_SECRET=
+
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+RESEND_API_KEY=
+CONTACT_EMAIL_TO=
+CONTACT_EMAIL_FROM=
+
+NEXT_PUBLIC_TIDIO_PUBLIC_KEY=
+```
+
+## Scripts
+
+```bash
+npm run dev          # Start Next.js on port 7000 with Turbopack
+npm run build        # Production build
+npm run start        # Start production server on port 7000
+npm run test         # Run Playwright tests
+npm run test:smoke   # Run smoke tests
+npm run test:e2e     # Run end-to-end tests
+```
+
+## Project Structure
 
 ```text
 src/
-├── app/                  # Next.js App Router (Routes, Layouts, Server Pages)
-├── lib/                  # Core Business Logic
-│   ├── shopify/          # GraphQL Queries, Mutations, and Types for Shopify
-│   ├── data/             # Next.js Server Actions (Cart, Customers)
-│   └── context/          # React Providers (UI state, Modals)
-├── modules/              # Domain-Driven Feature Components
-│   ├── cart/             # Cart Drawer, Item Rows, Checkout Button
-│   ├── products/         # Product Gallery, Variance Selectors
-│   ├── layout/           # Navigations, Footers, Dropdowns
-│   └── home/             # Homepage Specific Sections
-└── styles/               # Global CSS & Tailwind layers
+  app/                  Next.js routes, layouts, route handlers, metadata
+  lib/
+    shopify/            Shopify GraphQL client, queries, mutations, types
+    data/               Server actions and app-facing data access
+    cms/                Sanity client and CMS query helpers
+    cache/              Redis cache and rate limit utilities
+    util/               Formatting, filters, pricing, cart, SEO helpers
+  modules/
+    home/               Homepage sections and product cards
+    collections/        Store and collection listing UI
+    products/           Product detail experience
+    cart/               Cart drawer, cart page, checkout summary
+    checkout/           Checkout and payment status flows
+    account/            Login, profile, addresses, orders, support
+    about/              About and service-oriented content
+    common/             Shared UI, navigation, route progress, quick shop
+  styles/               Global CSS
+  types/                Shared types and legacy compatibility shims
+
+sanity/                 Sanity schema and Studio structure
+public/                 Static images and local assets
+tests/                  Playwright tests
 ```
 
----
+## Commerce Flow
 
-## 🛡️ Security & Operations
+1. Product and collection data is fetched from Shopify through GraphQL queries in
+   `src/lib/shopify`.
+2. Store and collection pages call data helpers in `src/lib/data`.
+3. Cart and customer mutations run through server actions, keeping Shopify cart
+   and customer tokens in server-managed cookies.
+4. Product cards and listing templates adapt Shopify data into the shared UI
+   shape used across the storefront.
+5. Checkout redirects customers to Shopify's hosted checkout URL.
 
-- **Token Safety:** Private API tokens are never exposed to the client. Only Next.js Server Components query sensitive data.
-- **Session Protection:** Shopify Cart IDs are secured behind `SameSite=Lax` cookies to prevent CSRF attacks. State is intelligently self-healing if a cart expires.
-- **Safe Type Enforcement:** Strict TypeScript compilation with forced `#NoEmit` checks before builds.
+## CMS Flow
 
----
+Sanity is configured in `sanity.config.ts` and mounted at `/studio`. CMS helpers
+live mostly in `src/lib/cms`. The project also contains older `src/lib/strapi`
+files from a previous direction; verify imports before editing or deleting them.
 
-_Engineered for performance, designed for riders. © 2026 Sixthgear Moto Supply & Café._
+Sanity revalidation is handled through:
+
+```text
+POST /api/revalidate-sanity
+```
+
+Shopify webhook revalidation is handled through:
+
+```text
+POST /api/revalidate
+```
+
+## Development Notes
+
+- Prefer Shopify collections for product grouping and storefront navigation.
+- Brand filters on the store page are based on collections whose handles start
+  with `brand-`.
+- The default store page uses the `all-products` collection handle.
+- First Gear Coffee is intentionally separated from the main store product flow.
+- Keep product availability variant-aware: a product should be treated as in
+  stock when any variant is available.
+- Use `.env.example`, not the Medusa-oriented `.env.template`, when onboarding
+  or deploying this version.
+
+## Deployment Checklist
+
+- Shopify Storefront token and store domain are set.
+- Sanity project, dataset, and webhook secrets are set if CMS content is used.
+- Cloudinary and other remote image hosts remain allowed in `next.config.js`.
+- Contact form email variables are set if `/api/contact` is enabled.
+- Run the build and relevant Playwright smoke tests before shipping.
+
+## License
+
+Private project for Sixthgear Moto.

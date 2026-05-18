@@ -143,6 +143,7 @@ export interface ShopifyCollection {
   handle: string;
   description: string;
   image: ShopifyImage | null;
+  isCollectionFeatured?: ShopifyMetafield | null;
   seo?: ShopifySeo;
   products?: {
     edges: {
@@ -386,6 +387,7 @@ export type FilterState = {
   variantOptions: { name: string; value: string }[];
   priceRange: ActivePriceRange | null;
   available: boolean;
+  showSoldOut: boolean;
   onSale: boolean;
   sortKey: ProductCollectionSortKeys;
   reverse: boolean;

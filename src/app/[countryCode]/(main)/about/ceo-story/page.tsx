@@ -20,7 +20,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { countryCode } = await props.params
 
   return {
-    title: "The Sixth Gear Story | About",
+    title: "The Sixth Gear Story",
     description:
       "Read the story behind Sixth Gear Moto Supply Cafe + Lounge, a rider-built space for motorcycle care, gear, coffee, and community.",
     alternates: {

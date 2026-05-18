@@ -171,6 +171,12 @@ export const getCollectionsQuery = `
           id
           title
           handle
+          isCollectionFeatured: metafield(namespace: "custom", key: "is_collection_featured") {
+            key
+            namespace
+            value
+            type
+          }
           image {
             ...ImageFragment
           }

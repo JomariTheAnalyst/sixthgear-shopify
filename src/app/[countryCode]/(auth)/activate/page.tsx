@@ -1,5 +1,10 @@
+import { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { activateCustomerAccountByUrl } from "@lib/data/customer"
+
+export const metadata: Metadata = {
+  title: "Activate Account",
+}
 
 function redirectToLogin(countryCode: string, errorCode: string): never {
   const params = new URLSearchParams({ error: errorCode })

@@ -18,14 +18,22 @@ interface ProjectsSectionProps {
   items?: ExperienceItem[] | null
 }
 
+const SPACE_EXPERIENCE_IMAGES = {
+  communityMeetups:
+    "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1778571330/community_and_meetups_zsfilb.jpg",
+  riderLounge:
+    "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1778571332/rider_lounge_wbwkpn.jpg",
+  signatureCoffee:
+    "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1778571332/signature_coffee_itsxtr.jpg",
+}
+
 const defaultExperiences: ExperienceItem[] = [
   {
     id: 1,
     title: "Signature Coffee & Brews",
     description:
       "Carefully crafted coffee using quality beans, brewed to fuel riders, creatives, and everyday coffee lovers.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop",
+    imageUrl: SPACE_EXPERIENCE_IMAGES.signatureCoffee,
     isEnabled: true,
   },
   {
@@ -33,8 +41,7 @@ const defaultExperiences: ExperienceItem[] = [
     title: "Rider Lounge & Hangout",
     description:
       "A relaxed cafe and lounge where riders unwind, connect, and share stories between rides and wrench sessions.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=800&auto=format&fit=crop",
+    imageUrl: SPACE_EXPERIENCE_IMAGES.riderLounge,
     isEnabled: true,
   },
   {
@@ -42,11 +49,28 @@ const defaultExperiences: ExperienceItem[] = [
     title: "Community & Meetups",
     description:
       "A welcoming space for rider meetups, small events, and casual gatherings built around coffee and motorcycle culture.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop",
+    imageUrl: SPACE_EXPERIENCE_IMAGES.communityMeetups,
     isEnabled: true,
   },
 ]
+
+const experienceImageMap: Record<string, string> = {
+  "signature coffee": SPACE_EXPERIENCE_IMAGES.signatureCoffee,
+  "signature coffee & brews": SPACE_EXPERIENCE_IMAGES.signatureCoffee,
+  "rider lounge": SPACE_EXPERIENCE_IMAGES.riderLounge,
+  "rider lounge & hangout": SPACE_EXPERIENCE_IMAGES.riderLounge,
+  "community & meetups": SPACE_EXPERIENCE_IMAGES.communityMeetups,
+  "community and meetups": SPACE_EXPERIENCE_IMAGES.communityMeetups,
+}
+
+function resolveExperienceImage(item: ExperienceItem) {
+  const normalizedTitle = item.title.trim().toLowerCase()
+  const matchedImage = Object.entries(experienceImageMap).find(([key]) =>
+    normalizedTitle.includes(key)
+  )?.[1]
+
+  return matchedImage || item.imageUrl
+}
 
 const ProjectsSection = ({
   sectionTitle,
@@ -59,7 +83,10 @@ const ProjectsSection = ({
   const activeDescription =
     sectionDescription || "Great coffee, good rides, and better conversations."
   const currentItems = items && items.length > 0 ? items : defaultExperiences
-  const displayItems = currentItems.slice(0, 3)
+  const displayItems = currentItems.slice(0, 3).map((item) => ({
+    ...item,
+    imageUrl: resolveExperienceImage(item),
+  }))
 
   return (
     <section className="bg-white py-14 md:py-18 lg:py-24">

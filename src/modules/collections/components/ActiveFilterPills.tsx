@@ -78,6 +78,13 @@ export default function ActiveFilterPills({
     });
   }
 
+  if (activeState.showSoldOut) {
+    pills.push({
+      label: "Show Sold Out",
+      onRemove: () => onRemove({ ...activeState, showSoldOut: false }),
+    });
+  }
+
   if (activeState.onSale) {
     pills.push({
       label: "On Sale",
@@ -119,6 +126,7 @@ export default function ActiveFilterPills({
               variantOptions: [],
               priceRange: null,
               available: false,
+              showSoldOut: false,
               onSale: false,
             })
           }

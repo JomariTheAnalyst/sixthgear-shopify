@@ -9,6 +9,8 @@ type FilterBarProps = {
   activeState: FilterState;
   onChange: (next: FilterState) => void;
   collectionsMenu?: { handle: string; title: string }[];
+  brandCollectionsMenu?: { handle: string; title: string }[];
+  showSoldOutToggle?: boolean;
 };
 
 export default function FilterBar({
@@ -16,6 +18,8 @@ export default function FilterBar({
   activeState,
   onChange,
   collectionsMenu,
+  brandCollectionsMenu,
+  showSoldOutToggle = false,
 }: FilterBarProps) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [localPriceMin, setLocalPriceMin] = useState(
@@ -131,7 +135,19 @@ export default function FilterBar({
     });
   };
 
+  const handleShowSoldOutToggle = () => {
+    onChange({
+      ...activeState,
+      showSoldOut: !activeState.showSoldOut,
+      available: false,
+    });
+  };
+
   // ── Active counts ──
+
+  const activeBrandCollection = brandCollectionsMenu?.find(
+    (collection) => collection.handle === activeState.collection
+  );
 
   const activeCount =
     activeState.vendors.length +
@@ -140,7 +156,9 @@ export default function FilterBar({
     activeState.variantOptions.length +
     (activeState.priceRange ? 1 : 0) +
     (activeState.available ? 1 : 0) +
-    (activeState.onSale ? 1 : 0);
+    (activeState.showSoldOut ? 1 : 0) +
+    (activeState.onSale ? 1 : 0) +
+    (activeBrandCollection ? 1 : 0);
 
   const getGroupActiveCount = (filter: ShopifyFilter): number => {
     if (filter.type === "PRICE_RANGE") {
@@ -167,12 +185,15 @@ export default function FilterBar({
     setLocalPriceMax("");
     onChange({
       ...activeState,
+      collection: null,
       vendors: [],
       productTypes: [],
       tags: [],
       variantOptions: [],
       priceRange: null,
       available: false,
+      showSoldOut: false,
+      onSale: false,
     });
   };
 
@@ -224,6 +245,61 @@ export default function FilterBar({
                       {col.title}
                     </LocalizedClientLink>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {brandCollectionsMenu && brandCollectionsMenu.length > 0 && (
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setOpenDropdown(openDropdown === "brand-menu" ? null : "brand-menu")}
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[13px] font-bold uppercase tracking-wide transition-all duration-150 whitespace-nowrap ${
+                  openDropdown === "brand-menu"
+                    ? "text-gray-500"
+                    : activeBrandCollection
+                    ? "text-[#111]"
+                    : "text-[#111] hover:opacity-70"
+                }`}
+              >
+                Brands
+                {activeBrandCollection && (
+                  <span
+                    className={`ml-0.5 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                      openDropdown === "brand-menu"
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-gray-900 text-white"
+                    }`}
+                  >
+                    1
+                  </span>
+                )}
+                <svg
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === "brand-menu" ? "rotate-180" : ""}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {openDropdown === "brand-menu" && (
+                <div className="absolute top-full left-0 mt-1.5 z-50 bg-white rounded-xl shadow-xl border border-gray-100 min-w-[220px] max-w-[280px] animate-in fade-in-0 zoom-in-95 duration-150 py-2 max-h-64 overflow-y-auto">
+                  {brandCollectionsMenu.map((brand) => {
+                    const isActive = activeState.collection === brand.handle;
+
+                    return (
+                      <LocalizedClientLink
+                        key={brand.handle}
+                        href={`/store?collection=${encodeURIComponent(brand.handle)}`}
+                        className={`flex items-center gap-2.5 px-4 py-2 cursor-pointer transition-colors hover:bg-gray-50 text-sm ${
+                          isActive
+                            ? "font-medium text-gray-900 bg-gray-50"
+                            : "text-gray-600 hover:text-gray-900"
+                        }`}
+                      >
+                        {brand.title}
+                      </LocalizedClientLink>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -424,6 +500,20 @@ export default function FilterBar({
         </button>
 
         {/* SECTION C — Divider and Clear All */}
+        {showSoldOutToggle && (
+          <button
+            onClick={handleShowSoldOutToggle}
+            className={`inline-flex items-center px-2 py-0.5 text-[13px] font-bold uppercase tracking-wide transition-all duration-150 whitespace-nowrap flex-shrink-0 ${
+              activeState.showSoldOut
+                ? "text-orange-500 opacity-100"
+                : "text-[#111] hover:opacity-70"
+            }`}
+            aria-pressed={activeState.showSoldOut}
+          >
+            Show Sold Out
+          </button>
+        )}
+
         {activeCount > 0 && (
           <>
             <div className="w-px h-6 bg-gray-200 mx-1 flex-shrink-0" />

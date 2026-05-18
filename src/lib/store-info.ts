@@ -3,7 +3,7 @@ export const storeInfo = {
   shortName: "Sixth Gear Moto Supply",
   address: "3610 Bautista St, Makati City, Metro Manila",
   phone: "0995 093 0157",
-  hours: "Monday - Friday | 9:00 AM - 8:00 PM",
+  hours: "Monday - Sunday | 10:00 AM - 7:00 PM",
   coordinates: {
     lat: 14.554651468423817,
     lng: 121.00262199651827,

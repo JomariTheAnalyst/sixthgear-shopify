@@ -1,13 +1,25 @@
-const ErrorMessage = ({ error, 'data-testid': dataTestid }: { error?: string | null, 'data-testid'?: string }) => {
+type ErrorMessageProps = {
+  error?: string | null | false
+  className?: string
+  [key: string]: unknown
+}
+
+export default function ErrorMessage({
+  error,
+  className = "",
+  ...props
+}: ErrorMessageProps) {
   if (!error) {
     return null
   }
 
   return (
-    <div className="pt-2 text-rose-500 text-small-regular" data-testid={dataTestid}>
-      <span>{error}</span>
-    </div>
+    <p
+      className={`mt-2 text-sm font-medium text-red-600 ${className}`}
+      role="alert"
+      {...props}
+    >
+      {error}
+    </p>
   )
 }
-
-export default ErrorMessage

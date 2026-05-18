@@ -72,23 +72,45 @@ export default function ProductCard({
   const firstVariant = product.variants?.[0]
   const canAddToCart = Boolean(firstVariant)
   const brandName = product.collection?.title || "Sixthgear"
+  const productAvailableForSale = (product as any).availableForSale
 
   const resolvedCountryCode =
     countryCode || region?.countries?.[0]?.iso_2 || "ph"
 
-  const isInStock = (() => {
-    if (!firstVariant) return false
-    if (inventoryMap && firstVariant.id in inventoryMap) {
-      return inventoryMap[firstVariant.id] > 0
+  const isVariantInStock = (variant: NonNullable<typeof product.variants>[number]) => {
+    const variantAvailableForSale = (variant as any).availableForSale
+
+    if (variantAvailableForSale === true) return true
+    if (variantAvailableForSale === false) return false
+
+    if (inventoryMap && variant.id in inventoryMap) {
+      return inventoryMap[variant.id] > 0
     }
-    if (firstVariant.allow_backorder === true) return true
-    if (firstVariant.manage_inventory === false) return true
+
+    if (variant.allow_backorder === true) return true
+    if (variant.manage_inventory === false) return true
+
     if (
-      firstVariant.inventory_quantity !== null &&
-      firstVariant.inventory_quantity !== undefined
+      variant.inventory_quantity !== null &&
+      variant.inventory_quantity !== undefined
     ) {
-      return firstVariant.inventory_quantity > 0
+      return variant.inventory_quantity > 0
     }
+
+    return false
+  }
+
+  const isInStock = (() => {
+    const hasAvailableVariant = product.variants?.some(isVariantInStock)
+    if (hasAvailableVariant) return true
+
+    if (product.variants && product.variants.length > 0) {
+      return productAvailableForSale === true
+    }
+
+    if (productAvailableForSale === true) return true
+    if (productAvailableForSale === false) return false
+
     return false
   })()
 

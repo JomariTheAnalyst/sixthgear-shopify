@@ -147,29 +147,35 @@ export default function WhyChooseUs({ data }: WhyChooseUsProps) {
           </div>
         </div>
 
-        <div className="relative hidden lg:block h-[680px]">
-          <div className="absolute bottom-0 right-0 w-52 h-72 bg-[#F16D34]/10" />
+        <div className="relative hidden h-[680px] lg:block">
+          <div className="absolute bottom-10 right-8 h-72 w-52 rounded-sm bg-[#F16D34]/10" />
 
-          <div className="absolute top-0 left-0 w-[58%] h-[62%] overflow-hidden shadow-xl">
-            <Image
-              src={topImage.src || "/images/placeholder.jpg"}
-              alt={topImage.alt}
-              fill
-              quality={100}
-              className="object-cover"
-              sizes="(max-width: 1024px) 0vw, 30vw"
-            />
+          <div className="absolute left-4 top-10 z-10 w-[55%] -rotate-6 bg-white p-4 pb-12 shadow-[0_24px_45px_rgba(0,0,0,0.18)] ring-1 ring-black/5">
+            <span className="absolute -top-7 left-1/2 z-20 h-14 w-20 -translate-x-1/2 rotate-[-8deg] bg-[#e8dccf]/80 shadow-sm" />
+            <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+              <Image
+                src={topImage.src || "/images/placeholder.jpg"}
+                alt={topImage.alt}
+                fill
+                quality={100}
+                className="object-cover"
+                sizes="(max-width: 1024px) 0vw, 30vw"
+              />
+            </div>
           </div>
 
-          <div className="absolute bottom-8 right-0 w-[58%] h-[55%] overflow-hidden shadow-xl">
-            <Image
-              src={bottomImage.src || "/images/placeholder.jpg"}
-              alt={bottomImage.alt}
-              fill
-              quality={100}
-              className="object-cover"
-              sizes="(max-width: 1024px) 0vw, 30vw"
-            />
+          <div className="absolute bottom-14 right-2 z-20 w-[56%] rotate-5 bg-white p-4 pb-12 shadow-[0_28px_55px_rgba(0,0,0,0.2)] ring-1 ring-black/5">
+            <span className="absolute -top-7 left-1/2 z-20 h-14 w-20 -translate-x-1/2 rotate-[10deg] bg-[#e8dccf]/80 shadow-sm" />
+            <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+              <Image
+                src={bottomImage.src || "/images/placeholder.jpg"}
+                alt={bottomImage.alt}
+                fill
+                quality={100}
+                className="object-cover"
+                sizes="(max-width: 1024px) 0vw, 30vw"
+              />
+            </div>
           </div>
         </div>
       </div>

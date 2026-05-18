@@ -14,7 +14,6 @@ const menuLinks = [
   { name: "Shop", href: "/store" },
   { name: "Services", href: "/services" },
   { name: "About Us", href: "/about" },
-  { name: "Franchise", href: "/franchise" },
 ]
 
 const supportLinks = [
@@ -192,7 +191,7 @@ export default function Footer() {
                       className="text-white/70 text-xs uppercase tracking-wider hover:text-white transition-colors"
                       style={{ fontFamily: "Inter Display, sans-serif" }}
                     >
-                      info@sixthgear.ph
+                      support@sixthgear.ph
                     </a>
                   </li>
                 </ul>
@@ -210,9 +209,9 @@ export default function Footer() {
                   className="text-white/70 text-xs uppercase tracking-wider"
                   style={{ fontFamily: "Inter Display, sans-serif" }}
                 >
-                  Monday - Friday
+                  Monday - Sunday
                   <br />
-                  9:00 AM - 8:00 PM
+                  10:00 AM - 7:00 PM
                 </p>
               </div>
             </div>
@@ -270,9 +269,9 @@ export default function Footer() {
 
         {/* Giant Outlined Text Fading Down */}
         <div className="w-full flex justify-center overflow-hidden pointer-events-none select-none mt-8 mb-4 opacity-20">
-          <span 
+          <span
             className="text-[16vw] leading-[0.8] tracking-[0.05em] text-transparent"
-            style={{ 
+            style={{
               fontFamily: "Tanker, sans-serif",
               WebkitTextStroke: "1px #ffffff",
               WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",

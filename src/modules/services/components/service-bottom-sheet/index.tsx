@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
+import { completeRouteProgress } from "@modules/common/components/route-progress"
 
 interface ServiceBottomSheetProps {
   children: React.ReactNode
@@ -19,10 +20,12 @@ export default function ServiceBottomSheet({
   const sheetRef = useRef<HTMLDivElement>(null)
 
   const closeSheet = useCallback(() => {
+    completeRouteProgress()
     setIsOpen(false)
 
     window.setTimeout(() => {
       router.back()
+      completeRouteProgress()
     }, CLOSE_ANIMATION_MS)
   }, [router])
 

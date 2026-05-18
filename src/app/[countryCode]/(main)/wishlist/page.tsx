@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import WishlistTemplate from "@modules/wishlist/templates/wishlist-template"
 
 export const metadata: Metadata = {
-  title: "My Wishlist - Sixthgear",
+  title: "My Wishlist",
   description: "View and manage your saved products.",
 }
 

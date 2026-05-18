@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Scheduled Maintenance | SixthGear",
+  title: "Scheduled Maintenance",
   description:
     "We're currently performing maintenance to improve your experience.",
   robots: "noindex, nofollow",

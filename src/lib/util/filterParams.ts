@@ -9,6 +9,7 @@ export function getDefaultFilterState(): FilterState {
     variantOptions: [],
     priceRange: null,
     available: false,
+    showSoldOut: false,
     onSale: false,
     sortKey: "COLLECTION_DEFAULT",
     reverse: false,
@@ -41,6 +42,10 @@ export function parseSearchParams(params: URLSearchParams): FilterState {
 
   if (params.get("available") === "true") {
     state.available = true;
+  }
+
+  if (params.get("showSoldOut") === "true") {
+    state.showSoldOut = true;
   }
 
   if (params.get("onSale") === "true") {
@@ -88,6 +93,10 @@ export function serializeFilterState(state: FilterState): URLSearchParams {
 
   if (state.available) {
     params.set("available", "true");
+  }
+
+  if (state.showSoldOut) {
+    params.set("showSoldOut", "true");
   }
 
   if (state.onSale) {

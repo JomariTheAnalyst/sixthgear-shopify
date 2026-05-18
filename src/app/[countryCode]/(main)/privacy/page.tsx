@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Sixthgear Moto Supply",
+  title: "Privacy Policy",
   description:
     "How Sixthgear Moto Supply & Cafe collects, uses, and protects your personal information.",
 }

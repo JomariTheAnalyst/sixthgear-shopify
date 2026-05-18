@@ -11,6 +11,8 @@ type MobileFilterDrawerProps = {
   activeState: FilterState;
   onChange: (next: FilterState) => void;
   collectionsMenu?: { handle: string; title: string }[];
+  brandCollectionsMenu?: { handle: string; title: string }[];
+  showSoldOutToggle?: boolean;
   productCount: number;
 };
 
@@ -21,6 +23,8 @@ export default function MobileFilterDrawer({
   activeState,
   onChange,
   collectionsMenu,
+  brandCollectionsMenu,
+  showSoldOutToggle = false,
   productCount,
 }: MobileFilterDrawerProps) {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -116,17 +120,26 @@ export default function MobileFilterDrawer({
   const handleOnSaleToggle = () =>
     onChange({ ...activeState, onSale: !activeState.onSale });
 
+  const handleShowSoldOutToggle = () =>
+    onChange({
+      ...activeState,
+      showSoldOut: !activeState.showSoldOut,
+      available: false,
+    });
+
   const clearAll = () => {
     setLocalPriceMin("");
     setLocalPriceMax("");
     onChange({
       ...activeState,
+      collection: null,
       vendors: [],
       productTypes: [],
       tags: [],
       variantOptions: [],
       priceRange: null,
       available: false,
+      showSoldOut: false,
       onSale: false,
     });
   };
@@ -144,6 +157,10 @@ export default function MobileFilterDrawer({
     return 0;
   };
 
+  const activeBrandCollection = brandCollectionsMenu?.find(
+    (collection) => collection.handle === activeState.collection
+  );
+
   const activeCount =
     activeState.vendors.length +
     activeState.productTypes.length +
@@ -151,7 +168,9 @@ export default function MobileFilterDrawer({
     activeState.variantOptions.length +
     (activeState.priceRange ? 1 : 0) +
     (activeState.available ? 1 : 0) +
-    (activeState.onSale ? 1 : 0);
+    (activeState.showSoldOut ? 1 : 0) +
+    (activeState.onSale ? 1 : 0) +
+    (activeBrandCollection ? 1 : 0);
 
   const filteredGroups = filters.filter((f) => {
     const label = f.label.trim().toLowerCase();
@@ -233,6 +252,58 @@ export default function MobileFilterDrawer({
                       {col.title}
                     </LocalizedClientLink>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {brandCollectionsMenu && brandCollectionsMenu.length > 0 && (
+            <div className="border-b border-gray-200">
+              <button
+                onClick={() =>
+                  setOpenGroup(openGroup === "brands" ? null : "brands")
+                }
+                className="w-full flex items-center justify-between px-5 py-4"
+              >
+                <span className="text-sm font-bold uppercase tracking-widest text-[#111] flex items-center gap-2">
+                  Brands
+                  {activeBrandCollection && (
+                    <span className="w-4 h-4 rounded-full bg-[#111] text-white text-[10px] flex items-center justify-center font-bold">
+                      1
+                    </span>
+                  )}
+                </span>
+                <svg
+                  className={`w-4 h-4 text-[#111] transition-transform duration-200 ${
+                    openGroup === "brands" ? "rotate-45" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+              {openGroup === "brands" && (
+                <div className="px-5 pb-4 space-y-1">
+                  {brandCollectionsMenu.map((brand) => {
+                    const isActive = activeState.collection === brand.handle;
+
+                    return (
+                      <LocalizedClientLink
+                        key={brand.handle}
+                        href={`/store?collection=${encodeURIComponent(brand.handle)}`}
+                        className={`block py-2 text-sm transition-colors ${
+                          isActive
+                            ? "font-medium text-[#111]"
+                            : "text-gray-600 hover:text-[#111]"
+                        }`}
+                        onClick={onClose}
+                      >
+                        {brand.title}
+                      </LocalizedClientLink>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -373,6 +444,27 @@ export default function MobileFilterDrawer({
             </svg>
           </button>
         </div>
+        {showSoldOutToggle && (
+          <div className="border-b border-gray-200">
+            <button
+              onClick={handleShowSoldOutToggle}
+              className="w-full flex items-center justify-between px-5 py-4"
+              aria-pressed={activeState.showSoldOut}
+            >
+              <span className={`text-sm font-bold uppercase tracking-widest ${activeState.showSoldOut ? "text-orange-500" : "text-[#111]"}`}>
+                Show Sold Out
+              </span>
+              <svg
+                className={`w-4 h-4 transition-transform ${activeState.showSoldOut ? "rotate-45 text-orange-500" : "text-[#111]"}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        )}
         </div>
 
         {/* Sticky Footer */}

@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import ResetPasswordTemplate from "@modules/account/templates/reset-password-template"
 
 export const metadata: Metadata = {
-  title: "Reset Password | SixthGear",
+  title: "Reset Password",
   description: "Create a new password for your SixthGear account",
 }
 

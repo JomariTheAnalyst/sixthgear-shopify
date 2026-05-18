@@ -25,6 +25,7 @@ export const dynamic = "force-dynamic";
 // so we must route through a collection handle.
 const STORE_COLLECTION_HANDLE = "all-products";
 const FIRST_GEAR_COLLECTION_HANDLE = "first-gear-coffee";
+const BRAND_COLLECTION_HANDLE_PREFIX = "brand-";
 const FIRST_GEAR_FILTER_LABELS = new Set([
   "first gear coffee",
   "coffee drinks",
@@ -56,21 +57,61 @@ function isFirstGearCollection(handle?: string | null) {
   return handle?.trim().toLowerCase() === FIRST_GEAR_COLLECTION_HANDLE;
 }
 
+function isBrandCollection(handle?: string | null) {
+  return (
+    handle?.trim().toLowerCase().startsWith(BRAND_COLLECTION_HANDLE_PREFIX) ??
+    false
+  );
+}
+
 function normalizeFilterLabel(label?: string | null) {
   return label?.trim().toLowerCase() || "";
 }
 
+function mapStoreCollection(collection: any) {
+  return {
+    handle: collection.handle,
+    title: collection.title,
+  };
+}
+
 function filterStoreCollections(collections: any[]) {
   return collections
-    .filter((collection: any) => !isFirstGearCollection(collection.handle))
-    .map((collection: any) => ({
-      handle: collection.handle,
-      title: collection.title,
-    }));
+    .filter(
+      (collection: any) =>
+        !isFirstGearCollection(collection.handle) &&
+        !isBrandCollection(collection.handle)
+    )
+    .map(mapStoreCollection);
+}
+
+function filterStoreBrandCollections(collections: any[]) {
+  return collections
+    .filter(
+      (collection: any) =>
+        !isFirstGearCollection(collection.handle) &&
+        isBrandCollection(collection.handle)
+    )
+    .map(mapStoreCollection);
+}
+
+function isVendorFilter(
+  filter: Awaited<ReturnType<typeof getCollectionFilters>>[number]
+) {
+  const id = normalizeFilterLabel(filter.id);
+  const label = normalizeFilterLabel(filter.label);
+
+  return (
+    label === "vendor" ||
+    label === "brand" ||
+    id.includes("productvendor") ||
+    id.includes("vendor")
+  );
 }
 
 function filterStoreSidebarFilters(filters: Awaited<ReturnType<typeof getCollectionFilters>>) {
   return filters
+    .filter((filter) => !isVendorFilter(filter))
     .map((filter) => ({
       ...filter,
       values: filter.values.filter(
@@ -85,6 +126,20 @@ function filterFirstGearProducts(
   blockedProductIds: Set<string>
 ) {
   return products.filter((product) => !blockedProductIds.has(product.id));
+}
+
+function getStoreProductFilters(filterState: ReturnType<typeof parseSearchParams>) {
+  const filters = buildShopifyFilters(filterState);
+
+  if (filterState.showSoldOut) {
+    return filters;
+  }
+
+  const alreadyFiltersAvailability = filters.some(
+    (filter) => filter.available === true
+  );
+
+  return alreadyFiltersAvailability ? filters : [...filters, { available: true }];
 }
 
 type Params = {
@@ -134,7 +189,7 @@ export default async function StorePage(props: Params) {
     notFound();
   }
 
-  const shopifyFilters = buildShopifyFilters(filterState);
+  const shopifyFilters = getStoreProductFilters(filterState);
   const afterCursor = urlParams.get("after") || undefined;
   const beforeCursor = urlParams.get("before") || undefined;
   const firstGearProducts = await getCollectionProductsByHandle(
@@ -166,6 +221,7 @@ export default async function StorePage(props: Params) {
       : searchResult.products;
 
     const collectionsMenu = filterStoreCollections(collections);
+    const brandCollectionsMenu = filterStoreBrandCollections(collections);
     const sidebarFiltersForView = filterStoreSidebarFilters(sidebarFilters);
     const searchProductsWithoutCoffee = filterFirstGearProducts(
       searchProductsForView,
@@ -191,6 +247,8 @@ export default async function StorePage(props: Params) {
           initialFilterState={filterState}
           countryCode={params.countryCode}
           collectionsMenu={collectionsMenu}
+          brandCollectionsMenu={brandCollectionsMenu}
+          showSoldOutToggle={false}
           heroTitle={searchCollection.title}
           heroDescription={searchCollection.description}
           heroImageUrl={null}
@@ -218,6 +276,7 @@ export default async function StorePage(props: Params) {
   }
 
   const collectionsMenu = filterStoreCollections(collections);
+  const brandCollectionsMenu = filterStoreBrandCollections(collections);
   const sidebarFiltersForView = filterStoreSidebarFilters(sidebarFilters);
   const filtersForView = filterStoreSidebarFilters(result.filters);
   const productsForView = filterFirstGearProducts(
@@ -246,6 +305,8 @@ export default async function StorePage(props: Params) {
         initialFilterState={filterState}
         countryCode={params.countryCode}
         collectionsMenu={collectionsMenu}
+        brandCollectionsMenu={brandCollectionsMenu}
+        showSoldOutToggle
         heroTitle={result.collection.title}
         heroDescription={result.collection.description}
         heroImageUrl={result.collection.image?.url ?? null}

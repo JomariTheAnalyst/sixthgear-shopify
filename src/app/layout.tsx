@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import Script from "next/script"
+import { Suspense } from "react"
 
 import { clientEnv } from "@lib/env"
 import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
@@ -9,24 +10,25 @@ import { Toaster } from "sonner"
 
 import { ConsoleWarning } from "../components/common/console-warning"
 import { PreviewIndicator } from "../components/preview-indicator"
+import RouteProgress from "@modules/common/components/route-progress"
 import "styles/globals.css"
 
 export const metadata: Metadata = {
   metadataBase: getSeoMetadataBase(),
   title: {
-    default: "SixthgearMoto | Motorcycle Gear, Parts, Services",
-    template: "%s - SixthgearMoto",
+    default: "Sixthgear Moto",
+    template: "%s | Sixthgear Moto",
   },
   description:
-    "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthgearMoto in the Philippines.",
-  applicationName: "SixthgearMoto",
+    "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of Sixthgear Moto in the Philippines.",
+  applicationName: "Sixthgear Moto",
   openGraph: {
     type: "website",
     url: getBaseURL(),
-    siteName: "SixthgearMoto",
-    title: "SixthgearMoto | Motorcycle Gear, Parts, Services",
+    siteName: "Sixthgear Moto",
+    title: "Sixthgear Moto",
     description:
-      "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthgearMoto in the Philippines.",
+      "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of Sixthgear Moto in the Philippines.",
   },
   icons: {
     icon: [
@@ -63,6 +65,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body
         className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
       >
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
         <ConsoleWarning />
         <PreviewIndicator />
         <main className="relative">{props.children}</main>

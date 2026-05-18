@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Terms and Conditions | Sixthgear Moto Supply",
+  title: "Terms and Conditions",
   description:
     "Terms and conditions for using Sixthgear Moto Supply & Cafe services and purchasing products online.",
 }

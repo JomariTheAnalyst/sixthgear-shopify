@@ -13,11 +13,16 @@ import StoreInfoDrawer from "../store-info-drawer"
 import { useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useCartLimitModal } from "@lib/context/cart-limit-modal-context"
-import { isColorOption, isSizeOption } from "@lib/util/variant-helpers"
+import {
+  isColorOption,
+  isSizeOption,
+  optionHasVariantImages,
+} from "@lib/util/variant-helpers"
 import { resolveSizeChart } from "@lib/size-chart"
 import ColorSwatch from "./color-swatch"
 import SizeSelector from "./size-selector"
 import GenericOptionSelector from "./generic-option-selector"
+import VisualOptionSelector from "./visual-option-selector"
 import WishlistButton from "@modules/wishlist/components/wishlist-button"
 import { toast } from "sonner"
 import {
@@ -291,10 +296,6 @@ export default function ProductActions({
       inventoryMap,
     }
 
-    if (isColorOption(option)) {
-      return <ColorSwatch key={option.id} {...commonProps} />
-    }
-
     if (isSizeOption(option)) {
       return (
         <SizeSelector
@@ -303,6 +304,14 @@ export default function ProductActions({
           onSizeGuideClick={handleSizeGuideClick}
         />
       )
+    }
+
+    if (optionHasVariantImages(option, product.variants ?? undefined)) {
+      return <VisualOptionSelector key={option.id} {...commonProps} />
+    }
+
+    if (isColorOption(option)) {
+      return <ColorSwatch key={option.id} {...commonProps} />
     }
 
     return <GenericOptionSelector key={option.id} {...commonProps} />

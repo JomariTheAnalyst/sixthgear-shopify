@@ -1,5 +1,10 @@
+import { Metadata } from "next"
 import { retrieveCustomer } from "@lib/data/customer"
 import AddressesTemplate from "@modules/account/templates/addresses-template"
+
+export const metadata: Metadata = {
+  title: "Addresses",
+}
 
 export default async function AddressesPage() {
   const customer = await retrieveCustomer().catch(() => null)

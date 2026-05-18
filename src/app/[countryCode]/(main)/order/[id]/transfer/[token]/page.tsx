@@ -1,5 +1,10 @@
+import { Metadata } from "next"
 import TransferActions from "@modules/order/components/transfer-actions"
 import TransferImage from "@modules/order/components/transfer-image"
+
+export const metadata: Metadata = {
+  title: "Order Transfer",
+}
 
 export default async function TransferPage({
   params,

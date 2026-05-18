@@ -9,10 +9,15 @@ import X from "@modules/common/icons/x"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import { isSimpleProduct } from "@lib/util/product"
-import { isColorOption, isSizeOption } from "@lib/util/variant-helpers"
+import {
+  isColorOption,
+  isSizeOption,
+  optionHasVariantImages,
+} from "@lib/util/variant-helpers"
 import ColorSwatch from "./color-swatch"
 import SizeSelector from "./size-selector"
 import GenericOptionSelector from "./generic-option-selector"
+import VisualOptionSelector from "./visual-option-selector"
 import { cn } from "@lib/util/cn"
 import { ShoppingCart, ChevronDown } from "lucide-react"
 
@@ -80,12 +85,16 @@ const MobileActions: React.FC<MobileActionsProps> = ({
       disabled: optionsDisabled,
     }
 
-    if (isColorOption(option)) {
-      return <ColorSwatch key={option.id} {...commonProps} />
-    }
-
     if (isSizeOption(option)) {
       return <SizeSelector key={option.id} {...commonProps} />
+    }
+
+    if (optionHasVariantImages(option, product.variants ?? undefined)) {
+      return <VisualOptionSelector key={option.id} {...commonProps} />
+    }
+
+    if (isColorOption(option)) {
+      return <ColorSwatch key={option.id} {...commonProps} />
     }
 
     return <GenericOptionSelector key={option.id} {...commonProps} />

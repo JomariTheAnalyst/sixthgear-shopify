@@ -22,6 +22,7 @@ import ProductCard, {
 } from "@modules/home/components/product-sections/product-card"
 import SkeletonProductCard from "@modules/home/components/product-sections/product-card/skeleton-product-card"
 import CollectionHero from "@modules/collections/components/CollectionHero"
+import { startRouteProgress } from "@modules/common/components/route-progress"
 
 type CollectionTemplateProps = {
   collection: {
@@ -37,6 +38,8 @@ type CollectionTemplateProps = {
   initialFilterState: FilterState
   countryCode: string
   collectionsMenu?: { handle: string; title: string }[]
+  brandCollectionsMenu?: { handle: string; title: string }[]
+  showSoldOutToggle?: boolean
   heroTitle: string
   heroDescription?: string
   heroImageUrl?: string | null
@@ -64,6 +67,7 @@ function mapShopifyProductToSharedCard(
     return {
       id: node.id,
       title: node.selectedOptions?.map((o: any) => o.value).join(" / ") || "Default Title",
+      availableForSale: node.availableForSale !== false,
       allow_backorder: false,
       manage_inventory: true,
       inventory_quantity: node.availableForSale !== false ? 10 : 0, // Fallback logic
@@ -83,6 +87,7 @@ function mapShopifyProductToSharedCard(
   }) || [
     {
       id: product.id,
+      availableForSale: product.availableForSale,
       allow_backorder: false,
       manage_inventory: true,
       inventory_quantity: product.availableForSale ? 10 : 0,
@@ -101,6 +106,7 @@ function mapShopifyProductToSharedCard(
     thumbnail: product.featuredImage?.url,
     images,
     collection: { title: product.vendor || "Sixthgear" },
+    availableForSale: product.availableForSale,
     tags: product.tags?.map((t: string) => ({ value: t })) || [],
     options: product.options?.map((opt: any) => ({
       id: opt.id,
@@ -120,6 +126,8 @@ export default function CollectionTemplate({
   initialFilterState,
   countryCode,
   collectionsMenu,
+  brandCollectionsMenu,
+  showSoldOutToggle = false,
   heroTitle,
   heroDescription,
   heroImageUrl,
@@ -133,6 +141,10 @@ export default function CollectionTemplate({
   const [isPending, startTransition] = useTransition()
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+
+  const activeBrandCollection = brandCollectionsMenu?.find(
+    (collection) => collection.handle === filterState.collection
+  )
 
   const buildCursorUrl = useCallback((
     direction: "next" | "previous",
@@ -177,6 +189,7 @@ export default function CollectionTemplate({
 
       const queryString = params.toString()
       startTransition(() => {
+        startRouteProgress()
         router.push(`${pathname}${queryString ? `?${queryString}` : ""}`)
       })
     },
@@ -188,6 +201,7 @@ export default function CollectionTemplate({
     cursor: string
   ) => {
     startTransition(() => {
+      startRouteProgress()
       router.push(buildCursorUrl(direction, cursor))
     })
   }, [router, buildCursorUrl])
@@ -207,7 +221,9 @@ export default function CollectionTemplate({
     filterState.variantOptions.length +
     (filterState.priceRange ? 1 : 0) +
     (filterState.available ? 1 : 0) +
-    (filterState.onSale ? 1 : 0)
+    (filterState.showSoldOut ? 1 : 0) +
+    (filterState.onSale ? 1 : 0) +
+    (activeBrandCollection ? 1 : 0)
 
   const displayProducts = filterState.onSale
     ? products.filter((p) => {
@@ -305,6 +321,8 @@ export default function CollectionTemplate({
           activeState={filterState}
           onChange={applyFilters}
           collectionsMenu={collectionsMenu}
+          brandCollectionsMenu={brandCollectionsMenu}
+          showSoldOutToggle={showSoldOutToggle}
           productCount={displayProducts.length}
         />
 
@@ -343,6 +361,8 @@ export default function CollectionTemplate({
                 activeState={filterState}
                 onChange={applyFilters}
                 collectionsMenu={collectionsMenu}
+                brandCollectionsMenu={brandCollectionsMenu}
+                showSoldOutToggle={showSoldOutToggle}
               />
             </div>
 
@@ -450,12 +470,14 @@ export default function CollectionTemplate({
                   onClick={() =>
                     applyFilters({
                       ...filterState,
+                      collection: null,
                       vendors: [],
                       productTypes: [],
                       tags: [],
                       variantOptions: [],
                       priceRange: null,
                       available: false,
+                      showSoldOut: false,
                       onSale: false,
                     })
                   }

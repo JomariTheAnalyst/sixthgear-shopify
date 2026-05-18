@@ -164,6 +164,43 @@ export function getColorHexForValue(
 }
 
 /**
+ * Get the first variant image attached to a specific option value.
+ * This lets any option, not only Color, become a visual selector when Shopify
+ * variants have images assigned.
+ */
+export function getVariantImageForOptionValue(
+  variants: HttpTypes.StoreProductVariant[] | undefined,
+  optionId: string,
+  value: string
+) {
+  if (!variants) return null
+
+  const matchingVariant = variants.find((variant) => {
+    const optionValue = variant.options?.find(
+      (option: any) => option.option_id === optionId
+    )
+
+    return optionValue?.value === value && (variant.image as any)?.url
+  })
+
+  return (matchingVariant?.image as any) || null
+}
+
+/**
+ * Check whether an option has at least one variant image across its values.
+ */
+export function optionHasVariantImages(
+  option: HttpTypes.StoreProductOption,
+  variants: HttpTypes.StoreProductVariant[] | undefined
+): boolean {
+  return (option.values ?? []).some((value) =>
+    Boolean(
+      getVariantImageForOptionValue(variants, option.id, value.value)?.url
+    )
+  )
+}
+
+/**
  * Check if a variant combination is available (in stock)
  */
 export function isVariantAvailable(

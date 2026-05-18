@@ -1,36 +1,34 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import Image from "next/image"
 
-interface SearchHitProps {
-  hit: any
-  onClose: () => void
+type SearchHitData = {
+  handle: string
+  title: string
+  thumbnail: string | null
+  imageAlt?: string | null
+  price?: string
+  availableForSale?: boolean
 }
 
-const SearchHit = ({ hit, onClose }: SearchHitProps) => {
-  const router = useRouter()
+interface SearchHitProps {
+  hit: SearchHitData
+  onClick: () => void
+}
 
-  const handleClick = () => {
-    // Navigate to product page
-    router.push(`/products/${hit.handle}`)
-    onClose()
-  }
-
-  // Get thumbnail URL
+const SearchHit = ({ hit, onClick }: SearchHitProps) => {
   const thumbnailUrl = hit.thumbnail || "/placeholder-product.png"
 
   return (
     <button
-      onClick={handleClick}
+      onClick={onClick}
       className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors text-left group"
     >
-      {/* Product Image */}
       <div className="relative w-16 h-16 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
         {hit.thumbnail ? (
           <Image
             src={thumbnailUrl}
-            alt={hit.title || "Product"}
+            alt={hit.imageAlt || hit.title || "Product"}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-200"
             sizes="64px"
@@ -55,26 +53,22 @@ const SearchHit = ({ hit, onClose }: SearchHitProps) => {
         )}
       </div>
 
-      {/* Product Info */}
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-[#F16D34] transition-colors">
+      <div className="min-w-0 flex-1">
+        <h3 className="line-clamp-2 text-sm font-medium text-gray-900 transition-colors group-hover:text-[#F16D34]">
           {hit.title || "Untitled Product"}
         </h3>
-        {hit.description && (
-          <p className="text-xs text-gray-500 line-clamp-2 mt-1">
-            {hit.description}
-          </p>
-        )}
-        {hit.categories && hit.categories.length > 0 && (
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-gray-400">
-              {hit.categories[0].name}
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          {hit.price && (
+            <p className="text-xs font-medium text-gray-500">{hit.price}</p>
+          )}
+          {hit.availableForSale === false && (
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+              Sold out
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Arrow Icon */}
       <div className="flex-shrink-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"

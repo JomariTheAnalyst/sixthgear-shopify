@@ -12,9 +12,9 @@ import Stats from "@modules/home/components/stats"
 import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
-import ShopByBrands, {
+import FeaturedBrand, {
   type BrandCardItem,
-} from "@modules/home/components/shop-by-brands"
+} from "@modules/home/components/featured-brand"
 import FeaturedCollectionBanner from "@modules/home/components/featured-collection-banner"
 import PromoBanner from "@modules/home/components/promo-banner"
 import PopupAd from "@modules/home/components/popup-ad"
@@ -77,10 +77,10 @@ export async function generateMetadata({
 
   return {
     title: {
-      absolute: "SixthgearMoto | Motorcycle Gear, Parts, Services & Coffee",
+      absolute: "Sixthgear Moto",
     },
     description:
-      "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at SixthgearMoto in the Philippines.",
+      "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at Sixthgear Moto in the Philippines.",
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode),
     },
@@ -117,6 +117,13 @@ function mapBrandCollectionToCard(
     link: `/collections/${collection.handle}`,
     buttonText: "SHOP NOW",
   }
+}
+
+function isFeaturedBrandCollection(collection: ShopifyCollection) {
+  return (
+    collection.handle.startsWith(BRAND_COLLECTION_HANDLE_PREFIX) &&
+    collection.isCollectionFeatured?.value?.toLowerCase() === "true"
+  )
 }
 
 export default async function Home(props: {
@@ -245,9 +252,8 @@ export default async function Home(props: {
   const aboutContent = await getAboutWithFallbacks(homeContent)
   const clientStoriesContent: SanityBlogPostListItem[] = homepageBlogPosts
   const shopifyBrandCards = brandCollections
-    .filter((collection) =>
-      collection.handle.startsWith(BRAND_COLLECTION_HANDLE_PREFIX)
-    )
+    .filter(isFeaturedBrandCollection)
+    .slice(0, 4)
     .map(mapBrandCollectionToCard)
 
 
@@ -271,7 +277,7 @@ export default async function Home(props: {
       <FeaturedCollectionBanner data={getFeatured("after_hero")} />
       <PromoBanner data={getPromo("after_hero")} />
 
-      <ShopByBrands
+      <FeaturedBrand
         data={homepageShopByBrands}
         brands={shopifyBrandCards}
       />
