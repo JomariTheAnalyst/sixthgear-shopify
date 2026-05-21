@@ -130,11 +130,11 @@ export default function ClientStories({
             {displayStories.map((story) => (
               <article
                 key={story.key}
-                className="group flex flex-shrink-0 w-[82vw] flex-col sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-[#ede4d8] bg-[#f6f1e8] p-3 md:p-4"
+                className="group flex flex-shrink-0 w-[82vw] flex-col sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-[#e0e0e0] bg-[#eeeeee] p-3 md:p-4"
               >
                 <div className="flex h-full flex-col">
                   {story.featuredImageUrl ? (
-                    <div className="relative aspect-[4/5] overflow-hidden border border-[#ede4d8] bg-[#f6f1e8]">
+                    <div className="relative aspect-[4/5] overflow-hidden border border-[#e0e0e0] bg-[#eeeeee]">
                       <Image
                         src={story.featuredImageUrl}
                         alt={story.title || "Rider story"}

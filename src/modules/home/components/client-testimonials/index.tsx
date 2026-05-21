@@ -138,7 +138,7 @@ const Stars = ({ count = 5 }: { count?: number }) => (
 )
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
-  <div className="bg-[#f6f1e8] rounded-2xl p-6 md:p-8 flex flex-col h-full border border-[#ede4d8] hover:shadow-lg hover:border-[#F16D34]/20 transition-all duration-300 min-w-[300px] md:min-w-[360px] max-w-[360px]">
+  <div className="bg-[#eeeeee] rounded-2xl p-6 md:p-8 flex flex-col h-full border border-[#e0e0e0] hover:shadow-lg hover:border-[#F16D34]/20 transition-all duration-300 min-w-[300px] md:min-w-[360px] max-w-[360px]">
     {/* Quote icon */}
     <div className="mb-3 flex justify-center">
       <QuoteIcon />

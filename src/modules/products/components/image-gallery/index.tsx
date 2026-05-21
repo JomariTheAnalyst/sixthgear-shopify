@@ -22,8 +22,14 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [isLightboxZoomed, setIsLightboxZoomed] = useState(false)
+  const [lightboxZoomPosition, setLightboxZoomPosition] = useState({
+    x: 50,
+    y: 50,
+  })
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const mainImageRef = useRef<HTMLDivElement>(null)
+  const lightboxImageRef = useRef<HTMLDivElement>(null)
 
   if (!images || images.length === 0) {
     return (
@@ -75,6 +81,20 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
     setZoomPosition({ x, y })
   }
 
+  const handleLightboxMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!lightboxImageRef.current || !isLightboxZoomed) return
+    const rect = lightboxImageRef.current.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setLightboxZoomPosition({ x, y })
+  }
+
+  const closeLightbox = useCallback(() => {
+    setIsLightboxOpen(false)
+    setIsLightboxZoomed(false)
+    setLightboxZoomPosition({ x: 50, y: 50 })
+  }, [])
+
   const selectedImage = images[activeIndex]
   const selectedImageUrl = selectedImage?.url || ""
   const selectedImageAlt =
@@ -103,14 +123,19 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isLightboxOpen) {
-        if (e.key === "Escape") setIsLightboxOpen(false)
+        if (e.key === "Escape") closeLightbox()
         if (e.key === "ArrowLeft") handlePrev()
         if (e.key === "ArrowRight") handleNext()
       }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isLightboxOpen, handlePrev, handleNext])
+  }, [isLightboxOpen, handlePrev, handleNext, closeLightbox])
+
+  useEffect(() => {
+    setIsLightboxZoomed(false)
+    setLightboxZoomPosition({ x: 50, y: 50 })
+  }, [activeIndex])
 
   useEffect(() => {
     const handleVariantImage = (e: CustomEvent<{ imageUrl?: string }>) => {
@@ -262,13 +287,13 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
 
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 z-50 bg-white flex items-center justify-center"
+          className="fixed inset-0 z-[120] bg-white flex items-center justify-center"
           role="dialog"
           aria-modal="true"
           aria-label="Image gallery lightbox"
         >
           <button
-            onClick={() => setIsLightboxOpen(false)}
+            onClick={closeLightbox}
             className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
             aria-label="Close lightbox"
           >
@@ -283,14 +308,30 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             <ChevronLeft className="w-6 h-6 text-black" />
           </button>
 
-          <div className="max-w-5xl max-h-[85vh] px-16 flex items-center justify-center">
+          <div
+            ref={lightboxImageRef}
+            className={`max-w-5xl max-h-[85vh] overflow-hidden px-16 flex items-center justify-center ${
+              selectedImageUrl ? "cursor-zoom-in" : "cursor-default"
+            }`}
+            onMouseEnter={() => selectedImageUrl && setIsLightboxZoomed(true)}
+            onMouseLeave={() => {
+              setIsLightboxZoomed(false)
+              setLightboxZoomPosition({ x: 50, y: 50 })
+            }}
+            onMouseMove={handleLightboxMouseMove}
+          >
             {selectedImageUrl && (
               <Image
                 src={selectedImageUrl}
                 alt={selectedImageAlt}
                 width={selectedImageWidth}
                 height={selectedImageHeight}
-                className="max-w-full max-h-[85vh] w-auto h-auto object-contain"
+                className={`max-w-full max-h-[85vh] w-auto h-auto object-contain transition-transform duration-300 ease-out ${
+                  isLightboxZoomed ? "scale-[1.75]" : "scale-100"
+                }`}
+                style={{
+                  transformOrigin: `${lightboxZoomPosition.x}% ${lightboxZoomPosition.y}%`,
+                }}
                 sizes="100vw"
                 quality={90}
               />

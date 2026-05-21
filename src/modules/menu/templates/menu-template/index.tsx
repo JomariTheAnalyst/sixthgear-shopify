@@ -248,10 +248,12 @@ export default function MenuTemplate({
   heroData,
   categories,
   featuredMenuItems,
+  showFeaturedMenu = true,
 }: {
   heroData?: FirstGearHeroData | null
   categories?: MenuCategoryUI[]
   featuredMenuItems?: FeaturedMenuProduct[]
+  showFeaturedMenu?: boolean
 }) {
   // Log props on mount for debugging
   useEffect(() => {
@@ -359,7 +361,7 @@ export default function MenuTemplate({
       <AboutUsSection />
 
       {/* Featured Menu Selection Grid */}
-      <FeaturedMenuSection items={featuredMenuItems} />
+      {showFeaturedMenu && <FeaturedMenuSection items={featuredMenuItems} />}
 
       {/* Coffee Categories Grid */}
       {/* <CoffeeCategorySection /> */}

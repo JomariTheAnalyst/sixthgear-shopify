@@ -166,10 +166,10 @@ export default function OurTeam({
                     key={member.id}
                     className="snap-center flex-shrink-0 w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
                   >
-                    <div className="bg-[#f6f1e8] rounded-3xl overflow-hidden h-full flex flex-col group/card shadow-lg hover:shadow-2xl hover:shadow-[#fca311]/5 border border-transparent hover:border-[#fca311]/10 transition-all duration-500">
+                    <div className="bg-[#eeeeee] rounded-3xl overflow-hidden h-full flex flex-col group/card shadow-lg hover:shadow-2xl hover:shadow-[#fca311]/5 border border-transparent hover:border-[#fca311]/10 transition-all duration-500">
                       
                       {/* Image Container */}
-                      <div className="relative aspect-[4/5] overflow-hidden bg-[#f6f1e8]">
+                      <div className="relative aspect-[4/5] overflow-hidden bg-[#eeeeee]">
                         <Image
                           src={member.image}
                           alt={member.name}
@@ -183,7 +183,7 @@ export default function OurTeam({
                       </div>
 
                       {/* Content Section (White Bottom Card) */}
-                      <div className="px-6 py-8 md:py-10 text-center bg-[#f6f1e8] flex flex-col flex-grow items-center justify-center -mt-2 relative z-10 rounded-t-3xl">
+                      <div className="px-6 py-8 md:py-10 text-center bg-[#eeeeee] flex flex-col flex-grow items-center justify-center -mt-2 relative z-10 rounded-t-3xl">
                         <h3
                           className={`${montserrat.className} text-[22px] font-bold tracking-tight text-[#111111] mb-1.5`}
                         >

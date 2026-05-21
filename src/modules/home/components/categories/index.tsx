@@ -7,19 +7,49 @@ import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 import type { SanityCategoriesSection } from "@lib/cms/types"
-import { inter, montserrat } from "@lib/fonts"
+import { montserrat } from "@lib/fonts"
+
+type CmsCategoryItem = NonNullable<SanityCategoriesSection["items"]>[number]
+type DisplayCategoryItem = CmsCategoryItem & {
+  description?: string | null
+  productCount?: string | number | null
+}
+
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "bags-and-luggage":
+    "Storage solutions for city errands, long rides, and everything you need to keep secure on the road.",
+  communications:
+    "Stay connected with rider-ready intercoms and accessories built for clear conversations in motion.",
+  helmets:
+    "Protective lids selected for fit, comfort, airflow, and confidence on every kind of ride.",
+  "parts-and-accessories":
+    "Practical upgrades and replacement essentials for cleaner builds, better utility, and everyday reliability.",
+  "riding-gear":
+    "Ride-focused footwear and gear made for grip, support, and long-wearing comfort.",
+  apparel:
+    "Moto-inspired layers that work at the shop, on the road, and everywhere between stops.",
+}
+
+const getCategoryDescription = (
+  slug: string,
+  name: string,
+  description?: string | null
+) =>
+  description?.trim() ||
+  CATEGORY_DESCRIPTIONS[slug] ||
+  `Explore ${name.toLowerCase()} selected for the way Sixthgear riders actually use their gear.`
 
 const FALLBACK_CATEGORIES_SECTION = {
-  title: "Product Categories",
+  title: "Browse By Categories",
   watermarkText: "CATEGORIES",
-  viewAllLabel: "VIEW ALL",
-  viewAllLink: "/store",
   items: [
   {
     name: "BAGS AND LUGGAGE",
     slug: "bags-and-luggage",
     image: "/images/product-categories/bags-and-boxes (1).png",
     imageAlt: "Black motorcycle top box and luggage case",
+    description:
+      "Storage solutions for city errands, long rides, and everything you need to keep secure on the road.",
     buttonLabel: "Shop Now",
     buttonLink: "/collections/bags-and-luggages",
   },
@@ -28,6 +58,8 @@ const FALLBACK_CATEGORIES_SECTION = {
     slug: "communications",
     image: "/images/product-categories/intercom.png",
     imageAlt: "Motorcycle intercom communication device",
+    description:
+      "Stay connected with rider-ready intercoms and accessories built for clear conversations in motion.",
     buttonLabel: "Shop Now",
     buttonLink: "/collections/communications",
   },
@@ -36,6 +68,8 @@ const FALLBACK_CATEGORIES_SECTION = {
     slug: "helmets",
     image: "/images/product-categories/helmets.png",
     imageAlt: "Black off-road motorcycle helmet",
+    description:
+      "Protective lids selected for fit, comfort, airflow, and confidence on every kind of ride.",
     buttonLabel: "Shop Now",
     buttonLink: "/collections/helmet",
   },
@@ -44,6 +78,8 @@ const FALLBACK_CATEGORIES_SECTION = {
     slug: "parts-and-accessories",
     image: "/images/product-categories/exhaust.png", // Using the closest placeholder we have
     imageAlt: "Motorcycle exhaust accessory",
+    description:
+      "Practical upgrades and replacement essentials for cleaner builds, better utility, and everyday reliability.",
     buttonLabel: "Shop Now",
     buttonLink: "/collections/parts-and-accessories",
   },
@@ -52,6 +88,8 @@ const FALLBACK_CATEGORIES_SECTION = {
     slug: "riding-gear",
     image: "/images/product-categories/shoes.png",
     imageAlt: "Pair of black riding boots",
+    description:
+      "Ride-focused footwear and gear made for grip, support, and long-wearing comfort.",
     buttonLabel: "Shop Now",
     buttonLink: "/collections/riding-gear",
   },
@@ -60,6 +98,8 @@ const FALLBACK_CATEGORIES_SECTION = {
     slug: "apparel",
     image: "/images/product-categories/apparel.png",
     imageAlt: "Black motorcycle riding jacket",
+    description:
+      "Moto-inspired layers that work at the shop, on the road, and everywhere between stops.",
     buttonLabel: "Shop Now",
     buttonLink: "/collections/apparel",
   },
@@ -92,6 +132,8 @@ function CategoryCard({
   slug,
   image,
   imageAlt,
+  description,
+  productCount,
   buttonLabel,
   buttonLink,
 }: {
@@ -99,46 +141,56 @@ function CategoryCard({
   slug: string
   image: string
   imageAlt?: string | null
+  description?: string | null
+  productCount?: string | number | null
   buttonLabel?: string | null
   buttonLink?: string | null
 }) {
   const href = normalizeCategoryHref(buttonLink, slug)
   const ctaLabel = buttonLabel || "Shop Now"
+  const productLabel =
+    typeof productCount === "number"
+      ? `${productCount} PRODUCTS`
+      : productCount || "SHOP COLLECTION"
+  const summary = getCategoryDescription(slug, name, description)
 
   return (
-    <div className="group relative block bg-white hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 w-full overflow-hidden h-[240px] md:h-[260px] shadow-sm rounded-md border border-gray-50">
-      <div className="relative z-10 flex flex-col h-full w-full p-6 lg:p-8 text-black">
-        {/* Top Header Block */}
-        <div className="flex flex-col items-start gap-4 relative z-20 w-[60%] md:w-[52%]">
-          <h3 className={`${montserrat.className} font-black uppercase tracking-[0.035em] text-[16px] sm:text-[17px] md:text-[19px] lg:text-[20px] text-black leading-[1.05] drop-shadow-sm`}>
+    <article className="group relative block min-h-[300px] w-full overflow-hidden rounded-[24px] bg-[#eeeeee] shadow-[0_12px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#e9e9e9] hover:shadow-[0_18px_45px_rgba(15,23,42,0.09)] md:min-h-[330px] lg:min-h-[350px]">
+      <div className="relative z-10 flex h-full min-h-[300px] w-full flex-col p-5 text-black sm:p-6 md:min-h-[330px] lg:min-h-[350px] lg:p-7">
+        <div className="relative z-20 max-w-[78%]">
+          <h3 className={`${montserrat.className} text-[26px] font-black uppercase leading-[0.95] tracking-[-0.01em] text-black sm:text-[28px] lg:text-[31px]`}>
             {name}
           </h3>
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
+            {productLabel}
+          </p>
         </div>
 
-        {/* Bottom-left CTA */}
-        <div className="mt-auto relative z-20">
+        <div className="relative z-20 mt-auto max-w-[56%] translate-y-10 pb-1 transition-transform duration-500 ease-out group-hover:translate-y-0 sm:max-w-[58%] md:translate-y-9">
+          <p className="mb-3 text-[11px] leading-[1.25] text-neutral-700 sm:text-xs">
+            {summary}
+          </p>
           <LocalizedClientLink
             href={href}
-            className={`${montserrat.className} inline-flex items-center justify-center border border-black px-3 py-2 md:px-3.5 md:py-2 text-[10px] md:text-[11px] font-medium tracking-[0.08em] uppercase text-black transition-colors duration-300 hover:bg-black hover:text-white`}
+            className={`${montserrat.className} inline-flex translate-y-0 items-center justify-center rounded-full bg-black px-4 py-2 text-[10px] font-black uppercase tracking-[0.08em] text-white opacity-100 transition-all duration-300 hover:bg-[#ff4e00] md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100`}
           >
             {ctaLabel}
           </LocalizedClientLink>
         </div>
 
-        {/* Floating Product Image - Increased width constraint and base scale for larger visual presence */}
-        <div className="absolute top-0 right-0 bottom-0 w-[70%] lg:w-[65%] p-4 lg:pr-6 pointer-events-none z-10 flex items-center justify-end">
-          <div className="relative w-full h-[100%]">
+        <div className="pointer-events-none absolute bottom-0 right-0 z-10 flex h-[62%] w-[58%] items-end justify-end sm:h-[66%] sm:w-[60%]">
+          <div className="relative h-full w-full translate-x-[8%] translate-y-[8%] transition-transform duration-700 ease-out group-hover:translate-x-[4%] group-hover:translate-y-[4%] group-hover:scale-[1.04]">
             <Image
               src={image}
               alt={imageAlt || name}
               fill
-              className="object-contain object-right md:object-right-bottom origin-bottom-right transition-transform duration-700 ease-out group-hover:scale-[1.10] drop-shadow-[0_15px_20px_rgba(0,0,0,0.12)] scale-[1.05]"
+              className="object-contain object-bottom grayscale contrast-[0.78] brightness-[0.84] saturate-0 opacity-75 mix-blend-multiply drop-shadow-[0_16px_22px_rgba(15,23,42,0.08)]"
               sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
             />
           </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
 
@@ -153,11 +205,9 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
   // Destructure with priority to CMS (if valid/enabled), otherwise fill from fallback
   const title = (useCustom && data?.title) || FALLBACK_CATEGORIES_SECTION.title
   const watermarkText = (useCustom && data?.watermarkText) || FALLBACK_CATEGORIES_SECTION.watermarkText
-  const viewAllLabel = (useCustom && data?.viewAllLabel) || FALLBACK_CATEGORIES_SECTION.viewAllLabel
-  const viewAllLink = (useCustom && data?.viewAllLink) || FALLBACK_CATEGORIES_SECTION.viewAllLink
-  
+
   // Decide which items array to loop over
-  const items = (useCustom && data?.items && data.items.length > 0) 
+  const items: DisplayCategoryItem[] = (useCustom && data?.items && data.items.length > 0)
     ? data.items 
     : FALLBACK_CATEGORIES_SECTION.items
 
@@ -183,23 +233,6 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
           {items.map((category) => (
             <CategoryCard key={category.slug} {...category} />
           ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="flex justify-center mt-16 md:mt-20">
-          <LocalizedClientLink
-            href={viewAllLink}
-            className={`${montserrat.className} group relative inline-flex items-center justify-center px-16 py-4 bg-[#ff4e00] text-white font-medium text-[13px] tracking-[0.1em] uppercase overflow-hidden shadow-[0_8px_20px_rgba(255,78,0,0.2)] hover:shadow-[0_12px_25px_rgba(255,78,0,0.3)] transition-all duration-300`}
-          >
-            {/* Dark triangle cutout on bottom right visual effect */}
-            <div
-              className="absolute bottom-0 right-0 w-4 h-4 bg-[#fafafa] transform rotate-180 transition-transform group-hover:scale-110"
-              style={{ clipPath: "polygon(100% 0, 0% 100%, 100% 100%)" }}
-            />
-            <span className="z-10 transition-transform duration-300">
-              {viewAllLabel}
-            </span>
-          </LocalizedClientLink>
         </div>
       </div>
     </section>
