@@ -284,6 +284,11 @@ export const marketingQuery = groq`
       startDate,
       endDate,
       "imageUrl": image.asset->url,
+      "imageDimensions": image.asset->metadata.dimensions{
+        width,
+        height,
+        aspectRatio
+      },
       imageLink,
       heading,
       buttonLabel,

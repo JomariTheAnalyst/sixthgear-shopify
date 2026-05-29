@@ -8,7 +8,6 @@ type Testimonial = {
   name: string
   role: string
   quote: string
-  avatar: string
 }
 
 const TESTIMONIALS: Testimonial[] = [
@@ -18,7 +17,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Big Bike Owner",
     quote:
       "Sixth Gear handled my PMS and accessory installs with care and transparency. Clean work, proper tools, and honest advice. You can tell this shop is run by riders who actually care.",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 2,
@@ -26,7 +24,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Adventure Rider",
     quote:
       "I've had multiple bikes serviced here. From diagnostics to detailing, the quality is consistent. Plus, having good coffee while waiting is a big bonus.",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 3,
@@ -34,7 +31,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Touring Enthusiast",
     quote:
       "Fast turnaround without compromising quality. They explained everything clearly and didn't upsell unnecessary work. Highly recommended for premium motorcycles.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 4,
@@ -42,7 +38,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Daily Rider",
     quote:
       "From emergency towing to full service, Sixth Gear delivered. Professional team, clean shop, and very approachable staff. This is now my go-to moto shop.",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 5,
@@ -50,7 +45,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Sportbike Rider",
     quote:
       "They installed my exhaust, lights, and accessories perfectly. Wiring was clean and properly routed. Attention to detail here is on another level.",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 6,
@@ -58,7 +52,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Big Bike First-Time Owner",
     quote:
       "As a new big bike owner, I appreciated how patient and informative the team was. They guided me through proper maintenance and safety checks.",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 7,
@@ -66,7 +59,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Cafe Racer Builder",
     quote:
       "Great balance of technical skill and taste. They helped me with parts selection and installation without rushing the process. Solid workmanship.",
-    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 8,
@@ -74,7 +66,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Weekend Rider",
     quote:
       "Dropped by for detailing and ended up staying for coffee and conversation. Friendly atmosphere with serious service capability. Rare combination.",
-    avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 9,
@@ -82,7 +73,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Long-Distance Rider",
     quote:
       "I trust Sixth Gear before any long ride. Pre-ride inspections are thorough, and they don't cut corners. Peace of mind every time.",
-    avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=160&q=80&fit=crop&crop=faces",
   },
   {
     id: 10,
@@ -90,7 +80,6 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Motorcycle Enthusiast",
     quote:
       "Good service, fair pricing, and clear communication. You always know what you're paying for and why. That alone sets them apart.",
-    avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=160&q=80&fit=crop&crop=faces",
   },
 ]
 
@@ -137,13 +126,13 @@ const TestimonialCard = ({
         {testimonial.quote}
       </p>
 
-      <div className="mt-auto flex flex-col items-center">
-        <img
-          src={testimonial.avatar}
-          alt={testimonial.name}
-          className="h-16 w-16 rounded-[18px] object-cover"
-        />
-        <p className={`${inter.className} mt-3 text-sm font-semibold text-[#4b4b4b]`}>
+      <div className="mt-auto flex w-full flex-col items-center pt-8">
+        <div className="mb-4 flex w-full items-center justify-center gap-3">
+          <span className="h-px w-12 bg-black/10" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#ff5000]" />
+          <span className="h-px w-12 bg-black/10" />
+        </div>
+        <p className={`${montserrat.className} text-[13px] font-black uppercase tracking-[0.14em] text-[#252525]`}>
           {testimonial.name}
         </p>
       </div>
@@ -216,9 +205,8 @@ const ClientTestimonialsSection = () => {
                 key={testimonial.id}
                 type="button"
                 onClick={() => scrollToIndex(index)}
-                className={`h-2 w-2 rounded-full transition-colors ${
-                  activeIndex === index ? "bg-[#ff5000]" : "bg-[#e4d9ca]"
-                }`}
+                className={`h-2 w-2 rounded-full transition-colors ${activeIndex === index ? "bg-[#ff5000]" : "bg-[#e4d9ca]"
+                  }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
             ))}

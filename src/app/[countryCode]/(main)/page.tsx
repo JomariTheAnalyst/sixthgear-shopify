@@ -12,6 +12,7 @@ import Stats from "@modules/home/components/stats"
 import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
+import WhatWeOffer from "@modules/home/components/what-we-offer"
 import FeaturedBrand, {
   type BrandCardItem,
 } from "@modules/home/components/featured-brand"
@@ -55,10 +56,8 @@ import {
   DeferredClientTestimonialsSection,
   DeferredOurServicesSection,
   DeferredOurTeamSection,
-  DeferredProjectsSection,
 } from "@modules/home/components/deferred-homepage-sections"
 import {
-  ExperiencesSectionSkeleton,
   ServicesSectionSkeleton,
   TeamSectionSkeleton,
   TestimonialsSectionSkeleton,
@@ -375,14 +374,9 @@ export default async function Home(props: {
       <Suspense fallback={<ServicesSectionSkeleton />}>
         <DeferredOurServicesSection />
       </Suspense>
+      <WhatWeOffer />
       <FeaturedCollectionBanner data={getFeatured("after_services")} />
       <PromoBanner data={getPromo("after_services")} />
-
-      <Suspense fallback={<ExperiencesSectionSkeleton />}>
-        <DeferredProjectsSection />
-      </Suspense>
-      <FeaturedCollectionBanner data={getFeatured("after_projects")} />
-      <PromoBanner data={getPromo("after_projects")} />
 
       <Brands
         sectionTitle={

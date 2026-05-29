@@ -55,14 +55,16 @@ export default function PopupAd({ data }: PopupAdProps) {
   const imageWrapperProps = data.imageLink
     ? { href: data.imageLink, onClick: dismiss }
     : {}
+  const imageWidth = data.imageDimensions?.width || 1200
+  const imageHeight = data.imageDimensions?.height || 1500
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center md:items-center p-4 md:p-6"
+      className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-end justify-center md:items-center p-4 md:p-6"
       onClick={dismiss}
     >
       <div
-        className="relative w-full max-w-[480px] bg-white overflow-hidden rounded-t-2xl md:rounded-2xl md:shadow-2xl"
+        className="relative w-full max-w-[560px] overflow-hidden rounded-t-2xl bg-white md:max-w-[640px] md:rounded-2xl md:shadow-2xl max-h-[88vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -99,15 +101,19 @@ export default function PopupAd({ data }: PopupAdProps) {
         {/* Image */}
         <ImageWrapper
           {...(imageWrapperProps as any)}
-          className={data.imageLink ? "block cursor-pointer" : "block"}
+          className={
+            data.imageLink
+              ? "flex cursor-pointer justify-center bg-white"
+              : "flex justify-center bg-white"
+          }
         >
           <Image
             src={data.imageUrl}
             alt={data.heading || "Promotional offer"}
-            width={960}
-            height={720}
-            className="w-full h-auto block"
-            sizes="(max-width: 768px) 100vw, 480px"
+            width={imageWidth}
+            height={imageHeight}
+            className="block h-auto max-h-[72vh] w-auto max-w-full object-contain"
+            sizes="(max-width: 768px) 92vw, 640px"
           />
         </ImageWrapper>
 

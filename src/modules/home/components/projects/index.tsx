@@ -4,7 +4,7 @@ import { useRef } from "react"
 import Image from "next/image"
 import { inter, montserrat } from "@lib/fonts"
 
-interface ExperienceItem {
+export interface ExperienceItem {
   id: number
   title: string
   description: string
@@ -12,10 +12,11 @@ interface ExperienceItem {
   isEnabled: boolean
 }
 
-interface ProjectsSectionProps {
+export interface ProjectsSectionProps {
   sectionTitle?: string | null
   sectionDescription?: string | null
   items?: ExperienceItem[] | null
+  variant?: "light" | "dark"
 }
 
 const SPACE_EXPERIENCE_IMAGES = {
@@ -76,8 +77,10 @@ const ProjectsSection = ({
   sectionTitle,
   sectionDescription,
   items,
+  variant = "light",
 }: ProjectsSectionProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const isDark = variant === "dark"
 
   const activeTitle = sectionTitle || "Our Space & Experience"
   const activeDescription =
@@ -89,16 +92,18 @@ const ProjectsSection = ({
   }))
 
   return (
-    <section className="bg-white py-14 md:py-18 lg:py-24">
+    <section
+      className={`${isDark ? "bg-[#0A0A0A]" : "bg-white"} py-14 md:py-18 lg:py-24`}
+    >
       <div className="mx-auto max-w-[1440px] px-4 md:px-8">
         <div className="mb-10 text-center md:mb-12 lg:mb-14">
           <h2
-            className={`${montserrat.className} whitespace-nowrap text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22]`}
+            className={`${montserrat.className} whitespace-nowrap text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] ${isDark ? "text-white" : "text-[#191b22]"}`}
           >
             {activeTitle}
           </h2>
           <p
-            className={`${inter.className} mx-auto mt-4 max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}
+            className={`${inter.className} mx-auto mt-4 max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] md:text-xl lg:text-2xl ${isDark ? "text-white/70" : "text-black/70"}`}
           >
             {activeDescription}
           </p>

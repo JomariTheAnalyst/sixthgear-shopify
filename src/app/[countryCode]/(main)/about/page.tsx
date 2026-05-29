@@ -1,11 +1,10 @@
 import { Metadata } from "next"
 import AboutTemplate from "@modules/about/templates"
 import { FALLBACK_ABOUT_HERO } from "@modules/about/constants"
-import { getAboutPage } from "@lib/cms/client"
+import { getAboutPage, getSpaceExperiences } from "@lib/cms/client"
 import {
   AboutMissionContent,
   AboutWhyChooseUsContent,
-  AboutServicesContent,
   AboutStoryItem,
   AboutValuesContent,
 } from "@modules/about/types"
@@ -38,7 +37,10 @@ export default async function AboutPage({
   params: Promise<{ countryCode: string }>
 }) {
   const { countryCode } = await params
-  const aboutPage = await getAboutPage()
+  const [aboutPage, spaceExperiences] = await Promise.all([
+    getAboutPage(),
+    getSpaceExperiences(),
+  ])
   const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
@@ -65,20 +67,20 @@ export default async function AboutPage({
         }))
       : null
 
-  const whatWeOfferContent: AboutServicesContent | null = aboutPage?.whatWeOffer
+  const projectsContent = spaceExperiences
     ? {
-        sectionName: aboutPage.whatWeOffer.sectionName,
-        heading: aboutPage.whatWeOffer.heading,
-        cards:
-          aboutPage.whatWeOffer.cards && aboutPage.whatWeOffer.cards.length > 0
-            ? aboutPage.whatWeOffer.cards.map((item, index) => ({
-                id: item._key || `${index}-${item.title || "offer"}`,
-                title: item.title || "",
-                backgroundImage: item.backgroundImageUrl || "",
-                linkUrl: item.linkUrl || "#",
-                buttonText: item.buttonText || "",
-              }))
-            : null,
+        sectionTitle: spaceExperiences.sectionTitle,
+        sectionDescription: spaceExperiences.sectionDescription,
+        items:
+          spaceExperiences.items
+            ?.filter((item) => item.isEnabled)
+            ?.map((item, index) => ({
+              id: index + 1,
+              title: item.title,
+              description: item.description,
+              imageUrl: item.imageUrl ?? "/images/homepage/projects/coffee.jpg",
+              isEnabled: item.isEnabled,
+            })) ?? null,
       }
     : null
 
@@ -141,7 +143,7 @@ export default async function AboutPage({
       <AboutTemplate
         heroContent={heroContent}
         storyItems={storyItems}
-        whatWeOfferContent={whatWeOfferContent}
+        projectsContent={projectsContent}
         ourValuesContent={ourValuesContent}
         whyChooseUsContent={whyChooseUsContent}
         ceoQuoteContent={ceoQuoteContent}

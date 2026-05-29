@@ -3,6 +3,7 @@ import { defineField, defineType } from 'sanity'
 // Each document is one popup campaign.
 // Select the active one in the Marketing document.
 // The popup shows on the homepage after a configured delay.
+// Best image ratio: 4:5 portrait, 1200 x 1500px.
 // Image is fully visible — nothing is cropped.
 // Heading and button are optional — leave blank to hide them.
 export default defineType({
@@ -40,7 +41,7 @@ export default defineType({
       title: 'Popup Image',
       type: 'image',
       options: { hotspot: true },
-      description: 'Required. The image displays at its natural aspect ratio — nothing is cropped or cut off.',
+      description: 'Required. Best ratio: 4:5 portrait, recommended size 1200 x 1500px. A 1:1 square image also works. Avoid wide banner images because they will look short inside the popup. The image displays fully - nothing is cropped.',
     }),
     defineField({
       name: 'imageLink',

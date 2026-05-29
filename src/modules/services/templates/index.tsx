@@ -20,6 +20,7 @@ import BrandsWeService from "@modules/services/components/brands-we-service"
 import ExpertiseStats from "@modules/services/components/expertise-stats"
 import ModernServicesGrid from "@modules/services/components/modern-services-grid"
 import ProcessOfWork from "@modules/services/components/process-of-work"
+import ServicesGallery from "@modules/services/components/services-gallery"
 
 export const FALLBACK_SERVICES_HERO: ServiceCategory = {
   id: "services-main",
@@ -81,6 +82,8 @@ export default function ServicesListTemplate({
       />
 
       <ProcessOfWork />
+
+      <ServicesGallery />
 
       <CTABanner />
     </>

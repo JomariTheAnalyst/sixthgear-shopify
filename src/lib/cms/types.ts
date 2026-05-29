@@ -374,6 +374,11 @@ export interface SanityPopupAd {
   startDate: string | null
   endDate: string | null
   imageUrl: string | null
+  imageDimensions?: {
+    width: number | null
+    height: number | null
+    aspectRatio: number | null
+  } | null
   imageLink: string | null
   heading: string | null
   buttonLabel: string | null

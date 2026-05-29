@@ -59,13 +59,13 @@ export default async function ContactPage() {
           <div className="flex flex-col gap-5">
             <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-2xl bg-black text-white lg:h-[340px]">
               <Image
-                src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?q=80&w=2070&auto=format&fit=crop"
+                src="https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779693482/contact-us-banner-image_gfuev1.jpg"
                 alt="Expert Support"
                 fill
                 className="object-cover opacity-60"
                 priority
               />
-              <div className="absolute inset-0 flex flex-col justify-between p-8">
+              <div className="absolute inset-0 flex flex-col justify-start p-8">
                 <div className="flex items-center gap-3" />
                 <h3 className="max-w-[320px] text-3xl font-semibold leading-[1.1] tracking-tight lg:text-[40px]">
                   Our experts will always help you
@@ -82,7 +82,7 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Email</p>
-                  <p className="text-sm text-gray-600">support@sixthgearmoto.com</p>
+                  <p className="text-sm text-gray-600">firstsixthgear@gmail.com</p>
                 </div>
               </div>
 
@@ -94,7 +94,12 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Call</p>
-                  <p className="text-sm text-gray-600">+63 995 093 0157</p>
+              <div className="space-y-1 text-sm text-gray-600">
+                <p>09567332057</p>
+                <p>09567332060</p>
+                <p>09178180495</p>
+                <p>09692744079</p>
+              </div>
                 </div>
               </div>
 
@@ -119,7 +124,7 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Working Hours</p>
-                  <p className="text-sm text-gray-600">Mon-Sat: 9:00 AM - 8:00 PM (PST)</p>
+                  <p className="text-sm text-gray-600">Mon-Sat: 10:00 AM - 7:00 PM </p>
                 </div>
               </div>
             </div>
