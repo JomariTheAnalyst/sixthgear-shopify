@@ -17,6 +17,31 @@ type ImageGalleryProps = {
 }
 
 const MAX_THUMBNAILS = 6
+
+function isShopifyImageUrl(url?: string | null) {
+  return Boolean(url && /^https:\/\/cdn\.shopify\.com\//i.test(url))
+}
+
+function ImagePlaceholder() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-gray-50 text-gray-200">
+      <svg
+        className="h-8 w-8"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1}
+          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      </svg>
+    </div>
+  )
+}
+
 const ImageGallery = ({ images }: ImageGalleryProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
@@ -224,15 +249,19 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             aria-label={`View image ${index + 1}`}
             aria-current={activeIndex === index}
           >
-            {image.url && (
+            {image.url && !failedImageUrls.has(image.url) ? (
               <Image
                 src={image.url}
                 alt={image.altText?.trim() || ""}
                 fill
+                unoptimized={isShopifyImageUrl(image.url)}
+                onError={() => markImageFailed(image.url)}
                 className="object-cover"
                 sizes="(max-width: 1024px) 72px, 88px"
                 quality={75}
               />
+            ) : (
+              <ImagePlaceholder />
             )}
           </button>
         ))}
@@ -270,13 +299,14 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           aria-label="Click to open full screen gallery"
           onKeyDown={(e) => e.key === "Enter" && setIsLightboxOpen(true)}
         >
-          {selectedImageUrl && (
+          {selectedImageUrl && !failedImageUrls.has(selectedImageUrl) ? (
             <>
               <Image
                 src={selectedImageUrl}
                 alt={selectedImageAlt}
                 fill
                 priority={activeIndex === 0}
+                unoptimized={isShopifyImageUrl(selectedImageUrl)}
                 onError={() => markImageFailed(selectedImageUrl)}
                 className={`object-contain p-6 transition-transform duration-200 ${
                   canHoverZoom && isZoomed ? "scale-[1.02]" : "scale-100"
@@ -304,6 +334,8 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 </div>
               )}
             </>
+          ) : (
+            <ImagePlaceholder />
           )}
 
           <button
@@ -354,12 +386,13 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             }}
             onMouseMove={handleLightboxMouseMove}
           >
-            {selectedImageUrl && (
+            {selectedImageUrl && !failedImageUrls.has(selectedImageUrl) ? (
               <Image
                 src={selectedImageUrl}
                 alt={selectedImageAlt}
                 width={selectedImageWidth}
                 height={selectedImageHeight}
+                unoptimized={isShopifyImageUrl(selectedImageUrl)}
                 onError={() => markImageFailed(selectedImageUrl)}
                 className={`max-w-full max-h-[85vh] w-auto h-auto object-contain transition-transform duration-300 ease-out ${
                   isLightboxZoomed ? "scale-[1.75]" : "scale-100"
@@ -370,6 +403,10 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 sizes="100vw"
                 quality={90}
               />
+            ) : (
+              <div className="h-[420px] w-[420px] max-w-full">
+                <ImagePlaceholder />
+              </div>
             )}
           </div>
 
@@ -392,15 +429,19 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                     : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
-                {img.url && (
+                {img.url && !failedImageUrls.has(img.url) ? (
                   <Image
                     src={img.url}
                     alt=""
                     fill
+                    unoptimized={isShopifyImageUrl(img.url)}
+                    onError={() => markImageFailed(img.url)}
                     className="object-cover"
                     sizes="56px"
                     quality={75}
                   />
+                ) : (
+                  <ImagePlaceholder />
                 )}
               </button>
             ))}

@@ -52,6 +52,10 @@ export function getBadgesFromTags(tags: string[] = []): BadgeMode[] {
   return badges
 }
 
+function isShopifyImageUrl(url?: string | null) {
+  return Boolean(url && /^https:\/\/cdn\.shopify\.com\//i.test(url))
+}
+
 export default function ProductCard({
   product,
   badges = [],
@@ -61,7 +65,9 @@ export default function ProductCard({
   preserveSource = false,
 }: ProductCardProps) {
   const [showQuickShop, setShowQuickShop] = useState(false)
-  const [primaryImageFailed, setPrimaryImageFailed] = useState(false)
+  const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(
+    () => new Set()
+  )
 
   const pricing = getProductPricing(product)
   const galleryImages = (product.images || [])
@@ -72,9 +78,11 @@ export default function ProductCard({
       Boolean(url) && list.indexOf(url) === index
   )
   const imageUrl =
-    (primaryImageFailed ? imageCandidates[1] : imageCandidates[0]) || null
+    imageCandidates.find((url) => !failedImageUrls.has(url)) || null
   const hoverImageUrl =
-    imageCandidates.find((url) => url !== imageUrl) || null
+    imageCandidates.find(
+      (url) => url !== imageUrl && !failedImageUrls.has(url)
+    ) || null
   const firstVariant = product.variants?.[0]
   const canAddToCart = Boolean(firstVariant)
   const brandName = product.collection?.title || "Sixthgear"
@@ -84,8 +92,22 @@ export default function ProductCard({
     countryCode || region?.countries?.[0]?.iso_2 || "ph"
 
   useEffect(() => {
-    setPrimaryImageFailed(false)
-  }, [product.id, imageCandidates[0]])
+    setFailedImageUrls(new Set())
+  }, [product.id])
+
+  const markImageFailed = (url?: string | null) => {
+    if (!url) return
+
+    setFailedImageUrls((current) => {
+      if (current.has(url)) {
+        return current
+      }
+
+      const next = new Set(current)
+      next.add(url)
+      return next
+    })
+  }
 
   const isVariantInStock = (variant: NonNullable<typeof product.variants>[number]) => {
     const variantAvailableForSale = (variant as any).availableForSale
@@ -180,7 +202,8 @@ export default function ProductCard({
                 src={imageUrl}
                 alt={product.title || "Product"}
                 fill
-                onError={() => setPrimaryImageFailed(true)}
+                unoptimized={isShopifyImageUrl(imageUrl)}
+                onError={() => markImageFailed(imageUrl)}
                 className={`object-contain p-5 sm:p-6 transition-opacity duration-300 ease-in-out ${
                   hoverImageUrl ? "group-hover:opacity-0" : ""
                 }`}
@@ -192,6 +215,8 @@ export default function ProductCard({
                   src={hoverImageUrl}
                   alt={product.title || "Product"}
                   fill
+                  unoptimized={isShopifyImageUrl(hoverImageUrl)}
+                  onError={() => markImageFailed(hoverImageUrl)}
                   className="absolute inset-0 object-contain p-5 sm:p-6 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
