@@ -73,26 +73,57 @@ export default async function ProductPage(props: Props) {
 
   // DEBUG: log raw metafields from Shopify to terminal
 
-  // Map Shopify product to the Medusa HttpTypes.StoreProduct format expected by the template
-  const mappedProduct = {
-    id: shopifyProduct.id,
-    title: shopifyProduct.title,
-    handle: shopifyProduct.handle,
-    description: shopifyProduct.descriptionHtml || shopifyProduct.description,
-    thumbnail: shopifyProduct.featuredImage?.url,
-    collection: { title: shopifyProduct.vendor },
-    options: shopifyProduct.options.map((opt) => ({
-      id: opt.id,
-      title: opt.name,
-      values: opt.values.map(val => ({ id: val, value: val })),
-    })),
-    images: shopifyProduct.images.edges.map((edge) => ({
+  const mappedImages = [
+    ...shopifyProduct.images.edges.map((edge) => ({
       id: edge.node.url,
       url: edge.node.url,
       width: edge.node.width,
       height: edge.node.height,
       altText: edge.node.altText || "",
     })),
+    ...shopifyProduct.variants.edges
+      .map((edge) => edge.node.image)
+      .filter((image): image is NonNullable<typeof image> => Boolean(image))
+      .map((image) => ({
+        id: image.url,
+        url: image.url,
+        width: image.width,
+        height: image.height,
+        altText: image.altText || "",
+      })),
+  ].filter(
+    (image, index, list) =>
+      Boolean(image.url) &&
+      list.findIndex((candidate) => candidate.url === image.url) === index
+  )
+
+  if (
+    mappedImages.length === 0 &&
+    shopifyProduct.featuredImage?.url
+  ) {
+    mappedImages.push({
+      id: shopifyProduct.featuredImage.url,
+      url: shopifyProduct.featuredImage.url,
+      width: shopifyProduct.featuredImage.width,
+      height: shopifyProduct.featuredImage.height,
+      altText: shopifyProduct.featuredImage.altText || "",
+    })
+  }
+
+  // Map Shopify product to the Medusa HttpTypes.StoreProduct format expected by the template
+  const mappedProduct = {
+    id: shopifyProduct.id,
+    title: shopifyProduct.title,
+    handle: shopifyProduct.handle,
+    description: shopifyProduct.descriptionHtml || shopifyProduct.description,
+    thumbnail: mappedImages[0]?.url || shopifyProduct.featuredImage?.url,
+    collection: { title: shopifyProduct.vendor },
+    options: shopifyProduct.options.map((opt) => ({
+      id: opt.id,
+      title: opt.name,
+      values: opt.values.map(val => ({ id: val, value: val })),
+    })),
+    images: mappedImages,
     variants: shopifyProduct.variants.edges.map((edge) => {
       const v = edge.node;
       

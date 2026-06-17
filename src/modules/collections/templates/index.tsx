@@ -54,6 +54,16 @@ function mapShopifyProductToSharedCard(
 
   // Map all gallery images (or fallback to featuredImage)
   const images = product.images?.edges?.map((e: any) => ({ url: e.node.url })) || []
+  const variantImages =
+    product.variants?.edges
+      ?.map((edge: any) => edge.node?.image?.url)
+      .filter((url: string | undefined): url is string => Boolean(url))
+      .map((url: string) => ({ url })) || []
+  variantImages.forEach((image: { url: string }) => {
+    if (!images.some((existing: { url: string }) => existing.url === image.url)) {
+      images.push(image)
+    }
+  })
   if (images.length === 0 && product.featuredImage) {
     images.push({ url: product.featuredImage.url })
   }
@@ -103,7 +113,7 @@ function mapShopifyProductToSharedCard(
     id: product.id,
     title: product.title,
     handle: product.handle,
-    thumbnail: product.featuredImage?.url,
+    thumbnail: images[0]?.url || product.featuredImage?.url,
     images,
     collection: { title: product.vendor || "Sixthgear" },
     availableForSale: product.availableForSale,

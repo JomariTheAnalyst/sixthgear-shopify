@@ -28,6 +28,9 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
     y: 50,
   })
   const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(
+    () => new Set()
+  )
   const mainImageRef = useRef<HTMLDivElement>(null)
   const lightboxImageRef = useRef<HTMLDivElement>(null)
 
@@ -95,6 +98,20 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
     setLightboxZoomPosition({ x: 50, y: 50 })
   }, [])
 
+  const markImageFailed = useCallback((url?: string | null) => {
+    if (!url) return
+
+    setFailedImageUrls((current) => {
+      if (current.has(url)) {
+        return current
+      }
+
+      const next = new Set(current)
+      next.add(url)
+      return next
+    })
+  }, [])
+
   const selectedImage = images[activeIndex]
   const selectedImageUrl = selectedImage?.url || ""
   const selectedImageAlt =
@@ -136,6 +153,22 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
     setIsLightboxZoomed(false)
     setLightboxZoomPosition({ x: 50, y: 50 })
   }, [activeIndex])
+
+  useEffect(() => {
+    const activeUrl = images[activeIndex]?.url
+
+    if (!activeUrl || !failedImageUrls.has(activeUrl)) {
+      return
+    }
+
+    const nextValidIndex = images.findIndex(
+      (image) => image.url && !failedImageUrls.has(image.url)
+    )
+
+    if (nextValidIndex !== -1 && nextValidIndex !== activeIndex) {
+      setActiveIndex(nextValidIndex)
+    }
+  }, [activeIndex, failedImageUrls, images])
 
   useEffect(() => {
     const handleVariantImage = (e: CustomEvent<{ imageUrl?: string }>) => {
@@ -244,6 +277,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 alt={selectedImageAlt}
                 fill
                 priority={activeIndex === 0}
+                onError={() => markImageFailed(selectedImageUrl)}
                 className={`object-contain p-6 transition-transform duration-200 ${
                   canHoverZoom && isZoomed ? "scale-[1.02]" : "scale-100"
                 }`}
@@ -326,6 +360,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
                 alt={selectedImageAlt}
                 width={selectedImageWidth}
                 height={selectedImageHeight}
+                onError={() => markImageFailed(selectedImageUrl)}
                 className={`max-w-full max-h-[85vh] w-auto h-auto object-contain transition-transform duration-300 ease-out ${
                   isLightboxZoomed ? "scale-[1.75]" : "scale-100"
                 }`}

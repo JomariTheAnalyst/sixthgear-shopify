@@ -5,7 +5,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
@@ -61,14 +61,20 @@ export default function ProductCard({
   preserveSource = false,
 }: ProductCardProps) {
   const [showQuickShop, setShowQuickShop] = useState(false)
+  const [primaryImageFailed, setPrimaryImageFailed] = useState(false)
 
   const pricing = getProductPricing(product)
   const galleryImages = (product.images || [])
     .map((image: any) => image?.url)
     .filter((url): url is string => Boolean(url))
-  const imageUrl = product.thumbnail || galleryImages[0]
+  const imageCandidates = [...galleryImages, product.thumbnail].filter(
+    (url, index, list): url is string =>
+      Boolean(url) && list.indexOf(url) === index
+  )
+  const imageUrl =
+    (primaryImageFailed ? imageCandidates[1] : imageCandidates[0]) || null
   const hoverImageUrl =
-    galleryImages.find((url) => url !== imageUrl) || null
+    imageCandidates.find((url) => url !== imageUrl) || null
   const firstVariant = product.variants?.[0]
   const canAddToCart = Boolean(firstVariant)
   const brandName = product.collection?.title || "Sixthgear"
@@ -76,6 +82,10 @@ export default function ProductCard({
 
   const resolvedCountryCode =
     countryCode || region?.countries?.[0]?.iso_2 || "ph"
+
+  useEffect(() => {
+    setPrimaryImageFailed(false)
+  }, [product.id, imageCandidates[0]])
 
   const isVariantInStock = (variant: NonNullable<typeof product.variants>[number]) => {
     const variantAvailableForSale = (variant as any).availableForSale
@@ -170,6 +180,7 @@ export default function ProductCard({
                 src={imageUrl}
                 alt={product.title || "Product"}
                 fill
+                onError={() => setPrimaryImageFailed(true)}
                 className={`object-contain p-5 sm:p-6 transition-opacity duration-300 ease-in-out ${
                   hoverImageUrl ? "group-hover:opacity-0" : ""
                 }`}
