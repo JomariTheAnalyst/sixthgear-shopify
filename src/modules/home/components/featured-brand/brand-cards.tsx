@@ -48,6 +48,10 @@ const FALLBACK_BRAND_CARDS: BrandCardItem[] = [
   },
 ]
 
+function isRemoteImageUrl(url?: string | null) {
+  return Boolean(url && /^https?:\/\//i.test(url))
+}
+
 function resolveBrand(brand: BrandCardItem, index: number) {
   const fallback = FALLBACK_BRAND_CARDS[index]
 
@@ -87,6 +91,7 @@ function BrandCard({
           src={brand.imageUrl}
           alt={brand.imageAlt}
           fill
+          unoptimized={isRemoteImageUrl(brand.imageUrl)}
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           sizes={
             mobile
