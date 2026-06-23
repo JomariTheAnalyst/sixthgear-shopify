@@ -45,7 +45,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
       title: "Description",
       content: product.description ? (
         <div
-          className="prose prose-sm max-w-none break-words text-gray-600 leading-relaxed"
+          className="product-description-rich-text"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       ) : (

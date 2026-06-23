@@ -178,6 +178,141 @@
   .text-3xl-semi {
     @apply text-[32px] leading-[44px] font-semibold;
   }
+
+  .product-description-rich-text {
+    @apply max-w-none break-words text-base leading-7 text-gray-700;
+  }
+
+  .product-description-rich-text > *:first-child {
+    margin-top: 0;
+  }
+
+  .product-description-rich-text > *:last-child {
+    margin-bottom: 0;
+  }
+
+  .product-description-rich-text p {
+    @apply my-4;
+  }
+
+  .product-description-rich-text h2,
+  .product-description-rich-text h3,
+  .product-description-rich-text h4,
+  .product-description-rich-text h5,
+  .product-description-rich-text h6 {
+    @apply mb-3 mt-8 font-bold leading-snug text-gray-950;
+  }
+
+  .product-description-rich-text h1 {
+    @apply mb-4 mt-0 text-2xl font-bold leading-tight text-gray-950;
+  }
+
+  .product-description-rich-text h2 {
+    @apply text-xl;
+  }
+
+  .product-description-rich-text h3 {
+    @apply text-lg;
+  }
+
+  .product-description-rich-text h4 {
+    @apply text-base;
+  }
+
+  .product-description-rich-text h5,
+  .product-description-rich-text h6 {
+    @apply text-sm uppercase tracking-wide;
+  }
+
+  .product-description-rich-text strong,
+  .product-description-rich-text b {
+    @apply font-bold text-gray-950;
+  }
+
+  .product-description-rich-text em,
+  .product-description-rich-text i {
+    @apply italic;
+  }
+
+  .product-description-rich-text a {
+    @apply break-words font-semibold text-black underline decoration-gray-400 underline-offset-4 transition-colors hover:decoration-black;
+  }
+
+  .product-description-rich-text ul,
+  .product-description-rich-text ol {
+    @apply my-5 space-y-2 pl-6;
+  }
+
+  .product-description-rich-text ul {
+    @apply list-disc;
+  }
+
+  .product-description-rich-text ol {
+    @apply list-decimal;
+  }
+
+  .product-description-rich-text li {
+    @apply pl-1;
+  }
+
+  .product-description-rich-text li > p {
+    @apply my-1;
+  }
+
+  .product-description-rich-text blockquote {
+    @apply my-6 border-l-4 border-gray-300 pl-4 italic text-gray-600;
+  }
+
+  .product-description-rich-text hr {
+    @apply my-8 border-gray-200;
+  }
+
+  .product-description-rich-text table {
+    @apply my-6 w-full border-collapse text-sm;
+  }
+
+  .product-description-rich-text th,
+  .product-description-rich-text td {
+    @apply border border-gray-200 px-3 py-2 text-left align-top;
+  }
+
+  .product-description-rich-text th {
+    @apply bg-gray-50 font-semibold text-gray-950;
+  }
+
+  .product-description-rich-text img {
+    @apply my-6 h-auto max-w-full rounded-lg;
+  }
+
+  .product-description-rich-text figure {
+    @apply my-6;
+  }
+
+  .product-description-rich-text figure img {
+    @apply my-0;
+  }
+
+  .product-description-rich-text figcaption {
+    @apply mt-2 text-sm text-gray-500;
+  }
+
+  .product-description-rich-text iframe,
+  .product-description-rich-text video {
+    @apply my-6 block w-full max-w-full rounded-lg border border-gray-200;
+  }
+
+  .product-description-rich-text iframe {
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+
+  .product-description-rich-text video {
+    @apply h-auto;
+  }
+
+  .product-description-rich-text div {
+    @apply max-w-full;
+  }
 }
 
 /* Mobile filter drawer slide-up animation */
