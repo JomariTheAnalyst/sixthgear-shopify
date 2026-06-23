@@ -1,4 +1,5 @@
 import { companyData } from "@lib/company-data"
+import type { ShopifyProduct } from "@lib/shopify/types"
 import { getBaseURL } from "@lib/util/env"
 
 const DEFAULT_COUNTRY_CODE = "ph"
@@ -103,6 +104,43 @@ export const getBreadcrumbStructuredData = (
     item: getAbsoluteSiteUrl(countryCode, item.path),
   })),
 })
+
+export const getProductStructuredData = (
+  product: ShopifyProduct,
+  countryCode = DEFAULT_COUNTRY_CODE
+) => {
+  const productUrl = getAbsoluteSiteUrl(countryCode, `/products/${product.handle}`)
+  const images = product.images?.edges
+    ?.map((edge) => edge.node.url)
+    .filter((url): url is string => Boolean(url)) ?? []
+  const minVariantPrice = product.priceRange.minVariantPrice
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.description,
+    image: images,
+    brand: {
+      "@type": "Brand",
+      name: product.vendor,
+    },
+    url: productUrl,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: minVariantPrice.currencyCode,
+      price: minVariantPrice.amount,
+      availability: product.availableForSale
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: productUrl,
+      seller: {
+        "@type": "Organization",
+        name: "Sixthgear Moto",
+      },
+    },
+  }
+}
 
 export const brandSeo = {
   brandName: BRAND_NAME,

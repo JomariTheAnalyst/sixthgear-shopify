@@ -7,6 +7,7 @@ import {
   buildShopifyFilters,
   listCollections,
 } from "@lib/data/collections";
+import { getCollection } from "@lib/shopify";
 import { parseSearchParams } from "@lib/util/filterParams";
 import JsonLd from "@modules/common/components/json-ld";
 import {
@@ -25,15 +26,19 @@ type Props = {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
 
-  const result = await getFilteredCollection(params.handle, { first: 0 });
+  const collection = await getCollection(params.handle, { first: 0 });
 
-  if (!result) notFound();
+  if (!collection) notFound();
+
+  const title = collection.seo?.title?.trim() || collection.title;
+  const description =
+    collection.seo?.description?.trim() ||
+    collection.description ||
+    `${collection.title} collection`;
 
   return {
-    title: result.collection.title,
-    description:
-      result.collection.description ||
-      `${result.collection.title} collection`,
+    title,
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(
         params.countryCode,

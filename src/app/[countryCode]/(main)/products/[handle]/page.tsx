@@ -10,6 +10,7 @@ import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product
 import {
   getBreadcrumbStructuredData,
   getLocalizedCanonicalPath,
+  getProductStructuredData,
 } from "@lib/seo"
 
 export const dynamic = "force-dynamic"
@@ -29,12 +30,15 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const title = product.seo?.title?.trim() || product.title
+  const description = product.seo?.description?.trim() || product.description
+
   return {
-    title: product.title,
-    description: product.description,
+    title,
+    description,
     openGraph: {
-      title: product.title,
-      description: product.description,
+      title,
+      description,
       images: product.featuredImage ? [product.featuredImage.url] : [],
     },
     alternates: {
@@ -69,6 +73,10 @@ export default async function ProductPage(props: Props) {
       { name: "Shop", path: "/store" },
       { name: shopifyProduct.title, path: `/products/${params.handle}` },
     ]
+  )
+  const productStructuredData = getProductStructuredData(
+    shopifyProduct,
+    params.countryCode
   )
 
   // DEBUG: log raw metafields from Shopify to terminal
@@ -198,6 +206,7 @@ export default async function ProductPage(props: Props) {
     <Suspense fallback={<SkeletonProductDetail />}>
       <>
         <JsonLd id="product-breadcrumbs" data={breadcrumbStructuredData} />
+        <JsonLd id="product-structured-data" data={productStructuredData} />
         <ProductTemplate
           product={mappedProduct}
           region={region}

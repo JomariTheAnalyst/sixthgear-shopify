@@ -17,7 +17,7 @@ const FALLBACK_HERO: SanityHeroSection = {
   secondaryLink: "/services",
   slides: [
     {
-      imageUrl: "/images/homepage/slideshow-hero/slideshow4.png",
+      imageUrl: "/images/homepage/hero/sixthgear-store.jpg",
       mobileImageUrl: null,
       mobileCrop: null,
       mobileHotspot: null,
@@ -25,7 +25,7 @@ const FALLBACK_HERO: SanityHeroSection = {
       contentAlignment: "left",
     },
     {
-      imageUrl: "/images/homepage/slideshow-hero/slideshow5.png",
+      imageUrl: "/images/homepage/slideshow-hero/slideshow4.png",
       mobileImageUrl: null,
       mobileCrop: null,
       mobileHotspot: null,
