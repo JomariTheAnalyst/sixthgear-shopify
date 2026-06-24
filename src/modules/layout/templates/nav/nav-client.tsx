@@ -107,7 +107,7 @@ const NavClient = ({
             isScrolled ? "shadow-md" : ""
           }`}
         >
-          <nav className="content-container w-full h-full flex flex-col">
+          <nav className="flex h-full w-full flex-col px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-16">
             <div className="flex md:hidden items-center justify-between py-4">
               <div className="flex items-center gap-2">
                 <MobileMenu
@@ -160,12 +160,12 @@ const NavClient = ({
               </div>
             </div>
 
-            <div className="hidden md:flex items-center justify-between py-4 border-b border-gray-100/50">
-              <div className="flex-1">
+            <div className="relative hidden md:grid grid-cols-[minmax(220px,1fr)_auto_minmax(220px,1fr)] items-center gap-6 py-4 border-b border-gray-100/50">
+              <div className="justify-self-start">
                 <SearchBar />
               </div>
 
-              <div className="flex-none flex justify-center px-1 md:px-2 z-10 transition-transform scale-90 sm:scale-100">
+              <div className="justify-self-center px-1 md:px-2 z-10 transition-transform scale-90 sm:scale-100">
                 <LocalizedClientLink
                   href="/"
                   className="flex items-center justify-center whitespace-nowrap"
@@ -174,7 +174,7 @@ const NavClient = ({
                 </LocalizedClientLink>
               </div>
 
-              <div className="flex-1 flex justify-end">
+              <div className="justify-self-end">
                 <div className="flex items-center gap-4">
                   <LocalizedClientLink
                     href="/wishlist"

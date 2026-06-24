@@ -16,11 +16,25 @@ export default function robots(): MetadataRoute.Robots {
   const baseUrl = getBaseURL()
 
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: disallowedPaths,
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: disallowedPaths,
+      },
+      {
+        userAgent: "adsbot-google",
+        disallow: ["/cart", "/ph/account"],
+      },
+      {
+        userAgent: "AhrefsBot",
+        crawlDelay: 10,
+      },
+      {
+        userAgent: "AhrefsSiteAudit",
+        crawlDelay: 10,
+      },
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
   }
 }
