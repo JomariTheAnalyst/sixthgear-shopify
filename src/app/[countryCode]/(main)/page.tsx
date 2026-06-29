@@ -51,7 +51,15 @@ import {
   getHomepageCollectionSections,
   getMarketingData,
 } from "@lib/cms/client"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import {
+  getAbsoluteSiteUrl,
+  getDefaultOpenGraphImageUrl,
+  getLocalizedCanonicalPath,
+  getMetadataImageUrl,
+  getNoindexFollowRobots,
+  getSiteName,
+  hasNonCanonicalSearchParams,
+} from "@lib/seo"
 import {
   DeferredClientTestimonialsSection,
   DeferredOurServicesSection,
@@ -69,20 +77,49 @@ const BRAND_COLLECTION_HANDLE_PREFIX = "brand-"
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ countryCode: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const { countryCode } = await params
+  const rawSearchParams = await searchParams
+  const homepageHero = await getHomepageHero()
+  const heroImageUrl =
+    homepageHero?.slides?.find((slide) => slide.imageUrl)?.imageUrl ?? null
+  const imageUrl = getMetadataImageUrl(heroImageUrl) || getDefaultOpenGraphImageUrl()
+  const title =
+    "SixthGearMoto | Motorcycle Parts, Riding Gear & Service Center Makati"
+  const description =
+    "Shop premium motorcycle parts, riding gear, Akrapovic exhausts, and big bike accessories at SixthGearMoto. Visit our motorcycle shop, service center, carwash, and coffee spot in Makati, Philippines."
+  const canonicalUrl = getAbsoluteSiteUrl(countryCode)
+  const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
+    allowPaginationParams: true,
+  })
 
   return {
     title: {
-      absolute: "Sixthgear Moto",
+      absolute: title,
     },
-    description:
-      "Explore motorcycle gear, parts, workshop services, and the rider cafe experience at Sixthgear Moto in the Philippines.",
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode),
     },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: getSiteName(),
+      images: [imageUrl],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 

@@ -11,9 +11,18 @@ import { getCollection } from "@lib/shopify";
 import { parseSearchParams } from "@lib/util/filterParams";
 import JsonLd from "@modules/common/components/json-ld";
 import {
+  getAbsoluteSiteUrl,
   getBreadcrumbStructuredData,
+  getCollectionItemListStructuredData,
+  getFaqStructuredData,
   getLocalizedCanonicalPath,
+  getMetadataImageUrl,
+  getNoindexFollowRobots,
+  getSiteName,
+  hasNonCanonicalSearchParams,
 } from "@lib/seo";
+import CollectionHero from "@modules/collections/components/CollectionHero";
+import CollectionSeoContent from "@modules/collections/components/CollectionSeoContent";
 import CollectionTemplate from "@modules/collections/templates";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +34,10 @@ type Props = {
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
+  const searchParams = await props.searchParams;
+  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
+    allowPaginationParams: true,
+  });
 
   const collection = await getCollection(params.handle, { first: 0 });
 
@@ -35,16 +48,31 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     collection.seo?.description?.trim() ||
     collection.description ||
     `${collection.title} collection`;
+  const canonicalPath = `/collections/${params.handle}`;
+  const canonicalUrl = getAbsoluteSiteUrl(params.countryCode, canonicalPath);
+  const imageUrl = getMetadataImageUrl(collection.image?.url);
 
   return {
     title,
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(
-        params.countryCode,
-        `/collections/${params.handle}`
-      ),
+      canonical: getLocalizedCanonicalPath(params.countryCode, canonicalPath),
     },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: getSiteName(),
+      ...(imageUrl ? { images: [imageUrl] } : {}),
+    },
+    twitter: {
+      card: imageUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(imageUrl ? { images: [imageUrl] } : {}),
+    },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   };
 }
 
@@ -97,10 +125,56 @@ export default async function CollectionPage(props: Props) {
     handle: c.handle,
     title: c.title,
   }));
+  const seoLanding = result.collection.seoLanding;
+  const relatedCollectionHandleSet = new Set(
+    seoLanding?.relatedCollectionHandles ?? []
+  );
+  const relatedCollections = collectionsMenu.filter((collection) =>
+    relatedCollectionHandleSet.has(collection.handle)
+  );
+  const serviceLinks =
+    params.handle === "akrapovic-exhaust"
+      ? [
+          {
+            href: "/services/accessories-installation",
+            label: "Akrapovic exhaust installation Makati",
+            description:
+              "Confirm fitment and installation support at the SixthGearMoto Makati service center.",
+          },
+        ]
+      : [];
+  const itemListStructuredData =
+    result.products.length > 0
+      ? getCollectionItemListStructuredData(
+          params.countryCode,
+          `/collections/${params.handle}`,
+          result.products
+        )
+      : null;
+  const faqStructuredData =
+    seoLanding?.faqItems && seoLanding.faqItems.length > 0
+      ? getFaqStructuredData(seoLanding.faqItems)
+      : null;
 
   return (
     <>
       <JsonLd id="collection-breadcrumbs" data={breadcrumbStructuredData} />
+      {itemListStructuredData && (
+        <JsonLd id="collection-item-list" data={itemListStructuredData} />
+      )}
+      {faqStructuredData && (
+        <JsonLd id="collection-faq" data={faqStructuredData} />
+      )}
+      <CollectionHero
+        title={result.collection.title}
+        description={result.collection.description}
+        backgroundImageUrl={result.collection.image?.url ?? null}
+      />
+      <CollectionSeoContent
+        countryCode={params.countryCode}
+        seoLanding={seoLanding}
+        placement="primary"
+      />
       <CollectionTemplate
         collection={result.collection}
         products={result.products}
@@ -110,9 +184,13 @@ export default async function CollectionPage(props: Props) {
         initialFilterState={filterState}
         countryCode={params.countryCode}
         collectionsMenu={collectionsMenu}
-        heroTitle={result.collection.title}
-        heroDescription={result.collection.description}
-        heroImageUrl={result.collection.image?.url ?? null}
+      />
+      <CollectionSeoContent
+        countryCode={params.countryCode}
+        seoLanding={seoLanding}
+        relatedCollections={relatedCollections}
+        serviceLinks={serviceLinks}
+        placement="secondary"
       />
     </>
   );

@@ -21,7 +21,6 @@ import ProductCard, {
   getBadgesFromTags,
 } from "@modules/home/components/product-sections/product-card"
 import SkeletonProductCard from "@modules/home/components/product-sections/product-card/skeleton-product-card"
-import CollectionHero from "@modules/collections/components/CollectionHero"
 import { startRouteProgress } from "@modules/common/components/route-progress"
 
 type CollectionTemplateProps = {
@@ -40,9 +39,6 @@ type CollectionTemplateProps = {
   collectionsMenu?: { handle: string; title: string }[]
   brandCollectionsMenu?: { handle: string; title: string }[]
   showSoldOutToggle?: boolean
-  heroTitle: string
-  heroDescription?: string
-  heroImageUrl?: string | null
 }
 
 function mapShopifyProductToSharedCard(
@@ -138,9 +134,6 @@ export default function CollectionTemplate({
   collectionsMenu,
   brandCollectionsMenu,
   showSoldOutToggle = false,
-  heroTitle,
-  heroDescription,
-  heroImageUrl,
 }: CollectionTemplateProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -249,11 +242,6 @@ export default function CollectionTemplate({
 
   return (
     <div className="min-h-screen bg-white">
-      <CollectionHero
-        title={heroTitle}
-        description={heroDescription}
-        backgroundImageUrl={heroImageUrl}
-      />
       <div className="border-b border-gray-100 bg-gray-50/60">
         <div className="mx-auto max-w-[1440px] px-4 pb-4 pt-4 sm:px-6 lg:px-12">
           <nav aria-label="Breadcrumb" className="mb-2">

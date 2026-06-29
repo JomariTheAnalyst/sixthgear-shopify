@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { getLocalizedCanonicalPath } from "@lib/seo"
 import MenuTemplate from "@modules/menu/templates/menu-template"
 import { getCoffeeMenuHero, getMenuCategories } from "@lib/strapi/coffee-menu"
 
@@ -25,6 +26,9 @@ export const metadata: Metadata = {
     description:
       "Handcrafted brews served with passion. Explore our full menu of hot coffee, iced coffee, non-coffee drinks, and food.",
     type: "website",
+  },
+  alternates: {
+    canonical: getLocalizedCanonicalPath("ph", "/first-gear"),
   },
 }
 

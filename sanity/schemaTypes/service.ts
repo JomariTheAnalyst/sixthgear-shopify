@@ -75,6 +75,31 @@ export default defineType({
         "Photo shown at the top of this service's page. Wide landscape. Min 1200px wide.",
     }),
     defineField({
+      name: 'seoTitle',
+      title: 'SEO Title',
+      type: 'string',
+      validation: (rule) => rule.max(70),
+      description:
+        'Optional search result title. Leave empty to use the service title.',
+    }),
+    defineField({
+      name: 'seoDescription',
+      title: 'SEO Description',
+      type: 'text',
+      rows: 3,
+      validation: (rule) => rule.max(160),
+      description:
+        'Optional search result description. Leave empty to use the service description.',
+    }),
+    defineField({
+      name: 'socialImage',
+      title: 'Social Share Image',
+      type: 'image',
+      options: { hotspot: true },
+      description:
+        'Optional OpenGraph/Twitter image for this service page.',
+    }),
+    defineField({
       name: 'features',
       title: 'What This Service Includes',
       type: 'array',

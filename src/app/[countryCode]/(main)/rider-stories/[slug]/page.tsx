@@ -12,13 +12,18 @@ import {
   createRiderStorySlug,
   type RiderStoryPreview,
 } from "@lib/rider-stories"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import {
+  getLocalizedCanonicalPath,
+  getNoindexFollowRobots,
+  hasNonCanonicalSearchParams,
+} from "@lib/seo"
 import { getClientStoriesWithFallbacks } from "@lib/strapi/client-stories"
 import { fetchHomeContent } from "@lib/strapi/home"
 import RiderStoryArticlePage from "@modules/rider-stories/templates/article-page"
 
 type Props = {
   params: Promise<{ countryCode: string; slug: string }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
 function parseLegacyPublishedDate(date: string): string | null {
@@ -168,6 +173,10 @@ async function getStoryWithFallback(slug: string): Promise<SanityBlogPost | null
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { countryCode, slug } = await props.params
+  const searchParams = (await props.searchParams) ?? {}
+  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
+    allowPaginationParams: true,
+  })
   const story = await getStoryWithFallback(slug)
 
   if (!story) {
@@ -193,6 +202,19 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
           ? [{ url: story.socialImageUrl || story.featuredImageUrl || "" }]
           : [],
     },
+    twitter: {
+      card:
+        story.socialImageUrl || story.featuredImageUrl
+          ? "summary_large_image"
+          : "summary",
+      title: story.seoTitle || story.title || "Rider Story",
+      description: story.seoDescription || story.excerpt || undefined,
+      images:
+        story.socialImageUrl || story.featuredImageUrl
+          ? [story.socialImageUrl || story.featuredImageUrl || ""]
+          : [],
+    },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 

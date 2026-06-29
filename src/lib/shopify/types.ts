@@ -24,6 +24,7 @@ export interface ShopifyProductOption {
 export interface ShopifyProductVariant {
   id: string;
   title: string;
+  sku?: string | null;
   availableForSale: boolean;
   quantityAvailable?: number;
   selectedOptions: {
@@ -45,6 +46,23 @@ export interface ShopifyMetafield {
     url?: string | null;
   } | null;
 }
+
+export type ShopifyCollectionFaqItem = {
+  question: string;
+  answer: string;
+};
+
+export type ShopifyCollectionSeoLanding = {
+  introHeading?: string;
+  introBody?: string;
+  buyingGuideHeading?: string;
+  buyingGuideBody?: string;
+  fitmentHeading?: string;
+  fitmentBody?: string;
+  bottomContent?: string;
+  relatedCollectionHandles: string[];
+  faqItems: ShopifyCollectionFaqItem[];
+};
 
 export interface ShopifyProductCard {
   id: string;
@@ -73,6 +91,7 @@ export interface ShopifyProductCard {
       node: {
         id: string;
         title?: string;
+        sku?: string | null;
         availableForSale?: boolean;
         price?: ShopifyMoney;
         compareAtPrice?: ShopifyMoney | null;
@@ -145,6 +164,8 @@ export interface ShopifyCollection {
   image: ShopifyImage | null;
   isCollectionFeatured?: ShopifyMetafield | null;
   seo?: ShopifySeo;
+  metafields?: ShopifyMetafield[] | null;
+  seoLanding?: ShopifyCollectionSeoLanding;
   products?: {
     edges: {
       cursor: string;

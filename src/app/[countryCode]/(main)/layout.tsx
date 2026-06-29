@@ -17,6 +17,7 @@ import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
 import JsonLd from "@modules/common/components/json-ld"
 import {
+  generateLocalBusinessSchema,
   getOrganizationStructuredData,
   getSeoMetadataBase,
   getWebsiteStructuredData,
@@ -37,6 +38,7 @@ export default async function PageLayout(props: {
   const cart = mapShopifyCartToStoreCart(shopifyCart)
   const draft = await draftMode()
   const organizationStructuredData = getOrganizationStructuredData(countryCode)
+  const localBusinessStructuredData = generateLocalBusinessSchema(countryCode)
   const websiteStructuredData = getWebsiteStructuredData(countryCode)
 
   // Fetch marketing content for the layout (strip only at this level)
@@ -50,6 +52,10 @@ export default async function PageLayout(props: {
           <JsonLd
             id="organization-structured-data"
             data={organizationStructuredData}
+          />
+          <JsonLd
+            id="local-business-structured-data"
+            data={localBusinessStructuredData}
           />
           <JsonLd id="website-structured-data" data={websiteStructuredData} />
           {/* Cart cleanup component - removes shipping methods when leaving checkout */}

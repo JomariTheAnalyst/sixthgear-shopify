@@ -11,7 +11,12 @@ import type {
   FilterState,
   ProductFilter,
   ProductCollectionSortKeys,
+  ShopifyCollectionFaqItem,
+  ShopifyCollectionSeoLanding,
+  ShopifyMetafield,
 } from "@lib/shopify/types";
+
+const SEO_LANDING_NAMESPACE = "seo_landing"
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Fetch available filter options for the sidebar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
@@ -51,6 +56,8 @@ export async function getFilteredCollection(
     handle: string;
     description: string;
     image: ShopifyImage | null;
+    metafields?: ShopifyMetafield[] | null;
+    seoLanding?: ShopifyCollectionSeoLanding;
   };
   products: ShopifyProductCard[];
   filters: ShopifyFilter[];
@@ -81,6 +88,7 @@ export async function getFilteredCollection(
           handle: string;
           description: string;
           image: ShopifyImage | null;
+          metafields?: Array<ShopifyMetafield | null> | null;
           products: {
             filters: ShopifyFilter[];
             edges: { cursor: string; node: ShopifyProductCard }[];
@@ -104,9 +112,16 @@ export async function getFilteredCollection(
       if (!data?.collection) return null;
 
       const { products, ...collectionInfo } = data.collection;
+      const metafields = collectionInfo.metafields?.filter(
+        (field): field is ShopifyMetafield => Boolean(field)
+      ) ?? [];
 
       return {
-        collection: collectionInfo,
+        collection: {
+          ...collectionInfo,
+          metafields,
+          seoLanding: normalizeCollectionSeoLanding(metafields),
+        },
         products: products.edges.map((e) => e.node),
         filters: products.filters || [],
         pageInfo: products.pageInfo,
@@ -114,6 +129,141 @@ export async function getFilteredCollection(
     },
     TTL.COLLECTION
   )
+}
+
+export function normalizeCollectionSeoLanding(
+  metafields?: Array<ShopifyMetafield | null> | null
+): ShopifyCollectionSeoLanding {
+  const fields = new Map<string, ShopifyMetafield>()
+
+  metafields?.forEach((field) => {
+    if (field?.namespace === SEO_LANDING_NAMESPACE && field.key) {
+      fields.set(field.key, field)
+    }
+  })
+
+  return {
+    introHeading: textField(fields.get("intro_heading")),
+    introBody: textField(fields.get("intro_body")),
+    buyingGuideHeading: textField(fields.get("buying_guide_heading")),
+    buyingGuideBody: textField(fields.get("buying_guide_body")),
+    fitmentHeading: textField(fields.get("fitment_heading")),
+    fitmentBody: textField(fields.get("fitment_body")),
+    bottomContent: textField(fields.get("bottom_content")),
+    relatedCollectionHandles: handleListField(
+      fields.get("related_collection_handles")
+    ),
+    faqItems: faqItemsField(fields.get("faq_items")),
+  }
+}
+
+function textField(field?: ShopifyMetafield): string | undefined {
+  const value = extractMetafieldText(field?.value)
+  return value || undefined
+}
+
+function extractMetafieldText(value?: string | null): string {
+  const trimmed = value?.trim()
+  if (!trimmed) {
+    return ""
+  }
+
+  const parsed = parseJson(trimmed)
+  if (parsed) {
+    const richText = extractRichText(parsed).trim()
+    if (richText) {
+      return richText
+    }
+  }
+
+  return trimmed
+}
+
+function handleListField(field?: ShopifyMetafield): string[] {
+  const value = field?.value?.trim()
+  if (!value) {
+    return []
+  }
+
+  const parsed = parseJson(value)
+  const rawItems = Array.isArray(parsed)
+    ? parsed
+    : value.split(/[\n,]/).map((item) => item.trim())
+
+  return Array.from(
+    new Set(
+      rawItems
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim().toLowerCase())
+        .filter((item) => /^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/.test(item))
+    )
+  )
+}
+
+function faqItemsField(field?: ShopifyMetafield): ShopifyCollectionFaqItem[] {
+  const parsed = parseJson(field?.value)
+  if (!Array.isArray(parsed)) {
+    return []
+  }
+
+  return parsed
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null
+      }
+
+      const question = extractMetafieldText(
+        String((item as Record<string, unknown>).question ?? "")
+      )
+      const answer = extractMetafieldText(
+        String((item as Record<string, unknown>).answer ?? "")
+      )
+
+      return question && answer ? { question, answer } : null
+    })
+    .filter((item): item is ShopifyCollectionFaqItem => Boolean(item))
+}
+
+function parseJson(value?: string | null): unknown | null {
+  if (!value) {
+    return null
+  }
+
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
+  }
+}
+
+function extractRichText(node: unknown): string {
+  if (typeof node === "string") {
+    return node
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(extractRichText).filter(Boolean).join("\n\n")
+  }
+
+  if (!node || typeof node !== "object") {
+    return ""
+  }
+
+  const record = node as Record<string, unknown>
+
+  if (typeof record.value === "string") {
+    return record.value
+  }
+
+  if (typeof record.text === "string") {
+    return record.text
+  }
+
+  if (Array.isArray(record.children)) {
+    return record.children.map(extractRichText).filter(Boolean).join(" ")
+  }
+
+  return ""
 }
 
 function sortObjectKeys<T>(value: T): T {

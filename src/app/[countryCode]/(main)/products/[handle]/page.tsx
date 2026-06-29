@@ -2,7 +2,6 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { getProduct } from "@lib/shopify"
-import { invalidatePattern } from "@lib/cache/redis"
 import { getRegion } from "@lib/data/regions"
 import JsonLd from "@modules/common/components/json-ld"
 import ProductTemplate from "@modules/products/templates"
@@ -10,7 +9,9 @@ import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product
 import {
   getBreadcrumbStructuredData,
   getLocalizedCanonicalPath,
+  getNoindexFollowRobots,
   getProductStructuredData,
+  hasNonCanonicalSearchParams,
 } from "@lib/seo"
 
 export const dynamic = "force-dynamic"
@@ -22,7 +23,11 @@ type Props = {
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
+  const searchParams = await props.searchParams
   const { handle } = params
+  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
+    allowPaginationParams: true,
+  })
 
   const product = await getProduct(handle)
 
@@ -41,12 +46,19 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       description,
       images: product.featuredImage ? [product.featuredImage.url] : [],
     },
+    twitter: {
+      card: product.featuredImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: product.featuredImage ? [product.featuredImage.url] : [],
+    },
     alternates: {
       canonical: getLocalizedCanonicalPath(
         params.countryCode,
         `/products/${handle}`
       ),
     },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 
@@ -59,13 +71,12 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  // Bust stale cache so updated metafield query runs
-  await invalidatePattern("product")
   const shopifyProduct = await getProduct(params.handle)
 
   if (!shopifyProduct) {
     notFound()
   }
+  const selectedVariantId = searchParams.v_id
   const breadcrumbStructuredData = getBreadcrumbStructuredData(
     params.countryCode,
     [
@@ -76,10 +87,19 @@ export default async function ProductPage(props: Props) {
   )
   const productStructuredData = getProductStructuredData(
     shopifyProduct,
-    params.countryCode
+    params.countryCode,
+    selectedVariantId
   )
 
-  // DEBUG: log raw metafields from Shopify to terminal
+  const productVendor = shopifyProduct.vendor?.trim()
+  const productTitle = shopifyProduct.title?.trim()
+  const titleIncludesVendor =
+    productVendor &&
+    productTitle?.toLowerCase().includes(productVendor.toLowerCase())
+  const productImageAlt =
+    titleIncludesVendor || !productVendor
+      ? productTitle || "Product image"
+      : `${productVendor} ${productTitle}`
 
   const mappedImages = [
     ...shopifyProduct.images.edges.map((edge) => ({
@@ -87,7 +107,7 @@ export default async function ProductPage(props: Props) {
       url: edge.node.url,
       width: edge.node.width,
       height: edge.node.height,
-      altText: edge.node.altText || "",
+      altText: edge.node.altText?.trim() || productImageAlt,
     })),
     ...shopifyProduct.variants.edges
       .map((edge) => edge.node.image)
@@ -97,7 +117,7 @@ export default async function ProductPage(props: Props) {
         url: image.url,
         width: image.width,
         height: image.height,
-        altText: image.altText || "",
+        altText: image.altText?.trim() || productImageAlt,
       })),
   ].filter(
     (image, index, list) =>
@@ -114,7 +134,7 @@ export default async function ProductPage(props: Props) {
       url: shopifyProduct.featuredImage.url,
       width: shopifyProduct.featuredImage.width,
       height: shopifyProduct.featuredImage.height,
-      altText: shopifyProduct.featuredImage.altText || "",
+      altText: shopifyProduct.featuredImage.altText?.trim() || productImageAlt,
     })
   }
 
@@ -184,7 +204,6 @@ export default async function ProductPage(props: Props) {
   } as any;
 
   // Emulate getImagesForVariant functionality
-  const selectedVariantId = searchParams.v_id
   let displayImages = mappedProduct.images;
   if (selectedVariantId) {
     const variantNode = shopifyProduct.variants.edges.find(e => e.node.id === selectedVariantId)?.node;
@@ -195,7 +214,7 @@ export default async function ProductPage(props: Props) {
           url: variantNode.image.url,
           width: variantNode.image.width,
           height: variantNode.image.height,
-          altText: variantNode.image.altText || "",
+          altText: variantNode.image.altText?.trim() || productImageAlt,
         },
         ...mappedProduct.images.filter((img: any) => img.url !== variantNode.image?.url)
       ];
@@ -203,17 +222,17 @@ export default async function ProductPage(props: Props) {
   }
 
   return (
-    <Suspense fallback={<SkeletonProductDetail />}>
-      <>
-        <JsonLd id="product-breadcrumbs" data={breadcrumbStructuredData} />
-        <JsonLd id="product-structured-data" data={productStructuredData} />
+    <>
+      <JsonLd id="product-breadcrumbs" data={breadcrumbStructuredData} />
+      <JsonLd id="product-structured-data" data={productStructuredData} />
+      <Suspense fallback={<SkeletonProductDetail />}>
         <ProductTemplate
           product={mappedProduct}
           region={region}
           countryCode={params.countryCode}
           images={displayImages}
         />
-      </>
-    </Suspense>
+      </Suspense>
+    </>
   )
 }

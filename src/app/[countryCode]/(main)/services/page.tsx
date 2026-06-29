@@ -6,22 +6,31 @@ import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
   getLocalizedCanonicalPath,
+  getNoindexFollowRobots,
+  hasNonCanonicalSearchParams,
 } from "@lib/seo"
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ countryCode: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const { countryCode } = await params
+  const rawSearchParams = await searchParams
+  const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
+    allowPaginationParams: true,
+  })
 
   return {
-    title: "Services",
+    title: "Motorcycle Services in Makati Philippines",
     description:
-      "Book motorcycle maintenance, diagnostics, repairs, detailing, and upgrade work with the SixthgearMoto workshop.",
+      "Book motorcycle PMS, diagnostics, repairs, oil change, detailing, accessories installation, performance upgrades, towing, and rider support with SixthgearMoto in Makati.",
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/services"),
     },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 

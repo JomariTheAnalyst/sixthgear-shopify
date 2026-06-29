@@ -4,7 +4,7 @@ import { Suspense } from "react"
 
 import { clientEnv } from "@lib/env"
 import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
-import { getSeoMetadataBase } from "@lib/seo"
+import { getDefaultTwitterMetadata, getSeoMetadataBase } from "@lib/seo"
 import { getBaseURL } from "@lib/util/env"
 import { Toaster } from "sonner"
 
@@ -16,20 +16,21 @@ import "styles/globals.css"
 export const metadata: Metadata = {
   metadataBase: getSeoMetadataBase(),
   title: {
-    default: "Sixthgear Moto",
-    template: "%s | Sixthgear Moto",
+    default: "SixthGearMoto",
+    template: "%s | SixthGearMoto",
   },
   description:
-    "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of Sixthgear Moto in the Philippines.",
-  applicationName: "Sixthgear Moto",
+    "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthGearMoto in the Philippines.",
+  applicationName: "SixthGearMoto",
   openGraph: {
     type: "website",
     url: getBaseURL(),
-    siteName: "Sixthgear Moto",
-    title: "Sixthgear Moto",
+    siteName: "SixthGearMoto",
+    title: "SixthGearMoto",
     description:
-      "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of Sixthgear Moto in the Philippines.",
+      "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthGearMoto in the Philippines.",
   },
+  twitter: getDefaultTwitterMetadata(),
   icons: {
     icon: [
       { url: "/images/favicon/favicon.ico" },

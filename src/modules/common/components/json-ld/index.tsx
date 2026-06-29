@@ -1,5 +1,3 @@
-import Script from "next/script"
-
 type JsonLdProps = {
   data: Record<string, unknown>
   id: string
@@ -7,7 +5,7 @@ type JsonLdProps = {
 
 export default function JsonLd({ data, id }: JsonLdProps) {
   return (
-    <Script
+    <script
       id={id}
       type="application/ld+json"
       dangerouslySetInnerHTML={{

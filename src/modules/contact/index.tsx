@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import Image from "next/image"
 
+import { businessInfo } from "@lib/business"
 import { getAllServicesCMS } from "@lib/cms/client"
 import type { ServiceOption } from "@lib/contact/schema"
 
@@ -38,17 +39,21 @@ export default async function ContactPage() {
             Get in Touch with Us
           </h1>
           <p className="text-base text-gray-600 md:text-lg">
-            Have questions about our outdoor adventures or looking to plan your next thrilling getaway? We&apos;re here to help! Reach out for any inquiries, sizing assistance, or riding advice.
+            Contact SixthGearMoto for motorcycle parts, service center bookings,
+            carwash support, coffee visits, and rider help from Makati for Metro
+            Manila.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           <div className="rounded-2xl bg-[#F6F6F6] p-8 lg:p-12">
             <h2 className="mb-3 max-w-sm text-3xl font-semibold tracking-tight text-gray-900 lg:text-4xl">
-              Have Questions? We&apos;re Just a Message Away!
+              Need Workshop Support?
             </h2>
             <p className="mb-10 max-w-md text-sm text-gray-500 md:text-base">
-              Fill out the form below, and one of our team members will get back to you shortly.
+              Send your motorcycle concern, parts question, preferred service,
+              or visit details. Our team will help you plan the right next
+              step.
             </p>
 
             <Suspense fallback={null}>
@@ -82,7 +87,7 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Email</p>
-                  <p className="text-sm text-gray-600">firstsixthgear@gmail.com</p>
+                  <p className="text-sm text-gray-600">{businessInfo.email}</p>
                 </div>
               </div>
 
@@ -95,10 +100,7 @@ export default async function ContactPage() {
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Call</p>
               <div className="space-y-1 text-sm text-gray-600">
-                <p>09567332057</p>
-                <p>09567332060</p>
-                <p>09178180495</p>
-                <p>09692744079</p>
+                <p>{businessInfo.phone}</p>
               </div>
                 </div>
               </div>
@@ -112,7 +114,9 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Address</p>
-                  <p className="text-sm text-gray-600">3610 Bautista St, Makati City, Metro Manila</p>
+                  <p className="text-sm text-gray-600">
+                    {businessInfo.address.postalAddress}
+                  </p>
                 </div>
               </div>
 
@@ -124,7 +128,9 @@ export default async function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Working Hours</p>
-                  <p className="text-sm text-gray-600">Mon-Sat: 10:00 AM - 7:00 PM </p>
+                  <p className="text-sm text-gray-600">
+                    {businessInfo.openingHoursText}
+                  </p>
                 </div>
               </div>
             </div>

@@ -1,21 +1,17 @@
 import { getAllServicesCMS, getServiceBySlug } from "@lib/cms/client"
 import { SanityService } from "@lib/cms/types"
-import { ServiceCategory } from "@lib/services-data"
+import { SERVICE_SEO_BY_SLUG, ServiceCategory } from "@lib/services-data"
 import { getAllServices, getService } from "@lib/strapi/services"
 
+type MergedService = ServiceCategory & {
+  ctaLabel: string
+  ctaLink: string
+  icon: string | null
+}
+
 interface ServiceDetailData {
-  service: ServiceCategory & {
-    ctaLabel: string
-    ctaLink: string
-    icon: string | null
-  }
-  otherServices: Array<
-    ServiceCategory & {
-      ctaLabel: string
-      ctaLink: string
-      icon: string | null
-    }
-  >
+  service: MergedService
+  otherServices: MergedService[]
 }
 
 function mergeServiceData(
@@ -47,6 +43,22 @@ function mergeServiceData(
     detailImage:
       cmsService?.heroImageUrl ?? localService?.detailImage ?? "",
     items: cmsItems.length > 0 ? cmsItems : localService?.items ?? [],
+    seoTitle:
+      cmsService?.seoTitle ??
+      localService?.seoTitle ??
+      SERVICE_SEO_BY_SLUG[slug]?.title,
+    seoDescription:
+      cmsService?.seoDescription ??
+      localService?.seoDescription ??
+      SERVICE_SEO_BY_SLUG[slug]?.description,
+    socialImageUrl:
+      cmsService?.socialImageUrl ??
+      localService?.socialImageUrl ??
+      cmsService?.heroImageUrl ??
+      localService?.heroImage,
+    localContent: localService?.localContent,
+    internalLinks: localService?.internalLinks,
+    faqItems: localService?.faqItems,
     ctaLabel: cmsService?.ctaLabel ?? "Book This Service",
     ctaLink: cmsService?.ctaLink ?? "/contact",
     icon: cmsService?.icon ?? null,

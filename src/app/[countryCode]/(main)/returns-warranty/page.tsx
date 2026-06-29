@@ -1,9 +1,13 @@
 import { Metadata } from "next"
+import { getLocalizedCanonicalPath } from "@lib/seo"
 
 export const metadata: Metadata = {
   title: "Returns and Warranty",
   description:
     "Returns and warranty policy for Sixthgear Moto Supply & Cafe purchases.",
+  alternates: {
+    canonical: getLocalizedCanonicalPath("ph", "/returns-warranty"),
+  },
 }
 
 export default function ReturnsWarrantyPage() {

@@ -103,7 +103,7 @@ const NavClient = ({
     <>
         <header
           ref={headerRef}
-          className={`relative mx-auto border-b border-gray-100 bg-white transition-shadow duration-300 ${
+          className={`relative mx-auto w-full border-b border-gray-100 bg-white transition-shadow duration-300 ${
             isScrolled ? "shadow-md" : ""
           }`}
         >

@@ -3,17 +3,27 @@ import Image from "next/image"
 
 import { getLatestBlogPosts } from "@lib/cms/client"
 import { inter, montserrat } from "@lib/fonts"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import {
+  getLocalizedCanonicalPath,
+  getNoindexFollowRobots,
+  hasNonCanonicalSearchParams,
+} from "@lib/seo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export const revalidate = 60
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ countryCode: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }): Promise<Metadata> {
   const { countryCode } = await params
+  const rawSearchParams = await searchParams
+  const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
+    allowPaginationParams: true,
+  })
 
   return {
     title: "Rider Stories",
@@ -22,6 +32,7 @@ export async function generateMetadata({
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/rider-stories"),
     },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 

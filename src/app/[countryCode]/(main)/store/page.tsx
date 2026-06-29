@@ -14,7 +14,10 @@ import { parseSearchParams } from "@lib/util/filterParams";
 import {
   getBreadcrumbStructuredData,
   getLocalizedCanonicalPath,
+  getNoindexFollowRobots,
+  hasNonCanonicalSearchParams,
 } from "@lib/seo";
+import CollectionHero from "@modules/collections/components/CollectionHero";
 import CollectionTemplate from "@modules/collections/templates";
 import JsonLd from "@modules/common/components/json-ld";
 
@@ -149,6 +152,10 @@ type Params = {
 
 export async function generateMetadata(props: Params): Promise<Metadata> {
   const { countryCode } = await props.params;
+  const searchParams = await props.searchParams;
+  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
+    allowPaginationParams: true,
+  });
 
   return {
     title: "Shop",
@@ -157,6 +164,7 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/store"),
     },
+    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   };
 }
 
@@ -238,6 +246,11 @@ export default async function StorePage(props: Params) {
     return (
       <>
         <JsonLd id="store-breadcrumbs" data={breadcrumbStructuredData} />
+        <CollectionHero
+          title={searchCollection.title}
+          description={searchCollection.description}
+          backgroundImageUrl={null}
+        />
         <CollectionTemplate
           collection={searchCollection}
           products={searchProductsWithoutCoffee}
@@ -249,9 +262,6 @@ export default async function StorePage(props: Params) {
           collectionsMenu={collectionsMenu}
           brandCollectionsMenu={brandCollectionsMenu}
           showSoldOutToggle={false}
-          heroTitle={searchCollection.title}
-          heroDescription={searchCollection.description}
-          heroImageUrl={null}
         />
       </>
     );
@@ -296,6 +306,11 @@ export default async function StorePage(props: Params) {
   return (
     <>
       <JsonLd id="store-breadcrumbs" data={breadcrumbStructuredData} />
+      <CollectionHero
+        title={result.collection.title}
+        description={result.collection.description}
+        backgroundImageUrl={result.collection.image?.url ?? null}
+      />
       <CollectionTemplate
         collection={storeCollection}
         products={productsForView}
@@ -307,9 +322,6 @@ export default async function StorePage(props: Params) {
         collectionsMenu={collectionsMenu}
         brandCollectionsMenu={brandCollectionsMenu}
         showSoldOutToggle
-        heroTitle={result.collection.title}
-        heroDescription={result.collection.description}
-        heroImageUrl={result.collection.image?.url ?? null}
       />
     </>
   );

@@ -6,8 +6,15 @@ import { getServiceDetailData } from "@lib/data/service-detail"
 import JsonLd from "@modules/common/components/json-ld"
 import ServiceDetailTemplate from "@modules/services/templates/service-detail"
 import {
+  generateServiceSchema,
   getBreadcrumbStructuredData,
+  getDefaultOpenGraphImageUrl,
+  getFaqStructuredData,
+  getMetadataImageUrl,
   getLocalizedCanonicalPath,
+  getNoindexFollowRobots,
+  getSiteName,
+  hasNonCanonicalSearchParams,
 } from "@lib/seo"
 
 interface ServicePageProps {
@@ -15,6 +22,7 @@ interface ServicePageProps {
     countryCode: string
     slug: string
   }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
 // Use dynamic rendering with ISR for CMS-driven content
@@ -72,32 +80,62 @@ export async function generateStaticParams() {
 }
 */
 
-export async function generateMetadata({
-  params,
-}: ServicePageProps): Promise<Metadata> {
+export async function generateMetadata(
+  props: ServicePageProps
+): Promise<Metadata> {
   try {
+    const { params } = props
     const { slug, countryCode } = await params
-    const service = await getService(slug)
+    const searchParams = (await props.searchParams) ?? {}
+    const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
+      allowPaginationParams: true,
+    })
+    const data = await getServiceDetailData(slug)
 
-    if (!service) {
+    if (!data) {
       return {
         title: "Service Not Found",
         description: "The requested service could not be found.",
       }
     }
+    const { service } = data
+    const title =
+      service.seoTitle ||
+      `${service.shortTitle || service.title} in Makati Philippines`
+    const description =
+      service.seoDescription ||
+      `${service.description} Book ${service.shortTitle || service.title} with SixthGearMoto in Makati City, serving riders across Metro Manila and the Philippines.`
+    const imageUrl =
+      getMetadataImageUrl(service.socialImageUrl) ||
+      getMetadataImageUrl(service.heroImage || service.image) ||
+      getDefaultOpenGraphImageUrl()
 
     return {
-      title: service.title,
-      description: service.description || service.title,
+      title,
+      description,
       alternates: {
         canonical: getLocalizedCanonicalPath(countryCode, `/services/${slug}`),
       },
+      openGraph: {
+        type: "website",
+        title,
+        description,
+        siteName: getSiteName(),
+        images: [{ url: imageUrl }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [imageUrl],
+      },
+      ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
     }
   } catch (error) {
     console.error(error)
     return {
       title: "Service",
-      description: "Sixthgear Moto Supply Services",
+      description: "SixthGearMoto Services",
     }
   }
 }
@@ -116,10 +154,22 @@ export default async function ServicePage({ params }: ServicePageProps) {
       { name: "Services", path: "/services" },
       { name: data.service.title, path: `/services/${slug}` },
     ])
+    const serviceStructuredData = generateServiceSchema(
+      data.service,
+      countryCode
+    )
+    const faqStructuredData =
+      data.service.faqItems && data.service.faqItems.length > 0
+        ? getFaqStructuredData(data.service.faqItems)
+        : null
 
     return (
       <>
         <JsonLd id="service-breadcrumbs" data={breadcrumbStructuredData} />
+        <JsonLd id="service-structured-data" data={serviceStructuredData} />
+        {faqStructuredData && (
+          <JsonLd id="service-faq-structured-data" data={faqStructuredData} />
+        )}
         <ServiceDetailTemplate
           service={data.service}
           otherServices={data.otherServices}

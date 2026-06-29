@@ -1,43 +1,51 @@
-Perfect audit. Everything needed is already in the query except SKU. Here's what to tell your IDE:
+SEO STATUS CHECK — INDEXING + SERVICES + KEYWORDS
 
----
+I need a detailed status report. No code changes. Just audit and report.
 
-**"Implement Product JSON-LD on the product page. Use the existing `JsonLd` component and the existing `seo.ts` file — add a new exported function called `getProductStructuredData` to `seo.ts` following the same pattern as `getOrganizationStructuredData`, `getWebsiteStructuredData`, and `getBreadcrumbStructuredData`. Then call it from the product page and render it using `JsonLd` alongside the existing `BreadcrumbList` script.**
+1. SERVICES PAGE INDEXING ISSUE
+   - List all routes under /ph/services including [slug] pages
+   - Show me the current content length/word count of each service page 
+     (check Sanity documents for service descriptions)
+   - Are service pages linked from: homepage? main navigation? any 
+     collection pages? any rider stories posts?
+   - Does the services/[slug] page have its own generateMetadata with 
+     unique title + description? Show me the current implementation.
+   - Is there any noindex tag or robots setting on service pages?
+   - What is the current structured data (JSON-LD) on service pages?
 
-**The function must produce a valid Schema.org `Product` type with these fields:**
+2. INTERNAL LINKING AUDIT
+   - Which pages currently link TO the services pages?
+   - Which pages currently link TO the store page (/ph/store)?
+   - Which pages currently link TO the installation page (if it exists)?
+   - Is the homepage body content linking to any internal pages 
+     (not just nav links)?
+   - Are there any orphaned pages (zero internal links pointing to them)?
 
-**Required:**
-- `@context` set to `https://schema.org`
-- `@type` set to `Product`
-- `name` from `product.title`
-- `description` from `product.description`
-- `image` as an array from `product.images` — include all image URLs, not just the featured image
-- `brand` as a `Brand` object with `name` from `product.vendor`
-- `url` constructed from the base URL plus countryCode plus `/products/` plus `product.handle`
-- `offers` as an `Offer` object with:
-  - `@type` set to `Offer`
-  - `priceCurrency` from `priceRange.minVariantPrice.currencyCode`
-  - `price` from `priceRange.minVariantPrice.amount`
-  - `availability` mapped from `product.availableForSale` — if true use `https://schema.org/InStock`, if false use `https://schema.org/OutOfStock`
-  - `url` same as the product URL above
-  - `seller` as an `Organization` object with `name` set to `Sixthgear Moto`
+3. CURRENT SERVICE PAGE CONTENT
+   - Show me the Sanity schema for service documents
+   - Show me what fields currently exist (title, description, body, etc.)
+   - How many service documents exist in Sanity?
+   - Does each service have a unique slug and dedicated page?
 
-**Do not include SKU — the field is not in the current query and we are not updating the query in this task.**
+4. SITEMAP VERIFICATION
+   - Are all service pages included in the sitemap?
+   - Are all collection pages included?
+   - Are all rider story posts included?
+   - Show me a count: how many URLs per content type in the sitemap?
 
-**Do not include `AggregateRating` — we have no review data.**
+5. COLLECTION PAGES STATUS
+   - List all current Shopify collections with their handles/URLs
+   - Which collections have seo_landing metafields populated 
+     (intro_body, buying_guide_body, etc.)?
+   - Which collections have empty metafields?
 
-**After implementing, run `npx tsc --noEmit` and confirm zero errors. Then show me the exact JSON object that `getProductStructuredData` would return for the `airoh-commander-2` product using the data we already know from the earlier audit. I want to see the resolved JSON, not the function code."**
+6. RIDER STORIES / BLOG
+   - How many rider story posts exist in Sanity currently?
+   - Do any of them link internally to product or service pages?
 
----
+7. HOMEPAGE INTERNAL LINKS
+   - What internal page links are currently on the homepage?
+     (Navigation links + body content links — list all)
 
-Here is why these exact constraints matter.
-
-**Adding to `seo.ts` instead of inline on the page** keeps all structured data logic in one place. Your IDE already knows this pattern from `getBreadcrumbStructuredData`. Consistency here means a future developer knows exactly where to look when structured data needs updating.
-
-**All images not just `featuredImage`** is important for Google's rich results. Google can pick any image from the array for Shopping results and image search. More images give it more options to match different search contexts.
-
-**Mapping `availableForSale` to the full Schema.org URL** is required for Google to recognize the availability field. Passing `true` or `"InStock"` without the full URL is technically invalid Schema.org and Google may ignore it.
-
-**Not adding SKU now** is intentional. Adding SKU requires a query change, a type change, and a data change in the same PR. That's three layers of risk for one field. Do it cleanly in a separate task after this is verified working.
-
-Share the resolved JSON output for the Airoh Commander 2 when your IDE produces it and I'll verify it's correct before you ship it.
+Please be specific with file paths and actual content where possible.
+This is being reviewed by my SEO advisor to fix the indexing problem.

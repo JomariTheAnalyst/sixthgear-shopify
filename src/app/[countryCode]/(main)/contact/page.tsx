@@ -16,7 +16,7 @@ export async function generateMetadata({
   return {
     title: "Contact Us",
     description:
-      "Contact SixthgearMoto for product questions, workshop bookings, and store support.",
+      "Contact SixthGearMoto for motorcycle parts, workshop bookings, carwash, coffee, and rider support from Makati for Metro Manila.",
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/contact"),
     },

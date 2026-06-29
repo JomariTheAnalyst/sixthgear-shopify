@@ -142,6 +142,9 @@ export interface SanityService {
   shortDescription: string | null
   fullDescription: string | null
   heroImageUrl: string | null
+  seoTitle: string | null
+  seoDescription: string | null
+  socialImageUrl: string | null
   features: SanityServiceFeature[] | null
   ctaLabel: string | null
   ctaLink: string | null

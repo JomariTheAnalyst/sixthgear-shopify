@@ -7,8 +7,11 @@ export const allServicesQuery = groq`
     "slug": slug.current,
     icon,
     shortDescription,
+    seoTitle,
+    seoDescription,
     displayOrder,
-    "heroImageUrl": heroImage.asset->url
+    "heroImageUrl": heroImage.asset->url,
+    "socialImageUrl": socialImage.asset->url
   }
 `
 
@@ -21,6 +24,9 @@ export const serviceBySlugQuery = groq`
     shortDescription,
     fullDescription,
     "heroImageUrl": heroImage.asset->url,
+    seoTitle,
+    seoDescription,
+    "socialImageUrl": socialImage.asset->url,
     features[]{text},
     ctaLabel,
     ctaLink,
@@ -355,8 +361,11 @@ export const servicesPageQuery = groq`
         "slug": slug.current,
         icon,
         shortDescription,
+        seoTitle,
+        seoDescription,
         displayOrder,
-        "heroImageUrl": heroImage.asset->url
+        "heroImageUrl": heroImage.asset->url,
+        "socialImageUrl": socialImage.asset->url
       }
     }
   }

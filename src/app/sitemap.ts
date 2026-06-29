@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 import { createClient } from "next-sanity"
 
+import { getAllServiceSlugs } from "@lib/strapi/services"
 import { shopifyGraphql } from "@lib/shopify/client"
 import { getBaseURL } from "@lib/util/env"
 
@@ -177,12 +178,28 @@ function staticRoutes(): SitemapEntry[] {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, collections, services, stories] = await Promise.all([
+  const [products, collections, cmsServices, localServiceSlugs, stories] = await Promise.all([
     getAllShopifyNodes("products", productSitemapQuery),
     getAllShopifyNodes("collections", collectionSitemapQuery),
     getSanitySitemapDocuments("service"),
+    getAllServiceSlugs(),
     getSanitySitemapDocuments("blogPost"),
   ])
+  const serviceEntriesBySlug = new Map<string, SanitySitemapDocument>()
+
+  localServiceSlugs
+    .filter(Boolean)
+    .forEach((slug) => {
+      serviceEntriesBySlug.set(slug, { slug })
+    })
+
+  cmsServices
+    .filter((service) => service.slug)
+    .forEach((service) => {
+      serviceEntriesBySlug.set(service.slug!, service)
+    })
+
+  const services = Array.from(serviceEntriesBySlug.values())
 
   return [
     ...staticRoutes(),
@@ -206,7 +223,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((service) => service.slug)
       .map((service) => ({
         url: absoluteUrl(`/services/${service.slug}`),
-        lastModified: toLastModified(service._updatedAt),
+        lastModified: toLastModified(service._updatedAt) ?? new Date(),
         changeFrequency: "monthly" as const,
         priority: 0.7,
       })),

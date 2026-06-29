@@ -46,6 +46,22 @@ export const getCollectionWithFiltersQuery = `
       image {
         ...ImageFragment
       }
+      metafields(identifiers: [
+        {namespace: "seo_landing", key: "intro_heading"},
+        {namespace: "seo_landing", key: "intro_body"},
+        {namespace: "seo_landing", key: "buying_guide_heading"},
+        {namespace: "seo_landing", key: "buying_guide_body"},
+        {namespace: "seo_landing", key: "fitment_heading"},
+        {namespace: "seo_landing", key: "fitment_body"},
+        {namespace: "seo_landing", key: "bottom_content"},
+        {namespace: "seo_landing", key: "related_collection_handles"},
+        {namespace: "seo_landing", key: "faq_items"}
+      ]) {
+        key
+        namespace
+        value
+        type
+      }
       products(
         first: $first
         after: $after
@@ -129,6 +145,22 @@ export const getCollectionQuery = `
       }
       seo {
         ...SeoFragment
+      }
+      metafields(identifiers: [
+        {namespace: "seo_landing", key: "intro_heading"},
+        {namespace: "seo_landing", key: "intro_body"},
+        {namespace: "seo_landing", key: "buying_guide_heading"},
+        {namespace: "seo_landing", key: "buying_guide_body"},
+        {namespace: "seo_landing", key: "fitment_heading"},
+        {namespace: "seo_landing", key: "fitment_body"},
+        {namespace: "seo_landing", key: "bottom_content"},
+        {namespace: "seo_landing", key: "related_collection_handles"},
+        {namespace: "seo_landing", key: "faq_items"}
+      ]) {
+        key
+        namespace
+        value
+        type
       }
       products(first: $first, after: $after, last: $last, before: $before, filters: $filters, sortKey: $sortKey, reverse: $reverse) {
         edges {

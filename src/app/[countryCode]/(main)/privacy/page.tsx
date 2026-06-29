@@ -1,9 +1,13 @@
 import { Metadata } from "next"
+import { getLocalizedCanonicalPath } from "@lib/seo"
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "How Sixthgear Moto Supply & Cafe collects, uses, and protects your personal information.",
+  alternates: {
+    canonical: getLocalizedCanonicalPath("ph", "/privacy"),
+  },
 }
 
 export default function PrivacyPage() {

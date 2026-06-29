@@ -45,6 +45,7 @@ export const getProductQuery = `
           node {
             id
             title
+            sku
             availableForSale
             selectedOptions {
               name

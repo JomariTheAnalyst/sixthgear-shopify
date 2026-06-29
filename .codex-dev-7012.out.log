@@ -1,0 +1,57 @@
+   ▲ Next.js 15.5.18 (Turbopack)
+   - Local:        http://localhost:7012
+   - Network:      http://192.168.0.203:7012
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 168ms
+ ✓ Ready in 2s
+ ○ Compiling /robots.txt ...
+ ✓ Compiled /robots.txt in 1389ms
+ GET /robots.txt 200 in 1820ms
+ ○ Compiling /[countryCode]/collections/[handle] ...
+ ✓ Compiled /[countryCode]/collections/[handle] in 5s
+ GET /ph/collections/akrapovic-exhaust 200 in 7316ms
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22marketing%22+%26%26+_id+%3D%3D+%22marketing%22%5D%5B0%5D%7B%0A++++announcementBar+%7B%0A++++++isActive%2C%0A++++++backgroundColor%2C%0A++++++rotationSpeed%2C%0A++++++messages%5B%5D+%7B%0A++++++++text%2C%0A++++++++link%2C%0A++++++++isActive%0A++++++%7D%0A++++%7D%2C%0A++++%22activePopup%22%3A+activePopup-%3E%7B%0A++++++_id%2C%0A++++++campaignName%2C%0A++++++enabled%2C%0A++++++startDate%2C%0A++++++endDate%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++%22imageDimensions%22%3A+image.asset-%3Emetadata.dimensions%7B%0A++++++++width%2C%0A++++++++height%2C%0A++++++++aspectRatio%0A++++++%7D%2C%0A++++++imageLink%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++delay%0A++++%7D%2C%0A++++%22featuredCollections%22%3A+coalesce%28featuredCollections%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++layout%2C%0A++++++contentPosition%2C%0A++++++collectionHandle%2C%0A++++++heading%2C%0A++++++subtext%2C%0A++++++ctaLabel%2C%0A++++++%22bannerImageUrl%22%3A+bannerImage.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%2C%0A++++%22promoBanners%22%3A+coalesce%28promoBanners%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++buttonPosition%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%0A++%7D%0A&returnQuery=false 200 in 13ms (cache hit)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 313ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 615ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 474ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 183ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 43ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 343ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 394ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 80ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 81ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ GET /ph/collections/akrapovic-exhaust 200 in 484ms
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22marketing%22+%26%26+_id+%3D%3D+%22marketing%22%5D%5B0%5D%7B%0A++++announcementBar+%7B%0A++++++isActive%2C%0A++++++backgroundColor%2C%0A++++++rotationSpeed%2C%0A++++++messages%5B%5D+%7B%0A++++++++text%2C%0A++++++++link%2C%0A++++++++isActive%0A++++++%7D%0A++++%7D%2C%0A++++%22activePopup%22%3A+activePopup-%3E%7B%0A++++++_id%2C%0A++++++campaignName%2C%0A++++++enabled%2C%0A++++++startDate%2C%0A++++++endDate%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++%22imageDimensions%22%3A+image.asset-%3Emetadata.dimensions%7B%0A++++++++width%2C%0A++++++++height%2C%0A++++++++aspectRatio%0A++++++%7D%2C%0A++++++imageLink%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++delay%0A++++%7D%2C%0A++++%22featuredCollections%22%3A+coalesce%28featuredCollections%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++layout%2C%0A++++++contentPosition%2C%0A++++++collectionHandle%2C%0A++++++heading%2C%0A++++++subtext%2C%0A++++++ctaLabel%2C%0A++++++%22bannerImageUrl%22%3A+bannerImage.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%2C%0A++++%22promoBanners%22%3A+coalesce%28promoBanners%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++buttonPosition%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%0A++%7D%0A&returnQuery=false 200 in 1ms (cache hit)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 159ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 168ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 200ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ GET /ph/collections/akrapovic-exhaust 200 in 828ms
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22marketing%22+%26%26+_id+%3D%3D+%22marketing%22%5D%5B0%5D%7B%0A++++announcementBar+%7B%0A++++++isActive%2C%0A++++++backgroundColor%2C%0A++++++rotationSpeed%2C%0A++++++messages%5B%5D+%7B%0A++++++++text%2C%0A++++++++link%2C%0A++++++++isActive%0A++++++%7D%0A++++%7D%2C%0A++++%22activePopup%22%3A+activePopup-%3E%7B%0A++++++_id%2C%0A++++++campaignName%2C%0A++++++enabled%2C%0A++++++startDate%2C%0A++++++endDate%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++%22imageDimensions%22%3A+image.asset-%3Emetadata.dimensions%7B%0A++++++++width%2C%0A++++++++height%2C%0A++++++++aspectRatio%0A++++++%7D%2C%0A++++++imageLink%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++delay%0A++++%7D%2C%0A++++%22featuredCollections%22%3A+coalesce%28featuredCollections%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++layout%2C%0A++++++contentPosition%2C%0A++++++collectionHandle%2C%0A++++++heading%2C%0A++++++subtext%2C%0A++++++ctaLabel%2C%0A++++++%22bannerImageUrl%22%3A+bannerImage.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%2C%0A++++%22promoBanners%22%3A+coalesce%28promoBanners%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++buttonPosition%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%0A++%7D%0A&returnQuery=false 200 in 3ms (cache hit)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 175ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 187ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 213ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ GET /ph/collections/akrapovic-exhaust 200 in 534ms
+ │ GET https://7u0u561g.apicdn.sanity.io/v2025-03-09/data/query/production?query=%0A++*%5B_type+%3D%3D+%22marketing%22+%26%26+_id+%3D%3D+%22marketing%22%5D%5B0%5D%7B%0A++++announcementBar+%7B%0A++++++isActive%2C%0A++++++backgroundColor%2C%0A++++++rotationSpeed%2C%0A++++++messages%5B%5D+%7B%0A++++++++text%2C%0A++++++++link%2C%0A++++++++isActive%0A++++++%7D%0A++++%7D%2C%0A++++%22activePopup%22%3A+activePopup-%3E%7B%0A++++++_id%2C%0A++++++campaignName%2C%0A++++++enabled%2C%0A++++++startDate%2C%0A++++++endDate%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%2C%0A++++++%22imageDimensions%22%3A+image.asset-%3Emetadata.dimensions%7B%0A++++++++width%2C%0A++++++++height%2C%0A++++++++aspectRatio%0A++++++%7D%2C%0A++++++imageLink%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++delay%0A++++%7D%2C%0A++++%22featuredCollections%22%3A+coalesce%28featuredCollections%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++layout%2C%0A++++++contentPosition%2C%0A++++++collectionHandle%2C%0A++++++heading%2C%0A++++++subtext%2C%0A++++++ctaLabel%2C%0A++++++%22bannerImageUrl%22%3A+bannerImage.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%2C%0A++++%22promoBanners%22%3A+coalesce%28promoBanners%5B%5D+%7B%0A++++++isActive%2C%0A++++++internalName%2C%0A++++++position%2C%0A++++++heading%2C%0A++++++buttonLabel%2C%0A++++++buttonLink%2C%0A++++++buttonPosition%2C%0A++++++%22imageUrl%22%3A+image.asset-%3Eurl%0A++++%7D%2C+%5B%5D%29%0A++%7D%0A&returnQuery=false 200 in 1ms (cache hit)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 197ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://casual-beagle-23378.upstash.io/pipeline 200 in 233ms (cache skip)
+ │ │ Cache skipped reason: (cache: no-store)
+ │ POST https://sixthgearmoto.myshopify.com/api/2025-10/graphql.json 200 in 226ms (cache skip)
+ │ │ Cache skipped reason: (revalidate: 0)
