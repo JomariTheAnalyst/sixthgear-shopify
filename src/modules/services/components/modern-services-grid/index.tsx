@@ -112,7 +112,7 @@ export default function ModernServicesGrid({
     services && services.length > 0
       ? services.map((service) => ({
           title: service.title,
-          description: service.description,
+          description: service.shortDescription ?? service.description,
           slug: service.slug,
           icon: getServiceIcon(localServiceIconKeys[service.slug] ?? "wrench"),
         }))

@@ -125,6 +125,101 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'localContent',
+      title: 'Page Content Sections',
+      type: 'array',
+      description:
+        'Main body sections shown on the service detail page. Each section has a heading and a paragraph of body text. Add 2-4 sections per service for best SEO results.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'heading',
+              title: 'Section Heading',
+              type: 'string',
+              description:
+                'H2 heading for this section. Include the service name and location for SEO. Example: Akrapovic Exhaust Installation in Makati Philippines',
+            }),
+            defineField({
+              name: 'body',
+              title: 'Section Body',
+              type: 'text',
+              rows: 6,
+              description:
+                'Body text for this section. Write 100-200 words. Include relevant keywords naturally - service name, location (Makati, Philippines, Metro Manila), and bike brands where relevant.',
+            }),
+          ],
+          preview: {
+            select: { title: 'heading' },
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'internalLinks',
+      title: 'Related Page Links',
+      type: 'array',
+      description:
+        'Internal links shown at the bottom of the service page. Link to related collections, other services, or the contact page. Use keyword-rich link labels.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Link Label',
+              type: 'string',
+              description:
+                'The clickable text. Use descriptive keywords. Example: Akrapovic exhaust Philippines, Preventive maintenance Makati',
+            }),
+            defineField({
+              name: 'href',
+              title: 'Link URL',
+              type: 'string',
+              description:
+                'The page path this links to. Example: /collections/akrapovic-exhaust or /services/preventive-maintenance',
+            }),
+          ],
+          preview: {
+            select: { title: 'label', subtitle: 'href' },
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'faqItems',
+      title: 'Frequently Asked Questions',
+      type: 'array',
+      description:
+        'FAQ shown on the service detail page and used for FAQ schema (rich results in Google). Add 4-6 questions per service. Write questions exactly as riders would search them.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'question',
+              title: 'Question',
+              type: 'string',
+              description:
+                'Write as a real search query. Example: How long does an Akrapovic exhaust installation take in Makati?',
+            }),
+            defineField({
+              name: 'answer',
+              title: 'Answer',
+              type: 'text',
+              rows: 4,
+              description:
+                'Direct, helpful answer. 2-4 sentences. Include location and service name where natural.',
+            }),
+          ],
+          preview: {
+            select: { title: 'question' },
+          },
+        }),
+      ],
+    }),
+    defineField({
       name: 'ctaLabel',
       title: 'Button Label',
       type: 'string',

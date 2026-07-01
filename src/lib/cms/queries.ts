@@ -28,6 +28,9 @@ export const serviceBySlugQuery = groq`
     seoDescription,
     "socialImageUrl": socialImage.asset->url,
     features[]{text},
+    localContent[]{heading, body},
+    internalLinks[]{label, href},
+    faqItems[]{question, answer},
     ctaLabel,
     ctaLink,
     displayOrder

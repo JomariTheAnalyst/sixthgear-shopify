@@ -27,6 +27,27 @@ function mergeServiceData(
     cmsService?.features
       ?.map((feature) => feature.text ?? "")
       .filter(Boolean) ?? []
+  const cmsLocalContent =
+    cmsService?.localContent
+      ?.map((section) => ({
+        heading: section.heading ?? "",
+        body: section.body ?? "",
+      }))
+      .filter((section) => section.heading && section.body) ?? []
+  const cmsInternalLinks =
+    cmsService?.internalLinks
+      ?.map((link) => ({
+        label: link.label ?? "",
+        href: link.href ?? "",
+      }))
+      .filter((link) => link.label && link.href) ?? []
+  const cmsFaqItems =
+    cmsService?.faqItems
+      ?.map((item) => ({
+        question: item.question ?? "",
+        answer: item.answer ?? "",
+      }))
+      .filter((item) => item.question && item.answer) ?? []
 
   return {
     id: localService?.id ?? cmsService?._id ?? slug,
@@ -56,9 +77,15 @@ function mergeServiceData(
       localService?.socialImageUrl ??
       cmsService?.heroImageUrl ??
       localService?.heroImage,
-    localContent: localService?.localContent,
-    internalLinks: localService?.internalLinks,
-    faqItems: localService?.faqItems,
+    localContent:
+      cmsLocalContent.length > 0
+        ? cmsLocalContent
+        : localService?.localContent,
+    internalLinks:
+      cmsInternalLinks.length > 0
+        ? cmsInternalLinks
+        : localService?.internalLinks,
+    faqItems: cmsFaqItems.length > 0 ? cmsFaqItems : localService?.faqItems,
     ctaLabel: cmsService?.ctaLabel ?? "Book This Service",
     ctaLink: cmsService?.ctaLink ?? "/contact",
     icon: cmsService?.icon ?? null,

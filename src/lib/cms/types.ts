@@ -134,6 +134,21 @@ export interface SanityServiceFeature {
   text: string | null
 }
 
+export interface SanityServiceLocalContent {
+  heading: string | null
+  body: string | null
+}
+
+export interface SanityServiceInternalLink {
+  label: string | null
+  href: string | null
+}
+
+export interface SanityServiceFaqItem {
+  question: string | null
+  answer: string | null
+}
+
 export interface SanityService {
   _id: string
   title: string | null
@@ -146,6 +161,9 @@ export interface SanityService {
   seoDescription: string | null
   socialImageUrl: string | null
   features: SanityServiceFeature[] | null
+  localContent: SanityServiceLocalContent[] | null
+  internalLinks: SanityServiceInternalLink[] | null
+  faqItems: SanityServiceFaqItem[] | null
   ctaLabel: string | null
   ctaLink: string | null
   displayOrder: number | null
