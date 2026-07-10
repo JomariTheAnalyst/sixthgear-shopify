@@ -1,168 +1,200 @@
-Sprint 1: Safe SEO Critical Fixes
+I understand the prompt as: audit whether global Lenis can be safely added, but do not implement it yet. I did not make code changes for this audit.
 
-Goal:
-Fix low-risk production SEO gaps from the audit without changing ecommerce rendering/caching behavior.
+**Key Finding**
+Global Lenis is feasible, but not plug-and-play. The biggest risks are native `window.scrollY`, native `window.scrollTo`, native `scrollIntoView`, CSS-only body scroll locks, and route-change scroll reset.
 
-Important rules:
+**1. GSAP / ScrollTrigger**
+No real app usage found.
 
-* Do not migrate product, collection, or store pages from SSR to ISR in this sprint.
-* Do not change product pricing, inventory, availability, cart, checkout, account, or user-specific behavior.
-* Do not add fake schema fields.
-* Do not noindex clean canonical product, collection, service, rider story, or homepage URLs.
-* Do not keyword-stuff metadata.
+Search result:
+```txt
+rg "ScrollTrigger|gsap.ticker|gsap.registerPlugin|scrollTrigger"
+```
 
-Task 1 — Add Page-Specific OpenGraph and Twitter Metadata to Collection Pages
+Only `prompt.md` matched. No `ScrollTrigger`, no `gsap.ticker.add()`, no GSAP convention currently exists in app code. So there are no existing ScrollTrigger instances to sync today.
 
-In:
-`src/app/[countryCode]/(main)/collections/[handle]/page.tsx`
+**2. Fixed / Sticky Elements**
+Important fixed/sticky files found:
 
-Update `generateMetadata` to include page-specific `openGraph` and `twitter`.
+- [src/app/[countryCode]/(main)/layout.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/app/[countryCode]/(main)/layout.tsx:65) sticky header wrapper:
+```tsx
+<div className="sticky top-0 z-[60] bg-white">
+```
 
-Use:
+- [src/modules/layout/templates/nav/nav-client.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/layout/templates/nav/nav-client.tsx:63) uses native scroll:
+```ts
+const scrollPosition = window.scrollY
+window.addEventListener("scroll", handleScroll)
+```
 
-* `collection.seo.title` with fallback to `collection.title`
-* `collection.seo.description` with fallback to `collection.description`
-* `collection.image?.url` for image when available
-* clean canonical from existing `getLocalizedCanonicalPath`
+This is a Lenis risk. Header shadow state should use Lenis scroll state or Lenis scroll event.
 
-OpenGraph should include:
+Other fixed/sticky components include cart drawer, mobile menu, collection filter drawer, product mobile add-to-cart, account mobile nav, popup ads, quick shop modal, search modal, route progress, Tidio adjustments, product image sticky column, product reviews sticky sidebar.
 
-* `type: "website"`
-* `title`
-* `description`
-* `url`
-* `siteName`
-* `images` only when a valid image exists
+**3. Route Scroll Restoration**
+Root layout: [src/app/layout.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/app/layout.tsx:67)
 
-Twitter should include:
+```tsx
+<RouteProgress />
+<main className="relative">{props.children}</main>
+```
 
-* `card: "summary_large_image"` when image exists
-* `card: "summary"` when no image exists
-* `title`
-* `description`
-* `images` only when a valid image exists
+Main country layout: [src/app/[countryCode]/(main)/layout.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/app/[countryCode]/(main)/layout.tsx:42)
 
-Follow the safe pattern already used by product pages, but include collection-specific URL and image fallback behavior.
+```tsx
+<CartDrawerWrapper cart={cart}>
+  ...
+  <MarketingProvider marketing={marketing}>
+    <div className="sticky top-0 z-[60] bg-white">
+      <AnnouncementBar />
+      <Nav />
+    </div>
+    {props.children}
+    {props.overlay}
+    <Footer />
+  </MarketingProvider>
+</CartDrawerWrapper>
+```
 
-Task 2 — Add Page-Specific OpenGraph and Twitter Metadata to Homepage
+Existing route progress watches pathname/search changes, but does not reset scroll:
 
-In:
-`src/app/[countryCode]/(main)/page.tsx`
+[src/modules/common/components/route-progress/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/common/components/route-progress/index.tsx:140)
+```ts
+useEffect(() => {
+  completeRouteProgress()
+}, [pathname, searchParams])
+```
 
-Update homepage `generateMetadata` to include explicit `openGraph` and `twitter`.
+A global Lenis provider would need route-change reset:
+```ts
+lenis.scrollTo(0, { immediate: true })
+```
 
-Use homepage positioning:
-`SixthGearMoto | Motorcycle Parts, Riding Gear & Service Center Makati`
+Best wrap point: a client `LenisProvider` inside `body`, likely around `<main>{children}</main>` in root layout. Keep `RouteProgress`, `Toaster`, and scripts outside or unaffected.
 
-Use a natural homepage description:
-`Shop premium motorcycle parts, riding gear, Akrapovic exhausts, and big bike accessories at SixthGearMoto. Visit our motorcycle shop, service center, carwash, and coffee spot in Makati, Philippines.`
+**4. Anchor / Hash Navigation**
+Found native hash navigation:
 
-Use the Sanity hero/social image if already available through the existing homepage data flow. If not available, use a centralized default OG image from the site config. Do not scatter hardcoded production image URLs across files.
+[src/modules/products/templates/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/products/templates/index.tsx:109)
+```tsx
+href="#reviews"
+```
 
-OpenGraph should include:
+Target:
+```tsx
+id="reviews"
+```
 
-* `type: "website"`
-* `title`
-* `description`
-* `url`
-* `siteName`
-* `images`
+Also product size guide uses native `scrollIntoView`:
 
-Twitter should include:
+[src/modules/products/components/product-actions/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/products/components/product-actions/index.tsx:123)
+```ts
+document
+  .getElementById("details-tab")
+  ?.scrollIntoView({ behavior: "smooth", block: "start" })
+```
 
-* `card: "summary_large_image"`
-* `title`
-* `description`
-* `images`
+First Gear page uses native scroll math:
 
-Task 3 — Add Safe Noindex Handling for Non-Canonical Parameter URLs
+[src/modules/menu/templates/menu-template/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/menu/templates/menu-template/index.tsx:279)
+```ts
+const scrollPosition = window.scrollY + 200
+```
 
-Audit and implement safe `robots` metadata handling for query-parameter URLs.
+and:
 
-Use App Router `searchParams` in `generateMetadata` where available.
+```ts
+window.scrollTo({
+  top: offsetPosition,
+  behavior: "smooth",
+})
+```
 
-Noindex/follow these parameter URLs:
+These should use `lenis.scrollTo()`.
 
-* `sort`
-* `filter`
-* `tag`
-* `q`
-* `search`
-* `from`
-* `variant`
-* `v_id`
-* UTM/tracking params
-* unknown non-canonical query parameters
+**5. Modals / Drawers / Body Scroll Lock**
+CSS-only body locks found:
 
-Do not noindex:
+Cart drawer:
+[src/modules/cart/components/cart-drawer/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/cart/components/cart-drawer/index.tsx:68)
+```ts
+document.body.style.overflow = "hidden"
+```
 
-* clean product URLs
-* clean collection URLs
-* clean service URLs
-* clean rider story URLs
-* homepage
-* store page without parameters
+Mobile filters:
+[src/modules/collections/components/MobileFilterDrawer.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/collections/components/MobileFilterDrawer.tsx:43)
+```ts
+document.body.style.overflow = "hidden";
+```
 
-Pagination rule:
+Quick shop:
+[src/modules/common/components/quick-shop-modal/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/common/components/quick-shop-modal/index.tsx:92)
+```ts
+document.body.style.overflow = "hidden"
+```
 
-* Do not blindly noindex `page > 1` yet.
-* First audit whether pagination URLs expose unique crawlable product lists or duplicate the canonical page.
-* If pagination is duplicate/UI-only, recommend noindex/follow.
-* If pagination is important for product discovery, recommend index/follow with a clean self-canonical or a controlled pagination strategy.
-* Return recommendation before changing pagination indexing behavior.
+Service bottom sheet:
+[src/modules/services/components/service-bottom-sheet/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/services/components/service-bottom-sheet/index.tsx:33)
+```ts
+const previousOverflow = document.body.style.overflow
+document.body.style.overflow = "hidden"
+```
 
-Canonical rule:
+These need `lenis.stop()` on open and `lenis.start()` on close. CSS overflow alone will not reliably stop virtual scroll.
 
-* Canonical for parameter URLs should still point to the clean canonical page.
-* Do not create canonical URLs with sort/filter/search/tracking parameters.
+**6. Third-Party Embeds**
+Tidio chat is loaded globally:
 
-Task 4 — Production Domain Verification
+[src/app/layout.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/app/layout.tsx:76)
+```tsx
+<Script
+  src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}
+  strategy="afterInteractive"
+/>
+```
 
-Because production environment variables are already set in Vercel, only verify the output.
+Google Maps iframe:
+[src/modules/home/components/store-location/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/home/components/store-location/index.tsx:64)
 
-Confirm on deployed or production-like build:
+Product video iframe:
+[src/modules/products/components/product-tabs/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/products/components/product-tabs/index.tsx:560)
 
-* sitemap URLs use `https://www.sixthgearmoto.com/ph`
-* canonical URLs use the production domain
-* OpenGraph URLs use the production domain
-* JSON-LD URLs use the production domain
-* no localhost URLs appear in production output
+Store drawer map iframe:
+[src/modules/products/components/store-info-drawer/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/products/components/store-info-drawer/index.tsx:75)
 
-Task 5 — Verification
+These are likely okay, but test wheel/touch behavior over iframes after Lenis.
 
-Run:
+**7. Infinite Scroll / Pagination**
+No collection infinite scroll found. Product collections use cursor pagination buttons:
 
-* `npx.cmd tsc --noEmit`
-* `npm.cmd run build`
+[src/modules/collections/templates/index.tsx](C:/Users/Public/sixthgearmoto/sixthgear-shopify/src/modules/collections/templates/index.tsx:204)
+```ts
+router.push(buildCursorUrl(direction, cursor))
+```
 
-Verify:
+So product grid does not need Lenis scroll-state for load-more triggers.
 
-* One collection page has collection-specific OG/Twitter metadata.
-* Homepage has page-specific OG/Twitter metadata.
-* Clean collection/product pages remain indexable.
-* Filtered/sorted/tracking URLs return `noindex, follow`.
-* Pagination behavior is audited and documented before any noindex change.
-* Canonicals remain clean.
-* Sitemap and robots still respond.
-* No localhost URLs appear in production output.
+There are `IntersectionObserver` uses, but not for PLP infinite loading.
 
-Return:
+**8. Form Validation Scroll-To-Error**
+No validation-focused `scrollIntoView()` found. The only `scrollIntoView()` hit is product size guide. Contact/account forms show errors inline.
 
-* changed files
-* summary of changes
-* metadata examples from one collection and homepage
-* noindex behavior table
-* pagination recommendation
-* build/typecheck output
-* risks or follow-up recommendations
+**9. Reduced Motion**
+No `prefers-reduced-motion`, `useReducedMotion`, `motion-safe`, or `motion-reduce` usage found.
 
-Out of scope for this sprint:
+Lenis should be disabled or set instant for reduced-motion users.
 
-* ISR migration
-* Shopify webhook revalidation
-* product GTIN/MPN
-* review schema
-* LocalBusiness schema
-* Service schema
-* rider story Article schema
-* image optimization changes
+**10. What Must Change Before Global Lenis**
+Required before safe global Lenis:
+
+- Add client `LenisProvider`.
+- On route changes, call `lenis.scrollTo(0, { immediate: true })`.
+- Replace header `window.scrollY` listener with Lenis scroll state.
+- Replace product `scrollIntoView()` with `lenis.scrollTo(element)`.
+- Replace First Gear `window.scrollY` and `window.scrollTo()` logic with Lenis-aware logic.
+- On modal/drawer open, call `lenis.stop()`.
+- On modal/drawer close, call `lenis.start()`.
+- Add reduced-motion guard.
+- Test Tidio, Google Maps, product video iframe, cart drawer, mobile filters, product sticky add-to-cart, and hash link to reviews.
+
+Bottom line: do not add Lenis globally until these native scroll dependencies are wrapped or migrated.

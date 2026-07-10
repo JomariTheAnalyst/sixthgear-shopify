@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { ShopifyFilter, FilterState } from "@lib/shopify/types";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
+import { useLenis } from "@modules/common/components/lenis-provider";
 
 type MobileFilterDrawerProps = {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function MobileFilterDrawer({
   showSoldOutToggle = false,
   productCount,
 }: MobileFilterDrawerProps) {
+  const lenis = useLenis();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [localPriceMin, setLocalPriceMin] = useState(
     activeState.priceRange?.min?.toString() || ""
@@ -41,13 +43,16 @@ export default function MobileFilterDrawer({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      lenis?.stop();
     } else {
       document.body.style.overflow = "";
+      lenis?.start();
     }
     return () => {
       document.body.style.overflow = "";
+      lenis?.start();
     };
-  }, [isOpen]);
+  }, [isOpen, lenis]);
 
   // ── Filter logic ──
 

@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
 
+import MarqueeStrip from "components/marquee-strip"
 import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
 import ShopByCategories from "@modules/home/components/categories"
@@ -310,6 +311,7 @@ export default async function Home(props: {
       )}
 
       <Hero data={homepageHero} />
+      <MarqueeStrip />
       <FeaturedCollectionBanner data={getFeatured("after_hero")} />
       <PromoBanner data={getPromo("after_hero")} />
 

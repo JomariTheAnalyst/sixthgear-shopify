@@ -4,6 +4,7 @@ import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductTabs from "@modules/products/components/product-tabs"
 import ProductReviews from "@modules/products/components/product-reviews"
+import ReviewsScrollLink from "@modules/products/components/reviews-scroll-link"
 import YouMayLike from "@modules/products/components/you-may-like"
 import StarRating from "@modules/products/components/star-rating"
 import Breadcrumb from "@modules/products/components/breadcrumb"
@@ -105,8 +106,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
             </div>
 
             {/* Rating Row */}
-            <a
-              href="#reviews"
+            <ReviewsScrollLink
               className="flex items-center gap-2 hover:opacity-80 transition-opacity mt-2"
             >
               {ratingSummary && ratingSummary.count > 0 ? (
@@ -126,7 +126,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
                   <span className="text-sm text-gray-700 font-medium ml-1">No reviews yet</span>
                 </>
               )}
-            </a>
+            </ReviewsScrollLink>
 
             {/* Product Actions (Price, Variants, Qty, CTA) */}
             <ProductActions product={product} region={region} />

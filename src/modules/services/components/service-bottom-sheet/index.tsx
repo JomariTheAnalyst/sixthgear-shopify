@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
+import { useLenis } from "@modules/common/components/lenis-provider"
 import { completeRouteProgress } from "@modules/common/components/route-progress"
 
 interface ServiceBottomSheetProps {
@@ -18,6 +19,7 @@ export default function ServiceBottomSheet({
   const [isOpen, setIsOpen] = useState(true)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
+  const lenis = useLenis()
 
   const closeSheet = useCallback(() => {
     completeRouteProgress()
@@ -32,6 +34,7 @@ export default function ServiceBottomSheet({
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
+    lenis?.stop()
     closeButtonRef.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -70,9 +73,10 @@ export default function ServiceBottomSheet({
 
     return () => {
       document.body.style.overflow = previousOverflow
+      lenis?.start()
       document.removeEventListener("keydown", handleKeyDown)
     }
-  }, [closeSheet])
+  }, [closeSheet, lenis])
 
   return (
     <AnimatePresence>

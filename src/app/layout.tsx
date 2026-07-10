@@ -10,7 +10,9 @@ import { Toaster } from "sonner"
 
 import { ConsoleWarning } from "../components/common/console-warning"
 import { PreviewIndicator } from "../components/preview-indicator"
+import LenisProvider from "@modules/common/components/lenis-provider"
 import RouteProgress from "@modules/common/components/route-progress"
+import "lenis/dist/lenis.css"
 import "styles/globals.css"
 
 export const metadata: Metadata = {
@@ -66,13 +68,15 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body
         className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
       >
-        <Suspense fallback={null}>
-          <RouteProgress />
-        </Suspense>
-        <ConsoleWarning />
-        <PreviewIndicator />
-        <main className="relative">{props.children}</main>
-        <Toaster position="bottom-right" richColors />
+        <LenisProvider>
+          <Suspense fallback={null}>
+            <RouteProgress />
+          </Suspense>
+          <ConsoleWarning />
+          <PreviewIndicator />
+          <main className="relative">{props.children}</main>
+          <Toaster position="bottom-right" richColors />
+        </LenisProvider>
         {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
           <Script
             src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}

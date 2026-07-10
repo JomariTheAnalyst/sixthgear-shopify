@@ -17,6 +17,7 @@ import {
   isItemOutOfStock,
 } from "@lib/util/cart-helpers"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useLenis } from "@modules/common/components/lenis-provider"
 import DeleteButton from "@modules/common/components/delete-button"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useRouter, useParams } from "next/navigation"
@@ -32,6 +33,7 @@ type CheckoutState = "idle" | "loading" | "success" | "error"
 
 export default function CartDrawer({ cart }: CartDrawerProps) {
   const { isCartOpen, closeCart } = useCartDrawer()
+  const lenis = useLenis()
   const {
     isSelected,
     toggleItem,
@@ -66,12 +68,16 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
     if (isCartOpen) {
       document.addEventListener("keydown", handleEsc)
       document.body.style.overflow = "hidden"
+      lenis?.stop()
+    } else {
+      lenis?.start()
     }
     return () => {
       document.removeEventListener("keydown", handleEsc)
       document.body.style.overflow = ""
+      lenis?.start()
     }
-  }, [isCartOpen, closeCart])
+  }, [isCartOpen, closeCart, lenis])
 
   // Clean up stale selected items when cart changes
   useEffect(() => {

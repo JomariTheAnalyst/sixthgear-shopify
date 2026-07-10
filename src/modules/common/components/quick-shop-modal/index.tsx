@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import { addToCart } from "@lib/data/cart"
 import { useCartStore } from "@lib/cart"
 import { getProductPricing, formatPrice } from "@lib/util/get-product-pricing"
+import { useLenis } from "@modules/common/components/lenis-provider"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import WishlistButton from "@modules/wishlist/components/wishlist-button"
 
@@ -31,6 +32,7 @@ export default function QuickShopModal({
   isOpen,
   onClose,
 }: QuickShopModalProps) {
+  const lenis = useLenis()
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
@@ -90,11 +92,16 @@ export default function QuickShopModal({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden"
+      lenis?.stop()
     } else {
       document.body.style.overflow = ""
+      lenis?.start()
     }
-    return () => { document.body.style.overflow = "" }
-  }, [isOpen])
+    return () => {
+      document.body.style.overflow = ""
+      lenis?.start()
+    }
+  }, [isOpen, lenis])
 
   // Find the variant that matches selected options
   const selectedVariant = useMemo(() => {
