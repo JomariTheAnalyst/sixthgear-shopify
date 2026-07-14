@@ -1,0 +1,33 @@
+---
+title: "Deployment troubleshooting"
+description: "Diagnose GitHub check failures, Vercel build errors, runtime regressions, and failed production smoke tests."
+icon: "triangle-alert"
+---
+
+## Build or deployment fails
+
+<Steps>
+  <Step title="Identify the failing stage">
+    Separate dependency installation, type checking, Next.js build, deployment, runtime, and Playwright failures.
+  </Step>
+  <Step title="Compare the environment">
+    Check Node version, package manager, lockfile, root directory, install/build commands, and variable names. Never print values.
+  </Step>
+  <Step title="Review the change">
+    Inspect the commit diff and the first relevant error. Avoid fixing later errors caused by the same initial failure.
+  </Step>
+  <Step title="Protect production">
+    Stop further merges. Keep the last known-good deployment serving when possible.
+  </Step>
+  <Step title="Fix or roll back">
+    Apply a reviewed forward fix or follow [Roll back a deployment](/deployment/roll-back-deployment).
+  </Step>
+</Steps>
+
+## Production smoke tests fail
+
+Confirm the `deployment_status` event refers to the intended Production deployment. Review Playwright reports, traces, screenshots, retries, and external service status.
+
+## Record
+
+Keep the commit, branch, deployment reference, failing stage, log link, root cause, fix or rollback, verifier, and recovery time. Redact secrets and private URLs where required.

@@ -1,0 +1,48 @@
+---
+title: "Bulk import products"
+description: "Prepare, review, import, and verify a Shopify product CSV without damaging variants, media, or existing product data."
+icon: "file-up"
+---
+
+Use CSV import only for reviewed bulk changes. For a few products, edit them individually or use Shopify's bulk editor.
+
+{/* IMAGE NEEDED
+File: /images/shopify/product-import-dialog.png
+See: _internal/image-capture-guide.md
+*/}
+
+<Warning>
+Shopify product imports cannot be canceled after they start. Export a backup first and test a small file before a large import.
+</Warning>
+
+## Import products
+
+<Steps>
+  <Step title="Export a backup">
+    In **Products**, export the affected products. Keep the untouched export in the approved working location.
+  </Step>
+  <Step title="Prepare the CSV">
+    Use Shopify's current headers, UTF-8 encoding, and one product handle across its variant rows. Do not sort rows when that could separate variants or image URLs.
+  </Step>
+  <Step title="Review dependent columns">
+    Include option name and value columns when changing variant fields. Review handles, SKUs, prices, tags, publication, image URLs, and inventory behavior.
+  </Step>
+  <Step title="Upload a small test">
+    In **Products**, select **Import**, then **Add file**. Review publication and overwrite options before selecting **Upload and continue**.
+  </Step>
+  <Step title="Review the import summary">
+    Confirm the product and variant counts. Start the import only when the summary matches the approved change.
+  </Step>
+  <Step title="Verify Shopify and the storefront">
+    Check changed products, variants, media, collections, tags, metafields, search, cart, and checkout handoff.
+  </Step>
+</Steps>
+
+## CSV limits that affect SixthGear
+
+- The `Collection` import column can assign one collection and is not included in exports.
+- Changing option values can create new variant IDs.
+- Product CSV work does not replace a location-aware inventory process.
+- Metafield import support and headers must be checked against the current Shopify template before use.
+
+See Shopify's current [product CSV guidance](https://help.shopify.com/en/manual/products/import-export/import-products/).

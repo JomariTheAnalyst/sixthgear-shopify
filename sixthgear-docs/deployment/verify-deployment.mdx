@@ -1,0 +1,39 @@
+---
+title: "Verify a deployment"
+description: "Check a SixthGear Preview or Production deployment across routing, commerce, CMS, forms, and smoke tests."
+icon: "circle-check-big"
+---
+
+## Prerequisites
+
+- Deployment URL or verified production URL
+- Deployment and commit reference
+- Approved test product and checkout procedure
+- Access to GitHub Actions and Vercel logs
+
+## Verification checklist
+
+<Steps>
+  <Step title="Confirm deployment identity">
+    Match the deployment to the intended commit, branch, environment, and release request.
+  </Step>
+  <Step title="Check routing and layout">
+    Open `/`, confirm redirect to `/ph`, then check navigation, footer, mobile layout, and a not-found page.
+  </Step>
+  <Step title="Check commerce">
+    Open store, collection, search, and product pages. Confirm price, availability, variants, cart updates, and Shopify hosted checkout handoff.
+  </Step>
+  <Step title="Check content systems">
+    Review homepage, services, about, rider stories, First Gear Coffee, marketing content, and any changed Sanity or Strapi source.
+  </Step>
+  <Step title="Check operational routes">
+    Confirm contact behavior, account entry, health route, sitemap, robots, canonical URLs, and intended maintenance state.
+  </Step>
+  <Step title="Review automated tests">
+    Confirm the production smoke job passes and review retained artifacts for retries or hidden instability.
+  </Step>
+</Steps>
+
+## Record the result
+
+Record environment, deployment reference, commit, verifier, time, routes checked, test result, issues, and release decision. Do not record customer, order, payment, or credential data.

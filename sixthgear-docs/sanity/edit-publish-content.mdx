@@ -1,0 +1,44 @@
+---
+title: "Edit and publish content"
+description: "Update a Sanity document, check its validation, publish it, and verify the storefront result."
+icon: "file-pen-line"
+---
+
+## Prerequisites
+
+- Authorized Studio access
+- Approved copy, dates, links, and media
+- Confirmation that Sanity owns the target content
+- A review plan for production-facing changes
+
+{/* IMAGE NEEDED
+File: /images/sanity/edit-homepage-content.png
+See: _internal/image-capture-guide.md
+*/}
+
+## Edit a document
+
+<Steps>
+  <Step title="Open the correct document type">
+    Use the Studio navigation to select the singleton or document. Confirm the title and current content before editing.
+  </Step>
+  <Step title="Make the smallest approved change">
+    Update the intended fields. Keep links, dates, image alt text, and related references accurate.
+  </Step>
+  <Step title="Resolve validation messages">
+    Review required fields, URL formats, array limits, date relationships, and image requirements defined by the schema.
+  </Step>
+  <Step title="Review the complete document">
+    Check nearby fields for unintended changes. Use preview only when the environment's preview workflow is verified.
+  </Step>
+  <Step title="Publish">
+    Select **Publish** only after approval. Record the changed document, editor, date, and related campaign or request.
+  </Step>
+  <Step title="Verify the storefront">
+    Open the affected page. Confirm desktop and mobile content, images, links, ordering, and fallback behavior.
+  </Step>
+</Steps>
+
+## If the change does not appear
+
+Wait for the page's configured revalidation interval, then check the Sanity webhook and Vercel logs through authorized accounts. Do not repeatedly republish the document or expose the webhook secret.

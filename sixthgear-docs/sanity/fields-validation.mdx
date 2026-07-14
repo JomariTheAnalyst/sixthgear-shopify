@@ -1,0 +1,41 @@
+---
+title: "CMS fields and validation"
+description: "How Sanity field names, types, required rules, references, arrays, and frontend queries stay aligned."
+icon: "list-checks"
+---
+
+Sanity validation protects editor input, but the storefront also depends on exact field names and GROQ projections. A schema-only change can leave published content unreadable.
+
+## Field contract
+
+| Layer | Responsibility |
+| --- | --- |
+| `sanity/schemaTypes/*.ts` | Field name, title, type, options, initial value and validation |
+| `src/lib/cms/queries.ts` | GROQ projection and asset/reference resolution |
+| `src/lib/cms/types.ts` | TypeScript shape used by the app |
+| Components and pages | Rendering, fallback and conditional behavior |
+
+## Common validation patterns
+
+The current schemas use required strings, slugs, URLs, images, arrays, numeric ranges, and date comparisons. Marketing content also depends on active flags, positions, schedules, and reference targets.
+
+## Change a field safely
+
+<Steps>
+  <Step title="Find every consumer">
+    Search the schema name and field name across `sanity/`, `src/lib/cms/`, pages, and components.
+  </Step>
+  <Step title="Plan existing-content handling">
+    Decide how old documents behave before you make a field required, rename it, or change its type.
+  </Step>
+  <Step title="Update the complete contract">
+    Change the schema, GROQ query, TypeScript type, fallback, and UI together.
+  </Step>
+  <Step title="Test drafts and published content">
+    Check Studio validation, publish behavior, frontend rendering, missing values, and existing documents.
+  </Step>
+</Steps>
+
+<Warning>
+Do not rename or delete a published field until existing documents are migrated and all frontend consumers are updated.
+</Warning>

@@ -233,7 +233,7 @@ export default function Brands({
         <div className="mb-10 text-center md:mb-14 lg:mb-16">
           <div className="mx-auto w-full max-w-[1200px] text-center">
           <h2
-            className={`${montserrat.className} whitespace-nowrap text-center text-[clamp(1.45rem,3.7vw,3.35rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
+            className={`${montserrat.className} whitespace-normal text-center text-[clamp(1.45rem,3.7vw,3.35rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4 md:whitespace-nowrap`}
           >
             {activeTitle}
           </h2>

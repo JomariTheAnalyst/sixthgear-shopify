@@ -1,0 +1,40 @@
+---
+title: "Roll back a deployment"
+description: "Restore a verified known-good Vercel deployment and check commerce and content after an incident."
+icon: "rotate-ccw"
+---
+
+## Purpose
+
+Use rollback when the current deployment causes a production incident and restoring the last known-good release is safer than an immediate forward fix.
+
+<Warning>
+Confirm the exact Vercel rollback control with an authorized administrator before an incident. The repository does not verify a CLI rollback command.
+</Warning>
+
+## Roll back safely
+
+<Steps>
+  <Step title="Confirm the incident">
+    Record symptoms, affected routes, start time, deployment, customer impact, and external service status.
+  </Step>
+  <Step title="Choose the known-good deployment">
+    Use prior verification records and smoke-test results. Do not choose only by timestamp.
+  </Step>
+  <Step title="Preserve evidence">
+    Keep relevant Vercel, GitHub, storefront, Shopify, Sanity, Strapi, Redis, and DNS evidence without exposing sensitive data.
+  </Step>
+  <Step title="Restore the deployment">
+    Use the verified Vercel rollback or redeploy workflow. Record the approver and target deployment.
+  </Step>
+  <Step title="Verify critical behavior">
+    Check `/ph`, store, collection, product, search, cart, checkout handoff, CMS content, contact, and smoke tests.
+  </Step>
+  <Step title="Close and follow up">
+    Record recovery time, cause, restored deployment, validation, remaining risk, and the owner of the permanent fix.
+  </Step>
+</Steps>
+
+## Content and data caution
+
+A code rollback does not automatically reverse Shopify, Sanity, Strapi, DNS, or environment changes. Identify and handle those changes separately with their platform owners.

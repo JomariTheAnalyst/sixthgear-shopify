@@ -1,0 +1,51 @@
+---
+title: "Open SixthGear CMS"
+description: "Open the embedded Sanity Studio safely and confirm the project is ready for editing."
+icon: "panel-left-open"
+---
+
+## Purpose
+
+Use the embedded Studio to edit SixthGear content in the configured Sanity project and dataset.
+
+## Prerequisites
+
+- An authorized Sanity account
+- Access to the correct SixthGear Sanity project
+- The correct storefront environment and dataset
+- MFA configured according to the account policy
+
+{/* IMAGE NEEDED
+File: /images/sanity/studio-navigation.png
+See: _internal/image-capture-guide.md
+*/}
+
+## Open Studio
+
+<Steps>
+  <Step title="Choose the correct environment">
+    Use the verified local, preview, or production storefront origin. The production domain is not documented until dashboard verification is complete.
+  </Step>
+  <Step title="Open the Studio path">
+    Add `/studio` to the selected storefront origin. For local development, use `http://localhost:7000/studio`.
+  </Step>
+  <Step title="Sign in through Sanity">
+    Use your named Sanity account. Do not use a shared login.
+  </Step>
+  <Step title="Confirm the content tree">
+    Check that **Blog**, **Homepage Settings**, **Marketing**, **Services Page**, **About Page**, and **Services** appear as expected.
+  </Step>
+</Steps>
+
+## Verify the result
+
+You can open a document without configuration errors, and the content belongs to the intended SixthGear environment. Do not publish a test edit to confirm access.
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| Project or dataset error | `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` through the secure configuration process |
+| Studio route returns storefront page | `src/app/studio/[[...tool]]/page.tsx` and middleware exclusions |
+| Content tree is unexpected | Sanity project, dataset, schema deployment and user role |
+| You cannot publish | Sanity member role and document validation |

@@ -1,0 +1,57 @@
+---
+title: "SixthGear Docs"
+sidebarTitle: "Home"
+description: "Internal guidance for managing, maintaining, deploying, and recovering the SixthGear website."
+icon: "house"
+---
+
+Use this private guide when you manage store data, edit website content, work on the codebase, deploy a release, or respond to an incident.
+
+{/* IMAGE NEEDED
+File: /images/overview/sixthgear-storefront-home.webp
+See: _internal/image-capture-guide.md
+*/}
+
+<Warning>
+Do not store passwords, tokens, recovery codes, private keys, customer data, order data, or environment values here. Store credentials in the approved password manager.
+</Warning>
+
+## Choose your area
+
+<CardGroup cols={2}>
+  <Card title="Manage Shopify" icon="shopping-bag" href="/shopify/overview">
+    Add products, manage collections, update metafields, and review connected apps.
+  </Card>
+  <Card title="Manage Sanity CMS" icon="pen-line" href="/sanity/overview">
+    Edit homepage sections, services, articles, marketing content, and other CMS records.
+  </Card>
+  <Card title="Work on the website" icon="code-2" href="/website/source-code-overview">
+    Set up the project locally, review integrations, and understand the source code.
+  </Card>
+  <Card title="Deploy and recover" icon="rocket" href="/deployment/deployment-overview">
+    Review the Vercel flow, verify production, and restore a known-good deployment.
+  </Card>
+</CardGroup>
+
+## System summary
+
+SixthGear is a Next.js 15 App Router storefront backed by Shopify. Shopify owns catalog, cart, customer, order, and hosted checkout data.
+
+Sanity supplies structured website content through an embedded Studio at `/studio`. Active Strapi imports remain, so treat the CMS layer as a Sanity and Strapi hybrid until migration is verified complete.
+
+Vercel is the repository-supported hosting platform. Upstash Redis and Next.js cache tags reduce repeated API work. GitHub Actions runs Playwright smoke tests.
+
+## Common tasks
+
+- [Add or edit a Shopify product](/shopify/add-edit-products)
+- [Open SixthGear CMS](/sanity/open-cms)
+- [Start the storefront locally](/website/local-development)
+- [Review environment-variable requirements](/website/environment-variables)
+- [Deploy through Vercel](/deployment/deploy-through-vercel)
+- [Verify a deployment](/deployment/verify-deployment)
+- [Troubleshoot an unavailable website](/troubleshooting/website)
+- [Use the emergency recovery guide](/troubleshooting/emergency-recovery)
+
+<Info>
+Repository facts are documented directly. Account ownership, billing, external dashboard settings, domains, and production mappings stay marked for verification until an authorized administrator confirms them.
+</Info>

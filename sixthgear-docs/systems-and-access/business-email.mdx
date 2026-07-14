@@ -1,0 +1,37 @@
+---
+title: "Business email accounts"
+description: "Protect business-controlled mailboxes used for platform ownership, billing, support, and recovery."
+icon: "mail-check"
+---
+
+Business email is a dependency for account recovery, billing notices, support, and platform ownership. The repository does not identify the email provider or administrators.
+
+## Controls to establish
+
+- Use business-controlled addresses for platform owners and billing contacts.
+- Maintain at least two recovery-capable email administrators where policy allows.
+- Require MFA for administrators and high-risk mailboxes.
+- Keep recovery outside the mailbox being recovered.
+- Review forwarding, aliases, delegates, retention, and inactive users.
+- Protect domain email records during DNS changes.
+
+## Verify access
+
+<Steps>
+  <Step title="Identify the provider and tenant">
+    Confirm the authoritative email provider, business domain, billing account, and support plan.
+  </Step>
+  <Step title="Review administrators">
+    Confirm named super administrators, MFA, recovery methods, and offboarding controls.
+  </Step>
+  <Step title="Map critical mailboxes">
+    Identify addresses used by Shopify, Sanity, GitHub, Vercel, the registrar, DNS, Resend, and the password manager.
+  </Step>
+  <Step title="Test recovery safely">
+    Test the provider's approved recovery process without disabling an active account. Record the test date and result, not recovery codes.
+  </Step>
+</Steps>
+
+<Warning>
+Do not publish personal email addresses, mailbox contents, recovery codes, or identity documents in SixthGear Docs.
+</Warning>

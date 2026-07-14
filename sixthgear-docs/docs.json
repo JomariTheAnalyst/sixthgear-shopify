@@ -1,0 +1,123 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "SixthGear Docs",
+  "description": "Private internal documentation for operating and maintaining the SixthGear website.",
+  "colors": {
+    "primary": "#92400E",
+    "light": "#F16D34",
+    "dark": "#F16D34"
+  },
+  "logo": {
+    "light": "/images/brand/sixthgear-wordmark.png",
+    "dark": "/images/brand/sixthgear-mark.png"
+  },
+  "favicon": "/images/brand/favicon.png",
+  "appearance": {
+    "default": "system"
+  },
+  "fonts": {
+    "family": "Inter"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs"
+  },
+  "contextual": {
+    "options": ["copy", "view"]
+  },
+  "navigation": {
+    "pages": [
+      "index",
+      {
+        "group": "Shopify",
+        "pages": [
+          "shopify/overview",
+          "shopify/add-edit-products",
+          "shopify/variants-inventory",
+          "shopify/collections",
+          "shopify/product-tags",
+          "shopify/metafields",
+          "shopify/bulk-import",
+          "shopify/discounts-campaigns",
+          "shopify/apps"
+        ]
+      },
+      {
+        "group": "Sanity CMS",
+        "pages": [
+          "sanity/overview",
+          "sanity/open-cms",
+          "sanity/edit-publish-content",
+          "sanity/images-media",
+          "sanity/content-types",
+          "sanity/fields-validation"
+        ]
+      },
+      {
+        "group": "Website",
+        "pages": [
+          "website/system-architecture",
+          "website/source-code-overview",
+          "website/local-development",
+          "website/environment-variables",
+          "website/shopify-integration",
+          "website/sanity-integration",
+          "website/strapi-integration",
+          "website/caching-revalidation",
+          "website/testing"
+        ]
+      },
+      {
+        "group": "Deployment",
+        "pages": [
+          "deployment/deployment-overview",
+          "deployment/deploy-through-vercel",
+          "deployment/verify-deployment",
+          "deployment/roll-back-deployment"
+        ]
+      },
+      {
+        "group": "Systems and access",
+        "pages": [
+          "systems-and-access/account-directory",
+          "systems-and-access/business-email",
+          "systems-and-access/domains-dns",
+          "systems-and-access/roles-permissions",
+          "systems-and-access/credential-security",
+          "systems-and-access/third-party-services"
+        ]
+      },
+      {
+        "group": "Troubleshooting",
+        "pages": [
+          "troubleshooting/website",
+          "troubleshooting/shopify",
+          "troubleshooting/sanity",
+          "troubleshooting/deployment",
+          "troubleshooting/emergency-recovery"
+        ]
+      }
+    ]
+  },
+  "redirects": [
+    { "source": "/start-here/overview", "destination": "/" },
+    { "source": "/start-here/how-to-use-this-portal", "destination": "/" },
+    { "source": "/start-here/documentation-status", "destination": "/" },
+    { "source": "/architecture/system-overview", "destination": "/website/system-architecture" },
+    { "source": "/architecture/integrations", "destination": "/systems-and-access/third-party-services" },
+    { "source": "/architecture/environments", "destination": "/website/environment-variables" },
+    { "source": "/access/account-register", "destination": "/systems-and-access/account-directory" },
+    { "source": "/access/roles-and-ownership", "destination": "/systems-and-access/roles-permissions" },
+    { "source": "/access/credential-security", "destination": "/systems-and-access/credential-security" },
+    { "source": "/source-code/repository-overview", "destination": "/website/source-code-overview" },
+    { "source": "/source-code/important-file-paths", "destination": "/website/source-code-overview" },
+    { "source": "/deployment/production-overview", "destination": "/deployment/deployment-overview" },
+    { "source": "/deployment/vercel-deployment", "destination": "/deployment/deploy-through-vercel" },
+    { "source": "/deployment/rollback-overview", "destination": "/deployment/roll-back-deployment" },
+    { "source": "/recovery/emergency-response", "destination": "/troubleshooting/emergency-recovery" },
+    { "source": "/recovery/access-recovery", "destination": "/troubleshooting/emergency-recovery" }
+  ]
+}

@@ -1,0 +1,35 @@
+---
+title: "Domains and DNS"
+description: "Ownership, renewal, DNS, certificate, and recovery controls for SixthGear web and email domains."
+icon: "globe-lock"
+---
+
+The production domain, registrar, and authoritative DNS provider require external verification. Source code and test configuration are not authoritative ownership records.
+
+## Required records
+
+Maintain the domain name, registrar, registrant organization, renewal date, auto-renew status, billing owner, recovery owner, nameservers, DNS provider, Vercel domain connection, and email-related DNS records in the internal register.
+
+## Change DNS safely
+
+<Steps>
+  <Step title="Capture the current state">
+    Export or record a redacted known-good zone and current nameservers. Confirm who approved the change.
+  </Step>
+  <Step title="Assess dependencies">
+    Check website, email, verification, certificate, analytics, and third-party records that could be affected.
+  </Step>
+  <Step title="Make the smallest change">
+    Use the authoritative provider. Avoid unrelated edits, removing the domain lock, or transfers.
+  </Step>
+  <Step title="Verify propagation">
+    Check authoritative and public DNS, HTTPS, redirects, Vercel domain status, and business email from more than one network.
+  </Step>
+  <Step title="Record and monitor">
+    Record the non-secret old and new records, TTL, approver, time, verification, and rollback condition.
+  </Step>
+</Steps>
+
+<Warning>
+Never remove or replace email-related DNS records while fixing the website unless the email owner has reviewed the impact.
+</Warning>

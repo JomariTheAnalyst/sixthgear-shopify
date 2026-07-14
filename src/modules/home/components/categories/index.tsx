@@ -166,7 +166,7 @@ function CategoryCard({
           </p>
         </div>
 
-        <div className="relative z-20 mt-auto max-w-[56%] translate-y-10 pb-1 transition-transform duration-500 ease-out group-hover:translate-y-0 sm:max-w-[58%] md:translate-y-9">
+        <div className="relative z-20 mt-auto max-w-[56%] translate-y-0 pb-1 transition-transform duration-500 ease-out group-hover:translate-y-0 sm:max-w-[58%] md:translate-y-9 md:group-hover:translate-y-0">
           <p className="mb-3 text-[11px] leading-[1.25] text-neutral-700 sm:text-xs">
             {summary}
           </p>

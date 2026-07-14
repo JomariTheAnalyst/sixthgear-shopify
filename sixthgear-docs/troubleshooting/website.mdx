@@ -1,0 +1,36 @@
+---
+title: "Website troubleshooting"
+description: "Diagnose routing, layout, content, forms, cache, and availability problems without making the incident worse."
+icon: "wrench"
+---
+
+## Start with scope
+
+Record the affected URL, time, device, region, deployment, user state, and exact symptom. Confirm the problem from a second browser or network before changing production.
+
+## Check in order
+
+<Steps>
+  <Step title="Check platform status">
+    Review Vercel, Shopify, Sanity, Strapi hosting, Upstash, DNS, and business email status as relevant.
+  </Step>
+  <Step title="Check routing">
+    Test `/`, `/ph`, the affected page, and `/api/health`. Confirm middleware is not applying maintenance mode unexpectedly.
+  </Step>
+  <Step title="Check deployment evidence">
+    Match the live deployment to the expected commit and review Vercel runtime logs.
+  </Step>
+  <Step title="Identify the data owner">
+    Decide whether the missing data belongs to Shopify, Sanity, Strapi, Redis, or static assets before editing content.
+  </Step>
+  <Step title="Apply the safest recovery">
+    Restore a known-good deployment or correct the failed external dependency. Avoid broad cache purges and unrelated configuration changes.
+  </Step>
+  <Step title="Verify customer paths">
+    Check homepage, store, product, cart, checkout, content, contact, account entry, and mobile layout.
+  </Step>
+</Steps>
+
+## Escalation information
+
+Record errors, logs, deployment reference, affected routes, external status, actions, approvals, recovery time, and follow-up owner. Do not include customer, order, payment, or credential data.

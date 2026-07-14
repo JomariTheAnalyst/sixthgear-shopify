@@ -1,0 +1,32 @@
+---
+title: "Account directory"
+description: "Non-secret directory of platforms that authorized SixthGear administrators must control and review."
+icon: "book-user"
+---
+
+Use this page to find the system of record for an account. Ownership, login email, billing, MFA, recovery, and transfer details stay in the private account register maintained by authorized administrators.
+
+| Platform | Purpose | Official access point | Password-manager item | Current evidence |
+| --- | --- | --- | --- | --- |
+| Shopify | Commerce, catalog, checkout and APIs | `https://accounts.shopify.com/` | `SixthGear / Shopify Production` | Active and required |
+| Sanity | CMS project, dataset and Studio | `https://www.sanity.io/manage` | `SixthGear / Sanity` | Active and required |
+| GitHub | Source and Actions | `https://github.com/login` | `SixthGear / GitHub` | Repository evidence confirmed |
+| Vercel | Hosting and deployment | `https://vercel.com/login` | `SixthGear / Vercel` | Hosting strongly indicated; project details unverified |
+| Upstash | Redis cache | `https://console.upstash.com/login` | `SixthGear / Upstash Production` | Active client code |
+| Resend | Contact-form email | `https://resend.com/login` | `SixthGear / Resend Production` | Active route when configured |
+| Judge.me | Product reviews | `https://judge.me/` | `SixthGear / Judge.me` | Active review helper |
+| Tidio | Customer chat | `https://www.tidio.com/panel/login` | `SixthGear / Tidio` | Conditional script |
+| Strapi | Remaining CMS data | [Verify hosting and login] | `SixthGear / Strapi Production` | Active source imports |
+| Domain registrar | Registration and renewal | [Verify provider] | `SixthGear / Domain Registrar` | Not confirmed in repository |
+| DNS provider | Authoritative DNS | [Verify provider] | `SixthGear / DNS` | Not confirmed in repository |
+| Business email | Administration and recovery mailboxes | [Verify provider] | `SixthGear / Business Email` | Not confirmed in repository |
+| Mintlify | This internal guide | `https://dashboard.mintlify.com/` | `SixthGear / Mintlify` | Documentation project exists locally |
+| Password manager | Credential custody | [Verify approved product] | [Verify vault] | Not confirmed in repository |
+
+<Warning>
+Do not add login emails, MFA seeds, recovery codes, passwords, or tokens until the business owner explicitly approves the non-secret account information to record.
+</Warning>
+
+## Review each account
+
+Confirm the business owner, technical owner, billing owner, recovery owner, named users, MFA method, password-manager item, last verification date, and transfer status in the internal register.

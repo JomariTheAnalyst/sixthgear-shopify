@@ -1,0 +1,34 @@
+---
+title: "Strapi integration"
+description: "Active Strapi content paths, configuration names, and the checks required before migration or removal."
+icon: "database"
+---
+
+Strapi remains active in repository code. Treat it as a current dependency until production behavior and migration completion are verified.
+
+## Active paths found
+
+| Area | Evidence |
+| --- | --- |
+| Homepage and preview content | `src/app/[countryCode]/(main)/page.tsx`, `src/app/[countryCode]/preview/page.tsx` |
+| Services and navigation | Service pages, `src/lib/data/service-detail.ts`, navigation template |
+| Rider stories | Rider-story detail page and Strapi fallbacks |
+| First Gear Coffee | First Gear page and `src/lib/strapi/coffee-menu.ts` |
+| Sitemap | `src/app/sitemap.ts` imports Strapi service slugs |
+| CMS fallback | `src/lib/cms/fallback.ts` |
+
+## Configuration
+
+Source references `STRAPI_URL`, `NEXT_PUBLIC_STRAPI_URL`, and `STRAPI_TOKEN`. These names are missing from the current `.env.example` and must be reconciled with external configuration.
+
+## Before removing Strapi
+
+1. Trace every import under `src/lib/strapi/`.
+2. Verify the equivalent Sanity content exists and is published.
+3. Test homepage, preview, services, navigation, sitemap, rider stories, and First Gear Coffee.
+4. Confirm production variables and hosting can be retired.
+5. Remove code and configuration in a reviewed change with a rollback plan.
+
+<Warning>
+Do not describe Strapi as removed or delete its variables based only on migration intent.
+</Warning>

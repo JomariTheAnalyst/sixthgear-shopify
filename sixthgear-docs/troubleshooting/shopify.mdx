@@ -1,0 +1,39 @@
+---
+title: "Shopify troubleshooting"
+description: "Diagnose missing products, collection errors, stock problems, cart failures, and hosted checkout handoff."
+icon: "shopping-cart"
+---
+
+## Catalog is empty or stale
+
+1. Check Shopify service status and storefront logs.
+2. Confirm the issue affects the expected store and environment.
+3. Check product status, sales-channel availability, collection membership, and variant availability in Shopify Admin.
+4. Review Storefront API errors without exposing tokens.
+5. Check Redis and Shopify cache behavior.
+6. Trigger approved revalidation only after upstream data is correct.
+
+## Product is missing from the store
+
+Check the product's publication state, `all-products` membership or automatic rules, brand collection handle, tags, product type, and availability. Confirm the storefront route uses the expected handle.
+
+## Cart or checkout fails
+
+<Steps>
+  <Step title="Test an available variant">
+    Use an approved product with stock. Confirm add, update, and remove actions.
+  </Step>
+  <Step title="Inspect the cart response">
+    Check application logs for cart GraphQL errors and a missing `checkoutUrl`. Do not log customer tokens.
+  </Step>
+  <Step title="Check Shopify status and settings">
+    Verify store, checkout, market, publication, and payment configuration through an authorized administrator.
+  </Step>
+  <Step title="Verify hosted checkout">
+    Confirm the browser redirects to Shopify. Never bypass hosted checkout or collect payment data in Next.js.
+  </Step>
+</Steps>
+
+## Escalate with
+
+Record affected product or collection handles, route, error class, deployment, Shopify status, cache action, and recovery time. Do not record customer tokens or payment details.

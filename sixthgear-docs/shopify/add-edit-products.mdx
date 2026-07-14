@@ -1,0 +1,64 @@
+---
+title: "Add and edit products"
+description: "Create or update a Shopify product so the SixthGear storefront can display and sell it correctly."
+icon: "package-plus"
+---
+
+## Purpose
+
+Use this procedure for a single product or a small catalog update. Use [bulk import](/shopify/bulk-import) for reviewed CSV changes across many products.
+
+## Prerequisites
+
+- Authorized Shopify product access
+- Approved product title, description, price, media and inventory information
+- Product category, vendor, collection and tag decisions
+- Required SixthGear metafield values
+
+{/* IMAGE NEEDED
+File: /images/shopify/add-product.png
+See: _internal/image-capture-guide.md
+*/}
+
+## Add a product
+
+<Steps>
+  <Step title="Open the product editor">
+    In Shopify Admin, open **Products** and select **Add product**. To update an item, select its product title instead.
+  </Step>
+  <Step title="Enter customer-facing information">
+    Add the title, description, media, category, vendor, price, and search engine listing. Keep claims, fitment, and warranty details accurate.
+  </Step>
+  <Step title="Configure options and stock">
+    Add variants only when customers must choose an option such as size or color. Set each variant's SKU, price, availability, and inventory behavior.
+  </Step>
+  <Step title="Organize the product">
+    Assign the intended collections and reviewed tags. Brand collections used by the storefront follow the `brand-*` handle convention.
+  </Step>
+  <Step title="Complete metafields">
+    Fill the SixthGear fields that apply to the product. Use [Manage metafields](/shopify/metafields) for the exact keys read by code.
+  </Step>
+  <Step title="Save and review">
+    Select **Save**, then open the product on the storefront. Confirm its media, price, variants, stock, details, collection placement, and checkout path.
+  </Step>
+</Steps>
+
+## Verify the result
+
+- The product appears only in intended sales channels and collections.
+- At least one available variant makes the item purchasable.
+- Unavailable variants cannot be added to cart.
+- Product details and metafields render without raw or malformed data.
+- The product URL and search engine listing use the approved wording.
+
+## Common problems
+
+| Problem | Check |
+| --- | --- |
+| Product is missing | Product status, sales-channel availability and collection rules |
+| Wrong brand filter | Collection handle must follow the storefront's `brand-*` convention |
+| Product shows sold out | Variant availability and inventory policy |
+| Details tab is empty | Required custom metafield values and types |
+| Image is cropped poorly | Source image dimensions and focal composition |
+
+Shopify's current product editor guidance is available in the [Shopify Help Center](https://help.shopify.com/en/manual/products/add-update-products).

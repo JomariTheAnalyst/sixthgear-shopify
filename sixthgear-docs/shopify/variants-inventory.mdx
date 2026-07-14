@@ -1,0 +1,38 @@
+---
+title: "Manage variants and inventory"
+description: "Maintain product options, variant availability, SKUs, prices, and stock behavior used by the storefront."
+icon: "boxes"
+---
+
+Variants represent customer choices such as size, color, or model. The storefront treats a product as available when at least one variant is available for sale.
+
+## Before you edit variants
+
+- Confirm the approved option names and values.
+- Check whether apps, fulfillment systems, or imports depend on variant IDs or SKUs.
+- Record existing inventory and price information before a large change.
+
+<Warning>
+Changing CSV option values can delete existing variant IDs and create new ones. That can break integrations that store Shopify variant IDs.
+</Warning>
+
+## Update a product
+
+<Steps>
+  <Step title="Open the product">
+    In Shopify Admin, open **Products**, then select the product.
+  </Step>
+  <Step title="Review options">
+    Confirm option names and values match the labels customers should see. Avoid duplicate values with different capitalization.
+  </Step>
+  <Step title="Review every variant">
+    Check SKU, price, compare-at price when approved, inventory tracking, location assignment, and availability.
+  </Step>
+  <Step title="Save and test">
+    Save the product. On the storefront, select each option combination and confirm price, image, stock message, and add-to-cart state.
+  </Step>
+</Steps>
+
+## Inventory rules to verify externally
+
+The repository does not define Shopify locations, fulfillment services, overselling policy, stock alerts, or inventory ownership. Verify these settings in Shopify Admin before changing quantities or tracking behavior.

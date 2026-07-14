@@ -68,7 +68,7 @@ export default function StoreLocation({
           style={{ border: 0, minHeight: "520px" }}
           allowFullScreen
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+          referrerPolicy="strict-origin-when-cross-origin"
           title="Sixthgear Store Location"
           className="absolute inset-0 h-full w-full"
         />

@@ -1,0 +1,27 @@
+---
+title: "Sanity integration"
+description: "How Sanity Studio, schemas, GROQ queries, CDN reads, and revalidation connect to the storefront."
+icon: "blocks"
+---
+
+`sanity.config.ts` mounts **Sixthgear CMS** at `/studio`. It loads Structure Tool, Vision, and the schema registry in `sanity/schemaTypes/index.ts`.
+
+## Read path
+
+1. `sanity/env.ts` reads project, dataset, and API-version configuration.
+2. `src/lib/cms/client.ts` creates the active `next-sanity` client with CDN reads.
+3. `src/lib/cms/queries.ts` defines GROQ queries for homepage, marketing, services, about, blogs, and supporting content.
+4. Server components call typed helpers from `src/lib/cms/client.ts`.
+5. Most helpers use the `sanity` tag and time-based revalidation.
+
+## Studio path
+
+`src/app/studio/[[...tool]]/page.tsx` embeds `NextStudio`. The Studio uses the same project and dataset variables as the frontend.
+
+## Revalidation
+
+`POST /api/revalidate-sanity` accepts the configured webhook secret, clears the `sanity` tag, and revalidates `/`, `/ph`, rider stories, and an optional story slug.
+
+<Warning>
+Project ID, dataset identity, CORS origins, members, roles, and webhook registration require verification in Sanity Manage.
+</Warning>

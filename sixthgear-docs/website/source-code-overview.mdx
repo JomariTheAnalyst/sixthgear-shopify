@@ -1,0 +1,49 @@
+---
+title: "Source code overview"
+description: "Repository purpose, branch evidence, application structure, important files, and external service boundaries."
+icon: "folder-code"
+---
+
+The repository contains the storefront application and its service clients. External platforms retain catalog data, CMS content, credentials, account access, billing, domains, and dashboard configuration.
+
+## Repository evidence
+
+- The current and remote default branch is `main`.
+- `main` is the strongest production-branch candidate.
+- The repository does not prove the Vercel Production branch mapping.
+- GitHub Actions still references both `main` and `master`.
+
+## Project map
+
+| Path | Responsibility |
+| --- | --- |
+| `src/app/` | App Router pages, layouts, route handlers and metadata |
+| `src/app/layout.tsx` | Global layout, metadata and site-wide scripts |
+| `src/app/page.tsx` | Root redirect to `/ph` |
+| `src/middleware.ts` | Country routing, maintenance mode and route guards |
+| `src/lib/shopify/` | Storefront and Admin GraphQL clients, queries and mutations |
+| `src/lib/data/` | Server actions and app-facing data access |
+| `src/lib/cms/` | Active Sanity client, GROQ queries, types and fallbacks |
+| `src/lib/strapi/` | Remaining active Strapi clients and fallbacks |
+| `src/lib/cache/redis.ts` | Redis caching and rate limits |
+| `sanity/` | Studio structure, schemas and Sanity helpers |
+| `tests/` | Playwright smoke and checkout coverage |
+| `.github/workflows/playwright.yml` | Local and production smoke-test automation |
+| `vercel.json` | Vercel response-header configuration |
+| `src/lib/env.ts` | Runtime environment validation and client/server boundary |
+| `.env.example` | Current variable-name reference without production values |
+
+## Main commands
+
+```powershell
+npm ci
+npm run dev
+npm run build
+npm run start
+npm run test:smoke
+npm run test:e2e
+```
+
+<Warning>
+Verify the GitHub organization, repository owner, branch protections, installed apps, and Vercel branch mapping in their dashboards. Do not infer them from a local clone.
+</Warning>

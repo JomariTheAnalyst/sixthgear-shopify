@@ -1,0 +1,25 @@
+---
+title: "Shopify apps"
+description: "Code-visible Shopify-related integrations and the external app inventory that administrators must verify."
+icon: "plug"
+---
+
+The repository shows integration code and variable names, but Shopify Admin is authoritative for installed apps, scopes, billing, and ownership.
+
+## Code-visible integrations
+
+| Integration | Repository evidence | Status to verify |
+| --- | --- | --- |
+| Storefront API client | `@shopify/storefront-api-client` | Storefront token scopes and owner |
+| Custom/Admin API client | `SHOPIFY_ADMIN_ACCESS_TOKEN` and Admin GraphQL code | Installed app, scopes and active use |
+| Judge.me | Review API helper and token/domain names | App installation, plan and production use |
+| Tidio | Public key and conditional script | Shopify relationship, account and active use |
+| Shopify webhooks | HMAC revalidation route | Registered app, topics and endpoint |
+
+## Review installed apps
+
+For each app in Shopify Admin, record its purpose, owner, permissions, billing owner, data access, webhooks, support route, renewal, and removal plan in the [account directory](/systems-and-access/account-directory).
+
+<Warning>
+Do not uninstall an app because it is absent from source imports. Apps can affect checkout, catalog, fulfillment, reviews, analytics, or automation entirely inside Shopify.
+</Warning>

@@ -1,0 +1,44 @@
+---
+title: "Understand collections"
+description: "Manage collection handles and rules that drive SixthGear store pages, brand filters, navigation, and SEO content."
+icon: "layout-grid"
+---
+
+Collections group Shopify products for the headless storefront. The code relies on collection handles, so changing a handle can break routes or filters.
+
+{/* IMAGE NEEDED
+File: /images/shopify/collections-list.png
+See: _internal/image-capture-guide.md
+*/}
+
+## SixthGear conventions
+
+| Convention | Storefront behavior | Evidence |
+| --- | --- | --- |
+| `all-products` | Default collection behind the store page | Store page constant |
+| `brand-*` | Included in the brand collection filter | Store page prefix check |
+| First Gear collections | Kept separate from the main store menus | Store collection filtering |
+| Collection handle | Used by `/collections/[handle]` and GraphQL queries | App Router and collection queries |
+
+## Manual and automatic collections
+
+Use a manual collection when an administrator must choose every member. Use an automatic collection only when its conditions are clear, stable, and based on maintained product data.
+
+<Steps>
+  <Step title="Review the existing collection">
+    In Shopify Admin, open **Products** > **Collections**. Check its type, conditions or members, handle, sales-channel availability, and SEO fields.
+  </Step>
+  <Step title="Protect the handle">
+    Keep `all-products` and `brand-*` conventions intact. Coordinate a code change before changing a handle referenced by the storefront.
+  </Step>
+  <Step title="Update membership">
+    For manual collections, add or remove reviewed products. For automatic collections, update the rule only after checking which products will enter or leave.
+  </Step>
+  <Step title="Verify the storefront">
+    Open the collection page and store filters. Confirm products, sorting, filters, hero content, SEO content, and related links.
+  </Step>
+</Steps>
+
+## Collection metafields
+
+The storefront reads the `seo_landing` namespace for introduction, buying guide, fitment, bottom content, related collection handles, and FAQ data. Review [Manage metafields](/shopify/metafields) before editing these fields.

@@ -1,0 +1,49 @@
+---
+title: "Deploy through Vercel"
+description: "Prepare, review, merge, and monitor a SixthGear release through the externally configured Vercel Git integration."
+icon: "rocket"
+---
+
+## Purpose
+
+Use this procedure after the Vercel project and production branch mapping are verified. The repository does not contain a deployment command that replaces Vercel's Git integration.
+
+## Prerequisites
+
+- Approved GitHub and Vercel access
+- Verified production branch and project
+- Passing local checks
+- Confirmed environment-variable changes in the correct scope
+- A known-good deployment and rollback owner
+
+{/* IMAGE NEEDED
+File: /images/deployment/vercel-deployments.png
+See: _internal/image-capture-guide.md
+*/}
+
+## Deploy a change
+
+<Steps>
+  <Step title="Prepare a focused pull request">
+    Describe the behavior, risk, test evidence, environment impact, data changes, and rollback plan. Keep unrelated changes out.
+  </Step>
+  <Step title="Pass repository checks">
+    Confirm the Playwright smoke workflow and any required build or type checks pass.
+  </Step>
+  <Step title="Review preview behavior">
+    Use a Vercel Preview deployment only after preview access and environment scopes are verified. Test affected routes without production data changes.
+  </Step>
+  <Step title="Merge through the protected workflow">
+    Merge only after approvals. The authorized release owner must confirm the target branch is the verified Vercel production branch.
+  </Step>
+  <Step title="Monitor Vercel">
+    Watch build, deployment, function, and runtime status. Preserve relevant log references without copying secrets or customer data.
+  </Step>
+  <Step title="Verify production">
+    Follow [Verify a deployment](/deployment/verify-deployment). Roll back when a release causes customer-facing failure and a safer correction is not immediate.
+  </Step>
+</Steps>
+
+## External settings to record
+
+Record the project name, team, repository, production branch, root directory, framework preset, install/build commands, domains, environment scopes, deployment protection, preview access, and rollback method in the internal maintenance register.

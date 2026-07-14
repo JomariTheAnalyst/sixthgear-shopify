@@ -1,0 +1,34 @@
+---
+title: "Shopify integration"
+description: "How the storefront uses Shopify GraphQL, cookies, carts, customer requests, webhooks, and hosted checkout."
+icon: "shopping-cart"
+---
+
+## Storefront API
+
+`src/lib/shopify/client.ts` creates two Storefront API clients:
+
+- Server requests use the private Storefront token.
+- Browser requests use the public Storefront token.
+- Authenticated customer requests use `no-store`.
+- Other server requests use a five-minute Next.js revalidation interval and the `shopify` tag.
+
+Queries and mutations under `src/lib/shopify/` cover products, collections, search, carts, customers, and orders. App-facing operations live under `src/lib/data/`.
+
+## Admin API
+
+`src/lib/shopify/admin-client.ts` calls the Admin GraphQL API using `SHOPIFY_ADMIN_ACCESS_TOKEN`. The only dedicated module found writes customer wishlist metafields.
+
+No active import of that customer metafield module was found. Verify whether it is required before granting scopes or removing code.
+
+## Checkout
+
+The Shopify cart response contains `checkoutUrl`. Cart and checkout components redirect the browser to that URL, so payment processing remains on Shopify's hosted checkout.
+
+## Revalidation
+
+`POST /api/revalidate` verifies `x-shopify-hmac-sha256`, clears Next.js Shopify tags, and invalidates Redis keys for products, collections, search, and homepage data.
+
+<Warning>
+The repository does not list registered webhook topics, installed apps, Admin API scopes, or the live store identity. Verify them in Shopify Admin.
+</Warning>

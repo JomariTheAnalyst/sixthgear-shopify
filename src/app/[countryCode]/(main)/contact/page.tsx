@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import ContactPage from "@modules/contact"
+import StoreLocation from "@modules/home/components/store-location"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
@@ -38,6 +39,7 @@ export default async function Contact({
     <>
       <JsonLd id="contact-breadcrumbs" data={breadcrumbStructuredData} />
       <ContactPage />
+      <StoreLocation />
     </>
   )
 }

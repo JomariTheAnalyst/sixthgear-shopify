@@ -1,0 +1,58 @@
+---
+title: "Manage metafields"
+description: "Reference for Shopify product and collection metafields read by the SixthGear storefront."
+icon: "brackets"
+---
+
+Metafields hold structured values that do not fit standard Shopify fields. Their namespace, key, and data type must match what the storefront queries.
+
+{/* IMAGE NEEDED
+File: /images/shopify/metafield-definitions.png
+See: _internal/image-capture-guide.md
+*/}
+
+## Product metafields read by code
+
+| Namespace | Key | Storefront use |
+| --- | --- | --- |
+| `custom` | `care_instructions` | Product care information |
+| `custom` | `what_is_in_the_box` | Package contents |
+| `custom` | `size_chart`, `size_chart_image`, `size_chart_data`, `size_guide` | Sizing UI and content |
+| `custom` | `material`, `weight`, `dimensions`, `height`, `width`, `length` | Product specifications |
+| `custom` | `color`, `gender`, `age_group`, `brand`, `country_of_origin` | Product attributes |
+| `custom` | `protection_level`, `certification` | Safety and certification details |
+| `custom` | `specifications` | Product specifications section |
+| `custom` | `shipping` | Product shipping information |
+| `custom` | `product_video_url` | Product video link |
+| `reviews` | `rating`, `rating_count` | Aggregate review data |
+| `shopify` | `color`, `accessory_size`, `material`, `age_group`, `target_gender`, `handwear_material`, `size`, `gender` | Standard category attributes |
+
+## Collection metafields read by code
+
+| Namespace | Key | Storefront use |
+| --- | --- | --- |
+| `seo_landing` | `intro_heading`, `intro_body` | Collection introduction |
+| `seo_landing` | `buying_guide_heading`, `buying_guide_body` | Buying guide |
+| `seo_landing` | `fitment_heading`, `fitment_body` | Fitment guidance |
+| `seo_landing` | `bottom_content` | Closing SEO content |
+| `seo_landing` | `related_collection_handles` | Related collection links |
+| `seo_landing` | `faq_items` | Collection FAQ content |
+| `custom` | `is_collection_featured` | Featured collection selection |
+
+## Edit values safely
+
+<Steps>
+  <Step title="Confirm the definition">
+    In Shopify Admin, open **Settings** > **Custom data** and inspect the relevant Product or Collection definition. Confirm namespace, key, type, validation, and description.
+  </Step>
+  <Step title="Edit the resource">
+    Open the product or collection and enter the reviewed value in its metafield section.
+  </Step>
+  <Step title="Save and inspect the storefront">
+    Confirm the value renders in the intended tab or section. Check mobile layout and links where applicable.
+  </Step>
+</Steps>
+
+<Warning>
+Do not rename a namespace or key without a matching code change. Do not change a definition's type until existing values and parser behavior are reviewed.
+</Warning>

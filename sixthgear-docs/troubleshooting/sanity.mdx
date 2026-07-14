@@ -1,0 +1,39 @@
+---
+title: "Sanity troubleshooting"
+description: "Diagnose Studio access, missing content, validation, image, dataset, and revalidation problems."
+icon: "blocks"
+---
+
+## Studio does not open
+
+Check the selected environment, `/studio` route, Sanity project and dataset variable names, user membership, browser session, and Sanity service status.
+
+Do not change project or dataset identifiers until an authorized administrator confirms the intended environment.
+
+## Published content does not appear
+
+<Steps>
+  <Step title="Confirm the source">
+    Verify the section comes from Sanity rather than active Strapi code or a local fallback.
+  </Step>
+  <Step title="Check the document">
+    Confirm it is published, uses the expected singleton or slug, and passes schema validation.
+  </Step>
+  <Step title="Check the query contract">
+    Review `src/lib/cms/queries.ts`, `src/lib/cms/types.ts`, and the consuming component for the exact field name.
+  </Step>
+  <Step title="Check caching">
+    Review the configured revalidation interval and Sanity webhook logs. Do not expose `SANITY_WEBHOOK_SECRET`.
+  </Step>
+  <Step title="Verify the page">
+    Check the affected route, mobile layout, image crop, links, and related content.
+  </Step>
+</Steps>
+
+## Image problems
+
+Check asset publication, query projection, image URL generation, crop, hotspot, mobile image field, alt text, and `cdn.sanity.io` image permissions in Next.js.
+
+## Escalate with
+
+Record the document type and non-secret ID, field, route, dataset reference, publication time, query/helper, webhook result, and screenshots after redaction.

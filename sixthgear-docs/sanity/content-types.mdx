@@ -1,0 +1,36 @@
+---
+title: "Content types"
+description: "Reference for SixthGear Sanity singletons, documents, and reusable objects registered in the Studio."
+icon: "files"
+---
+
+The schema registry is `sanity/schemaTypes/index.ts`. Studio navigation gives dedicated entries to core singletons and lists other registered types automatically.
+
+## Primary documents
+
+| Type | Use | Studio behavior |
+| --- | --- | --- |
+| `homepage` | Homepage sections and product collection rails | Singleton: **Homepage Settings** |
+| `marketing` | Announcement bar, popup, featured collections and promo banners | Singleton: **Marketing** |
+| `servicesPage` | Services landing-page hero, stats, brands and grid | Singleton: **Services Page** |
+| `aboutPage` | About hero, story, values and leadership content | Singleton: **About Page** |
+| `service` | Individual service content and SEO | Document list: **Services** |
+| `blogPost` | Rider-story article, image, body, author and SEO | Under **Blog** |
+| `blogCategory` | Rider-story grouping | Under **Blog** |
+| `collectionHero` | Collection-specific hero content | Document list |
+
+## Homepage and reusable types
+
+The registry also includes hero slides, brand items, statistics, shop-by-brands, categories, services, coffee showcase, space experiences, service brands, satisfied customers, franchise, team, testimonials, store location, calls to action, announcement bars, popups, featured collections, promo banners, and homepage collection sections.
+
+<Info>
+Some registered types are nested objects rather than records editors should create directly. Use the Studio structure instead of guessing which document type to add.
+</Info>
+
+## Before changing a schema
+
+1. Search `src/lib/cms/queries.ts` for the field.
+2. Search TypeScript types and components that consume it.
+3. Check existing documents for migration impact.
+4. Update schema, query, type, fallback, and rendering together.
+5. Run the storefront build and relevant tests.

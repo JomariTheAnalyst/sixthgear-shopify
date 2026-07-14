@@ -1,0 +1,39 @@
+---
+title: "Sanity overview"
+description: "What SixthGear stores in Sanity, how Studio is embedded, and where the storefront reads CMS content."
+icon: "blocks"
+---
+
+Sanity manages structured website content that does not belong in Shopify. SixthGear embeds Sanity Studio at `/studio` and reads published content through `next-sanity`.
+
+## Sanity responsibilities
+
+- Homepage hero, brands, about, categories, services, coffee, team, testimonials, location, and calls to action
+- Marketing announcements, popups, featured collections, and promo banners
+- Services and service-page content
+- About-page content
+- Rider stories and blog categories
+- Collection hero content
+
+## Main code paths
+
+| Path | Purpose |
+| --- | --- |
+| `sanity.config.ts` | Studio title, base path, plugins and schema |
+| `sanity/env.ts` | Project, dataset and API-version configuration |
+| `sanity/schemaTypes/` | Document and object definitions |
+| `sanity/structure.ts` | Studio navigation and singleton documents |
+| `src/lib/cms/client.ts` | Frontend fetch helpers |
+| `src/lib/cms/queries.ts` | GROQ queries |
+| `src/app/api/revalidate-sanity/route.ts` | Webhook revalidation |
+
+<Warning>
+Strapi still supplies content on active routes. Confirm a field's source before editing or migrating it.
+</Warning>
+
+## Common tasks
+
+- [Open SixthGear CMS](/sanity/open-cms)
+- [Edit and publish content](/sanity/edit-publish-content)
+- [Review content types](/sanity/content-types)
+- [Understand fields and validation](/sanity/fields-validation)

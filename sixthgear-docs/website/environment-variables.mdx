@@ -1,0 +1,62 @@
+---
+title: "Environment variables"
+description: "Variable-name reference, purpose, scope, secrecy, and evidence status without secret values."
+icon: "list-key"
+---
+
+Use `.env.example` and `src/lib/env.ts` together. The example lists intended configuration, while the runtime schema shows what current code validates.
+
+<Warning>
+Do not add environment values to this page. Store secret values in the approved password manager and configure them in the correct local or Vercel scope.
+</Warning>
+
+## Core commerce and infrastructure
+
+| Variable | Purpose | Scope | Secret | Evidence |
+| --- | --- | --- | --- | --- |
+| `SHOPIFY_STORE_DOMAIN` | Server Shopify API host | Server | No, but operationally sensitive | Required by runtime schema |
+| `SHOPIFY_STOREFRONT_ACCESS_TOKEN` | Private Storefront API access | Server | Yes | Required by runtime schema |
+| `NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN` | Public Storefront API access | Browser | No; keep scopes limited | Required by runtime schema |
+| `NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN` | Browser Shopify API host | Browser | No | Optional schema field; client code uses it |
+| `SHOPIFY_API_VERSION` | Storefront API version | Server | No | Defaults to `2025-10` in source |
+| `SHOPIFY_ADMIN_ACCESS_TOKEN` | Admin GraphQL access | Server | Yes | Client exists; active caller unconfirmed |
+| `SHOPIFY_WEBHOOK_SECRET` | Shopify webhook HMAC check | Server | Yes | Used by `/api/revalidate` |
+| `UPSTASH_REDIS_REST_URL` | Redis REST endpoint | Server | Treat as sensitive | Required by runtime schema |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis authentication | Server | Yes | Required by runtime schema |
+
+## CMS and content
+
+| Variable | Purpose | Scope | Secret | Evidence |
+| --- | --- | --- | --- | --- |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity project selection | Browser/build | No | Required by Sanity config |
+| `NEXT_PUBLIC_SANITY_DATASET` | Sanity dataset selection | Browser/build | No | Required by Sanity config |
+| `NEXT_PUBLIC_SANITY_API_VERSION` | Sanity API date | Browser/build | No | Source default exists |
+| `SANITY_WEBHOOK_SECRET` | Sanity revalidation authentication | Server | Yes | Used by `/api/revalidate-sanity` |
+| `STRAPI_URL` | Server Strapi base URL | Server | No, but sensitive topology | Active source reference; absent from `.env.example` |
+| `NEXT_PUBLIC_STRAPI_URL` | Public/fallback Strapi URL | Browser/build | No | Active source reference; absent from `.env.example` |
+| `STRAPI_TOKEN` | Strapi bearer access | Server | Yes | Active source reference; absent from `.env.example` |
+
+## Website services
+
+| Variable | Purpose | Scope | Secret | Evidence |
+| --- | --- | --- | --- | --- |
+| `RESEND_API_KEY` | Contact-form email delivery | Server | Yes | Used by contact route |
+| `CONTACT_EMAIL_TO` | Contact recipient | Server | Account data | Used by contact route |
+| `CONTACT_EMAIL_FROM` | Verified sender | Server | Account data | Used by contact route |
+| `JUDGEME_PRIVATE_TOKEN` | Review API access | Server | Yes | Used by review helper |
+| `NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN` | Public review identifier | Browser | No | Runtime schema; exact use requires review |
+| `NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN` | Review shop identity | Browser | No | Used by review helper |
+| `NEXT_PUBLIC_TIDIO_PUBLIC_KEY` | Load the chat widget | Browser | No | Used conditionally in root layout |
+| `NEXT_PUBLIC_SITE_URL` | Absolute site URL generation | Browser/build | No | Used by URL and SEO helpers |
+| `NEXT_PUBLIC_DEFAULT_REGION` | Default country route | Browser/build | No | Middleware defaults to `ph` |
+| `MAINTENANCE_MODE` | Enable production maintenance response | Server | No | Used by middleware; absent from `.env.example` |
+
+## Vercel and tests
+
+`VERCEL_ENV`, `VERCEL_URL`, and `NEXT_PUBLIC_VERCEL_URL` are platform-provided. `CI` and `TEST_ENV` control Playwright behavior. Verify their scopes in Vercel and GitHub rather than adding local production values.
+
+## Unclear and migration-era names
+
+`REVALIDATION_SECRET`, `SANITY_REVALIDATE_SECRET`, Medusa variables, NextAuth variables, Shopify OAuth identifiers, Payload, Xendit, analytics, Sentry, Klaviyo, and Vercel Blob names remain in source or templates.
+
+Do not remove them until you check both source usage and every external environment scope. Track that work in the internal maintenance register.

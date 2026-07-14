@@ -1,0 +1,35 @@
+---
+title: "Testing"
+description: "Run local Playwright tests, understand CI coverage, and interpret production smoke-test behavior."
+icon: "flask-conical"
+---
+
+Playwright covers desktop Chrome and a Pixel 5 mobile profile. Local tests start the storefront on port `7000`; production tests use the configured production target in `playwright.config.ts`.
+
+## Run tests
+
+```powershell
+npm run test:smoke
+npm run test:e2e
+npm run test:checkout:stripe
+npm run test:checkout:cod
+```
+
+Use `npm run test:ui` or `npm run test:e2e:debug` when you need an interactive investigation.
+
+## CI behavior
+
+`.github/workflows/playwright.yml` runs local smoke tests on pushes and pull requests targeting `main` or `master`. It installs Node 22, runs `npm ci`, installs Chromium, and retains the HTML report.
+
+A second job listens for a successful GitHub deployment-status event named `Production`. It then runs the production smoke suite with `TEST_ENV=production`.
+
+## Verify a test run
+
+- Read the list reporter output for the first failing test.
+- Review `playwright-report/` and retained traces, screenshots, or video.
+- Confirm whether the failure is local, deployment-specific, or caused by an external service.
+- Do not attach screenshots containing customer, order, or credential data.
+
+<Warning>
+The workflow validates a deployment but does not create it. Vercel's external Git integration is the likely deployment source and must be verified.
+</Warning>

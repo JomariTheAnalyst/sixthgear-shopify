@@ -1,0 +1,33 @@
+---
+title: "Caching and revalidation"
+description: "Next.js fetch caching, Redis TTLs, fallback behavior, webhook invalidation, and operating limits."
+icon: "refresh-cw"
+---
+
+SixthGear uses Next.js fetch caching and Upstash Redis. The two layers reduce repeated Shopify and CMS work but require deliberate invalidation.
+
+## Cache behavior
+
+| Layer | Behavior | Evidence |
+| --- | --- | --- |
+| Shopify fetch | Five-minute revalidation for shared requests | `src/lib/shopify/client.ts` |
+| Customer fetch | `no-store` when a customer access token is present | `src/lib/shopify/client.ts` |
+| Redis catalog cache | Product, collection, search, region and homepage TTL groups | `src/lib/cache/redis.ts` |
+| Redis failure | Logs the error and calls the original fetcher | `getCached()` fallback |
+| Rate limits | Redis counter with an expiry; fails open if Redis errors | `checkRateLimit()` |
+
+## Shopify invalidation
+
+The Shopify route clears `shopify`, `shopify-products`, and `shopify-collections` tags. It also deletes Redis key patterns for product, products, collection, collections, search, and homepage data.
+
+## Sanity invalidation
+
+The Sanity route clears the `sanity` tag and revalidates key homepage and rider-story paths. A slug in the payload triggers the matching rider-story path.
+
+<Info>
+`invalidatePattern()` uses Redis `KEYS`. A source comment says this is acceptable below roughly 10,000 catalog products and should change for a larger catalog.
+</Info>
+
+<Warning>
+Do not clear all caches during an incident without identifying the stale data and upstream health. A broad purge can increase load on Shopify, Sanity, or Strapi.
+</Warning>

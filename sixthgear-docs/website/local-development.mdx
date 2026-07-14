@@ -1,0 +1,70 @@
+---
+title: "Local development"
+description: "Install the storefront, configure local variable names safely, run it on port 7000, and verify the setup."
+icon: "laptop"
+---
+
+## Purpose
+
+Use the local environment to review website behavior before you open a pull request or deploy a change.
+
+## Prerequisites
+
+- Repository access
+- Node.js 20 or newer; GitHub Actions currently uses Node 22
+- npm
+- Authorized local development credentials stored outside Git
+
+<Warning>
+Never copy production secrets into documentation, chat, screenshots, or commits. Obtain approved development credentials from the password manager.
+</Warning>
+
+## Start the storefront
+
+<Steps>
+  <Step title="Install dependencies">
+    From the repository root, run:
+
+    ```powershell
+    npm ci
+    ```
+  </Step>
+  <Step title="Prepare local configuration">
+    Use `.env.example` as the variable-name reference. Create your ignored local environment file through the approved onboarding process.
+  </Step>
+  <Step title="Run Next.js">
+    Start the development server:
+
+    ```powershell
+    npm run dev
+    ```
+
+    The script runs Next.js with Turbopack on port `7000`.
+  </Step>
+  <Step title="Open the localized storefront">
+    Open `http://localhost:7000/ph`. The root URL redirects to `/ph`.
+  </Step>
+</Steps>
+
+## Verify the result
+
+- The homepage renders without a configuration error.
+- A collection and product page load Shopify data.
+- The cart opens and updates without exposing credentials.
+- Sanity-backed sections render or show the documented fallback behavior.
+- `/studio` loads only when the required Sanity variables are available.
+
+## Common problems
+
+| Symptom | Check |
+| --- | --- |
+| Environment validation fails | Compare variable names with `.env.example` and `src/lib/env.ts` |
+| Shopify data is empty | Check the approved store domain and Storefront token scopes |
+| Sanity throws a project or dataset error | Check `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` through the secure configuration process |
+| Port 7000 is busy | Stop the existing local process or confirm it is the intended storefront server |
+
+## Related tasks
+
+- [Environment variables](/website/environment-variables)
+- [Testing](/website/testing)
+- [Source code overview](/website/source-code-overview)

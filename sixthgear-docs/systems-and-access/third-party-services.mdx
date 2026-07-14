@@ -1,0 +1,27 @@
+---
+title: "Third-party services"
+description: "Repository-backed directory of commerce, content, infrastructure, email, review, chat, hosting, and test services."
+icon: "waypoints"
+---
+
+| Service | Purpose | Code evidence | External checks |
+| --- | --- | --- | --- |
+| Shopify Storefront API | Catalog, cart, customers and orders | `src/lib/shopify/client.ts` | Store, scopes, app owner and rotation |
+| Shopify Admin API | Customer metafield operations | Admin client and wishlist module | Active use, app and scopes |
+| Shopify hosted checkout | Payment handoff | Cart `checkoutUrl` | Checkout and payment settings |
+| Sanity | Structured website content and Studio | `sanity/`, `src/lib/cms/` | Project, dataset, members, CORS and hooks |
+| Strapi | Remaining CMS content | Active Strapi imports | Host, owner, API access and migration plan |
+| Upstash Redis | Cache and rate limits | `src/lib/cache/redis.ts` | Database, region, limits, billing and alerts |
+| Resend | Contact email | `src/app/api/contact/route.ts` | Domain, sender, recipient, plan and logs |
+| Judge.me | Product reviews | `src/lib/data/reviews.ts` | Installation, account, plan and data flow |
+| Tidio | Customer chat | Conditional root-layout script | Workspace, operators, retention and privacy |
+| Vercel | Application hosting | `vercel.json`, runtime variables | Project, team, Git, domains and protections |
+| GitHub Actions | Smoke tests | Playwright workflow | Owners, permissions, branch protection and retention |
+
+## Review a service
+
+For each service, confirm the business owner, technical owner, billing owner, recovery owner, account access, MFA, data handled, credential scope, plan, renewal, support route, audit logs, and offboarding process.
+
+<Warning>
+An environment-variable name shows that an integration was planned or used in code. It does not prove the external account is active or correctly configured.
+</Warning>

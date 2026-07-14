@@ -1,0 +1,71 @@
+---
+title: "Emergency recovery"
+description: "Contain incidents, restore service, recover access, and preserve evidence across SixthGear systems."
+icon: "life-buoy"
+---
+
+Use the least destructive action first. Assign an incident lead and recorder once the responsible owners are known.
+
+## Website unavailable
+
+- **Symptoms:** Timeouts, error responses, incorrect redirects, or unexpected maintenance.
+- **Initial checks:** Vercel deployment and logs, DNS, `/api/health`, Shopify, CMS, Redis, and a second network.
+- **Containment:** Pause releases and preserve evidence.
+- **Recovery:** Restore the known-good deployment or failed dependency.
+- **Verify:** Homepage, store, product, cart, checkout, CMS content, forms, and smoke tests.
+
+## Strapi content unavailable
+
+- **Symptoms:** Missing services, navigation, preview, rider stories, coffee, sitemap, or homepage fallback content.
+- **Initial checks:** Active import path, Strapi host status, URL reachability, and authentication class.
+- **Containment:** Do not remove Strapi or overwrite content during the incident.
+- **Recovery:** Restore hosting/API access or use an already implemented approved fallback.
+- **Verify:** Every affected route family and content owner approval.
+
+## Redis unavailable
+
+- **Symptoms:** Cache errors, slow pages, repeated upstream calls, or invalidation failures.
+- **Initial checks:** Upstash status, limits, logs, and affected key classes.
+- **Containment:** Avoid a broad purge and monitor Shopify/Sanity load.
+- **Recovery:** Restore Upstash configuration or service. The cache helper should fall back to the original fetcher.
+- **Verify:** Product, collection, search, homepage, webhook behavior, and latency.
+
+## Domain or DNS failure
+
+- **Symptoms:** Resolution errors, certificate failures, wrong destination, or only a Vercel URL works.
+- **Initial checks:** Registrar, nameservers, authoritative DNS, Vercel domain status, certificate, and recent changes.
+- **Containment:** Freeze edits; keep the domain locked and do not transfer it.
+- **Recovery:** Restore the verified known-good records through approved change control.
+- **Verify:** Web, HTTPS, redirects, email records, and multiple networks.
+
+## Suspected credential exposure
+
+<Steps>
+  <Step title="Restrict the exposure">
+    Remove access to the exposed artifact and preserve necessary evidence without reposting the secret.
+  </Step>
+  <Step title="Revoke or rotate">
+    Use the authoritative platform. Terminate unauthorized sessions and issue a least-privilege replacement.
+  </Step>
+  <Step title="Update environments">
+    Update approved scopes and the password-manager item. Redeploy or restart only when required.
+  </Step>
+  <Step title="Verify containment">
+    Confirm the old credential fails, the integration works, and audit logs show no continuing misuse.
+  </Step>
+  <Step title="Handle source history">
+    If Git contains the secret, use an approved history-cleaning incident process. Deleting the visible line is not enough.
+  </Step>
+</Steps>
+
+## Recover platform access
+
+For Shopify, Sanity, GitHub, Vercel, registrar, DNS, business email, password manager, and Mintlify, verify the owner, independent recovery route, MFA, support entitlement, and last recovery test.
+
+<Warning>
+Actual recovery codes, backup keys, passwords, identity documents, and private support correspondence must stay outside SixthGear Docs.
+</Warning>
+
+## Incident record
+
+Record start and end time, systems, symptoms, deployment, external status, containment, recovery, approvals, impact, verifier, and follow-up owner. Exclude secret, customer, order, and payment data.

@@ -1,0 +1,32 @@
+---
+title: "Roles and permissions"
+description: "Recommended separation of business, commerce, content, technical, billing, recovery, and documentation access."
+icon: "users-round"
+---
+
+These responsibilities describe the intended access model. Verify current roles in every platform before relying on it.
+
+| Role | Responsibility | Typical access boundary |
+| --- | --- | --- |
+| Business owner | Website accountability and high-impact approval | Ownership visibility without every daily permission |
+| Shopify store owner | Store ownership, plans and sensitive access grants | Highest Shopify authority with tested succession |
+| Technical administrator | Hosting, integrations, domains, CI and incidents | Admin access only where operations require it |
+| Content editor | Approved Shopify, Sanity or Strapi content | Content access without billing or token administration |
+| Developer | Reviewed source changes and technical diagnosis | Repository write plus task-specific platform access |
+| Billing owner | Payments, invoices and renewals | Billing access without unrelated content or code access |
+| Recovery owner | Lockout and continuity recovery | Independent protected recovery route |
+| Documentation viewer | Read internal procedures | Read-only documentation access |
+| Documentation editor | Maintain verified procedures | Reviewed documentation writes; no secrets |
+
+## Permission rules
+
+- Use named accounts instead of shared logins.
+- Apply least privilege and time-limited elevation when available.
+- Require MFA for privileged users.
+- Prefer phishing-resistant methods for owners and recovery administrators.
+- Review members, apps, service accounts, tokens, and recovery methods on a schedule.
+- Remove access and rotate exposed credentials during offboarding.
+
+<Warning>
+Do not assign an owner in documentation until the person and business owner confirm the responsibility.
+</Warning>
