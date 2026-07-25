@@ -16,6 +16,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { interDisplay, lato } from "@lib/fonts"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 
 // ── Gear decorative SVG ──────────────────────────────────────────────────────
 const GearShape = () => (
@@ -59,9 +60,9 @@ export default function Franchise({
   const activeBadge1   = badge1Text   || "Do you dream of opening your own moto shop & café?"
   const activeBadge2   = badge2Text   || "With Sixthgear, you have the opportunity to become part of an innovative brand."
   const activeCtaLabel = ctaLabel     || "Contact us"
-  const activeCtaLink  = ctaLink      || "/contact"
-  const activeLeftImg  = leftImageUrl  || "/images/franchise/sixthgear-outside.jpg"
-  const activeRightImg = rightImageUrl || "/images/franchise/sixthgear-inside.jpg"
+  const activeCtaLink  = cleanSanityString(ctaLink || "/contact")
+  const activeLeftImg  = cleanSanityString(leftImageUrl || "/images/franchise/sixthgear-outside.jpg")
+  const activeRightImg = cleanSanityString(rightImageUrl || "/images/franchise/sixthgear-inside.jpg")
 
   return (
     <section className="relative bg-white overflow-hidden">

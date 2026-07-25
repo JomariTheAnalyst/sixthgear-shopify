@@ -8,6 +8,7 @@ import { useCartStore } from "@lib/cart"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { addToCart } from "@lib/data/cart"
 import { formatPrice } from "@lib/shopify"
+import { useLenisScrollLock } from "@modules/common/components/lenis-provider"
 import type { FeaturedMenuProduct, FeaturedMenuVariant } from "./types"
 
 const FIRST_GEAR_FALLBACK_IMAGE =
@@ -30,6 +31,7 @@ const isSale = (variant?: FeaturedMenuVariant | null) => {
 }
 
 const ProductModal = ({ product, countryCode, onClose }: ProductModalProps) => {
+  useLenisScrollLock(Boolean(product))
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
@@ -85,17 +87,6 @@ const ProductModal = ({ product, countryCode, onClose }: ProductModalProps) => {
     setQuantity(1)
   }, [product, visibleOptions])
 
-  useEffect(() => {
-    if (!product) return
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [product])
-
   if (!product) return null
 
   const handleAddToCart = async () => {
@@ -132,6 +123,7 @@ const ProductModal = ({ product, countryCode, onClose }: ProductModalProps) => {
       <div className="fixed inset-0 z-[300] bg-black/50" onClick={onClose} />
       <div className="fixed inset-0 z-[301] flex items-end justify-center p-0 sm:items-center sm:p-4">
         <div
+          data-lenis-prevent
           className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-[760px] sm:rounded-2xl"
           onClick={(event) => event.stopPropagation()}
         >

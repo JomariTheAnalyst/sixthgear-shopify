@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
+import { useLenis } from "@modules/common/components/lenis-provider"
 
 const START_EVENT = "sixthgear:route-progress:start"
 const DONE_EVENT = "sixthgear:route-progress:done"
@@ -59,9 +60,11 @@ function shouldTrackClick(event: MouseEvent) {
 export default function RouteProgress() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const lenis = useLenis()
   const [isVisible, setIsVisible] = useState(false)
   const [progress, setProgress] = useState(0)
   const activeRef = useRef(false)
+  const previousPathnameRef = useRef<string | null>(null)
   const trickleTimerRef = useRef<number | null>(null)
   const failsafeTimerRef = useRef<number | null>(null)
   const hideTimerRef = useRef<number | null>(null)
@@ -145,6 +148,23 @@ export default function RouteProgress() {
   useEffect(() => {
     completeRouteProgress()
   }, [pathname, searchParams])
+
+  useEffect(() => {
+    if (previousPathnameRef.current === null) {
+      previousPathnameRef.current = pathname
+      return
+    }
+
+    if (previousPathnameRef.current !== pathname) {
+      if (lenis) {
+        lenis.scrollTo(0, { immediate: true })
+      } else {
+        window.scrollTo(0, 0)
+      }
+
+      previousPathnameRef.current = pathname
+    }
+  }, [lenis, pathname])
 
   return (
     <div

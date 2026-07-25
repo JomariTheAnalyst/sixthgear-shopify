@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import { addToCart } from "@lib/data/cart"
 import { useCartStore } from "@lib/cart"
 import { getProductPricing, formatPrice } from "@lib/util/get-product-pricing"
+import { useLenisScrollLock } from "@modules/common/components/lenis-provider"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import WishlistButton from "@modules/wishlist/components/wishlist-button"
 
@@ -31,6 +32,7 @@ export default function QuickShopModal({
   isOpen,
   onClose,
 }: QuickShopModalProps) {
+  useLenisScrollLock(isOpen)
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
@@ -85,16 +87,6 @@ export default function QuickShopModal({
       setIsZoomed(false)
     }
   }, [isOpen, productOptions, allImages])
-
-  // Lock body scroll
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = ""
-    }
-    return () => { document.body.style.overflow = "" }
-  }, [isOpen])
 
   // Find the variant that matches selected options
   const selectedVariant = useMemo(() => {
@@ -213,6 +205,7 @@ export default function QuickShopModal({
       {/* Modal Panel */}
       <div className="fixed inset-0 z-[301] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div
+          data-lenis-prevent
           className="relative w-full sm:max-w-lg lg:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] sm:max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom-4 duration-300"
           onClick={(e) => e.stopPropagation()}
         >

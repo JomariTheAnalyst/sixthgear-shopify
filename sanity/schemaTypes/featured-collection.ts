@@ -1,10 +1,32 @@
 import { defineField, defineType } from 'sanity'
 
-// One featured collection campaign.
-// Full-height image on one side, 4 products from Shopify on the other.
-// Use position to place anywhere on the homepage.
-// Toggle isActive to show or hide.
-// Use layout to place image left or right.
+type FeaturedCollectionParent = {
+  isActive?: boolean
+  startDate?: string
+}
+
+function campaignIsActive(parent: unknown) {
+  return (parent as FeaturedCollectionParent | undefined)?.isActive === true
+}
+
+function requiredWhenActive(value: unknown, parent: unknown, label: string) {
+  return (
+    !campaignIsActive(parent) ||
+    (typeof value === 'string' && value.trim().length > 0) ||
+    `${label} is required while the campaign is active.`
+  )
+}
+
+function isValidLink(value: string) {
+  if (value.startsWith('/')) return true
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export default defineType({
   name: 'featuredCollection',
   title: 'Featured Collection Item',
@@ -15,28 +37,27 @@ export default defineType({
       title: 'Active',
       type: 'boolean',
       initialValue: false,
-      description: 'Toggle ON to show. Toggle OFF to hide without deleting.',
+      description: 'Turn on to make this campaign eligible for its configured schedule.',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'internalName',
-      title: 'Internal Name',
+      title: 'Internal name',
       type: 'string',
-      description: 'Not shown to visitors. Example: SEC Moto Drop, Best Sellers Week',
+      description: 'Not shown to visitors.',
     }),
     defineField({
       name: 'position',
-      title: 'Homepage Position',
+      title: 'Homepage position',
       type: 'string',
-      description: 'Where on the homepage this banner appears. If two items share the same position, only the first active one in the list renders.',
       options: {
         layout: 'radio',
         list: [
           { title: 'After Hero', value: 'after_hero' },
           { title: 'After About', value: 'after_about' },
           { title: 'After Categories', value: 'after_categories' },
-          { title: 'After Our Services', value: 'after_services' },
           { title: 'After Coffee Showcase', value: 'after_coffee' },
-          { title: 'After Projects Section', value: 'after_projects' },
+          { title: 'After Our Services', value: 'after_services' },
           { title: 'After Brands Section', value: 'after_brands' },
           { title: 'After Satisfied Customers', value: 'after_satisfied' },
           { title: 'After Franchise', value: 'after_franchise' },
@@ -45,10 +66,33 @@ export default defineType({
         ],
       },
       initialValue: 'after_brands',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'startDate',
+      title: 'Start date',
+      type: 'datetime',
+      description: 'Optional. Leave empty to make an active campaign eligible immediately.',
+    }),
+    defineField({
+      name: 'endDate',
+      title: 'End date',
+      type: 'datetime',
+      description: 'Optional. Leave empty to prevent automatic expiry.',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const startDate = (context.parent as FeaturedCollectionParent | undefined)
+            ?.startDate
+          if (!value || !startDate) return true
+          return (
+            Date.parse(value as string) >= Date.parse(startDate) ||
+            'End date must be on or after the start date.'
+          )
+        }),
     }),
     defineField({
       name: 'layout',
-      title: 'Image Position',
+      title: 'Image position',
       type: 'string',
       options: {
         layout: 'radio',
@@ -58,11 +102,11 @@ export default defineType({
         ],
       },
       initialValue: 'image_left',
-      description: 'On mobile, image is always on top regardless of this setting.',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'contentPosition',
-      title: 'Text & Button Position',
+      title: 'Text and button position',
       type: 'string',
       options: {
         layout: 'radio',
@@ -73,47 +117,95 @@ export default defineType({
         ],
       },
       initialValue: 'bottom-left',
-      description: 'Where the heading, subtext, and button are positioned on the banner image.',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'bannerImage',
-      title: 'Banner Image',
+      title: 'Banner image',
       type: 'image',
       options: { hotspot: true },
-      description: 'Portrait or square recommended. Fills full panel height. Nothing cropped.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !campaignIsActive(context.parent) ||
+          Boolean(value) ||
+          'Banner image is required while the campaign is active.'
+        ),
+    }),
+    defineField({
+      name: 'bannerImageAlt',
+      title: 'Banner image description',
+      type: 'string',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requiredWhenActive(value, context.parent, 'Banner image description')
+        ),
     }),
     defineField({
       name: 'collectionHandle',
-      title: 'Shopify Collection Handle',
+      title: 'Shopify collection handle',
       type: 'string',
-      description: 'Exact handle from Shopify Admin → Collections. Examples: sec-moto, best-sellers',
+      description: 'Enter the exact collection handle from Shopify.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requiredWhenActive(value, context.parent, 'Shopify collection handle')
+        ),
     }),
     defineField({
       name: 'heading',
       title: 'Heading',
       type: 'string',
-      description: 'Text overlaid on the image.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requiredWhenActive(value, context.parent, 'Heading')
+        ),
     }),
     defineField({
       name: 'subtext',
       title: 'Subtext',
       type: 'string',
-      description: 'Optional supporting line. Under 80 characters.',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button Label',
+      title: 'Button label',
       type: 'string',
-      description: 'Defaults to View Collection if empty.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requiredWhenActive(value, context.parent, 'Button label')
+        ),
+    }),
+    defineField({
+      name: 'ctaLink',
+      title: 'Button destination',
+      type: 'string',
+      description: 'Use an internal path beginning with / or a complete HTTP(S) URL.',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const required = requiredWhenActive(
+            value,
+            context.parent,
+            'Button destination'
+          )
+          if (required !== true) return required
+          if (!value) return true
+          return (
+            isValidLink(value as string) ||
+            'Enter an internal path beginning with / or a complete HTTP(S) URL.'
+          )
+        }),
     }),
   ],
   preview: {
-    select: { title: 'internalName', active: 'isActive', position: 'position', layout: 'layout' },
+    select: {
+      title: 'internalName',
+      active: 'isActive',
+      position: 'position',
+      layout: 'layout',
+    },
     prepare({ title, active, position, layout }) {
-      const dir = layout === 'image_right' ? '→ IMG' : 'IMG ←'
+      const direction = layout === 'image_right' ? 'Image right' : 'Image left'
       return {
-        title: title || 'Untitled Campaign',
-        subtitle: `${active ? '✅' : '❌'} ${position ?? ''} ${dir}`,
+        title: title || 'Untitled campaign',
+        subtitle: `${active ? 'Active' : 'Inactive'} · ${position ?? 'No position'} · ${direction}`,
       }
     },
   },

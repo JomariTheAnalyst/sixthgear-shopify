@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { useParams } from "next/navigation"
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,6 +11,7 @@ import {
 } from "lucide-react"
 
 import { inter, montserrat } from "@lib/fonts"
+import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 
 type ServicesGalleryItem = {
   src: string
@@ -54,13 +53,6 @@ const SIXTHGEAR_LOGO =
   "/images/logo/Sixthgear_Moto_Supply-removebg-preview.png"
 
 export default function ServicesGallery() {
-  const params = useParams()
-  const countryCode =
-    typeof params?.countryCode === "string" ? params.countryCode : null
-  const contactHref = `/${countryCode || "ph"}/contact?subject=${encodeURIComponent(
-    "Service Booking"
-  )}`
-
   const sectionRef = useRef<HTMLElement | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -350,13 +342,12 @@ export default function ServicesGallery() {
             real bikes, and the kind of careful workshop rhythm that turns a
             booking into a smoother, safer ride.
           </p>
-          <Link
-            href={contactHref}
+          <CalBookingTrigger
             className={`${montserrat.className} mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#F16D34] px-7 py-4 text-sm font-black uppercase tracking-[0.08em] text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]`}
           >
             Book Now
             <ChevronRight className="h-4 w-4" strokeWidth={2.8} />
-          </Link>
+          </CalBookingTrigger>
         </div>
       </div>
     </section>

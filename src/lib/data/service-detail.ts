@@ -87,7 +87,9 @@ function mergeServiceData(
         : localService?.internalLinks,
     faqItems: cmsFaqItems.length > 0 ? cmsFaqItems : localService?.faqItems,
     ctaLabel: cmsService?.ctaLabel ?? "Book This Service",
-    ctaLink: cmsService?.ctaLink ?? "/contact",
+    ctaLink:
+      cmsService?.ctaLink ??
+      "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
     icon: cmsService?.icon ?? null,
   }
 }

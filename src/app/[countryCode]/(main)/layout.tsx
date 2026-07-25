@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { draftMode } from "next/headers"
+import { Suspense } from "react"
 
 import { retrieveCart } from "@lib/data/cart"
 import { retrieveCustomer } from "@lib/data/customer"
@@ -10,18 +10,20 @@ import Nav from "@modules/layout/templates/nav"
 import CartDrawerWrapper from "@modules/cart/components/cart-drawer-wrapper"
 import CartCleanup from "@modules/cart/components/cart-cleanup"
 import { MarketingProvider } from "@modules/marketing"
-import PreviewBanner from "@modules/marketing/components/preview-banner"
 import AnnouncementBar from "@modules/layout/components/announcement-bar"
 import { getMarketingData } from "@lib/cms/client"
 import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
 import JsonLd from "@modules/common/components/json-ld"
+import LenisProvider from "@modules/common/components/lenis-provider"
+import RouteProgress from "@modules/common/components/route-progress"
 import {
   generateLocalBusinessSchema,
   getOrganizationStructuredData,
   getSeoMetadataBase,
   getWebsiteStructuredData,
 } from "@lib/seo"
+import "lenis/dist/lenis.css"
 
 export const metadata: Metadata = {
   metadataBase: getSeoMetadataBase(),
@@ -36,7 +38,6 @@ export default async function PageLayout(props: {
   const customer = await retrieveCustomer()
   const shopifyCart = await retrieveCart()
   const cart = mapShopifyCartToStoreCart(shopifyCart)
-  const draft = await draftMode()
   const organizationStructuredData = getOrganizationStructuredData(countryCode)
   const localBusinessStructuredData = generateLocalBusinessSchema(countryCode)
   const websiteStructuredData = getWebsiteStructuredData(countryCode)
@@ -46,9 +47,13 @@ export default async function PageLayout(props: {
   const sanityMarketing = await getMarketingData()
 
   return (
-    <CartLimitModalProvider>
-      <SelectedItemsProvider>
-        <CartDrawerWrapper cart={cart}>
+    <LenisProvider>
+      <Suspense fallback={null}>
+        <RouteProgress />
+      </Suspense>
+      <CartLimitModalProvider>
+        <SelectedItemsProvider>
+          <CartDrawerWrapper cart={cart}>
           <JsonLd
             id="organization-structured-data"
             data={organizationStructuredData}
@@ -71,11 +76,10 @@ export default async function PageLayout(props: {
             {props.overlay}
             <Footer />
 
-            {/* Preview Mode Banner */}
-            <PreviewBanner isPreview={draft.isEnabled} />
           </MarketingProvider>
-        </CartDrawerWrapper>
-      </SelectedItemsProvider>
-    </CartLimitModalProvider>
+          </CartDrawerWrapper>
+        </SelectedItemsProvider>
+      </CartLimitModalProvider>
+    </LenisProvider>
   )
 }

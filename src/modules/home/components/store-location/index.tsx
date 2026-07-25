@@ -9,6 +9,7 @@
 import { useState } from "react"
 import { inter, montserrat } from "@lib/fonts"
 import { storeDirectionsUrl, storeInfo, storeMapEmbedUrl } from "@lib/store-info"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 
 interface StoreLocationProps {
   storeName?: string | null
@@ -30,7 +31,7 @@ export default function StoreLocation({
   const activeAddress = address || storeInfo.address
   const activePhone = phone || storeInfo.phone
   const activeHours = hours || storeInfo.hours
-  const activeGoogleMapsUrl = googleMapsUrl || storeInfo.googleMapsUrl
+  const activeGoogleMapsUrl = cleanSanityString(googleMapsUrl || storeInfo.googleMapsUrl)
 
   const handleGetDirections = () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)

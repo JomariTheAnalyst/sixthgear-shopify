@@ -3,6 +3,7 @@
 import { useState, Fragment } from "react"
 import { Dialog, Transition } from "@headlessui/react"
 import { StoreRegion } from "@medusajs/types"
+import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Logo from "@modules/layout/components/brand-logo"
 import { ServiceCategory } from "@lib/services-data"
@@ -113,7 +114,10 @@ export default function MobileMenu({
                 </div>
 
                 {/* Navigation Links */}
-                <nav className="flex-1 px-4 py-6 overflow-y-auto">
+                <nav
+                  data-lenis-prevent
+                  className="flex-1 px-4 py-6 overflow-y-auto"
+                >
                   <ul className="space-y-2">
                     {navLinks.map((link) => (
                       <li key={link.name}>
@@ -187,6 +191,12 @@ export default function MobileMenu({
                                     />
                                   </svg>
                                 </LocalizedClientLink>
+                                <CalBookingTrigger
+                                  beforeOpen={closeMenu}
+                                  className="mt-2 flex items-center justify-center rounded-lg border border-[#F16D34] px-4 py-2.5 text-sm font-bold text-[#F16D34] transition-colors duration-200 hover:bg-[#F16D34] hover:text-white"
+                                >
+                                  Book Service
+                                </CalBookingTrigger>
                               </div>
                             )}
                           </div>

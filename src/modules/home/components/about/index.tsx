@@ -1,6 +1,7 @@
 import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import type { SanityAboutSection } from "@lib/cms/types"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 import { inter, montserrat } from "@lib/fonts"
 
 const FALLBACK_ABOUT_SECTION: SanityAboutSection = {
@@ -96,7 +97,7 @@ const AboutSection = ({
               style={{ clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)" }}
             >
               <Image
-                src={mergedContent.imageTop as string}
+                src={cleanSanityString(mergedContent.imageTop as string)}
                 alt="Motorcycle Workshop"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"
@@ -109,7 +110,7 @@ const AboutSection = ({
           <div className="absolute bottom-0 left-0 w-[70%] h-[65%] z-20">
             <div className="relative w-full h-full rounded-[2rem] border-[6px] border-[#1a1a1a] overflow-hidden shadow-2xl">
               <Image
-                src={mergedContent.imageBottom as string}
+                src={cleanSanityString(mergedContent.imageBottom as string)}
                 alt="Mechanic Working"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"
@@ -120,7 +121,7 @@ const AboutSection = ({
             {/* Play Button - Only show if video URL exists */}
             {hasVideo && (
               <a
-                href={mergedContent.videoUrl as string}
+                href={cleanSanityString(mergedContent.videoUrl as string)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute -top-10 -right-10 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[#D97706] to-[#92400E] rounded-[1.5rem] flex items-center justify-center shadow-lg z-30 cursor-pointer hover:scale-110 transition-transform border-[6px] border-[#1a1a1a]"
@@ -190,7 +191,7 @@ const AboutSection = ({
           {mergedContent.primaryCta && mergedContent.primaryCta.text && mergedContent.primaryCta.link && (
             <div className="mt-8">
               <LocalizedClientLink
-                href={mergedContent.primaryCta.link}
+                href={cleanSanityString(mergedContent.primaryCta.link)}
                 className={`${montserrat.className} inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#D97706] to-[#EA580C] text-white font-medium rounded-lg hover:shadow-lg hover:to-[#D97706] transition-all transform hover:-translate-y-1`}
               >
                 {mergedContent.primaryCta.text}

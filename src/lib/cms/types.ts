@@ -7,6 +7,7 @@ export interface SanityHeroSection {
   secondaryLabel: string | null
   secondaryLink: string | null
   slides: {
+    _key?: string | null
     imageUrl: string
     hotspot?: {
       x: number
@@ -38,6 +39,7 @@ export interface SanityShopByBrandsSection {
   sectionTitle?: string | null
   showNavDesktop?: boolean | null
   brands: {
+    _key?: string | null
     name: string
     imageUrl: string
     imageAlt: string
@@ -45,6 +47,7 @@ export interface SanityShopByBrandsSection {
     buttonText: string
   }[] | null
   stats: {
+    _key?: string | null
     iconUrl?: string
     icon?: string
     title: string
@@ -74,6 +77,7 @@ export interface SanityCategoriesSection {
   viewAllLabel?: string | null
   viewAllLink?: string | null
   items: {
+    _key?: string | null
     name: string
     slug: string
     image: string
@@ -208,14 +212,34 @@ export interface SanityAboutPageWhatWeOfferCard {
   _key?: string | null
   title?: string | null
   backgroundImageUrl?: string | null
+  imageAlt?: string | null
   linkUrl?: string | null
   buttonText?: string | null
 }
 
 export interface SanityAboutPageWhatWeOffer {
+  useSanityContent?: boolean | null
   sectionName?: string | null
   heading?: string | null
   cards?: SanityAboutPageWhatWeOfferCard[] | null
+}
+
+export type SanityWhatWeOfferCard = SanityAboutPageWhatWeOfferCard
+export type SanityWhatWeOffer = SanityAboutPageWhatWeOffer
+
+export interface SanityOurSpaceExperienceItem {
+  _key?: string | null
+  title?: string | null
+  description?: string | null
+  imageUrl?: string | null
+  imageAlt?: string | null
+}
+
+export interface SanityOurSpaceExperience {
+  useSanityContent?: boolean | null
+  sectionTitle?: string | null
+  sectionDescription?: string | null
+  items?: Array<SanityOurSpaceExperienceItem | null> | null
 }
 
 export interface SanityAboutPageOurValueCard {
@@ -259,9 +283,10 @@ export interface SanityAboutPageCeoQuote {
 }
 
 export interface SanityAboutPage {
+  useSanityContent?: boolean | null
   hero?: SanityAboutPageHero | null
   story?: SanityAboutPageStoryItem[] | null
-  whatWeOffer?: SanityAboutPageWhatWeOffer | null
+  ourSpaceExperience?: SanityOurSpaceExperience | null
   ourValues?: SanityAboutPageOurValues | null
   whyChooseUs?: SanityAboutPageWhyChooseUs | null
   ceoQuote?: SanityAboutPageCeoQuote | null
@@ -275,56 +300,117 @@ export interface SanityCollectionHero {
   backgroundImageUrl: string | null
 }
 
-export interface SanityCoffeeItem {
-  imageUrl: string | null
-  imageAlt?: string | null
+interface SanityCoffeeItemBase {
+  _key: string
+  imageAlt: string
+  eyebrow: string
+  title: string
+  caption: string
 }
 
-export interface SanityCoffeeShowcase {
+export interface SanityMarqueeItemQueryResult {
+  _key?: string | null
+  text?: string | null
+}
+
+export interface SanityMarqueeSectionQueryResult {
+  useSanityContent?: boolean | null
+  items?: Array<SanityMarqueeItemQueryResult | null> | null
+}
+
+export interface SanityCoffeeImageItem extends SanityCoffeeItemBase {
+  mediaType: 'image'
+  imageUrl: string
+  videoUrl: string | null
+}
+
+export interface SanityCoffeeVideoItem extends SanityCoffeeItemBase {
+  mediaType: 'video'
+  imageUrl: string | null
+  videoUrl: string
+}
+
+export type SanityCoffeeItem = SanityCoffeeImageItem | SanityCoffeeVideoItem
+
+export interface SanityCoffeeShowcaseContent {
+  useSanityContent: true
+  sectionHeading: string
+  coffeeIconUrl: string
+  descriptionText: string
+  storyProfileLogoUrl: string
+  storyProfileName: string
+  storyProfileSubtitle: string
+  buttonText: string | null
+  buttonLink: string | null
+  coffeeItems: SanityCoffeeItem[]
+}
+
+export interface SanityCoffeeShowcaseFallbackMode {
+  useSanityContent: false
+}
+
+export type SanityCoffeeShowcase =
+  | SanityCoffeeShowcaseContent
+  | SanityCoffeeShowcaseFallbackMode
+
+export interface SanityCoffeeItemQueryResult {
+  _key?: string | null
+  mediaType?: 'image' | 'video' | null
+  imageUrl?: string | null
+  videoUrl?: string | null
+  imageAlt?: string | null
+  eyebrow?: string | null
+  title?: string | null
+  caption?: string | null
+}
+
+export interface SanityCoffeeShowcaseQueryResult {
+  useSanityContent?: boolean | null
   sectionHeading?: string | null
   coffeeIconUrl?: string | null
   descriptionText?: string | null
+  storyProfileLogoUrl?: string | null
+  storyProfileName?: string | null
+  storyProfileSubtitle?: string | null
   buttonText?: string | null
   buttonLink?: string | null
-  coffeeItems?: SanityCoffeeItem[] | null
+  coffeeItems?: Array<SanityCoffeeItemQueryResult | null> | null
 }
 
-export interface SanityExperienceItem {
-  title: string
-  description: string
-  imageUrl: string | null
-  isEnabled: boolean
+export interface SanityServiceBrandItemQueryResult {
+  _key?: string | null
+  name?: string | null
+  logoUrl?: string | null
+  logoAlt?: string | null
+  motorcycleImageUrl?: string | null
+  motorcycleImageAlt?: string | null
+  overview?: string | null
+  keySentences?: Array<string | null> | null
+  link?: string | null
+  linkLabel?: string | null
 }
 
-export interface SanitySpaceExperiences {
+export interface SanityServiceBrandsSectionQueryResult {
+  useSanityContent?: boolean | null
   sectionTitle?: string | null
   sectionDescription?: string | null
-  items?: SanityExperienceItem[] | null
-}
-
-export interface SanityServiceBrandItem {
-  name: string
-  logoUrl: string | null
-  link: string | null
-}
-
-export interface SanityServiceBrandsSection {
-  sectionTitle?: string | null
-  sectionDescription?: string | null
-  brands?: SanityServiceBrandItem[] | null
+  brands?: Array<SanityServiceBrandItemQueryResult | null> | null
 }
 
 export interface SanityCustomerItem {
+  _key?: string | null
   name: string | null
   photoUrl: string | null
 }
 
 export interface SanitySatisfiedCustomers {
+  useSanityContent?: boolean | null
   sectionTitle?: string | null
   customers?: SanityCustomerItem[] | null
 }
 
 export interface SanityFranchiseSection {
+  useSanityContent?: boolean | null
   mainTitle?: string | null
   subtitle?: string | null
   badge1Text?: string | null
@@ -335,38 +421,39 @@ export interface SanityFranchiseSection {
   rightImageUrl?: string | null
 }
 
-export interface SanityTeamMember {
-  name: string
-  role: string
-  title: string | null
-  description: string | null
-  photoUrl: string | null
-  socialLinks: {
-    facebook: string | null
-    instagram: string | null
-    tiktok: string | null
-  } | null
+export interface SanityTeamMemberQueryResult {
+  _key?: string | null
+  name?: string | null
+  role?: string | null
+  title?: string | null
+  description?: string | null
+  photoUrl?: string | null
+  imageAlt?: string | null
 }
 
-export interface SanityOurTeamSection {
-  sectionTitle: string | null
-  sectionDescription: string | null
-  teamMembers: SanityTeamMember[] | null
+export interface SanityOurTeamSectionQueryResult {
+  useSanityContent?: boolean | null
+  sectionTitle?: string | null
+  sectionDescription?: string | null
+  teamMembers?: Array<SanityTeamMemberQueryResult | null> | null
 }
 
 export interface SanityTestimonialItem {
+  _key?: string | null
   name: string
   role: string | null
   quote: string
 }
 
 export interface SanityClientTestimonials {
+  useSanityContent?: boolean | null
   sectionTitle: string | null
   sectionDescription: string | null
   testimonials: SanityTestimonialItem[] | null
 }
 
 export interface SanityStoreLocation {
+  useSanityContent?: boolean | null
   storeName: string | null
   address: string | null
   phone: string | null
@@ -375,6 +462,7 @@ export interface SanityStoreLocation {
 }
 
 export interface SanityCtaBanner {
+  useSanityContent?: boolean | null
   preTitle: string | null
   headline: string | null
   headlineHighlight: string | null
@@ -408,19 +496,25 @@ export interface SanityPopupAd {
 }
 
 export interface SanityFeaturedCollectionItem {
+  _key?: string | null
   isActive: boolean
   internalName: string | null
   position: string | null
+  startDate: string | null
+  endDate: string | null
   layout: 'image_left' | 'image_right' | null
   contentPosition: 'bottom-left' | 'bottom-center' | 'bottom-right' | null
   bannerImageUrl: string | null
+  bannerImageAlt: string | null
   collectionHandle: string | null
   heading: string | null
   subtext: string | null
   ctaLabel: string | null
+  ctaLink: string | null
 }
 
 export interface SanityAnnouncementMessage {
+  _key?: string | null
   text: string
   link: string | null
   isActive: boolean
@@ -434,6 +528,7 @@ export interface SanityAnnouncementBar {
 }
 
 export interface SanityPromoBanner {
+  _key?: string | null
   isActive: boolean
   internalName: string | null
   position: string | null

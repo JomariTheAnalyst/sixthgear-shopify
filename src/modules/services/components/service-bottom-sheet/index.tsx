@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
+import { useLenisScrollLock } from "@modules/common/components/lenis-provider"
 import { completeRouteProgress } from "@modules/common/components/route-progress"
 
 interface ServiceBottomSheetProps {
@@ -18,6 +19,7 @@ export default function ServiceBottomSheet({
   const [isOpen, setIsOpen] = useState(true)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
+  useLenisScrollLock(true)
 
   const closeSheet = useCallback(() => {
     completeRouteProgress()
@@ -30,8 +32,6 @@ export default function ServiceBottomSheet({
   }, [router])
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
     closeButtonRef.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -69,7 +69,6 @@ export default function ServiceBottomSheet({
     document.addEventListener("keydown", handleKeyDown)
 
     return () => {
-      document.body.style.overflow = previousOverflow
       document.removeEventListener("keydown", handleKeyDown)
     }
   }, [closeSheet])
@@ -138,7 +137,10 @@ export default function ServiceBottomSheet({
                 </svg>
               </button>
 
-              <div className="h-full overflow-y-auto overscroll-contain">
+              <div
+                data-lenis-prevent
+                className="h-full overflow-y-auto overscroll-contain"
+              >
                 {children}
               </div>
             </motion.div>

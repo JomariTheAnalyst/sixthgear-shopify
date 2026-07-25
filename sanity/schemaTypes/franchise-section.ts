@@ -4,7 +4,23 @@ export default defineType({
   name: 'franchiseSection',
   title: 'Franchise Invitation Section',
   type: 'object',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useSanityContent !== true) return true
+      const requiredStrings = ['mainTitle', 'subtitle', 'badge1Text', 'badge2Text', 'ctaLabel', 'ctaLink']
+      const complete =
+        requiredStrings.every((field) => typeof value[field] === 'string' && value[field].trim()) &&
+        Boolean(value.leftImage) && Boolean(value.rightImage)
+      return Boolean(complete) || 'Complete every franchise field before enabling Sanity content.'
+    }),
   fields: [
+    defineField({
+      name: 'useSanityContent',
+      title: 'Use Sanity content',
+      type: 'boolean',
+      initialValue: false,
+      validation: (Rule) => Rule.required(),
+    }),
     defineField({
       name: 'mainTitle',
       title: 'Main heading',

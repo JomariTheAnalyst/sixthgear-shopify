@@ -1,21 +1,25 @@
-import { createClient } from 'next-sanity'
+import type { QueryParams, SanityClient } from 'next-sanity'
+import { draftMode } from 'next/headers'
 
-import { apiVersion, dataset, projectId } from '../../../sanity/env'
-import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, spaceExperiencesQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery, servicesPageQuery, allServicesQuery, serviceBySlugQuery, aboutPageQuery, homepageCollectionSectionsQuery } from './queries'
+import { sanityClient } from '../../../sanity/lib/client'
+import { sanityFetch } from '../../../sanity/lib/live'
+import { homepageQuery, collectionHeroQuery, coffeeShowcaseQuery, serviceBrandsSectionQuery, satisfiedCustomersQuery, franchiseSectionQuery, ourTeamSectionQuery, clientTestimonialsQuery, storeLocationQuery, ctaBannerQuery, marketingQuery, servicesPageQuery, allServicesQuery, serviceBySlugQuery, aboutPageQuery, homepageCollectionSectionsQuery } from './queries'
 import type {
   SanityAboutSection,
   SanityAboutPage,
+  SanityWhatWeOffer,
   SanityCategoriesSection,
   SanityCoffeeShowcase,
+  SanityCoffeeShowcaseQueryResult,
   SanityCollectionHero,
   SanityHeroSection,
+  SanityMarqueeSectionQueryResult,
   SanityServicesSection,
   SanityShopByBrandsSection,
-  SanitySpaceExperiences,
-  SanityServiceBrandsSection,
+  SanityServiceBrandsSectionQueryResult,
   SanitySatisfiedCustomers,
   SanityFranchiseSection,
-  SanityOurTeamSection,
+  SanityOurTeamSectionQueryResult,
   SanityClientTestimonials,
   SanityStoreLocation,
   SanityCtaBanner,
@@ -27,6 +31,27 @@ import type {
   SanityBlogPost,
   SanityBlogPostListItem,
 } from './types'
+import { isCompleteSanityCoffeeShowcase } from './coffee-showcase'
+import { isCompleteSanityMarquee } from './marquee'
+import { isCompleteSanityServiceBrands } from './service-brands'
+import { isCompleteSanityWhatWeOffer } from './what-we-offer'
+import { isCompleteSanityOurTeam } from './our-team'
+import { isCompleteSanityOurSpaceExperience } from './our-space-experience'
+import { isCompleteHomepageServices } from './homepage-services'
+import { isCompleteAboutPageMain } from './about-page-main'
+import {
+  getFeaturedCollectionCampaignIssue,
+  warnFeaturedCollectionInDevelopment,
+} from './featured-collection'
+import {
+  isCompleteClientTestimonials,
+  isCompleteCtaBanner,
+  isCompleteFranchise,
+  isCompleteHomepageAbout,
+  isCompleteSatisfiedCustomers,
+  isCompleteStoreLocation,
+} from './homepage-editorial'
+import { cleanSanityString } from './visual-editing'
 import {
   latestBlogPostsQuery,
   blogPostBySlugQuery,
@@ -34,12 +59,47 @@ import {
   blogCategoriesQuery,
 } from "./queries"
 
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: true,
-})
+export const client = new Proxy(sanityClient, {
+  get(target, property, receiver) {
+    if (property === 'fetch') return fetchSanity
+
+    const value = Reflect.get(target, property, receiver)
+    return typeof value === 'function' ? value.bind(target) : value
+  },
+}) as SanityClient
+
+type LegacyFetchOptions = {
+  next?: {
+    tags?: string[]
+    revalidate?: number | false
+  }
+}
+
+async function fetchSanity<T>(
+  query: string,
+  params: QueryParams = {},
+  options?: LegacyFetchOptions
+): Promise<T> {
+  let isDraftModeEnabled = false
+  try {
+    isDraftModeEnabled = (await draftMode()).isEnabled
+  } catch {
+    // Calls outside a request use the published client contract.
+  }
+
+  if (!isDraftModeEnabled) {
+    return sanityClient.fetch<T>(query, params, {
+      ...options,
+      perspective: 'published',
+      stega: false,
+      useCdn: true,
+    })
+  }
+
+  const { data } = await sanityFetch({ query, params, tags: options?.next?.tags })
+
+  return data as T
+}
 
 export async function getHomepageHero(): Promise<SanityHeroSection | null> {
   try {
@@ -103,12 +163,25 @@ export async function getHomepageAbout(): Promise<SanityAboutSection | null> {
       }
     )
 
-    if (!result?.about) {
+    if (
+      result?.about?.useCustomAbout === true &&
+      !isCompleteHomepageAbout(result.about) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Homepage About is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.about ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Homepage About fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
@@ -151,12 +224,25 @@ export async function getHomepageServices(): Promise<SanityServicesSection | nul
       }
     )
 
-    if (!result?.services) {
+    if (
+      result?.services?.useCustomServices === true &&
+      !isCompleteHomepageServices(result.services) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Homepage Services is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.services ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Homepage Services fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
@@ -180,7 +266,7 @@ function isHomepageCollectionSectionResult(
 } {
   return (
     typeof item?.collectionHandle === 'string' &&
-    item.collectionHandle.trim().length > 0 &&
+    cleanSanityString(item.collectionHandle).trim().length > 0 &&
     item.enabled === true &&
     typeof item.displayOrder === 'number'
   )
@@ -202,9 +288,9 @@ export async function getHomepageCollectionSections(): Promise<HomepageCollectio
     return (Array.isArray(result) ? result : [])
       .filter(isHomepageCollectionSectionResult)
       .map((item) => ({
-        collectionHandle: item.collectionHandle.trim(),
-        sectionTitle: item.sectionTitle?.trim() || undefined,
-        buttonLabel: item.buttonLabel?.trim() || undefined,
+        collectionHandle: cleanSanityString(item.collectionHandle).trim(),
+        sectionTitle: item.sectionTitle || undefined,
+        buttonLabel: item.buttonLabel || undefined,
         enabled: true,
         displayOrder: item.displayOrder,
       }))
@@ -239,8 +325,9 @@ export async function getCollectionHero(
 
 export async function getCoffeeShowcase(): Promise<SanityCoffeeShowcase | null> {
   try {
-
-    const result = await client.fetch<{ coffeeShowcase: SanityCoffeeShowcase | null } | null>(
+    const result = await client.fetch<{
+      coffeeShowcase: SanityCoffeeShowcaseQueryResult | null
+    } | null>(
       coffeeShowcaseQuery,
       {},
       {
@@ -251,44 +338,126 @@ export async function getCoffeeShowcase(): Promise<SanityCoffeeShowcase | null> 
       }
     )
 
-    if (!result?.coffeeShowcase) {
+    const coffeeShowcase = result?.coffeeShowcase
+
+    if (!coffeeShowcase) {
+      return null
     }
 
-    return result?.coffeeShowcase ?? null
+    if (coffeeShowcase.useSanityContent !== true) {
+      return { useSanityContent: false }
+    }
+
+    if (!isCompleteSanityCoffeeShowcase(coffeeShowcase)) {
+      if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+        console.warn(
+          '[Sanity] Coffee Showcase is enabled but incomplete. Rendering the complete hardcoded fallback.'
+        )
+      }
+
+      return null
+    }
+
+    return coffeeShowcase
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Coffee Showcase fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
+
     return null
   }
 }
 
-export async function getSpaceExperiences(): Promise<SanitySpaceExperiences | null> {
+export async function getHomepageWhatWeOffer(): Promise<SanityWhatWeOffer | null> {
   try {
-
-    const result = await client.fetch<{ spaceExperiences: SanitySpaceExperiences | null } | null>(
-      spaceExperiencesQuery,
+    const result = await client.fetch<{
+      whatWeOffer: SanityWhatWeOffer | null
+    } | null>(
+      homepageQuery,
       {},
       {
         next: {
-          revalidate: 300,
+          revalidate: 60,
           tags: ['sanity'],
         },
       }
     )
 
-    if (!result?.spaceExperiences) {
+    const whatWeOffer = result?.whatWeOffer ?? null
+
+    if (
+      whatWeOffer?.useSanityContent === true &&
+      !isCompleteSanityWhatWeOffer(whatWeOffer) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Homepage What We Offer is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
-    return result?.spaceExperiences ?? null
+    return whatWeOffer
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Homepage What We Offer fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
+
     return null
   }
 }
 
-export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSection | null> {
+export async function getHomepageMarquee(): Promise<SanityMarqueeSectionQueryResult | null> {
   try {
+    const result = await client.fetch<{
+      marquee: SanityMarqueeSectionQueryResult | null
+    } | null>(
+      homepageQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ['sanity'],
+        },
+      }
+    )
 
-    const result = await client.fetch<{ serviceBrandsSection: SanityServiceBrandsSection | null } | null>(
+    const marquee = result?.marquee ?? null
+
+    if (
+      marquee?.useSanityContent === true &&
+      !isCompleteSanityMarquee(marquee) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Homepage Marquee is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
+    }
+
+    return marquee
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Homepage Marquee fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
+
+    return null
+  }
+}
+
+export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSectionQueryResult | null> {
+  try {
+    const result = await client.fetch<{
+      serviceBrandsSection: SanityServiceBrandsSectionQueryResult | null
+    } | null>(
       serviceBrandsSectionQuery,
       {},
       {
@@ -299,12 +468,28 @@ export async function getServiceBrandsSection(): Promise<SanityServiceBrandsSect
       }
     )
 
-    if (!result?.serviceBrandsSection) {
+    const serviceBrandsSection = result?.serviceBrandsSection ?? null
+
+    if (
+      serviceBrandsSection?.useSanityContent === true &&
+      !isCompleteSanityServiceBrands(serviceBrandsSection) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Brands We Support is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
-    return result?.serviceBrandsSection ?? null
+    return serviceBrandsSection
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Brands We Support fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
+
     return null
   }
 }
@@ -323,12 +508,25 @@ export async function getSatisfiedCustomers(): Promise<SanitySatisfiedCustomers 
       }
     )
 
-    if (!result?.satisfiedCustomers) {
+    if (
+      result?.satisfiedCustomers?.useSanityContent === true &&
+      !isCompleteSatisfiedCustomers(result.satisfiedCustomers) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Satisfied Customers is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.satisfiedCustomers ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Satisfied Customers fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
@@ -347,20 +545,34 @@ export async function getFranchiseSection(): Promise<SanityFranchiseSection | nu
       }
     )
 
-    if (!result?.franchiseSection) {
+    if (
+      result?.franchiseSection?.useSanityContent === true &&
+      !isCompleteFranchise(result.franchiseSection) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Franchise is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.franchiseSection ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Franchise fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
 
-export async function getOurTeamSection(): Promise<SanityOurTeamSection | null> {
+export async function getOurTeamSection(): Promise<SanityOurTeamSectionQueryResult | null> {
   try {
-
-    const result = await client.fetch<{ ourTeamSection: SanityOurTeamSection | null } | null>(
+    const result = await client.fetch<{
+      ourTeamSection: SanityOurTeamSectionQueryResult | null
+    } | null>(
       ourTeamSectionQuery,
       {},
       {
@@ -371,12 +583,28 @@ export async function getOurTeamSection(): Promise<SanityOurTeamSection | null> 
       }
     )
 
-    if (!result?.ourTeamSection) {
+    const ourTeamSection = result?.ourTeamSection ?? null
+
+    if (
+      ourTeamSection?.useSanityContent === true &&
+      !isCompleteSanityOurTeam(ourTeamSection) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Our Team is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
-    return result?.ourTeamSection ?? null
+    return ourTeamSection
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Our Team fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
+
     return null
   }
 }
@@ -395,12 +623,25 @@ export async function getClientTestimonials(): Promise<SanityClientTestimonials 
       }
     )
 
-    if (!result?.clientTestimonials) {
+    if (
+      result?.clientTestimonials?.useSanityContent === true &&
+      !isCompleteClientTestimonials(result.clientTestimonials) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Client Testimonials is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.clientTestimonials ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Client Testimonials fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
@@ -419,12 +660,25 @@ export async function getStoreLocation(): Promise<SanityStoreLocation | null> {
       }
     )
 
-    if (!result?.storeLocation) {
+    if (
+      result?.storeLocation?.useSanityContent === true &&
+      !isCompleteStoreLocation(result.storeLocation) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] Store Location is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.storeLocation ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Store Location fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
@@ -443,12 +697,25 @@ export async function getCtaBanner(): Promise<SanityCtaBanner | null> {
       }
     )
 
-    if (!result?.ctaBanner) {
+    if (
+      result?.ctaBanner?.useSanityContent === true &&
+      !isCompleteCtaBanner(result.ctaBanner) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] CTA Banner is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
     }
 
     return result?.ctaBanner ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] CTA Banner fetch failed. Rendering the complete hardcoded fallback.',
+        error
+      )
+    }
     return null
   }
 }
@@ -466,12 +733,23 @@ export async function getMarketingData(): Promise<SanityMarketingData> {
       }
     )
 
-    return {
+    const marketingData = {
       announcementBar: result?.announcementBar ?? null,
       activePopup: result?.activePopup ?? null,
       featuredCollections: result?.featuredCollections ?? [],
       promoBanners: result?.promoBanners ?? [],
     }
+
+    for (const campaign of marketingData.featuredCollections) {
+      const issue = getFeaturedCollectionCampaignIssue(campaign)
+      if (issue) {
+        warnFeaturedCollectionInDevelopment(
+          `Campaign "${campaign.internalName || 'Untitled'}" is active but has ${issue}. It will not render.`
+        )
+      }
+    }
+
+    return marketingData
   } catch (error) {
     console.error(error)
     return {
@@ -516,9 +794,37 @@ export async function getAboutPage(): Promise<SanityAboutPage | null> {
       }
     )
 
+    if (
+      result?.useSanityContent === true &&
+      !isCompleteAboutPageMain(result) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] About Page main content is enabled but incomplete. Rendering the complete hardcoded main-content fallback.'
+      )
+    }
+
+    if (
+      result?.ourSpaceExperience?.useSanityContent === true &&
+      !isCompleteSanityOurSpaceExperience(result.ourSpaceExperience) &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] About Our Space & Experience is enabled but incomplete. Rendering the complete hardcoded fallback.'
+      )
+    }
+
     return result ?? null
   } catch (error) {
-    console.error(error)
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] About Page fetch failed. Rendering the complete hardcoded About fallbacks.',
+        error
+      )
+    }
+
     return null
   }
 }
@@ -547,7 +853,7 @@ export async function getServiceBySlug(slug: string): Promise<SanityService | nu
   try {
     const result = await client.fetch<SanityService | null>(
       serviceBySlugQuery,
-      { slug },
+      { slug: cleanSanityString(slug) },
       {
         next: {
           revalidate: 300,

@@ -1,8 +1,26 @@
 import { defineType, defineField } from 'sanity'
 
+type CoffeeItemParent = {
+  mediaType?: 'image' | 'video'
+}
+
+type HomepageDocument = {
+  coffeeShowcase?: {
+    useSanityContent?: boolean
+  }
+}
+
+function isVideo(parent: unknown) {
+  return (parent as CoffeeItemParent | undefined)?.mediaType === 'video'
+}
+
+function sanityCoffeeContentIsEnabled(document: unknown) {
+  return (document as HomepageDocument | undefined)?.coffeeShowcase?.useSanityContent === true
+}
+
 export default defineType({
   name: 'coffeeItem',
-  title: 'Gallery Photo',
+  title: 'Coffee Story',
   type: 'object',
   fields: [
     defineField({
@@ -29,22 +47,106 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'mediaType',
+      title: 'Media type',
+      type: 'string',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Video', value: 'video' },
+        ],
+      },
+      initialValue: 'image',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          value === 'image' ||
+          value === 'video' ||
+          'Media type is required when Sanity content is enabled.'
+        ),
+    }),
+    defineField({
       name: 'image',
-      title: 'Photo',
+      title: 'Image',
       type: 'image',
-      description:
-        'Upload one image for the coffee gallery slider. Landscape or square images work best for this section.',
+      description: 'Image shown for this story. Portrait images work best in the story frame.',
       options: {
         hotspot: true,
       },
-      validation: (Rule) => Rule.required(),
+      hidden: ({ parent }) => isVideo(parent),
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          isVideo(context.parent) ||
+          Boolean(value) ||
+          'Image is required for an image story.'
+        ),
+    }),
+    defineField({
+      name: 'video',
+      title: 'Video',
+      type: 'file',
+      description: 'Video shown for this story. Use a portrait video when possible.',
+      options: { accept: 'video/*' },
+      hidden: ({ parent }) => !isVideo(parent),
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          !isVideo(context.parent) ||
+          Boolean(value) ||
+          'Video is required for a video story.'
+        ),
     }),
     defineField({
       name: 'imageAlt',
-      title: 'Image description',
+      title: 'Media description',
       type: 'string',
       description:
-        'Short description of the photo for accessibility. Example: Close-up of roasted coffee beans',
+        'Short accessibility description of the image or video. Example: Barista preparing coffee for riders.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          (typeof value === 'string' && value.trim().length > 0) ||
+          'Media description is required when Sanity content is enabled.'
+        ),
+    }),
+    defineField({
+      name: 'eyebrow',
+      title: 'Eyebrow',
+      type: 'string',
+      description: 'Small label shown above the story title.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          (typeof value === 'string' && value.trim().length > 0) ||
+          'Eyebrow is required when Sanity content is enabled.'
+        ),
+    }),
+    defineField({
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      description: 'Main title shown over the story media.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          (typeof value === 'string' && value.trim().length > 0) ||
+          'Title is required when Sanity content is enabled.'
+        ),
+    }),
+    defineField({
+      name: 'caption',
+      title: 'Caption',
+      type: 'text',
+      rows: 3,
+      description: 'Short paragraph shown below the story title.',
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityCoffeeContentIsEnabled(context.document) ||
+          (typeof value === 'string' && value.trim().length > 0) ||
+          'Caption is required when Sanity content is enabled.'
+        ),
     }),
   ],
 })

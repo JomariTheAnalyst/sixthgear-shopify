@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { menuData } from "@lib/menu-data"
 import type { MenuCategoryUI, MenuItemUI } from "@lib/strapi/coffee-menu"
+import { useLenis } from "@modules/common/components/lenis-provider"
 import Marquee from "@modules/common/components/marquee"
 import AboutUsSection from "../../components/about-us-section"
 import FeaturedMenuSection from "../../components/featured-menu-section"
@@ -255,6 +256,8 @@ export default function MenuTemplate({
   featuredMenuItems?: FeaturedMenuProduct[]
   showFeaturedMenu?: boolean
 }) {
+  const lenis = useLenis()
+
   // Log props on mount for debugging
   useEffect(() => {
   }, [heroData, categories])
@@ -270,13 +273,13 @@ export default function MenuTemplate({
 
   // Update active category on scroll
   useEffect(() => {
-    const handleScroll = () => {
+    const updateActiveCategory = (scrollY: number) => {
       const sections = menuCategories.map((cat) => ({
         id: cat.id,
         element: document.getElementById(cat.id),
       }))
 
-      const scrollPosition = window.scrollY + 200
+      const scrollPosition = scrollY + 200
 
       for (const section of sections) {
         if (section.element) {
@@ -292,9 +295,25 @@ export default function MenuTemplate({
       }
     }
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [menuCategories])
+    if (lenis) {
+      updateActiveCategory(lenis.scroll)
+
+      const handleLenisScroll = (instance: typeof lenis) => {
+        updateActiveCategory(instance.scroll)
+      }
+
+      lenis.on("scroll", handleLenisScroll)
+      return () => lenis.off("scroll", handleLenisScroll)
+    }
+
+    const handleNativeScroll = () => {
+      updateActiveCategory(window.scrollY)
+    }
+
+    handleNativeScroll()
+    window.addEventListener("scroll", handleNativeScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleNativeScroll)
+  }, [lenis, menuCategories])
 
   // Scroll to category
   const scrollToCategory = (categoryId: string) => {
@@ -302,14 +321,18 @@ export default function MenuTemplate({
     setIsMobileMenuOpen(false)
     const element = document.getElementById(categoryId)
     if (element) {
-      const offset = 120
-      const elementPosition = element.getBoundingClientRect().top
-      const offsetPosition = elementPosition + window.pageYOffset - offset
+      if (lenis) {
+        lenis.scrollTo(element, { offset: -120 })
+      } else {
+        const offset = 120
+        const elementPosition = element.getBoundingClientRect().top
+        const offsetPosition = elementPosition + window.pageYOffset - offset
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      })
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        })
+      }
     }
   }
 

@@ -14,20 +14,6 @@ export interface AboutStoryItem {
   }
 }
 
-export interface AboutServicesCard {
-  id: string | number
-  title: string
-  backgroundImage: string | null
-  linkUrl: string
-  buttonText: string
-}
-
-export interface AboutServicesContent {
-  sectionName?: string | null
-  heading?: string | null
-  cards?: AboutServicesCard[] | null
-}
-
 export type AboutValueIconKey =
   | "wrench"
   | "users"

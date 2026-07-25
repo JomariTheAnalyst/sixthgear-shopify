@@ -79,38 +79,14 @@ const nextConfig = {
     ],
   },
   async headers() {
-    // Strapi Cloud domain for preview iframe embedding
-    const strapiCloudDomain = "https://rational-peace-7a8493cc74.strapiapp.com"
-
     return [
       {
-        // CRITICAL: Allow ONLY /ph/preview (and other locale variants) to be embedded by Strapi Cloud
-        // Matches: /ph/preview, /us/preview, /sg/preview, /my/preview
-        source: "/:countryCode(ph|us|sg|my)/preview",
+        // Presentation is mounted in the same deployment at /studio.
+        source: "/:countryCode(ph|us|sg|my)/:path*",
         headers: [
           {
             key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${strapiCloudDomain} http://localhost:1337`,
-          },
-        ],
-      },
-      {
-        // Allow Strapi Cloud to embed the preview API route
-        source: "/api/preview",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${strapiCloudDomain} http://localhost:1337`,
-          },
-        ],
-      },
-      {
-        // Allow exit-preview API route
-        source: "/api/exit-preview",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${strapiCloudDomain} http://localhost:1337`,
+            value: "frame-ancestors 'self'",
           },
         ],
       },

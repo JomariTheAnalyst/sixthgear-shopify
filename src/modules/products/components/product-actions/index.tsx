@@ -13,6 +13,7 @@ import StoreInfoDrawer from "../store-info-drawer"
 import { useRouter } from "next/navigation"
 import { useCartDrawer } from "@lib/context/cart-drawer-context"
 import { useCartLimitModal } from "@lib/context/cart-limit-modal-context"
+import { useLenis } from "@modules/common/components/lenis-provider"
 import {
   isColorOption,
   isSizeOption,
@@ -76,6 +77,7 @@ export default function ProductActions({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const lenis = useLenis()
 
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
@@ -118,9 +120,15 @@ export default function ProductActions({
   }
 
   const handleSizeGuideClick = () => {
-    document
-      .getElementById("details-tab")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" })
+    const detailsTab = document.getElementById("details-tab")
+
+    if (detailsTab) {
+      if (lenis) {
+        lenis.scrollTo(detailsTab, { offset: -120 })
+      } else {
+        detailsTab.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }
 
     window.dispatchEvent(new CustomEvent(ACTIVATE_SIZE_GUIDE_EVENT))
   }

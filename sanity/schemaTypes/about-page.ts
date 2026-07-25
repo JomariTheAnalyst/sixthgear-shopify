@@ -1,10 +1,63 @@
 import { defineField, defineType } from 'sanity'
 
+type AboutPageDocument = {
+  whatWeOffer?: {
+    useSanityContent?: boolean
+  }
+}
+
+type WhatWeOfferParent = {
+  useSanityContent?: boolean
+}
+
+function whatWeOfferIsEnabled(document: unknown) {
+  return (document as AboutPageDocument | undefined)?.whatWeOffer?.useSanityContent === true
+}
+
+function whatWeOfferParentIsEnabled(parent: unknown) {
+  return (parent as WhatWeOfferParent | undefined)?.useSanityContent === true
+}
+
+function isValidEditorialLink(value: string) {
+  if (value.startsWith('/')) return true
+
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export default defineType({
   name: 'aboutPage',
   title: 'About Page',
   type: 'document',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useSanityContent !== true) return true
+      const complete =
+        Boolean(value.hero?.title && value.hero?.description && value.hero?.backgroundImage) &&
+        Array.isArray(value.story) && value.story.length > 0 &&
+        Boolean(value.ourValues?.heading && value.ourValues?.description) &&
+        Array.isArray(value.ourValues?.cards) && value.ourValues.cards.length > 0 &&
+        Boolean(value.whyChooseUs?.sectionLabel && value.whyChooseUs?.heading && value.whyChooseUs?.subtitle) &&
+        Array.isArray(value.whyChooseUs?.items) && value.whyChooseUs.items.length > 0 &&
+        Boolean(value.whyChooseUs?.topImage && value.whyChooseUs?.topImageAlt) &&
+        Boolean(value.whyChooseUs?.bottomImage && value.whyChooseUs?.bottomImageAlt) &&
+        Boolean(value.ceoQuote?.quoteText && value.ceoQuote?.ceoName && value.ceoQuote?.ceoTitle && value.ceoQuote?.ceoPhoto && value.ceoQuote?.ceoPhotoDescription)
+      return complete || 'Complete every About-page main-content section before enabling Sanity content.'
+    }),
   fields: [
+    defineField({
+      name: 'useSanityContent',
+      title: 'Use Sanity main content',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Turn on to use all main About-page content below. Turn off to keep the complete built-in About content visible.',
+      validation: (Rule) => Rule.required(),
+    }),
     defineField({
       name: 'hero',
       title: 'Hero Section',
@@ -92,17 +145,34 @@ export default defineType({
     }),
     defineField({
       name: 'whatWeOffer',
-      title: 'What We Offer',
+      title: 'What We Offer (deprecated)',
       type: 'object',
+      hidden: true,
+      readOnly: true,
       description:
-        'The section showing the four main things SixthGearMoto offers — services, parts, gear, and café.',
+        'Legacy source retained temporarily for migration to the canonical Homepage singleton. Do not edit this field.',
       fields: [
+        defineField({
+          name: 'useSanityContent',
+          title: 'Use Sanity content',
+          type: 'boolean',
+          initialValue: false,
+          description:
+            'Turn on to use this complete section. Turn off to use the website’s built-in What We Offer content.',
+          validation: (Rule) => Rule.required(),
+        }),
         defineField({
           name: 'sectionName',
           title: 'Section Label',
           type: 'string',
           description:
             'The small text above the heading. Example: What We Offer',
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !whatWeOfferParentIsEnabled(context.parent) ||
+              (typeof value === 'string' && value.trim().length > 0) ||
+              'Section label is required when Sanity content is enabled.'
+            ),
         }),
         defineField({
           name: 'heading',
@@ -111,6 +181,12 @@ export default defineType({
           rows: 2,
           description:
             'The large bold heading for this section. Example: Complete Care for Your Ride',
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !whatWeOfferParentIsEnabled(context.parent) ||
+              (typeof value === 'string' && value.trim().length > 0) ||
+              'Heading is required when Sanity content is enabled.'
+            ),
         }),
         defineField({
           name: 'cards',
@@ -128,16 +204,37 @@ export default defineType({
                   type: 'string',
                   description:
                     'The title shown on the card. Example: Motorcycle Service & Diagnostics',
-                  validation: (Rule) => Rule.required(),
+                  validation: (Rule) =>
+                    Rule.custom((value, context) =>
+                      !whatWeOfferIsEnabled(context.document) ||
+                      (typeof value === 'string' && value.trim().length > 0) ||
+                      'Card title is required when Sanity content is enabled.'
+                    ),
                 }),
                 defineField({
                   name: 'backgroundImage',
                   title: 'Background Photo',
                   type: 'image',
                   options: { hotspot: true },
-                  description:
-                    'The photo behind the card title. Landscape format works best. Minimum 800px wide.',
-                  validation: (Rule) => Rule.required(),
+                  description: 'The photo behind the card title. Use a clear, high-resolution image.',
+                  validation: (Rule) =>
+                    Rule.custom((value, context) =>
+                      !whatWeOfferIsEnabled(context.document) ||
+                      Boolean(value) ||
+                      'Background photo is required when Sanity content is enabled.'
+                    ),
+                }),
+                defineField({
+                  name: 'imageAlt',
+                  title: 'Image description',
+                  type: 'string',
+                  description: 'Accessible description of the card image.',
+                  validation: (Rule) =>
+                    Rule.custom((value, context) =>
+                      !whatWeOfferIsEnabled(context.document) ||
+                      (typeof value === 'string' && value.trim().length > 0) ||
+                      'Image description is required when Sanity content is enabled.'
+                    ),
                 }),
                 defineField({
                   name: 'buttonText',
@@ -145,7 +242,12 @@ export default defineType({
                   type: 'string',
                   description:
                     'The text on the card button. Example: DISCOVER, SHOP',
-                  validation: (Rule) => Rule.required(),
+                  validation: (Rule) =>
+                    Rule.custom((value, context) =>
+                      !whatWeOfferIsEnabled(context.document) ||
+                      (typeof value === 'string' && value.trim().length > 0) ||
+                      'Button text is required when Sanity content is enabled.'
+                    ),
                 }),
                 defineField({
                   name: 'linkUrl',
@@ -153,7 +255,18 @@ export default defineType({
                   type: 'string',
                   description:
                     'Where the button goes when clicked. Example: /services, /store, /first-gear',
-                  validation: (Rule) => Rule.required(),
+                  validation: (Rule) =>
+                    Rule.custom((value, context) => {
+                      if (!whatWeOfferIsEnabled(context.document)) return true
+                      if (typeof value !== 'string' || value.trim().length === 0) {
+                        return 'Button link is required when Sanity content is enabled.'
+                      }
+
+                      return (
+                        isValidEditorialLink(value) ||
+                        'Enter an internal path beginning with / or a complete http(s) URL.'
+                      )
+                    }),
                 }),
               ],
               preview: {
@@ -165,8 +278,21 @@ export default defineType({
               },
             },
           ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !whatWeOfferParentIsEnabled(context.parent) ||
+              (Array.isArray(value) && value.length > 0) ||
+              'Add at least one offer card when Sanity content is enabled.'
+            ),
         }),
       ],
+    }),
+    defineField({
+      name: 'ourSpaceExperience',
+      title: 'Our Space & Experience',
+      type: 'ourSpaceExperienceSection',
+      description:
+        'Controls the About-page section for the café, rider lounge, and community space.',
     }),
     defineField({
       name: 'ourValues',

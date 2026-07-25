@@ -6,7 +6,6 @@
  */
 
 import Image from "next/image"
-import { useParams } from "next/navigation"
 
 import { ServiceCategory } from "@lib/services-data"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -16,9 +15,6 @@ interface ServiceHeroProps {
 }
 
 export default function ServiceHero({ service }: ServiceHeroProps) {
-  const params = useParams()
-  const countryCode = params?.countryCode as string
-
   const backgroundImage =
     service.heroImage || service.image || "/images/homepage/services/hero.png"
 
@@ -75,7 +71,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 items-start justify-start">
             <LocalizedClientLink
-              href={countryCode ? `/${countryCode}/contact` : "/contact"}
+              href="/contact"
               className="w-full sm:w-auto px-6 py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-xs sm:text-sm"
             >
               Contact Us
