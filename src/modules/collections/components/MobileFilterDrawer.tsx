@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { ShopifyFilter, FilterState } from "@lib/shopify/types";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
+import { useLenisScrollLock } from "@modules/common/components/lenis-provider";
 
 type MobileFilterDrawerProps = {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function MobileFilterDrawer({
   showSoldOutToggle = false,
   productCount,
 }: MobileFilterDrawerProps) {
+  useLenisScrollLock(isOpen);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [localPriceMin, setLocalPriceMin] = useState(
     activeState.priceRange?.min?.toString() || ""
@@ -36,18 +38,6 @@ export default function MobileFilterDrawer({
       ? activeState.priceRange?.max?.toString() || ""
       : ""
   );
-
-  // Lock body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   // ── Filter logic ──
 
@@ -216,7 +206,7 @@ export default function MobileFilterDrawer({
         </div>
 
         {/* Scrollable Filter List */}
-        <div className="flex-1 overflow-y-auto">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto">
           {/* Collection row */}
           {collectionsMenu && collectionsMenu.length > 0 && (
             <div className="border-b border-gray-200">

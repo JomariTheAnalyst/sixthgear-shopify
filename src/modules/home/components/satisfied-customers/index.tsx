@@ -10,7 +10,7 @@ import styles from "./polaroid.module.css"
 import { lato } from "@lib/fonts"
 
 interface CustomerItem {
-  id: number
+  id: string | number
   name: string
   imageUrl: string
 }

@@ -3,6 +3,8 @@ import { type SchemaTypeDefinition } from 'sanity'
 import heroSection from './hero-section'
 import homepage from './homepage'
 import heroSlide from './heroSlide'
+import marqueeItem from './marquee-item'
+import marqueeSection from './marquee-section'
 import brandItem from './brandItem'
 import statItem from './statItem'
 import shopByBrandsSection from './shop-by-brands-section'
@@ -14,8 +16,8 @@ import serviceItem from './serviceItem'
 import collectionHero from './collection-hero'
 import coffeeItem from './coffee-item'
 import coffeeShowcase from './coffee-showcase'
-import experienceItem from './experience-item'
-import spaceExperiences from './space-experiences'
+import whatWeOfferSection from './what-we-offer-section'
+import ourSpaceExperienceSection from './our-space-experience-section'
 import serviceBrandItem from './service-brand-item'
 import serviceBrandsSection from './service-brands-section'
 import customerItem from './customer-item'
@@ -43,6 +45,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     heroSection,
     heroSlide,
+    marqueeItem,
+    marqueeSection,
     brandItem,
     statItem,
     shopByBrandsSection,
@@ -54,8 +58,8 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     collectionHero,
     coffeeItem,
     coffeeShowcase,
-    experienceItem,
-    spaceExperiences,
+    whatWeOfferSection,
+    ourSpaceExperienceSection,
     serviceBrandItem,
     serviceBrandsSection,
     customerItem,

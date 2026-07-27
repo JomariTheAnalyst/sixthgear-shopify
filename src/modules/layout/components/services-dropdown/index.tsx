@@ -3,6 +3,7 @@
 import { companyData } from "@lib/company-data"
 import Image from "next/image"
 import { useState } from "react"
+import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { ServiceCategory } from "@lib/services-data"
 
@@ -53,12 +54,11 @@ const ServicesDropdown = ({ servicesData }: ServicesDropdownProps) => {
                 ))}
               </div>
               <div className="mt-6 px-3">
-                <LocalizedClientLink
-                  href="/contact"
+                <CalBookingTrigger
                   className="block w-full py-3 text-center bg-[#1a1a1a] text-white font-bold uppercase tracking-wider text-xs hover:bg-[#F16D34] transition-colors rounded-md"
                 >
                   Book Now
-                </LocalizedClientLink>
+                </CalBookingTrigger>
               </div>
             </div>
 

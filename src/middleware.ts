@@ -18,6 +18,7 @@ const CUSTOMER_TOKEN_COOKIE = "shopify_customer_token"
 export async function middleware(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname
+    const isDraftMode = request.cookies.has('__prerender_bypass')
 
     if (pathname === "/studio" || pathname.startsWith("/studio/")) {
       return NextResponse.next()
@@ -26,6 +27,7 @@ export async function middleware(request: NextRequest) {
     if (
       MAINTENANCE_MODE &&
       IS_PRODUCTION &&
+      !isDraftMode &&
       !pathname.includes("/maintenance") &&
       !pathname.startsWith("/_next/") &&
       !pathname.startsWith("/api/") &&

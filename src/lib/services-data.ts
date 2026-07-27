@@ -153,7 +153,7 @@ export const servicesData: ServiceCategory[] = [
       },
       {
         label: "Book a PMS at our Makati service center",
-        href: "/contact",
+        href: "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
       },
       {
         label: "Motorcycle repairs and diagnostics Makati",
@@ -250,7 +250,7 @@ export const servicesData: ServiceCategory[] = [
       },
       {
         label: "Book a diagnostic at our Makati shop",
-        href: "/contact",
+        href: "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
       },
     ],
     faqItems: [
@@ -339,7 +339,7 @@ export const servicesData: ServiceCategory[] = [
       },
       {
         label: "Book a service at our Makati shop",
-        href: "/contact",
+        href: "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
       },
     ],
     faqItems: [
@@ -427,7 +427,7 @@ export const servicesData: ServiceCategory[] = [
       },
       {
         label: "Book a drivetrain service in Makati",
-        href: "/contact",
+        href: "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
       },
     ],
     faqItems: [
@@ -511,7 +511,7 @@ export const servicesData: ServiceCategory[] = [
       },
       {
         label: "Book a motorcycle detail in Makati",
-        href: "/contact",
+        href: "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
       },
     ],
     faqItems: [
@@ -595,7 +595,7 @@ export const servicesData: ServiceCategory[] = [
       },
       {
         label: "Book a performance upgrade consultation",
-        href: "/contact",
+        href: "https://cal.com/sixthgear-moto-supply-wvfnxi/pms",
       },
     ],
     faqItems: [

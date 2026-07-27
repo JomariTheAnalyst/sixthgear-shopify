@@ -12,7 +12,7 @@ import { inter, montserrat } from "@lib/fonts"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface Testimonial {
-  id: number
+  id: string | number
   name: string
   role: string
   quote: string

@@ -2,6 +2,8 @@ import Image from "next/image"
 import Link from "next/link"
 import type { SanityPromoBanner } from "@lib/cms/types"
 import { interDisplay, lato } from "@lib/fonts"
+import { cleanSanityString, keyedSanityPath } from "@lib/cms/visual-editing"
+import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface PromoBannerProps {
   data: SanityPromoBanner | null
@@ -21,13 +23,17 @@ export default function PromoBanner({ data }: PromoBannerProps) {
   if (!data.isActive) return null
   if (!data.imageUrl) return null
 
-  const btnPos = posMap[data.buttonPosition ?? "bottom_right"] ?? posMap.bottom_right
+  const btnPos = posMap[cleanSanityString(data.buttonPosition ?? "bottom_right")] ?? posMap.bottom_right
+  const campaignPath = data._key
+    ? keyedSanityPath("promoBanners", data._key)
+    : "promoBanners"
 
   return (
+    <SanityEditTarget documentId="marketing" documentType="marketing" path={campaignPath}>
     <section className="w-full relative overflow-hidden">
       <div className="relative w-full overflow-hidden h-[260px] sm:h-[320px] md:h-[400px] lg:h-[500px]">
         <Image
-          src={data.imageUrl}
+          src={cleanSanityString(data.imageUrl)}
           alt={data.heading || data.internalName || "Promotional banner"}
           fill
           className="object-cover"
@@ -49,7 +55,7 @@ export default function PromoBanner({ data }: PromoBannerProps) {
         {/* Button */}
         {data.buttonLabel && data.buttonLink && (
           <Link
-            href={data.buttonLink}
+            href={cleanSanityString(data.buttonLink)}
             className={`${interDisplay.className} absolute z-10 ${btnPos} inline-block bg-white text-gray-900 font-bold text-sm md:text-base uppercase tracking-wider px-6 py-3 md:px-8 md:py-4 hover:bg-gray-100 transition-colors duration-200`}
           >
             {data.buttonLabel}
@@ -57,5 +63,6 @@ export default function PromoBanner({ data }: PromoBannerProps) {
         )}
       </div>
     </section>
+    </SanityEditTarget>
   )
 }

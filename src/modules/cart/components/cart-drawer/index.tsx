@@ -17,6 +17,7 @@ import {
   isItemOutOfStock,
 } from "@lib/util/cart-helpers"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useLenisScrollLock } from "@modules/common/components/lenis-provider"
 import DeleteButton from "@modules/common/components/delete-button"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useRouter, useParams } from "next/navigation"
@@ -32,6 +33,7 @@ type CheckoutState = "idle" | "loading" | "success" | "error"
 
 export default function CartDrawer({ cart }: CartDrawerProps) {
   const { isCartOpen, closeCart } = useCartDrawer()
+  useLenisScrollLock(isCartOpen)
   const {
     isSelected,
     toggleItem,
@@ -63,13 +65,11 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeCart()
     }
-    if (isCartOpen) {
-      document.addEventListener("keydown", handleEsc)
-      document.body.style.overflow = "hidden"
-    }
+    if (!isCartOpen) return
+
+    document.addEventListener("keydown", handleEsc)
     return () => {
       document.removeEventListener("keydown", handleEsc)
-      document.body.style.overflow = ""
     }
   }, [isCartOpen, closeCart])
 
@@ -288,7 +288,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
         </div>
 
         {/* â”€â”€ Scrollable Items â”€â”€ */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto px-5 py-4">
           {hasItems ? (
             <div className="flex flex-col gap-4">
               {activeCart.items

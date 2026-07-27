@@ -20,6 +20,7 @@ import {
 import { getClientStoriesWithFallbacks } from "@lib/strapi/client-stories"
 import { fetchHomeContent } from "@lib/strapi/home"
 import RiderStoryArticlePage from "@modules/rider-stories/templates/article-page"
+import { cleanOptionalSanityString, cleanSanityString } from "@lib/cms/visual-editing"
 
 type Props = {
   params: Promise<{ countryCode: string; slug: string }>
@@ -186,8 +187,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${story.seoTitle || story.title} | Rider Stories`,
-    description: story.seoDescription || story.excerpt || undefined,
+    title: `${cleanSanityString(story.seoTitle || story.title || "Rider Story")} | Rider Stories`,
+    description: cleanOptionalSanityString(story.seoDescription || story.excerpt) || undefined,
     alternates: {
       canonical: getLocalizedCanonicalPath(
         countryCode,
@@ -195,11 +196,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       ),
     },
     openGraph: {
-      title: story.seoTitle || story.title || "Rider Story",
-      description: story.seoDescription || story.excerpt || undefined,
+      title: cleanSanityString(story.seoTitle || story.title || "Rider Story"),
+      description: cleanOptionalSanityString(story.seoDescription || story.excerpt) || undefined,
       images:
         story.socialImageUrl || story.featuredImageUrl
-          ? [{ url: story.socialImageUrl || story.featuredImageUrl || "" }]
+          ? [{ url: cleanSanityString(story.socialImageUrl || story.featuredImageUrl || "") }]
           : [],
     },
     twitter: {
@@ -207,11 +208,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
         story.socialImageUrl || story.featuredImageUrl
           ? "summary_large_image"
           : "summary",
-      title: story.seoTitle || story.title || "Rider Story",
-      description: story.seoDescription || story.excerpt || undefined,
+      title: cleanSanityString(story.seoTitle || story.title || "Rider Story"),
+      description: cleanOptionalSanityString(story.seoDescription || story.excerpt) || undefined,
       images:
         story.socialImageUrl || story.featuredImageUrl
-          ? [story.socialImageUrl || story.featuredImageUrl || ""]
+          ? [cleanSanityString(story.socialImageUrl || story.featuredImageUrl || "")]
           : [],
     },
     ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
@@ -232,7 +233,7 @@ export default async function RiderStoryPage(props: Props) {
 
   const relatedStories =
     allStories.length > 0
-      ? allStories.filter((entry) => entry.slug && entry.slug !== slug).slice(0, 2)
+      ? allStories.filter((entry) => entry.slug && cleanSanityString(entry.slug) !== slug).slice(0, 2)
       : fallbackStories
           .filter((entry) => createRiderStorySlug(entry.title) !== slug)
           .slice(0, 2)

@@ -9,6 +9,7 @@ import Image from "next/image"
 
 import { inter, poppins } from "@lib/fonts"
 import { ServiceCategory } from "@lib/services-data"
+import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 
 interface ServiceDetailHeroProps {
   service: ServiceCategory
@@ -55,6 +56,14 @@ export default function ServiceDetailHero({
             sizes="100vw"
             priority
           />
+        </div>
+
+        <div className="mt-8 flex justify-center md:mt-10">
+          <CalBookingTrigger
+            className={`${poppins.className} inline-flex min-h-12 items-center justify-center rounded-full bg-[#F16D34] px-7 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]`}
+          >
+            Book This Service
+          </CalBookingTrigger>
         </div>
 
         <div className="grid grid-cols-1 gap-6 pt-8 md:grid-cols-2 md:gap-10 md:pt-10 lg:gap-14 lg:pt-12">

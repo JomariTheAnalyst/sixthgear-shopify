@@ -4,6 +4,14 @@ import { useRef } from "react"
 import Image from "next/image"
 import { inter, montserrat } from "@lib/fonts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import type { SanityOurTeamSectionQueryResult } from "@lib/cms/types"
+import {
+  FALLBACK_OUR_TEAM_CONTENT,
+  selectOurTeamContent,
+  type OurTeamContent,
+} from "@lib/cms/our-team"
+import { cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface TeamMember {
   id: number
@@ -12,76 +20,46 @@ interface TeamMember {
   title: string
   description: string
   image: string
-  socialLinks: {
-    facebook?: string
-    instagram?: string
-    tiktok?: string
-  }
 }
 
 interface OurTeamProps {
+  data?: SanityOurTeamSectionQueryResult | null
   sectionTitle?: string | null
   sectionDescription?: string | null
   teamMembers?: TeamMember[] | null
 }
 
-const teamMembersFallback: TeamMember[] = [
-  {
-    id: 1,
-    name: "MARTIE",
-    role: "Lead Technician",
-    title: "Workshop Head",
-    description:
-      "Experienced motorcycle technician specializing in diagnostics, repairs, and performance upgrades for big bikes and premium motorcycles.",
-    image: "/images/team/team1.png",
-    socialLinks: {},
-  },
-  {
-    id: 2,
-    name: "JAMES",
-    role: "Senior Mechanic",
-    title: "Service & Installation Specialist",
-    description:
-      "Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.",
-    image: "/images/team/team2.png",
-    socialLinks: {},
-  },
-  {
-    id: 3,
-    name: "MARVIN",
-    role: "Service Advisor",
-    title: "Rider Support & Coordination",
-    description:
-      "Your point of contact for service consultations, job updates, and ensuring a smooth workshop experience from start to finish.",
-    image: "/images/team/team3.png",
-    socialLinks: {},
-  },
-  {
-    id: 4,
-    name: "JEVAN",
-    role: "Lead Barista",
-    title: "First Gear Coffee",
-    description:
-      "Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.",
-    image: "/images/team/team4.png",
-    socialLinks: {},
-  },
-]
-
 export default function OurTeam({
+  data,
   sectionTitle,
   sectionDescription,
   teamMembers,
 }: OurTeamProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-
-  const activeTitle = sectionTitle || "Our  Team"
-  const activeDescription =
-    sectionDescription ||
-    "Riders, Technicians, and Professionals Who Care About Your Bike"
-
-  const activeMembers =
-    teamMembers && teamMembers.length >= 4 ? teamMembers.slice(0, 4) : teamMembersFallback
+  const legacyContent: OurTeamContent = {
+    source: "fallback",
+    sectionTitle: sectionTitle || FALLBACK_OUR_TEAM_CONTENT.sectionTitle,
+    sectionDescription:
+      sectionDescription || FALLBACK_OUR_TEAM_CONTENT.sectionDescription,
+    teamMembers:
+      teamMembers && teamMembers.length > 0
+        ? teamMembers.map((member) => ({
+            key: String(member.id),
+            name: member.name,
+            role: member.role,
+            title: member.title,
+            description: member.description,
+            image: member.image,
+            imageAlt: member.name,
+          }))
+        : FALLBACK_OUR_TEAM_CONTENT.teamMembers,
+  }
+  const content = data !== undefined ? selectOurTeamContent(data) : legacyContent
+  const activeTitle = content.sectionTitle
+  const activeDescription = content.sectionDescription
+  const activeMembers = content.teamMembers
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sanitySource = content.source === "sanity"
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -98,7 +76,11 @@ export default function OurTeam({
   }
 
   return (
-    <section className="relative">
+    <section data-sanity={createSanityDataAttribute(visualEditingEnabled, {
+      documentId: "homepage",
+      documentType: "homepage",
+      path: sanitySource ? "ourTeamSection" : "ourTeamSection.useSanityContent",
+    })} className="relative">
       {/* Top Paper Cut */}
       <div className="w-full -mb-1 relative z-10">
         <Image
@@ -163,7 +145,12 @@ export default function OurTeam({
               >
                 {activeMembers.map((member) => (
                   <div
-                    key={member.id}
+                    key={member.key}
+                    data-sanity={sanitySource ? createSanityDataAttribute(visualEditingEnabled, {
+                      documentId: "homepage",
+                      documentType: "homepage",
+                      path: keyedSanityPath("ourTeamSection.teamMembers", member.key),
+                    }) : undefined}
                     className="snap-center flex-shrink-0 w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
                   >
                     <div className="bg-[#eeeeee] rounded-3xl overflow-hidden h-full flex flex-col group/card shadow-lg hover:shadow-2xl hover:shadow-[#fca311]/5 border border-transparent hover:border-[#fca311]/10 transition-all duration-500">
@@ -171,8 +158,13 @@ export default function OurTeam({
                       {/* Image Container */}
                       <div className="relative aspect-[4/5] overflow-hidden bg-[#eeeeee]">
                         <Image
-                          src={member.image}
-                          alt={member.name}
+                          src={cleanSanityString(member.image)}
+                          alt={member.imageAlt}
+                          data-sanity={sanitySource ? createSanityDataAttribute(visualEditingEnabled, {
+                            documentId: "homepage",
+                            documentType: "homepage",
+                            path: `${keyedSanityPath("ourTeamSection.teamMembers", member.key)}.photo`,
+                          }) : undefined}
                           fill
                           sizes="(max-width: 639px) 85vw, (max-width: 1023px) 50vw, 33vw"
                           className="object-cover grayscale opacity-95 transition-all duration-700 group-hover/card:scale-105"

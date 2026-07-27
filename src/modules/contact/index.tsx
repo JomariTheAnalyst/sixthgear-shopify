@@ -4,6 +4,7 @@ import Image from "next/image"
 import { businessInfo } from "@lib/business"
 import { getAllServicesCMS } from "@lib/cms/client"
 import type { ServiceOption } from "@lib/contact/schema"
+import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 
 import ContactForm from "./components/contact-form"
 
@@ -50,11 +51,14 @@ export default async function ContactPage() {
             <h2 className="mb-3 max-w-sm text-3xl font-semibold tracking-tight text-gray-900 lg:text-4xl">
               Need Workshop Support?
             </h2>
-            <p className="mb-10 max-w-md text-sm text-gray-500 md:text-base">
+            <p className="mb-6 max-w-md text-sm text-gray-500 md:text-base">
               Send your motorcycle concern, parts question, preferred service,
               or visit details. Our team will help you plan the right next
               step.
             </p>
+            <CalBookingTrigger className="mb-10 inline-flex h-12 items-center justify-center rounded-full border border-black px-6 text-sm font-semibold text-black transition-colors hover:bg-black hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
+              Book Service Online
+            </CalBookingTrigger>
 
             <Suspense fallback={null}>
               <ContactForm services={serviceOptions} />

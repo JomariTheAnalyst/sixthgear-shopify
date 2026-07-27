@@ -4,7 +4,28 @@ export default defineType({
   name: 'clientTestimonials',
   title: 'Customer Reviews Section',
   type: 'object',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useSanityContent !== true) return true
+      const complete =
+        typeof value.sectionTitle === 'string' && value.sectionTitle.trim() &&
+        typeof value.sectionDescription === 'string' && value.sectionDescription.trim() &&
+        Array.isArray(value.testimonials) && value.testimonials.length > 0 &&
+        value.testimonials.every((item: any) =>
+          typeof item?.name === 'string' && item.name.trim() &&
+          typeof item?.role === 'string' && item.role.trim() &&
+          typeof item?.quote === 'string' && item.quote.trim()
+        )
+      return Boolean(complete) || 'Complete every testimonial field before enabling Sanity content.'
+    }),
   fields: [
+    defineField({
+      name: 'useSanityContent',
+      title: 'Use Sanity content',
+      type: 'boolean',
+      initialValue: false,
+      validation: (Rule) => Rule.required(),
+    }),
     defineField({
       name: 'sectionTitle',
       title: 'Main heading',

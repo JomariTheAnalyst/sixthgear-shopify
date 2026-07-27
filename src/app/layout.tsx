@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import Script from "next/script"
-import { Suspense } from "react"
+import { draftMode } from "next/headers"
+import { VisualEditing } from "next-sanity/visual-editing"
 
 import { clientEnv } from "@lib/env"
 import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
@@ -10,7 +11,9 @@ import { Toaster } from "sonner"
 
 import { ConsoleWarning } from "../components/common/console-warning"
 import { PreviewIndicator } from "../components/preview-indicator"
-import RouteProgress from "@modules/common/components/route-progress"
+import { SanityVisualEditingProvider } from "../components/sanity/visual-editing-provider"
+import { SanityLive } from "../../sanity/lib/live"
+import { shouldRenderVisualEditing } from "@lib/cms/visual-editing"
 import "styles/globals.css"
 
 export const metadata: Metadata = {
@@ -60,25 +63,28 @@ export const metadata: Metadata = {
   manifest: "/images/favicon/site.webmanifest",
 }
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
+  const { isEnabled: isDraftModeEnabled } = await draftMode()
+
   return (
     <html lang="en" data-mode="light">
       <body
         className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
       >
-        <Suspense fallback={null}>
-          <RouteProgress />
-        </Suspense>
-        <ConsoleWarning />
-        <PreviewIndicator />
-        <main className="relative">{props.children}</main>
-        <Toaster position="bottom-right" richColors />
-        {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
-          <Script
-            src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}
-            strategy="afterInteractive"
-          />
-        )}
+        <SanityVisualEditingProvider enabled={isDraftModeEnabled}>
+          <ConsoleWarning />
+          {isDraftModeEnabled && <PreviewIndicator />}
+          <main className="relative">{props.children}</main>
+          <Toaster position="bottom-right" richColors />
+          {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
+            <Script
+              src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}
+              strategy="afterInteractive"
+            />
+          )}
+          <SanityLive />
+          {shouldRenderVisualEditing(isDraftModeEnabled) && <VisualEditing />}
+        </SanityVisualEditingProvider>
       </body>
     </html>
   )

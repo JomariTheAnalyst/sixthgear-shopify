@@ -6,6 +6,12 @@ import type { ShopifyProductCard } from "@lib/shopify/types"
 import { inter, montserrat } from "@lib/fonts"
 import ProductCard from "@modules/home/components/product-sections/product-card"
 import { getCollectionProductsByHandle } from "@lib/shopify"
+import {
+  resolveFeaturedCollectionProducts,
+  warnFeaturedCollectionInDevelopment,
+} from "@lib/cms/featured-collection"
+import { cleanSanityString, keyedSanityPath } from "@lib/cms/visual-editing"
+import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 /**
  * Re-uses the same mapping the store/collection page uses,
@@ -98,23 +104,29 @@ export default async function FeaturedCollectionItem({
 }: FeaturedCollectionItemProps) {
   if (!data) return null
   if (!data.isActive) return null
-  if (!data.collectionHandle) return null
-  if (!data.bannerImageUrl) return null
 
-  const products = await getCollectionProductsByHandle(
-    data.collectionHandle,
-    4
+  const products = await resolveFeaturedCollectionProducts(
+    data,
+    getCollectionProductsByHandle
   )
-  if (!products || products.length === 0) return null
+  if (!products) {
+    warnFeaturedCollectionInDevelopment(
+      `Campaign "${data.internalName || 'Untitled'}" did not render because its configuration is incomplete or Shopify returned no products for collection "${data.collectionHandle || 'missing'}".`
+    )
+    return null
+  }
 
-  const isImageRight = data.layout === "image_right"
-  const heading = data.heading || "Shop The Collection"
+  const isImageRight = cleanSanityString(data.layout || "") === "image_right"
+  const heading = data.heading as string
   const subtext = data.subtext || null
-  const cta = data.ctaLabel || "View Collection"
-  const url = `/collections/${data.collectionHandle}`
+  const cta = data.ctaLabel as string
+  const url = cleanSanityString(data.ctaLink as string)
+  const campaignPath = data._key
+    ? keyedSanityPath("featuredCollections", data._key)
+    : "featuredCollections"
 
   // Content position classes
-  const pos = data.contentPosition || "bottom-left"
+  const pos = cleanSanityString(data.contentPosition || "bottom-left")
   let alignClass = "items-start text-left"
   if (pos === "bottom-center") {
     alignClass = "items-center text-center"
@@ -126,7 +138,10 @@ export default async function FeaturedCollectionItem({
     <div className="w-full px-2 sm:px-4 md:px-6 lg:px-8">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 items-stretch overflow-hidden min-h-[400px]">
         {/* ── Image Panel (50%) ── */}
-        <div
+        <SanityEditTarget
+          documentId="marketing"
+          documentType="marketing"
+          path={`${campaignPath}.bannerImage`}
           className={`relative min-h-[360px] lg:min-h-[500px] flex flex-col ${
             isImageRight
               ? "order-1 lg:order-2"
@@ -134,8 +149,8 @@ export default async function FeaturedCollectionItem({
           }`}
         >
           <Image
-            src={data.bannerImageUrl}
-            alt={heading}
+            src={cleanSanityString(data.bannerImageUrl as string)}
+            alt={data.bannerImageAlt as string}
             fill
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -161,7 +176,7 @@ export default async function FeaturedCollectionItem({
               </svg>
             </Link>
           </div>
-        </div>
+        </SanityEditTarget>
 
         {/* ── Products Panel (50%) ── */}
         <div

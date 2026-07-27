@@ -4,7 +4,22 @@ export default defineType({
   name: 'storeLocation',
   title: 'Store Location and Contact Details',
   type: 'object',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useSanityContent !== true) return true
+      const requiredStrings = ['storeName', 'address', 'phone', 'hours', 'googleMapsUrl']
+      return requiredStrings.every(
+        (field) => typeof value[field] === 'string' && value[field].trim()
+      ) || 'Complete every Store Location field before enabling Sanity content.'
+    }),
   fields: [
+    defineField({
+      name: 'useSanityContent',
+      title: 'Use Sanity content',
+      type: 'boolean',
+      initialValue: false,
+      validation: (Rule) => Rule.required(),
+    }),
     defineField({
       name: 'storeName',
       title: 'Store name',

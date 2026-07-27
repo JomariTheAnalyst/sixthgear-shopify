@@ -7,9 +7,7 @@
 
 import AboutHero from "./hero"
 import AboutStory from "./story"
-import ProjectsSection, {
-  type ExperienceItem,
-} from "@modules/home/components/projects"
+import ProjectsSection from "@modules/home/components/projects"
 import AboutMission from "./ceo-quote"
 import OurValues from "@modules/about/components/our-values"
 import WhyChooseUs from "@modules/about/components/why-choose-us"
@@ -22,17 +20,12 @@ import {
   AboutStoryItem,
   AboutValuesContent,
 } from "@modules/about/types"
-
-type AboutProjectsContent = {
-  sectionTitle?: string | null
-  sectionDescription?: string | null
-  items?: ExperienceItem[] | null
-}
+import type { OurSpaceExperienceContent } from "@lib/cms/our-space-experience"
 
 interface AboutTemplateProps {
   heroContent: AboutHeroContent
   storyItems?: AboutStoryItem[] | null
-  projectsContent?: AboutProjectsContent | null
+  ourSpaceExperienceContent: OurSpaceExperienceContent
   ourValuesContent?: AboutValuesContent | null
   whyChooseUsContent?: AboutWhyChooseUsContent | null
   ceoQuoteContent: AboutMissionContent | null
@@ -41,7 +34,7 @@ interface AboutTemplateProps {
 export default function AboutTemplate({
   heroContent,
   storyItems,
-  projectsContent,
+  ourSpaceExperienceContent,
   ourValuesContent,
   whyChooseUsContent,
   ceoQuoteContent,
@@ -59,12 +52,7 @@ export default function AboutTemplate({
       <div className="h-6 sm:h-8 md:h-10 lg:h-12 bg-white" />
       <AboutStory items={storyItems} />
       <div className="h-16 md:h-24 lg:h-32 bg-[#FAFAFA]" />
-      <ProjectsSection
-        sectionTitle={projectsContent?.sectionTitle ?? undefined}
-        sectionDescription={projectsContent?.sectionDescription ?? undefined}
-        items={projectsContent?.items ?? undefined}
-        variant="dark"
-      />
+      <ProjectsSection content={ourSpaceExperienceContent} variant="dark" />
       <div className="h-12 md:h-20 bg-white" />
       <OurValues data={ourValuesContent} />
 

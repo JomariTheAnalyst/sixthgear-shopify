@@ -34,8 +34,6 @@ export default function FeaturedBrand({
 
         <BrandCards brands={brands} />
       </div>
-
-      <BrandStatsStrip stats={data?.stats ?? null} />
     </section>
   )
 }

@@ -2,6 +2,8 @@
 
 import { inter, poppins } from "@lib/fonts"
 import { ServiceCategory } from "@lib/services-data"
+import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
+import { isBookServiceHref } from "@modules/booking/lib/cal-embed"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type ServiceLocalContentProps = {
@@ -65,15 +67,24 @@ export default function ServiceLocalContent({
                   Helpful links
                 </h3>
                 <div className="mt-4 flex flex-col gap-3">
-                  {service.internalLinks.map((link) => (
-                    <LocalizedClientLink
-                      key={`${link.href}-${link.label}`}
-                      href={link.href}
-                      className="text-sm font-semibold text-[#FF5000] underline-offset-4 transition-colors hover:text-black hover:underline"
-                    >
-                      {link.label}
-                    </LocalizedClientLink>
-                  ))}
+                  {service.internalLinks.map((link) =>
+                    isBookServiceHref(link.href) ? (
+                      <CalBookingTrigger
+                        key={`${link.href}-${link.label}`}
+                        className="text-sm font-semibold text-[#FF5000] underline-offset-4 transition-colors hover:text-black hover:underline"
+                      >
+                        {link.label}
+                      </CalBookingTrigger>
+                    ) : (
+                      <LocalizedClientLink
+                        key={`${link.href}-${link.label}`}
+                        href={link.href}
+                        className="text-sm font-semibold text-[#FF5000] underline-offset-4 transition-colors hover:text-black hover:underline"
+                      >
+                        {link.label}
+                      </LocalizedClientLink>
+                    )
+                  )}
                 </div>
               </div>
             )}

@@ -7,6 +7,7 @@ import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 import type { SanityCategoriesSection } from "@lib/cms/types"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 import { montserrat } from "@lib/fonts"
 
 type CmsCategoryItem = NonNullable<SanityCategoriesSection["items"]>[number]
@@ -107,7 +108,7 @@ const FALLBACK_CATEGORIES_SECTION = {
 }
 
 const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
-  const rawHref = buttonLink?.trim()
+  const rawHref = buttonLink ? cleanSanityString(buttonLink).trim() : undefined
 
   if (rawHref) {
     if (/^https?:\/\//i.test(rawHref)) {
@@ -121,7 +122,7 @@ const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
   }
 
   if (slug) {
-    return `/collections/${slug}`
+    return `/collections/${encodeURIComponent(cleanSanityString(slug))}`
   }
 
   return "#"
@@ -166,12 +167,12 @@ function CategoryCard({
           </p>
         </div>
 
-        <div className="relative z-20 mt-auto max-w-[56%] translate-y-10 pb-1 transition-transform duration-500 ease-out group-hover:translate-y-0 sm:max-w-[58%] md:translate-y-9">
+        <div className="relative z-20 mt-auto max-w-[56%] translate-y-0 pb-1 transition-transform duration-500 ease-out group-hover:translate-y-0 sm:max-w-[58%] md:translate-y-9 md:group-hover:translate-y-0">
           <p className="mb-3 text-[11px] leading-[1.25] text-neutral-700 sm:text-xs">
             {summary}
           </p>
           <LocalizedClientLink
-            href={href}
+            href={cleanSanityString(href)}
             className={`${montserrat.className} inline-flex translate-y-0 items-center justify-center rounded-full bg-black px-4 py-2 text-[10px] font-black uppercase tracking-[0.08em] text-white opacity-100 transition-all duration-300 hover:bg-[#ff4e00] md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100`}
           >
             {ctaLabel}
@@ -181,7 +182,7 @@ function CategoryCard({
         <div className="pointer-events-none absolute bottom-0 right-0 z-10 flex h-[62%] w-[58%] items-end justify-end sm:h-[66%] sm:w-[60%]">
           <div className="relative h-full w-full translate-x-[8%] translate-y-[8%] transition-transform duration-700 ease-out group-hover:translate-x-[4%] group-hover:translate-y-[4%] group-hover:scale-[1.04]">
             <Image
-              src={image}
+              src={cleanSanityString(image)}
               alt={imageAlt || name}
               fill
               className="object-contain object-bottom grayscale contrast-[0.78] brightness-[0.84] saturate-0 opacity-75 mix-blend-multiply drop-shadow-[0_16px_22px_rgba(15,23,42,0.08)]"
