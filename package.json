@@ -2,6 +2,7 @@
   "name": "sixthgear-shopify-storefront",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "pnpm@10.34.5",
   "author": "Sixthgear Moto",
   "description": "Sixthgear Moto storefront — Next.js 15 + Shopify Storefront API",
   "keywords": [
