@@ -48,6 +48,7 @@ export const homepageQuery = groq`
       secondaryLabel,
       secondaryLink,
       slides[]{
+        _key,
         "imageUrl": image.asset->url,
         "hotspot": image.hotspot,
         "mobileImageUrl": mobileImage.asset->url,
@@ -58,11 +59,19 @@ export const homepageQuery = groq`
         contentAlignment
       }
     },
+    marquee {
+      useSanityContent,
+      items[]{
+        _key,
+        text
+      }
+    },
     shopByBrands {
       useCustomShopByBrands,
       sectionTitle,
       showNavDesktop,
       brands[]{
+        _key,
         name,
         "imageUrl": image.asset->url,
         imageAlt,
@@ -70,6 +79,7 @@ export const homepageQuery = groq`
         buttonText
       },
       stats[]{
+        _key,
         "iconUrl": iconImage.asset->url,
         title,
         description
@@ -93,6 +103,7 @@ export const homepageQuery = groq`
       viewAllLabel,
       viewAllLink,
       items[]{
+        _key,
         name,
         slug,
         "image": image.asset->url,
@@ -112,6 +123,19 @@ export const homepageQuery = groq`
         "image": image.asset->url,
         slug,
         link
+      }
+    },
+    whatWeOffer {
+      useSanityContent,
+      sectionName,
+      heading,
+      "cards": cards[]{
+        _key,
+        title,
+        "backgroundImageUrl": backgroundImage.asset->url,
+        imageAlt,
+        linkUrl,
+        buttonText
       }
     }
   }
@@ -140,29 +164,24 @@ export const collectionHeroQuery = groq`
 export const coffeeShowcaseQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     coffeeShowcase {
+      useSanityContent,
       sectionHeading,
       "coffeeIconUrl": coffeeIcon.asset->url,
       descriptionText,
+      "storyProfileLogoUrl": storyProfileLogo.asset->url,
+      storyProfileName,
+      storyProfileSubtitle,
       buttonText,
       buttonLink,
       coffeeItems[]{
+        _key,
+        "mediaType": coalesce(mediaType, "image"),
         "imageUrl": image.asset->url,
-        imageAlt
-      }
-    }
-  }
-`
-
-export const spaceExperiencesQuery = groq`
-  *[_type == "homepage" && _id == "homepage"][0]{
-    spaceExperiences {
-      sectionTitle,
-      sectionDescription,
-      items[]{
+        "videoUrl": video.asset->url,
+        imageAlt,
+        eyebrow,
         title,
-        description,
-        isEnabled,
-        "imageUrl": image.asset->url
+        caption
       }
     }
   }
@@ -171,12 +190,20 @@ export const spaceExperiencesQuery = groq`
 export const serviceBrandsSectionQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     serviceBrandsSection {
+      useSanityContent,
       sectionTitle,
       sectionDescription,
       brands[]{
+        _key,
         name,
         link,
-        "logoUrl": logo.asset->url
+        linkLabel,
+        "logoUrl": logo.asset->url,
+        logoAlt,
+        "motorcycleImageUrl": motorcycleImage.asset->url,
+        motorcycleImageAlt,
+        overview,
+        keySentences
       }
     }
   }
@@ -185,8 +212,10 @@ export const serviceBrandsSectionQuery = groq`
 export const satisfiedCustomersQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     satisfiedCustomers {
+      useSanityContent,
       sectionTitle,
       customers[]{
+        _key,
         name,
         "photoUrl": photo.asset->url
       }
@@ -197,6 +226,7 @@ export const satisfiedCustomersQuery = groq`
 export const franchiseSectionQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     franchiseSection {
+      useSanityContent,
       mainTitle,
       subtitle,
       badge1Text,
@@ -212,19 +242,17 @@ export const franchiseSectionQuery = groq`
 export const ourTeamSectionQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     ourTeamSection {
+      useSanityContent,
       sectionTitle,
       sectionDescription,
       teamMembers[]{
+        _key,
         name,
         role,
         title,
         description,
         "photoUrl": photo.asset->url,
-        socialLinks {
-          facebook,
-          instagram,
-          tiktok
-        }
+        imageAlt
       }
     }
   }
@@ -233,9 +261,11 @@ export const ourTeamSectionQuery = groq`
 export const clientTestimonialsQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     clientTestimonials {
+      useSanityContent,
       sectionTitle,
       sectionDescription,
       testimonials[]{
+        _key,
         name,
         role,
         quote
@@ -247,6 +277,7 @@ export const clientTestimonialsQuery = groq`
 export const storeLocationQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     storeLocation {
+      useSanityContent,
       storeName,
       address,
       phone,
@@ -259,6 +290,7 @@ export const storeLocationQuery = groq`
 export const ctaBannerQuery = groq`
   *[_type == "homepage" && _id == "homepage"][0]{
     ctaBanner {
+      useSanityContent,
       preTitle,
       headline,
       headlineHighlight,
@@ -281,6 +313,7 @@ export const marketingQuery = groq`
       backgroundColor,
       rotationSpeed,
       messages[] {
+        _key,
         text,
         link,
         isActive
@@ -305,18 +338,24 @@ export const marketingQuery = groq`
       delay
     },
     "featuredCollections": coalesce(featuredCollections[] {
+      _key,
       isActive,
       internalName,
       position,
+      startDate,
+      endDate,
       layout,
       contentPosition,
       collectionHandle,
       heading,
       subtext,
       ctaLabel,
+      ctaLink,
+      bannerImageAlt,
       "bannerImageUrl": bannerImage.asset->url
     }, []),
     "promoBanners": coalesce(promoBanners[] {
+      _key,
       isActive,
       internalName,
       position,
@@ -376,6 +415,7 @@ export const servicesPageQuery = groq`
 
 export const aboutPageQuery = groq`
   *[_type == "aboutPage" && _id == "aboutPage"][0]{
+    useSanityContent,
     hero {
       title,
       description,
@@ -388,15 +428,16 @@ export const aboutPageQuery = groq`
       "imageUrl": image.asset->url,
       imageAlt
     },
-    whatWeOffer {
-      sectionName,
-      heading,
-      "cards": cards[]{
+    ourSpaceExperience {
+      useSanityContent,
+      sectionTitle,
+      sectionDescription,
+      "items": items[]{
         _key,
         title,
-        "backgroundImageUrl": backgroundImage.asset->url,
-        linkUrl,
-        buttonText
+        description,
+        "imageUrl": image.asset->url,
+        imageAlt
       }
     },
     ourValues {

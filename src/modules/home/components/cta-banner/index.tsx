@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
 import { TextRoll } from "components/ui/text-roll"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 
 interface CTABannerProps {
   preTitle?: string | null
@@ -29,14 +30,14 @@ export default function CTABanner({
   const activeHeadline = headline || "We've got\nthe gear\nwaiting for you."
   const activeHighlight = headlineHighlight || "for you."
   const activeButtonLabel = buttonLabel || "Shop Now"
-  const activeButtonLink = buttonLink || "/store"
+  const activeButtonLink = cleanSanityString(buttonLink || "/store")
 
   const activeFooterTagline = footerTagline || "Sixth Gear Moto Supply  is a premium motorcycle supply shop and motorcycle service center. Based in Makati City."
 
   const activeSocialLinks = {
-    instagram: socialLinks?.instagram || "https://www.instagram.com/sixthgear_moto_supply/",
-    facebook: socialLinks?.facebook || "https://www.facebook.com/camille.sixthgear",
-    tiktok: socialLinks?.tiktok || "https://www.tiktok.com/@sixthgear.moto.su",
+    instagram: cleanSanityString(socialLinks?.instagram || "https://www.instagram.com/sixthgear_moto_supply/"),
+    facebook: cleanSanityString(socialLinks?.facebook || "https://www.facebook.com/camille.sixthgear"),
+    tiktok: cleanSanityString(socialLinks?.tiktok || "https://www.tiktok.com/@sixthgear.moto.su"),
   }
 
   const activeSocials = [

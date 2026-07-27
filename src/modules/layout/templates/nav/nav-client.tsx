@@ -8,6 +8,7 @@ import { ShopifyCustomer } from "@lib/shopify/types"
 import { ServiceCategory } from "@lib/services-data"
 import { useWishlistStore } from "@lib/wishlist-store"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useLenis } from "@modules/common/components/lenis-provider"
 import CartDropdown from "@modules/layout/components/cart-dropdown"
 import Logo from "@modules/layout/components/brand-logo"
 import SearchBar from "@modules/layout/components/search-bar"
@@ -47,6 +48,7 @@ const NavClient = ({
   const wishlistItems = useWishlistStore((state) => state.items)
   const wishlistHydrated = useWishlistStore((state) => state.hydrated)
   const hydrateWishlist = useWishlistStore((state) => state.hydrate)
+  const lenis = useLenis()
 
   useEffect(() => {
     if (!wishlistHydrated) {
@@ -59,18 +61,29 @@ const NavClient = ({
     : wishlistCount
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY
-      if (scrollPosition > 50) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
+    const updateScrolledState = (scrollPosition: number) => {
+      setIsScrolled(scrollPosition > 50)
     }
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    if (lenis) {
+      updateScrolledState(lenis.scroll)
+
+      const handleLenisScroll = (instance: typeof lenis) => {
+        updateScrolledState(instance.scroll)
+      }
+
+      lenis.on("scroll", handleLenisScroll)
+      return () => lenis.off("scroll", handleLenisScroll)
+    }
+
+    const handleNativeScroll = () => {
+      updateScrolledState(window.scrollY)
+    }
+
+    handleNativeScroll()
+    window.addEventListener("scroll", handleNativeScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleNativeScroll)
+  }, [lenis])
 
   useEffect(() => {
     setIsServicesOpen(false)

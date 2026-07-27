@@ -6,6 +6,8 @@ import { inter, montserrat } from "@lib/fonts"
 import { TextRoll } from "components/ui/text-roll"
 import { CLIENT_STORIES_FALLBACKS } from "@lib/strapi/client-stories"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { cleanSanityString, createSanityDataAttribute } from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface Story {
   _id?: string
@@ -35,6 +37,7 @@ export default function ClientStories({
   stories = [],
 }: ClientStoriesProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
   const placeholderStories: Story[] = CLIENT_STORIES_FALLBACKS.stories.map(
     (story) => ({
       ...story,
@@ -49,11 +52,12 @@ export default function ClientStories({
   const normalizedStories = stories
     .map((story) => ({
       key: story._id || String(story.id || story.title || Math.random()),
+      documentId: story._id || null,
       title: story.title || "Rider Story",
       slug:
-        story.slug ||
+        (story.slug ? cleanSanityString(story.slug) : null) ||
         (story.title
-          ? story.title
+          ? cleanSanityString(story.title)
               .toLowerCase()
               .trim()
               .replace(/[^a-z0-9]+/g, "-")
@@ -62,7 +66,7 @@ export default function ClientStories({
       excerpt: story.excerpt || "",
       publishedLabel:
         story.publishedAt
-          ? new Date(story.publishedAt).toLocaleDateString("en-US", {
+          ? new Date(cleanSanityString(story.publishedAt)).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -74,6 +78,7 @@ export default function ClientStories({
 
   const normalizedPlaceholders = placeholderStories.map((story) => ({
     key: String(story.id),
+    documentId: null,
     title: story.title || "Rider Story",
     slug: story.slug || null,
     excerpt: story.excerpt || "",
@@ -130,14 +135,24 @@ export default function ClientStories({
             {displayStories.map((story) => (
               <article
                 key={story.key}
+                data-sanity={story.documentId ? createSanityDataAttribute(visualEditingEnabled, {
+                  documentId: story.documentId,
+                  documentType: "blogPost",
+                  path: "title",
+                }) : undefined}
                 className="group flex flex-shrink-0 w-[82vw] flex-col sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-[#e0e0e0] bg-[#eeeeee] p-3 md:p-4"
               >
                 <div className="flex h-full flex-col">
                   {story.featuredImageUrl ? (
                     <div className="relative aspect-[4/5] overflow-hidden border border-[#e0e0e0] bg-[#eeeeee]">
                       <Image
-                        src={story.featuredImageUrl}
+                        src={cleanSanityString(story.featuredImageUrl)}
                         alt={story.title || "Rider story"}
+                        data-sanity={story.documentId ? createSanityDataAttribute(visualEditingEnabled, {
+                          documentId: story.documentId,
+                          documentType: "blogPost",
+                          path: "featuredImage",
+                        }) : undefined}
                         fill
                         sizes="(max-width: 639px) 82vw, (max-width: 1023px) 45vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
@@ -161,7 +176,7 @@ export default function ClientStories({
 
                     <div className="mt-auto flex items-end justify-end pt-6">
                       <LocalizedClientLink
-                        href={`/rider-stories/${story.slug || ""}`}
+                        href={`/rider-stories/${encodeURIComponent(cleanSanityString(story.slug || ""))}`}
                         className="inline-flex items-center text-sm font-medium uppercase tracking-[0.12em] text-black"
                       >
                         <TextRoll className="inline-flex">Read article</TextRoll>

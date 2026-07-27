@@ -7,6 +7,7 @@ import type {
   SanityServiceItem,
   SanityServicesSection,
 } from "@lib/cms/types"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 import { getServiceImageBySlug } from "@lib/services-data"
 import { inter, montserrat } from "@lib/fonts"
 import ServiceCard from "@modules/services/components/service-card"
@@ -260,12 +261,13 @@ export default function OurServices({
         >
           {content.cards.map((service, index) => {
             const fallbackService = fallbackCards[index]
+            const cleanSlug = service.slug ? cleanSanityString(service.slug) : null
             const linkHref =
-              service.link ||
-              (service.slug
+              (service.link ? cleanSanityString(service.link) : null) ||
+              (cleanSlug
                 ? countryCode
-                  ? `/${countryCode}/services/${service.slug}`
-                  : `/services/${service.slug}`
+                  ? `/${countryCode}/services/${encodeURIComponent(cleanSlug)}`
+                  : `/services/${encodeURIComponent(cleanSlug)}`
                 : "#")
             const isClickable = !!(service.link || service.slug)
             const cardKey =
@@ -280,7 +282,7 @@ export default function OurServices({
                 title={service.title}
                 description={service.description}
                 image={service.image}
-                href={isClickable ? linkHref : null}
+                href={isClickable ? cleanSanityString(linkHref) : null}
                 className="relative flex-shrink-0 w-[75vw] sm:w-[60vw] md:w-[350px] lg:w-[400px] h-[400px] md:h-[450px] lg:h-[500px] snap-center"
               />
             )

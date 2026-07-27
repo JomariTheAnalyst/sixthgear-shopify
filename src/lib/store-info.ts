@@ -10,6 +10,7 @@ export const storeInfo = {
   googleMapsUrl: businessInfo.googleMapsUrl,
 } as const
 
-export const storeMapEmbedUrl = `https://maps.google.com/maps?q=${storeInfo.coordinates.lat},${storeInfo.coordinates.lng}&z=15&output=embed`
+export const storeMapEmbedUrl =
+  `https://maps.google.com/maps?q=${storeInfo.coordinates.lat},${storeInfo.coordinates.lng}&z=20&output=embed`
 
 export const storeDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${storeInfo.coordinates.lat},${storeInfo.coordinates.lng}`

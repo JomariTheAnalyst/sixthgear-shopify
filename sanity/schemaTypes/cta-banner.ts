@@ -4,7 +4,27 @@ export default defineType({
   name: 'ctaBanner',
   title: 'Final Call to Action Banner',
   type: 'object',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useSanityContent !== true) return true
+      const requiredStrings = [
+        'preTitle', 'headline', 'headlineHighlight', 'buttonLabel', 'buttonLink', 'footerTagline',
+      ]
+      const complete =
+        requiredStrings.every((field) => typeof value[field] === 'string' && value[field].trim()) &&
+        typeof value.socialLinks?.instagram === 'string' && value.socialLinks.instagram.trim() &&
+        typeof value.socialLinks?.facebook === 'string' && value.socialLinks.facebook.trim() &&
+        typeof value.socialLinks?.tiktok === 'string' && value.socialLinks.tiktok.trim()
+      return Boolean(complete) || 'Complete every CTA Banner field before enabling Sanity content.'
+    }),
   fields: [
+    defineField({
+      name: 'useSanityContent',
+      title: 'Use Sanity content',
+      type: 'boolean',
+      initialValue: false,
+      validation: (Rule) => Rule.required(),
+    }),
     defineField({
       name: 'preTitle',
       title: 'Small line above the main message',

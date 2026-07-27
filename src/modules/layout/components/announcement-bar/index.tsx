@@ -3,12 +3,15 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import Link from "next/link"
 import type { SanityAnnouncementBar } from "@lib/cms/types"
+import { cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface AnnouncementBarProps {
   data: SanityAnnouncementBar | null
 }
 
 export default function AnnouncementBar({ data }: AnnouncementBarProps) {
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
   const [idx, setIdx] = useState(0)
   const [dismissed, setDismissed] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -19,7 +22,7 @@ export default function AnnouncementBar({ data }: AnnouncementBarProps) {
   }, [data])
 
   const speed = data?.rotationSpeed ?? 4
-  const bgKey = data?.backgroundColor ?? "orange"
+  const bgKey = cleanSanityString(data?.backgroundColor ?? "orange")
 
   const styles = useMemo(
     () =>
@@ -81,12 +84,21 @@ export default function AnnouncementBar({ data }: AnnouncementBarProps) {
   const msg = active[idx]
 
   return (
-    <div className={`w-full ${styles.bg}`}>
+    <div data-sanity={createSanityDataAttribute(visualEditingEnabled, {
+      documentId: "marketing",
+      documentType: "marketing",
+      path: "announcementBar",
+    })} className={`w-full ${styles.bg}`}>
       <div className="max-w-[1440px] mx-auto px-10 md:px-12 py-1.5 md:py-2 flex items-center justify-center min-h-[36px] relative">
         {/* Message */}
         {msg?.link ? (
           <Link
-            href={msg.link}
+            href={cleanSanityString(msg.link)}
+            data-sanity={msg._key ? createSanityDataAttribute(visualEditingEnabled, {
+              documentId: "marketing",
+              documentType: "marketing",
+              path: keyedSanityPath("announcementBar.messages", msg._key),
+            }) : undefined}
             className={`${styles.text} text-xs md:text-sm font-medium hover:underline truncate block text-center max-w-[calc(100%-4rem)]`}
           >
             {msg.text}

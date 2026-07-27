@@ -5,56 +5,30 @@ import Image from "next/image"
 import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { AboutServicesCard, AboutServicesContent } from "@modules/about/types"
+import type { SanityWhatWeOffer } from "@lib/cms/types"
+import {
+  selectWhatWeOfferContent,
+  type WhatWeOfferContent,
+} from "@lib/cms/what-we-offer"
+import { cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface AboutServicesProps {
-  data?: AboutServicesContent | null
+  data?: SanityWhatWeOffer | null
 }
-
-const FALLBACK_ABOUT_SERVICES: AboutServicesCard[] = [
-  {
-    id: 1,
-    title: "Motorcycle Service & Diagnostics",
-    backgroundImage:
-      "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779165786/what-weoffer-_service_and_diagnostics_yuvrmb.png",
-    linkUrl: "/services",
-    buttonText: "DISCOVER",
-  },
-  {
-    id: 2,
-    title: "Parts, Accessories & Luggage",
-    backgroundImage:
-      "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779179491/parts-and_accessoriess_n3k3im.png",
-    linkUrl: "/store",
-    buttonText: "SHOP",
-  },
-  {
-    id: 3,
-    title: "Rider Apparel & Gear",
-    backgroundImage:
-      "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779179487/sixthgear-ridinggears_yncnuy.jpg",
-    linkUrl: "/store",
-    buttonText: "SHOP",
-  },
-  {
-    id: 4,
-    title: "Cafe & Rider Lounge",
-    backgroundImage:
-      "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779419298/coffeerider-andlounge_nyhzp7.jpg",
-    linkUrl: "/first-gear",
-    buttonText: "DISCOVER",
-  },
-]
 
 export default function WhatWeOffer({ data }: AboutServicesProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
-
-  const sectionName = data?.sectionName?.trim() || "What We Offer"
-  const heading = data?.heading?.trim() || "Complete Care for\nYour Ride"
-  const cards =
-    data?.cards && data.cards.length > 0
-      ? data.cards
-      : FALLBACK_ABOUT_SERVICES
+  const content = selectWhatWeOfferContent(data)
+  const sectionName = content.sectionName
+  const heading = content.heading
+  const cards = content.cards
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sectionTarget = createSanityDataAttribute(visualEditingEnabled, {
+    documentId: "homepage",
+    documentType: "homepage",
+    path: content.source === "sanity" ? "whatWeOffer" : "whatWeOffer.useSanityContent",
+  })
 
   const headingParts = heading.split("\n")
 
@@ -66,16 +40,30 @@ export default function WhatWeOffer({ data }: AboutServicesProps) {
     }
   }
 
-  const renderCard = (service: AboutServicesCard) => {
+  const renderCard = (service: WhatWeOfferContent["cards"][number]) => {
+    const itemPath = keyedSanityPath("whatWeOffer.cards", service.key)
+    const itemTarget = content.source === "sanity"
+      ? createSanityDataAttribute(visualEditingEnabled, {
+          documentId: "homepage",
+          documentType: "homepage",
+          path: itemPath,
+        })
+      : undefined
     return (
       <Link
-        key={service.id}
-        href={service.linkUrl || "#"}
+        key={service.key}
+        href={cleanSanityString(service.linkUrl)}
+        data-sanity={itemTarget}
         className="group relative flex-none w-[85vw] sm:w-[400px] lg:w-[450px] xl:w-[480px] min-h-[500px] lg:min-h-[650px] snap-center overflow-hidden bg-black"
       >
         <Image
-          src={service.backgroundImage || "/images/placeholder.jpg"}
-          alt={service.title}
+          src={cleanSanityString(service.backgroundImage)}
+          alt={service.imageAlt}
+          data-sanity={content.source === "sanity" ? createSanityDataAttribute(visualEditingEnabled, {
+            documentId: "homepage",
+            documentType: "homepage",
+            path: `${itemPath}.backgroundImage`,
+          }) : undefined}
           fill
           quality={90}
           className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -99,7 +87,7 @@ export default function WhatWeOffer({ data }: AboutServicesProps) {
   }
 
   return (
-    <section className="bg-[#1a1a1a] py-20 md:py-28 lg:py-36 relative overflow-hidden">
+    <section data-sanity={sectionTarget} className="bg-[#1a1a1a] py-20 md:py-28 lg:py-36 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#F16D34]/5 rounded-full blur-3xl pointer-events-none" />
 

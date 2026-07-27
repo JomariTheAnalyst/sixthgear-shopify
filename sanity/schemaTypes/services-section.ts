@@ -4,6 +4,15 @@ export default defineType({
   name: 'servicesSection',
   title: 'Motorcycle Services Section',
   type: 'object',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useCustomServices !== true) return true
+      const complete =
+        typeof value.sectionTitle === 'string' && value.sectionTitle.trim() &&
+        typeof value.sectionDescription === 'string' && value.sectionDescription.trim() &&
+        Array.isArray(value.services) && value.services.length > 0
+      return Boolean(complete) || 'Add a heading, description, and at least one service before enabling custom content.'
+    }),
   fields: [
     defineField({
       name: 'useCustomServices',

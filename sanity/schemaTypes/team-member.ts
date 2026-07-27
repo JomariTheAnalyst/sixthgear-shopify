@@ -1,4 +1,21 @@
-import { defineType, defineField } from 'sanity'
+import { defineField, defineType } from 'sanity'
+
+type HomepageDocument = {
+  ourTeamSection?: {
+    useSanityContent?: boolean
+  }
+}
+
+function sanityOurTeamIsEnabled(document: unknown) {
+  return (document as HomepageDocument | undefined)?.ourTeamSection?.useSanityContent === true
+}
+
+function requiredTextWhenEnabled(message: string) {
+  return (value: unknown, context: { document?: unknown }) =>
+    !sanityOurTeamIsEnabled(context.document) ||
+    (typeof value === 'string' && value.trim().length > 0) ||
+    message
+}
 
 export default defineType({
   name: 'teamMember',
@@ -9,69 +26,68 @@ export default defineType({
       name: 'name',
       title: 'Team member name',
       type: 'string',
-      validation: (Rule) => Rule.required(),
-      description:
-        'Name shown on the card. Example: MARTIE or Sarah Cruz',
+      description: 'Name shown on the card. Example: MARTIE or Sarah Cruz.',
+      validation: (Rule) =>
+        Rule.custom(requiredTextWhenEnabled('Name is required when Sanity content is enabled.')),
     }),
     defineField({
       name: 'role',
       title: 'Main role',
       type: 'string',
-      validation: (Rule) => Rule.required(),
-      description:
-        'Main job role shown under the name. Example: Lead Technician, Service Advisor, Lead Barista',
+      description: 'Main job role shown under the name. Example: Lead Technician.',
+      validation: (Rule) =>
+        Rule.custom(requiredTextWhenEnabled('Role is required when Sanity content is enabled.')),
     }),
     defineField({
       name: 'title',
-      title: 'Second line under the role',
+      title: 'Specialization',
       type: 'string',
-      description:
-        'Optional extra line for a more specific job title or specialization. Example: Workshop Head',
+      description: 'Specific job title or specialization shown below the main role.',
+      validation: (Rule) =>
+        Rule.custom(
+          requiredTextWhenEnabled('Specialization is required when Sanity content is enabled.')
+        ),
     }),
     defineField({
       name: 'description',
       title: 'Short introduction',
       type: 'text',
       rows: 3,
-      description:
-        'Short description shown on the card. Keep this brief so it stays easy to read.',
+      description: 'Brief introduction shown at the bottom of the card.',
+      validation: (Rule) =>
+        Rule.custom(
+          requiredTextWhenEnabled('Introduction is required when Sanity content is enabled.')
+        ),
     }),
     defineField({
       name: 'photo',
       title: 'Team member photo',
       type: 'image',
-      description:
-        'Portrait photo shown on the card. Use a clear photo of the person. A vertical image works best.',
-      options: {
-        hotspot: true,
-      },
+      description: 'Portrait photo shown on the card. A vertical image works best.',
+      options: { hotspot: true },
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          !sanityOurTeamIsEnabled(context.document) ||
+          Boolean(value) ||
+          'Photo is required when Sanity content is enabled.'
+        ),
     }),
     defineField({
-      name: 'socialLinks',
-      title: 'Social media links',
-      type: 'object',
-      description:
-        'Optional. These links are not shown in the current homepage team card design, but they can be kept here for future use.',
-      fields: [
-        defineField({
-          name: 'facebook',
-          title: 'Facebook link',
-          type: 'url',
-          description: 'Paste the full Facebook profile or page link.',
-        }),
-        defineField({
-          name: 'instagram',
-          title: 'Instagram link',
-          type: 'url',
-          description: 'Paste the full Instagram profile link.',
-        }),
-        defineField({
-          name: 'tiktok',
-          title: 'TikTok link',
-          type: 'url',
-          description: 'Paste the full TikTok profile link.',
-        }),
-      ],
+      name: 'imageAlt',
+      title: 'Photo description',
+      type: 'string',
+      description: 'Accessible description of the team member photo.',
+      validation: (Rule) =>
+        Rule.custom(
+          requiredTextWhenEnabled('Photo description is required when Sanity content is enabled.')
+        ),
     }),
   ],
+  preview: {
+    select: {
+      title: 'name',
+      subtitle: 'role',
+      media: 'photo',
+    },
+  },
 })

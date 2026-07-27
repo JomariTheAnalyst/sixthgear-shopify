@@ -9,25 +9,14 @@ import { useEffect, useState } from "react"
  * Provides a button to exit preview mode.
  */
 export function PreviewIndicator() {
-  const [isPreview, setIsPreview] = useState(false)
+  const [isInsidePresentation, setIsInsidePresentation] = useState(true)
 
   useEffect(() => {
-    // Check if we're in preview mode by checking for the draft mode cookie
-    const isDraft = document.cookie.includes("__prerender_bypass")
-    setIsPreview(isDraft)
+    setIsInsidePresentation(window.self !== window.top)
   }, [])
 
-  if (!isPreview) {
+  if (isInsidePresentation) {
     return null
-  }
-
-  const exitPreview = async () => {
-    try {
-      await fetch("/api/exit-preview")
-      window.location.reload()
-    } catch (error) {
-      console.error(error)
-    }
   }
 
   return (
@@ -57,12 +46,12 @@ export function PreviewIndicator() {
           You are viewing draft content
         </span>
       </div>
-      <button
-        onClick={exitPreview}
+      <a
+        href="/api/draft-mode/disable"
         className="px-4 py-1 bg-white text-orange-500 rounded font-medium hover:bg-gray-100 transition-colors"
       >
-        Exit Preview
-      </button>
+        Disable Draft Mode
+      </a>
     </div>
   )
 }

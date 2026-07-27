@@ -5,12 +5,15 @@ import Image from "next/image"
 import Link from "next/link"
 import type { SanityPopupAd } from "@lib/cms/types"
 import { interDisplay, lato } from "@lib/fonts"
+import { cleanSanityString, createSanityDataAttribute } from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface PopupAdProps {
   data: SanityPopupAd | null
 }
 
 export default function PopupAd({ data }: PopupAdProps) {
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
   const [isVisible, setIsVisible] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
@@ -19,8 +22,8 @@ export default function PopupAd({ data }: PopupAdProps) {
   const isWithinRange = useCallback(() => {
     if (!data) return false
     const now = new Date()
-    if (data.startDate && now < new Date(data.startDate)) return false
-    if (data.endDate && now > new Date(data.endDate)) return false
+    if (data.startDate && now < new Date(cleanSanityString(data.startDate))) return false
+    if (data.endDate && now > new Date(cleanSanityString(data.endDate))) return false
     return true
   }, [data])
 
@@ -53,13 +56,18 @@ export default function PopupAd({ data }: PopupAdProps) {
 
   const ImageWrapper = data.imageLink ? Link : "div"
   const imageWrapperProps = data.imageLink
-    ? { href: data.imageLink, onClick: dismiss }
+    ? { href: cleanSanityString(data.imageLink), onClick: dismiss }
     : {}
   const imageWidth = data.imageDimensions?.width || 1200
   const imageHeight = data.imageDimensions?.height || 1500
 
   return (
     <div
+      data-sanity={createSanityDataAttribute(visualEditingEnabled, {
+        documentId: data._id,
+        documentType: "popupAd",
+        path: "enabled",
+      })}
       className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-end justify-center md:items-center p-4 md:p-6"
       onClick={dismiss}
     >
@@ -108,7 +116,7 @@ export default function PopupAd({ data }: PopupAdProps) {
           }
         >
           <Image
-            src={data.imageUrl}
+            src={cleanSanityString(data.imageUrl)}
             alt={data.heading || "Promotional offer"}
             width={imageWidth}
             height={imageHeight}
@@ -121,7 +129,7 @@ export default function PopupAd({ data }: PopupAdProps) {
         {data.buttonLabel && (
           <div className="px-0">
             <Link
-              href={data.buttonLink || data.imageLink || "#"}
+              href={cleanSanityString(data.buttonLink || data.imageLink || "#")}
               onClick={dismiss}
               className={`${interDisplay.className} w-full block bg-white text-gray-900 font-bold text-sm uppercase tracking-widest py-4 px-6 text-center border-t border-gray-200 hover:bg-gray-50 transition-colors`}
             >

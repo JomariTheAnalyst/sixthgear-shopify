@@ -22,7 +22,7 @@ export const BUSINESS_NAP = {
   phone: "0995 093 0157",
   telephone: "+63-995-093-0157",
   telHref: "tel:09950930157",
-  email: "info@sixthgear.ph",
+  email: "support@sixthgearmoto.com",
   openingHoursText: "Monday - Sunday | 10:00 AM - 7:00 PM",
   openingHoursSpecification: [
     {
@@ -41,8 +41,8 @@ export const BUSINESS_NAP = {
   ],
   serviceArea: ["Makati City", "Metro Manila", "Philippines"],
   coordinates: {
-    lat: 14.554651468423817,
-    lng: 121.00262199651827,
+    lat: 14.5544253,
+    lng: 121.0025947,
   },
   googleMapsUrl: "https://maps.app.goo.gl/qbVoZTzCk7sBENrN7",
   googleBusinessProfileUrl: null,

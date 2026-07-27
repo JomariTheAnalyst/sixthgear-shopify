@@ -23,6 +23,12 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'marquee',
+      title: 'Scrolling Marquee Below Main Banner',
+      type: 'marqueeSection',
+      description: 'Controls the orange promotional message strip directly below the homepage hero.',
+    }),
+    defineField({
       name: 'shopByBrands',
       title: 'Brands Section on Homepage - 2nd section',
       type: 'shopByBrandsSection',
@@ -62,7 +68,7 @@ export default defineType({
         'This section highlights the coffee side of the business and appears in the middle of the homepage.',
     }),
 
-     defineField({
+    defineField({
       name: 'services',
       title: 'Motorcycle Services Section on Homepage - 7th section',
       type: 'servicesSection',
@@ -71,14 +77,14 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-     defineField({
-      name: 'spaceExperiences',
-      title: 'Our Space and Experience Section - 8th section',
-      type: 'spaceExperiences',
+    defineField({
+      name: 'whatWeOffer',
+      title: 'What We Offer - 8th section',
+      type: 'whatWeOfferSection',
       description:
-        'This section highlights the in-store atmosphere, lounge, and customer experience.',
+        'Controls the What We Offer carousel on the homepage. Turn off its source toggle to keep the complete built-in fallback visible.',
     }),
-   
+
     defineField({
       name: 'serviceBrandsSection',
       title: 'Motorcycle Brands We Service - 9th section',

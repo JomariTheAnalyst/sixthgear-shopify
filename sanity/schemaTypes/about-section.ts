@@ -4,6 +4,20 @@ export default defineType({
   name: 'aboutSection',
   title: 'About Section',
   type: 'object',
+  validation: (Rule) =>
+    Rule.custom((value: any) => {
+      if (value?.useCustomAbout !== true) return true
+      const complete =
+        typeof value.kicker === 'string' && value.kicker.trim() &&
+        typeof value.title === 'string' && value.title.trim() &&
+        typeof value.description === 'string' && value.description.trim() &&
+        Array.isArray(value.highlights) && value.highlights.length > 0 &&
+        value.highlights.every((item: unknown) => typeof item === 'string' && item.trim()) &&
+        typeof value.primaryCta?.text === 'string' && value.primaryCta.text.trim() &&
+        typeof value.primaryCta?.link === 'string' && value.primaryCta.link.trim() &&
+        Boolean(value.imageTop) && Boolean(value.imageBottom)
+      return Boolean(complete) || 'Complete every Homepage About field before enabling custom content.'
+    }),
   fields: [
     defineField({
       name: 'useCustomAbout',

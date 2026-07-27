@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
 
+import MarqueeStrip from "components/marquee-strip"
 import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
 import ShopByCategories from "@modules/home/components/categories"
@@ -31,17 +32,26 @@ import { getRegion } from "@lib/data/regions"
 import { getCollection, getCollections, getProducts } from "@lib/shopify"
 import type { ShopifyCollection, ShopifyProductCard } from "@lib/shopify/types"
 import { HttpTypes } from "@medusajs/types"
-
-import { fetchHomeContent } from "@lib/strapi/home"
 import {
-  getAboutWithFallbacks,
-} from "@lib/strapi/home-with-fallbacks"
+  selectFeaturedCollectionForPosition,
+  type FeaturedCollectionPosition,
+} from "@lib/cms/featured-collection"
+
+import {
+  selectCtaBannerContent,
+  selectFranchiseContent,
+  selectHomepageAboutContent,
+  selectSatisfiedCustomersContent,
+  selectStoreLocationContent,
+} from "@lib/cms/homepage-editorial"
 import {
   getHomepageAbout,
   getHomepageBlogPosts,
   getHomepageCategories,
   getHomepageHero,
+  getHomepageMarquee,
   getHomepageShopByBrands,
+  getHomepageWhatWeOffer,
   getCoffeeShowcase,
   getServiceBrandsSection,
   getSatisfiedCustomers,
@@ -70,6 +80,8 @@ import {
   TeamSectionSkeleton,
   TestimonialsSectionSkeleton,
 } from "@modules/home/components/homepage-section-skeletons"
+import { SanityEditTarget } from "components/sanity/visual-editing-provider"
+import { cleanSanityString } from "@lib/cms/visual-editing"
 
 export const revalidate = 60
 
@@ -87,7 +99,7 @@ export async function generateMetadata({
   const homepageHero = await getHomepageHero()
   const heroImageUrl =
     homepageHero?.slides?.find((slide) => slide.imageUrl)?.imageUrl ?? null
-  const imageUrl = getMetadataImageUrl(heroImageUrl) || getDefaultOpenGraphImageUrl()
+  const imageUrl = getMetadataImageUrl(heroImageUrl ? cleanSanityString(heroImageUrl) : null) || getDefaultOpenGraphImageUrl()
   const title =
     "SixthGearMoto | Motorcycle Parts, Riding Gear & Service Center Makati"
   const description =
@@ -176,9 +188,11 @@ export default async function Home(props: {
 
   const [
     homepageHero,
+    homepageMarquee,
     homepageShopByBrands,
     homepageAbout,
     homepageCategories,
+    homepageWhatWeOffer,
     coffeeShowcase,
     serviceBrandsSection,
     satisfiedCustomers,
@@ -193,9 +207,11 @@ export default async function Home(props: {
     newArrivalsResp,
   ] = await Promise.all([
     getHomepageHero(),
+    getHomepageMarquee(),
     getHomepageShopByBrands(),
     getHomepageAbout(),
     getHomepageCategories(),
+    getHomepageWhatWeOffer(),
     getCoffeeShowcase(),
     getServiceBrandsSection(),
     getSatisfiedCustomers(),
@@ -260,7 +276,7 @@ export default async function Home(props: {
   const collectionRailResults: Array<HomepageCollectionRailData | null> =
     await Promise.all(
       collectionSections.map(async (section) => {
-        const collection = await getCollection(section.collectionHandle, {
+        const collection = await getCollection(cleanSanityString(section.collectionHandle), {
           first: 11,
         })
 
@@ -284,8 +300,29 @@ export default async function Home(props: {
     (item): item is HomepageCollectionRailData => item !== null
   )
 
-  const homeContent = await fetchHomeContent()
-  const aboutContent = await getAboutWithFallbacks(homeContent)
+  const homepageAboutContent = selectHomepageAboutContent(homepageAbout)
+  const satisfiedCustomersContent =
+    selectSatisfiedCustomersContent(satisfiedCustomers)
+  const franchiseContent = selectFranchiseContent(franchiseSection)
+  const storeLocationContent = selectStoreLocationContent(storeLocation)
+  const ctaBannerContent = selectCtaBannerContent(ctaBanner)
+  const satisfiedCustomersMidpoint = Math.ceil(
+    satisfiedCustomersContent.customers.length / 2
+  )
+  const satisfiedCustomersRow1 = satisfiedCustomersContent.customers
+    .slice(0, satisfiedCustomersMidpoint)
+    .map((customer) => ({
+      id: customer.key,
+      name: customer.name,
+      imageUrl: customer.imageUrl,
+    }))
+  const satisfiedCustomersRow2 = satisfiedCustomersContent.customers
+    .slice(satisfiedCustomersMidpoint)
+    .map((customer) => ({
+      id: customer.key,
+      name: customer.name,
+      imageUrl: customer.imageUrl,
+    }))
   const clientStoriesContent: SanityBlogPostListItem[] = homepageBlogPosts
   const shopifyBrandCards = brandCollections
     .filter(isFeaturedBrandCollection)
@@ -293,14 +330,19 @@ export default async function Home(props: {
     .map(mapBrandCollectionToCard)
 
 
-  const getFeatured = (position: string): SanityFeaturedCollectionItem | null =>
-    marketingData.featuredCollections.find(
-      (f) => f.isActive && f.position === position
-    ) ?? null
+  const marketingNow = new Date()
+  const getFeatured = (
+    position: FeaturedCollectionPosition
+  ): SanityFeaturedCollectionItem | null =>
+    selectFeaturedCollectionForPosition(
+      marketingData.featuredCollections,
+      position,
+      marketingNow
+    )
 
   const getPromo = (position: string): SanityPromoBanner | null =>
     marketingData.promoBanners.find(
-      (b) => b.isActive && b.position === position
+      (b) => b.isActive && cleanSanityString(b.position || "") === position
     ) ?? null
 
   return (
@@ -309,30 +351,41 @@ export default async function Home(props: {
         <PopupAd data={marketingData.activePopup} />
       )}
 
-      <Hero data={homepageHero} />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path="hero">
+        <Hero data={homepageHero} />
+      </SanityEditTarget>
+      <MarqueeStrip data={homepageMarquee} />
       <FeaturedCollectionBanner data={getFeatured("after_hero")} />
       <PromoBanner data={getPromo("after_hero")} />
 
-      <FeaturedBrand
-        data={homepageShopByBrands}
-        brands={shopifyBrandCards}
-      />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path="shopByBrands">
+        <FeaturedBrand
+          data={homepageShopByBrands}
+          brands={shopifyBrandCards}
+        />
+      </SanityEditTarget>
 
+      <SanityEditTarget documentId="homepage" documentType="homepage" path={homepageAboutContent.source === "sanity" ? "about" : "about.useCustomAbout"}>
       <AboutSection
-        data={homepageAbout}
-        kicker={aboutContent.kicker}
-        title={aboutContent.title}
-        description={aboutContent.description}
-        highlights={aboutContent.highlights}
-        primaryCta={aboutContent.primaryCta}
-        imageTop={aboutContent.imageTop}
-        imageBottom={aboutContent.imageBottom}
-        videoUrl={aboutContent.videoUrl}
+        data={{
+          useCustomAbout: true,
+          kicker: homepageAboutContent.kicker,
+          title: homepageAboutContent.title,
+          description: homepageAboutContent.description,
+          highlights: homepageAboutContent.highlights,
+          primaryCta: homepageAboutContent.primaryCta,
+          imageTop: homepageAboutContent.imageTop,
+          imageBottom: homepageAboutContent.imageBottom,
+          videoUrl: homepageAboutContent.videoUrl,
+        }}
       />
+      </SanityEditTarget>
       <FeaturedCollectionBanner data={getFeatured("after_about")} />
       <PromoBanner data={getPromo("after_about")} />
 
-      <ShopByCategories data={homepageCategories} />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path="categories">
+        <ShopByCategories data={homepageCategories} />
+      </SanityEditTarget>
       <FeaturedCollectionBanner data={getFeatured("after_categories")} />
       <PromoBanner data={getPromo("after_categories")} />
 
@@ -382,124 +435,45 @@ export default async function Home(props: {
         )}
       </Suspense>
 
-      <CoffeeShowcase
-        sectionHeading={
-          coffeeShowcase?.sectionHeading ?? undefined
-        }
-        coffeeIconUrl={
-          coffeeShowcase?.coffeeIconUrl ?? undefined
-        }
-        descriptionText={
-          coffeeShowcase?.descriptionText ?? undefined
-        }
-        buttonText={
-          coffeeShowcase?.buttonText ?? undefined
-        }
-        buttonLink={
-          coffeeShowcase?.buttonLink ?? undefined
-        }
-        coffeeItems={
-          coffeeShowcase?.coffeeItems?.map((item, index) => ({
-            image: item.imageUrl,
-            imageAlt: item.imageAlt ?? null,
-          })) ?? undefined
-        }
-      />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path={coffeeShowcase?.useSanityContent === true ? "coffeeShowcase" : "coffeeShowcase.useSanityContent"}>
+        <CoffeeShowcase data={coffeeShowcase} />
+      </SanityEditTarget>
       <FeaturedCollectionBanner data={getFeatured("after_coffee")} />
       <PromoBanner data={getPromo("after_coffee")} />
 
       <Suspense fallback={<ServicesSectionSkeleton />}>
         <DeferredOurServicesSection />
       </Suspense>
-      <WhatWeOffer />
+      <WhatWeOffer data={homepageWhatWeOffer} />
       <FeaturedCollectionBanner data={getFeatured("after_services")} />
       <PromoBanner data={getPromo("after_services")} />
 
-      <Brands
-        sectionTitle={
-          serviceBrandsSection?.sectionTitle 
-          ?? undefined}
-        sectionDescription={
-          serviceBrandsSection?.sectionDescription 
-          ?? undefined}
-        brands={
-          serviceBrandsSection?.brands
-            ?.map(brand => ({
-              name: brand.name,
-              logo: brand.logoUrl ?? 
-                "/images/brands/brand1.png",
-              link: brand.link ?? null,
-            })) ?? undefined}
-      />
+      <Brands data={serviceBrandsSection} />
       <FeaturedCollectionBanner data={getFeatured("after_brands")} />
       <PromoBanner data={getPromo("after_brands")} />
 
-      <SatisfiedCustomers
-        sectionTitle={
-          satisfiedCustomers?.sectionTitle 
-          ?? undefined}
-        row1={(() => {
-          const all = satisfiedCustomers
-            ?.customers
-          if (!all || all.length === 0) 
-            return undefined
-          const mid = Math.ceil(all.length / 2)
-          return all.slice(0, mid).map(
-            (c, i) => ({
-              id: i + 1,
-              name: c.name ?? 
-                "Sixth Gear Rider",
-              imageUrl: c.photoUrl ?? 
-                "/images/polaroid-marquee/satisfied-customers/002.jpg",
-            })
-          )
-        })()}
-        row2={(() => {
-          const all = satisfiedCustomers
-            ?.customers
-          if (!all || all.length === 0) 
-            return undefined
-          const mid = Math.ceil(all.length / 2)
-          return all.slice(mid).map(
-            (c, i) => ({
-              id: mid + i + 1,
-              name: c.name ?? 
-                "Sixth Gear Rider",
-              imageUrl: c.photoUrl ?? 
-                "/images/polaroid-marquee/satisfied-customers/011fg.jpg",
-            })
-          )
-        })()}
-      />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path={satisfiedCustomersContent.source === "sanity" ? "satisfiedCustomers" : "satisfiedCustomers.useSanityContent"}>
+        <SatisfiedCustomers
+          sectionTitle={satisfiedCustomersContent.sectionTitle}
+          row1={satisfiedCustomersRow1}
+          row2={satisfiedCustomersRow2}
+        />
+      </SanityEditTarget>
       <FeaturedCollectionBanner data={getFeatured("after_satisfied")} />
       <PromoBanner data={getPromo("after_satisfied")} />
 
-      <Franchise
-        mainTitle={
-          franchiseSection?.mainTitle 
-          ?? undefined}
-        subtitle={
-          franchiseSection?.subtitle 
-          ?? undefined}
-        badge1Text={
-          franchiseSection?.badge1Text 
-          ?? undefined}
-        badge2Text={
-          franchiseSection?.badge2Text 
-          ?? undefined}
-        ctaLabel={
-          franchiseSection?.ctaLabel 
-          ?? undefined}
-        ctaLink={
-          franchiseSection?.ctaLink 
-          ?? undefined}
-        leftImageUrl={
-          franchiseSection?.leftImageUrl 
-          ?? undefined}
-        rightImageUrl={
-          franchiseSection?.rightImageUrl 
-          ?? undefined}
-      />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path={franchiseContent.source === "sanity" ? "franchiseSection" : "franchiseSection.useSanityContent"}>
+        <Franchise
+          mainTitle={franchiseContent.mainTitle}
+          subtitle={franchiseContent.subtitle}
+          badge1Text={franchiseContent.badge1Text}
+          badge2Text={franchiseContent.badge2Text}
+          ctaLabel={franchiseContent.ctaLabel}
+          ctaLink={franchiseContent.ctaLink}
+          leftImageUrl={franchiseContent.leftImageUrl}
+          rightImageUrl={franchiseContent.rightImageUrl}
+        />
+      </SanityEditTarget>
       <FeaturedCollectionBanner data={getFeatured("after_franchise")} />
       <PromoBanner data={getPromo("after_franchise")} />
 
@@ -519,57 +493,26 @@ export default async function Home(props: {
         stories={clientStoriesContent}
       />
 
-      <StoreLocation
-        storeName={
-          storeLocation?.storeName 
-          ?? undefined}
-        address={
-          storeLocation?.address 
-          ?? undefined}
-        phone={
-          storeLocation?.phone 
-          ?? undefined}
-        hours={
-          storeLocation?.hours 
-          ?? undefined}
-        googleMapsUrl={
-          storeLocation?.googleMapsUrl 
-          ?? undefined}
-      />
-          <CTABanner
-        preTitle={
-          ctaBanner?.preTitle
-          ?? undefined}
-        headline={
-          ctaBanner?.headline
-          ?? undefined}
-        headlineHighlight={
-          ctaBanner?.headlineHighlight
-          ?? undefined}
-        buttonLabel={
-          ctaBanner?.buttonLabel
-          ?? undefined}
-        buttonLink={
-          ctaBanner?.buttonLink
-          ?? undefined}
-        footerTagline={
-          ctaBanner?.footerTagline
-          ?? undefined}
-        socialLinks={
-          ctaBanner?.socialLinks
-            ? {
-                instagram:
-                  ctaBanner.socialLinks
-                    .instagram ?? undefined,
-                facebook:
-                  ctaBanner.socialLinks
-                    .facebook ?? undefined,
-                tiktok:
-                  ctaBanner.socialLinks
-                    .tiktok ?? undefined,
-              }
-            : undefined}
-      />
+      <SanityEditTarget documentId="homepage" documentType="homepage" path={storeLocationContent.source === "sanity" ? "storeLocation" : "storeLocation.useSanityContent"}>
+        <StoreLocation
+          storeName={storeLocationContent.storeName}
+          address={storeLocationContent.address}
+          phone={storeLocationContent.phone}
+          hours={storeLocationContent.hours}
+          googleMapsUrl={storeLocationContent.googleMapsUrl}
+        />
+      </SanityEditTarget>
+      <SanityEditTarget documentId="homepage" documentType="homepage" path={ctaBannerContent.source === "sanity" ? "ctaBanner" : "ctaBanner.useSanityContent"}>
+        <CTABanner
+          preTitle={ctaBannerContent.preTitle}
+          headline={ctaBannerContent.headline}
+          headlineHighlight={ctaBannerContent.headlineHighlight}
+          buttonLabel={ctaBannerContent.buttonLabel}
+          buttonLink={ctaBannerContent.buttonLink}
+          footerTagline={ctaBannerContent.footerTagline}
+          socialLinks={ctaBannerContent.socialLinks}
+        />
+      </SanityEditTarget>
     </>
 
   )

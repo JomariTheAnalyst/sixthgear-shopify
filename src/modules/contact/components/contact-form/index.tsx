@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
+import { openCalPopup } from "@modules/booking/lib/cal-embed"
 import BookingSuccessModal from "../booking-success-modal"
 import {
   CONTACT_SUBJECT_OPTIONS,
@@ -220,7 +221,13 @@ export default function ContactForm({ services }: ContactFormProps) {
           <div className="relative">
             <select
               className="h-12 w-full cursor-pointer appearance-none rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm transition-all focus:ring-1 focus:ring-black"
-              {...register("subject")}
+              {...register("subject", {
+                onChange: (event) => {
+                  if (event.target.value === SERVICE_BOOKING_SUBJECT) {
+                    openCalPopup().catch(() => undefined)
+                  }
+                },
+              })}
             >
               {CONTACT_SUBJECT_OPTIONS.map((subject) => (
                 <option key={subject} value={subject}>
