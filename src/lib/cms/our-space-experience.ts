@@ -96,6 +96,15 @@ export function selectOurSpaceExperienceContent(
   value: SanityOurSpaceExperience | null | undefined
 ): OurSpaceExperienceContent {
   if (!value || !isCompleteSanityOurSpaceExperience(value)) {
+    if (
+      value?.useSanityContent === true &&
+      process.env.NODE_ENV !== 'production' &&
+      typeof window === 'undefined'
+    ) {
+      console.warn(
+        '[Sanity] About Our Space & Experience is enabled but incomplete. Rendering its complete local fallback.'
+      )
+    }
     return FALLBACK_OUR_SPACE_EXPERIENCE
   }
 

@@ -104,34 +104,47 @@ export interface SanityServicesSection {
 }
 
 export interface SanityServicesHero {
+  useSanityContent?: boolean | null
   title?: string | null
   shortTitle?: string | null
   description?: string | null
   heroImageUrl?: string | null
+  heroImageAlt?: string | null
   imageUrl?: string | null
 }
 
-export interface SanityServicesExpertiseStat {
-  number?: string | null
-  label?: string | null
+export interface SanityServicesExpertiseHighlight {
+  _key?: string | null
+  title?: string | null
+  description?: string | null
 }
 
 export interface SanityServicesExpertiseStats {
+  useSanityContent?: boolean | null
   sectionHeading?: string | null
   sectionDescription?: string | null
-  buttonText?: string | null
-  buttonLink?: string | null
-  stats?: SanityServicesExpertiseStat[] | null
+  highlights?: Array<SanityServicesExpertiseHighlight | null> | null
+  assistance?: {
+    heading?: string | null
+    description?: string | null
+    buttonText?: string | null
+    buttonLink?: string | null
+  } | null
+  backgroundImageUrl?: string | null
+  backgroundImageAlt?: string | null
 }
 
 export interface SanityServicesBrandItem {
+  _key?: string | null
   name?: string | null
   logoUrl?: string | null
+  logoAlt?: string | null
 }
 
 export interface SanityServicesBrandsWeService {
+  useSanityContent?: boolean | null
   sectionHeading?: string | null
-  brands?: SanityServicesBrandItem[] | null
+  brands?: Array<SanityServicesBrandItem | null> | null
 }
 
 export interface SanityServiceFeature {
@@ -174,9 +187,45 @@ export interface SanityService {
 }
 
 export interface SanityServicesGrid {
+  useSanityContent?: boolean | null
   sectionHeading?: string | null
   useCustomServices?: boolean | null
-  featuredServices?: SanityService[] | null
+  featuredServices?: Array<{
+    _key?: string | null
+    service?: SanityService | null
+  } | null> | null
+}
+
+export interface SanityServicesProcessStep {
+  _key?: string | null
+  number?: string | null
+  title?: string | null
+  description?: string | null
+}
+
+export interface SanityServicesProcessOfWork {
+  useSanityContent?: boolean | null
+  sectionHeading?: string | null
+  steps?: Array<SanityServicesProcessStep | null> | null
+}
+
+export interface SanityServicesGalleryItem {
+  _key?: string | null
+  mediaType?: 'video' | 'image' | null
+  mediaUrl?: string | null
+  label?: string | null
+}
+
+export interface SanityServicesGallery {
+  useSanityContent?: boolean | null
+  heading?: string | null
+  description?: string | null
+  profileName?: string | null
+  profileSubtitle?: string | null
+  profileLogoUrl?: string | null
+  profileLogoAlt?: string | null
+  buttonText?: string | null
+  items?: Array<SanityServicesGalleryItem | null> | null
 }
 
 export interface SanityServicesPage {
@@ -184,6 +233,9 @@ export interface SanityServicesPage {
   expertiseStats?: SanityServicesExpertiseStats | null
   brandsWeService?: SanityServicesBrandsWeService | null
   servicesGrid?: SanityServicesGrid | null
+  processOfWork?: SanityServicesProcessOfWork | null
+  servicesGallery?: SanityServicesGallery | null
+  ctaBanner?: SanityCtaBanner | null
 }
 
 export interface HomepageCollectionSection {
@@ -195,9 +247,11 @@ export interface HomepageCollectionSection {
 }
 
 export interface SanityAboutPageHero {
+  useSanityContent?: boolean | null
   title?: string | null
   description?: string | null
   backgroundImageUrl?: string | null
+  backgroundImageAlt?: string | null
 }
 
 export interface SanityAboutPageStoryItem {
@@ -235,6 +289,11 @@ export interface SanityOurSpaceExperienceItem {
   imageAlt?: string | null
 }
 
+export interface SanityAboutPageStory {
+  useSanityContent?: boolean | null
+  items?: Array<SanityAboutPageStoryItem | null> | null
+}
+
 export interface SanityOurSpaceExperience {
   useSanityContent?: boolean | null
   sectionTitle?: string | null
@@ -250,9 +309,10 @@ export interface SanityAboutPageOurValueCard {
 }
 
 export interface SanityAboutPageOurValues {
+  useSanityContent?: boolean | null
   heading?: string | null
   description?: string | null
-  cards?: SanityAboutPageOurValueCard[] | null
+  cards?: Array<SanityAboutPageOurValueCard | null> | null
 }
 
 export interface SanityAboutPageWhyChooseUsItem {
@@ -263,6 +323,7 @@ export interface SanityAboutPageWhyChooseUsItem {
 }
 
 export interface SanityAboutPageWhyChooseUs {
+  useSanityContent?: boolean | null
   sectionLabel?: string | null
   heading?: string | null
   subtitle?: string | null
@@ -274,6 +335,7 @@ export interface SanityAboutPageWhyChooseUs {
 }
 
 export interface SanityAboutPageCeoQuote {
+  useSanityContent?: boolean | null
   quoteText?: string | null
   highlightedPhrase?: string | null
   ceoName?: string | null
@@ -285,11 +347,12 @@ export interface SanityAboutPageCeoQuote {
 export interface SanityAboutPage {
   useSanityContent?: boolean | null
   hero?: SanityAboutPageHero | null
-  story?: SanityAboutPageStoryItem[] | null
+  ourStory?: SanityAboutPageStory | null
   ourSpaceExperience?: SanityOurSpaceExperience | null
   ourValues?: SanityAboutPageOurValues | null
   whyChooseUs?: SanityAboutPageWhyChooseUs | null
   ceoQuote?: SanityAboutPageCeoQuote | null
+  ctaBanner?: SanityCtaBanner | null
 }
 
 export interface SanityCollectionHero {

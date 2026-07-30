@@ -5,64 +5,17 @@ import type { ComponentType } from "react"
 import { Coffee, ShieldCheck, Users, Wrench } from "lucide-react"
 import { inter, montserrat } from "@lib/fonts"
 import {
-  AboutWhyChooseUsContent,
   AboutWhyChooseUsIconKey,
-  AboutWhyChooseUsItem,
 } from "@modules/about/types"
+import type { AboutWhyChooseUsSectionContent } from "@lib/cms/about-page-main"
+import {
+  createSanityDataAttribute,
+  keyedSanityPath,
+} from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface WhyChooseUsProps {
-  data?: AboutWhyChooseUsContent | null
-}
-
-const FALLBACK_WHY_CHOOSE_US: Required<
-  Pick<AboutWhyChooseUsContent, "sectionLabel" | "heading" | "subtitle">
-> & {
-  items: AboutWhyChooseUsItem[]
-  topImage: { src: string | null; alt: string }
-  bottomImage: { src: string | null; alt: string }
-} = {
-  sectionLabel: "Why Sixth Gear",
-  heading: "Why Choose Us?",
-  subtitle:
-    "We didn't build Sixth Gear to be just another service shop. We built it to be the destination every Filipino rider deserves\u2014professional, passionate, and always riding alongside you.",
-  items: [
-    {
-      id: 1,
-      icon: "wrench",
-      title: "Expert Workshop You Can Trust",
-      description:
-        "Our certified technicians handle everything from routine PMS to advanced ECU diagnostics and full performance builds\u2014on any big bike, any brand, zero shortcuts.",
-    },
-    {
-      id: 2,
-      icon: "shield",
-      title: "Only Gear We'd Ride With",
-      description:
-        "Every helmet, accessory, and piece of apparel on our floor has been vetted the way we vet our own gear. We don't stock it unless we'd bet our safety on it.",
-    },
-    {
-      id: 3,
-      icon: "users",
-      title: "A Real Rider Community",
-      description:
-        "We host rides, meetups, and events that bring serious riders together. Sixth Gear isn't just a stop\u2014it's a home base for the Filipino motorcycle community.",
-    },
-    {
-      id: 4,
-      icon: "coffee",
-      title: "More Than a Shop",
-      description:
-        "Fuel up at First Gear Coffee while your bike is being serviced. Our rider lounge is built for that in-between time\u2014comfortable, honest, and unmistakably ours.",
-    },
-  ],
-  topImage: {
-    src: "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090209/sixthgear-bikebeingserviced_nxzbdw.jpg",
-    alt: "Sixthgear technician servicing a motorcycle",
-  },
-  bottomImage: {
-    src: "https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090175/rider-story_nhopsn.jpg",
-    alt: "Rider story moment at Sixth Gear",
-  },
+  data: AboutWhyChooseUsSectionContent
 }
 
 const ICON_MAP: Record<
@@ -83,22 +36,16 @@ function getWhyChooseUsIcon(iconKey?: string | null) {
 }
 
 export default function WhyChooseUs({ data }: WhyChooseUsProps) {
-  const sectionLabel =
-    data?.sectionLabel?.trim() || FALLBACK_WHY_CHOOSE_US.sectionLabel
-  const heading = data?.heading?.trim() || FALLBACK_WHY_CHOOSE_US.heading
-  const subtitle = data?.subtitle?.trim() || FALLBACK_WHY_CHOOSE_US.subtitle
-  const items =
-    data?.items && data.items.length > 0
-      ? data.items
-      : FALLBACK_WHY_CHOOSE_US.items
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sanitySource = data.source === "sanity"
+  const { sectionLabel, heading, subtitle, items } = data
   const topImage = {
-    src: data?.topImage?.src || FALLBACK_WHY_CHOOSE_US.topImage.src,
-    alt: data?.topImage?.alt?.trim() || FALLBACK_WHY_CHOOSE_US.topImage.alt,
+    src: data.topImageUrl,
+    alt: data.topImageAlt,
   }
   const bottomImage = {
-    src: data?.bottomImage?.src || FALLBACK_WHY_CHOOSE_US.bottomImage.src,
-    alt:
-      data?.bottomImage?.alt?.trim() || FALLBACK_WHY_CHOOSE_US.bottomImage.alt,
+    src: data.bottomImageUrl,
+    alt: data.bottomImageAlt,
   }
 
   return (
@@ -125,7 +72,19 @@ export default function WhyChooseUs({ data }: WhyChooseUsProps) {
 
           <div className="flex flex-col gap-10">
             {items.map((item) => (
-              <div key={item.id} className="flex gap-6 items-start">
+              <div
+                key={item.key}
+                data-sanity={
+                  sanitySource
+                    ? createSanityDataAttribute(visualEditingEnabled, {
+                        documentId: "aboutPage",
+                        documentType: "aboutPage",
+                        path: keyedSanityPath("whyChooseUs.items", item.key),
+                      })
+                    : undefined
+                }
+                className="flex gap-6 items-start"
+              >
                 <div className="flex-none w-14 h-14 bg-[#F16D34]/8 flex items-center justify-center rounded-xl">
                   {getWhyChooseUsIcon(item.icon)}
                 </div>
@@ -156,6 +115,15 @@ export default function WhyChooseUs({ data }: WhyChooseUsProps) {
               <Image
                 src={topImage.src || "/images/placeholder.jpg"}
                 alt={topImage.alt}
+                data-sanity={
+                  sanitySource
+                    ? createSanityDataAttribute(visualEditingEnabled, {
+                        documentId: "aboutPage",
+                        documentType: "aboutPage",
+                        path: "whyChooseUs.topImage",
+                      })
+                    : undefined
+                }
                 fill
                 quality={100}
                 className="object-cover"
@@ -170,6 +138,15 @@ export default function WhyChooseUs({ data }: WhyChooseUsProps) {
               <Image
                 src={bottomImage.src || "/images/placeholder.jpg"}
                 alt={bottomImage.alt}
+                data-sanity={
+                  sanitySource
+                    ? createSanityDataAttribute(visualEditingEnabled, {
+                        documentId: "aboutPage",
+                        documentType: "aboutPage",
+                        path: "whyChooseUs.bottomImage",
+                      })
+                    : undefined
+                }
                 fill
                 quality={100}
                 className="object-cover"

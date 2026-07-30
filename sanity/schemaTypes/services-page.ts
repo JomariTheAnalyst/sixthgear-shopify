@@ -1,4 +1,41 @@
-import { defineType, defineField, defineArrayMember } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
+
+type SourceSection = { useSanityContent?: boolean }
+
+function sourceEnabled(parent: unknown) {
+  return (parent as SourceSection | undefined)?.useSanityContent === true
+}
+
+function requiredWhenEnabled(message: string) {
+  return (Rule: any) =>
+    Rule.custom((value: unknown, context: { parent?: unknown }) =>
+      !sourceEnabled(context.parent) ||
+      (typeof value === 'string' && value.trim().length > 0) ||
+      message
+    )
+}
+
+function assetRequiredWhenEnabled(message: string) {
+  return (Rule: any) =>
+    Rule.custom((value: unknown, context: { parent?: unknown }) =>
+      !sourceEnabled(context.parent) || Boolean(value) || message
+    )
+}
+
+function hasText(value: unknown) {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function sectionToggle(fallbackName: string) {
+  return defineField({
+    name: 'useSanityContent',
+    title: 'Use Sanity content',
+    type: 'boolean',
+    initialValue: false,
+    description: `Turn on only when this complete section is ready. Turn off to use the complete existing ${fallbackName} fallback. Incomplete enabled content also falls back safely.`,
+    validation: (Rule) => Rule.required(),
+  })
+}
 
 export default defineType({
   name: 'servicesPage',
@@ -7,32 +44,36 @@ export default defineType({
   fields: [
     defineField({
       name: 'hero',
-      title: 'Hero section',
+      title: '1. Hero',
       type: 'object',
       description:
-        'This controls the large banner at the top of the Services page.',
+        'Top Services banner. Disabled or incomplete content uses the existing Hero unchanged.',
       fields: [
+        sectionToggle('Services Hero'),
         defineField({
           name: 'title',
           title: 'Main heading',
           type: 'string',
-          description:
-            'The large title shown on the banner. Example: Our Services',
+          validation: requiredWhenEnabled(
+            'Main heading is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'shortTitle',
-          title: 'Short title for breadcrumb',
+          title: 'Short breadcrumb title',
           type: 'string',
-          description:
-            'A shorter version of the title used in page navigation when needed. Example: Services',
+          validation: requiredWhenEnabled(
+            'Short title is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'description',
-          title: 'Short description',
+          title: 'Description',
           type: 'text',
           rows: 3,
-          description:
-            'A short paragraph shown under the title on the banner. Keep this concise so it stays easy to read.',
+          validation: requiredWhenEnabled(
+            'Description is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'heroImage',
@@ -40,111 +81,192 @@ export default defineType({
           type: 'image',
           options: { hotspot: true },
           description:
-            'Main banner image shown behind the text. Use a wide landscape image. Recommended size: at least 2000 x 1200 pixels.',
+            'Wide landscape image behind the Hero content; at least 2000 × 1200 px is recommended.',
+          validation: assetRequiredWhenEnabled(
+            'Background image is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'heroImageAlt',
+          title: 'Background image description',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Image description is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'image',
-          title: 'Fallback image',
+          title: 'Legacy fallback image',
           type: 'image',
-          options: { hotspot: true },
-          description:
-            'Backup image used if the main background image is missing. You can upload the same image here as a safety fallback.',
+          hidden: true,
+          readOnly: true,
+          description: 'Retained for compatibility; the Hero uses heroImage.',
         }),
       ],
     }),
     defineField({
       name: 'expertiseStats',
-      title: 'Expertise stats section',
+      title: '2. Expertise & Assistance',
       type: 'object',
       description:
-        'This controls the section below the hero with the main text, button, and the stat cards on the right.',
+        'Expertise copy, highlights, and roadside-assistance card below the Hero. Disabled or incomplete content uses the existing section.',
       fields: [
+        sectionToggle('Expertise & Assistance'),
         defineField({
           name: 'sectionHeading',
           title: 'Section heading',
-          type: 'text',
-          rows: 2,
-          description:
-            'The large heading shown on the left side of this section. You can press Enter if you want the heading to break into two lines.',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Section heading is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'sectionDescription',
           title: 'Section description',
           type: 'text',
           rows: 4,
-          description:
-            'The short paragraph shown under the heading. Keep it clear and easy to scan.',
+          validation: requiredWhenEnabled(
+            'Section description is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
-          name: 'buttonText',
-          title: 'Button text',
-          type: 'string',
-          description:
-            'Text shown on the button in this section. Example: Book a Service',
-        }),
-        defineField({
-          name: 'buttonLink',
-          title: 'Button link',
-          type: 'string',
-          description:
-            'Where the button should go when clicked. Example: /contact. Use a website path that starts with a forward slash.',
-        }),
-        defineField({
-          name: 'stats',
-          title: 'Stat cards',
+          name: 'highlights',
+          title: 'Expertise highlights',
           type: 'array',
-          description:
-            'Add the stat cards shown on the right side of this section. You can drag them to change the order.',
+          description: 'Text blocks shown beneath the section introduction.',
           of: [
-            {
+            defineArrayMember({
               type: 'object',
               fields: [
                 defineField({
-                  name: 'number',
-                  title: 'Stat number',
+                  name: 'title',
+                  title: 'Title',
                   type: 'string',
-                  description:
-                    'The large number or value shown on the card. Examples: 8, 45+, 100%, 24/7',
                 }),
                 defineField({
-                  name: 'label',
-                  title: 'Stat label',
-                  type: 'string',
-                  description:
-                    'The short label shown below the number. Keep it short so it fits nicely on the card.',
+                  name: 'description',
+                  title: 'Description',
+                  type: 'text',
+                  rows: 3,
                 }),
               ],
-              preview: {
-                select: {
-                  title: 'number',
-                  subtitle: 'label',
-                },
-              },
-            },
+              preview: { select: { title: 'title', subtitle: 'description' } },
+            }),
           ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length > 0 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.title) && hasText(item?.description)
+                )) ||
+              'Add at least one expertise highlight when Sanity content is enabled.'
+            ),
+        }),
+        defineField({
+          name: 'assistance',
+          title: 'Assistance card',
+          type: 'object',
+          fields: [
+            defineField({ name: 'heading', title: 'Heading', type: 'string' }),
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+              rows: 3,
+            }),
+            defineField({ name: 'buttonText', title: 'Button text', type: 'string' }),
+            defineField({ name: 'buttonLink', title: 'Button link', type: 'string' }),
+          ],
+          validation: (Rule) =>
+            Rule.custom((value: any, context) => {
+              if (!sourceEnabled(context.parent)) return true
+              return (
+                Boolean(
+                  value?.heading?.trim() &&
+                    value?.description?.trim() &&
+                    value?.buttonText?.trim() &&
+                    value?.buttonLink?.trim()
+                ) ||
+                'Complete every assistance-card field when Sanity content is enabled.'
+              )
+            }),
+        }),
+        defineField({
+          name: 'backgroundImage',
+          title: 'Assistance card image',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Portrait or landscape workshop image behind the assistance card.',
+          validation: assetRequiredWhenEnabled(
+            'Assistance image is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'backgroundImageAlt',
+          title: 'Assistance image description',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Assistance image description is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'stats',
+          title: 'Legacy stat cards (deprecated)',
+          type: 'array',
+          hidden: true,
+          readOnly: true,
+          description:
+            'Retained for compatibility with the earlier schema; the current design renders expertise highlights.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [
+                defineField({ name: 'number', title: 'Number', type: 'string' }),
+                defineField({ name: 'label', title: 'Label', type: 'string' }),
+              ],
+            }),
+          ],
+        }),
+        defineField({
+          name: 'buttonText',
+          title: 'Legacy button text',
+          type: 'string',
+          hidden: true,
+          readOnly: true,
+        }),
+        defineField({
+          name: 'buttonLink',
+          title: 'Legacy button link',
+          type: 'string',
+          hidden: true,
+          readOnly: true,
         }),
       ],
     }),
     defineField({
       name: 'brandsWeService',
-      title: 'Brands we service section',
+      title: '3. Brands We Service',
       type: 'object',
       description:
-        'This controls the section that shows the motorcycle brands your workshop services. You can update the heading and manage the logos shown in the row below it.',
+        'Brand-logo row. Disabled or incomplete content uses the complete existing brand list.',
       fields: [
+        sectionToggle('Brands We Service'),
         defineField({
           name: 'sectionHeading',
           title: 'Section heading',
           type: 'string',
-          description:
-            'The main title shown above the brand logos. Example: Brands We Service',
+          validation: requiredWhenEnabled(
+            'Section heading is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'brands',
           title: 'Brand items',
           type: 'array',
-          description:
-            'Add the brand logos shown in this section. You can drag items to change the order, add new ones, or remove brands you no longer want to show.',
+          description: 'Transparent logo artwork is recommended. Drag to reorder.',
           of: [
             defineArrayMember({
               type: 'object',
@@ -153,65 +275,301 @@ export default defineType({
                   name: 'name',
                   title: 'Brand name',
                   type: 'string',
-                  description:
-                    'The brand name used for the logo label and image description. Example: BMW',
                 }),
                 defineField({
                   name: 'logo',
                   title: 'Brand logo',
                   type: 'image',
-                  options: { hotspot: false },
-                  description:
-                    'Upload the logo image shown in the Brands We Service section on the Services page. Use a clean logo with a transparent background when possible.',
+                }),
+                defineField({
+                  name: 'logoAlt',
+                  title: 'Logo description',
+                  type: 'string',
                 }),
               ],
-              preview: {
-                select: {
-                  title: 'name',
-                  media: 'logo',
-                },
-              },
+              preview: { select: { title: 'name', media: 'logo' } },
             }),
           ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length > 0 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.name) &&
+                    Boolean(item?.logo?.asset) &&
+                    hasText(item?.logoAlt)
+                )) ||
+              'Add at least one complete brand when Sanity content is enabled.'
+            ),
         }),
       ],
     }),
     defineField({
       name: 'servicesGrid',
-      title: 'Services grid section',
+      title: '4. Services Grid',
       type: 'object',
       description:
-        'This controls the heading shown above the service cards on the Services page. The service cards themselves still come from the existing service data.',
+        'Landing-page service cards. The source toggle and custom ordering setting are separate.',
       fields: [
+        sectionToggle('Services Grid'),
         defineField({
           name: 'sectionHeading',
           title: 'Section heading',
           type: 'string',
-          description:
-            'The main title shown above the service card grid. Keep it short so it stays strong and readable on all screen sizes.',
+          validation: requiredWhenEnabled(
+            'Section heading is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'useCustomServices',
-          title: 'Use Custom Service Order',
+          title: 'Customize service selection and order',
           type: 'boolean',
           initialValue: false,
           description:
-            'Turn ON to hand-pick which services appear and in what order using the list below. Turn OFF to automatically show all published services sorted by their Display Order number.',
+            'This does not enable the section. When Sanity content above is enabled, turn this on to use only the referenced services below in their chosen order; otherwise all published service documents are used.',
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              typeof value === 'boolean' ||
+              'Choose whether to customize service selection when Sanity content is enabled.'
+            ),
         }),
         defineField({
           name: 'featuredServices',
-          title: 'Featured Services',
+          title: 'Custom ordered services',
           type: 'array',
           description:
-            'Only active when Use Custom Service Order is ON. Click Add to select a service. Drag items to change their order. Only these services will appear in the grid.',
+            'Used only when “Customize service selection and order” is on. Drag references to reorder.',
           of: [
             defineArrayMember({
               type: 'reference',
               to: [{ type: 'service' }],
             }),
           ],
+          validation: (Rule) =>
+            Rule.custom((value, context) => {
+              const parent = context.parent as
+                | { useSanityContent?: boolean; useCustomServices?: boolean }
+                | undefined
+              return (
+                parent?.useSanityContent !== true ||
+                parent?.useCustomServices !== true ||
+                (Array.isArray(value) && value.length > 0) ||
+                'Select at least one service when custom ordering is enabled.'
+              )
+            }),
         }),
       ],
+    }),
+    defineField({
+      name: 'processOfWork',
+      title: '5. Process of Work',
+      type: 'object',
+      description:
+        'Numbered workshop-process cards. Disabled or incomplete content uses all existing process steps.',
+      fields: [
+        sectionToggle('Process of Work'),
+        defineField({
+          name: 'sectionHeading',
+          title: 'Section heading',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Section heading is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'steps',
+          title: 'Process steps',
+          type: 'array',
+          description: 'Numbered process cards shown in this order.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'number',
+                  title: 'Step number',
+                  type: 'string',
+                }),
+                defineField({
+                  name: 'title',
+                  title: 'Title',
+                  type: 'string',
+                }),
+                defineField({
+                  name: 'description',
+                  title: 'Description',
+                  type: 'text',
+                  rows: 4,
+                }),
+              ],
+              preview: { select: { title: 'title', subtitle: 'number' } },
+            }),
+          ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length > 0 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.number) &&
+                    hasText(item?.title) &&
+                    hasText(item?.description)
+                )) ||
+              'Add at least one process step when Sanity content is enabled.'
+            ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'servicesGallery',
+      title: '6. Services Gallery',
+      type: 'object',
+      description:
+        'Workshop-story media carousel and booking copy. Supports Sanity-hosted video, images, or an approved external media URL.',
+      fields: [
+        sectionToggle('Services Gallery'),
+        defineField({
+          name: 'heading',
+          title: 'Heading',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Heading is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'description',
+          title: 'Description',
+          type: 'text',
+          rows: 4,
+          validation: requiredWhenEnabled(
+            'Description is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'profileName',
+          title: 'Story profile name',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Profile name is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'profileSubtitle',
+          title: 'Story profile subtitle',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Profile subtitle is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'profileLogo',
+          title: 'Story profile logo',
+          type: 'image',
+          description: 'Square transparent logo recommended.',
+          validation: assetRequiredWhenEnabled(
+            'Profile logo is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'profileLogoAlt',
+          title: 'Profile logo description',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Profile logo description is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'buttonText',
+          title: 'Booking button text',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Booking button text is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'items',
+          title: 'Gallery media',
+          type: 'array',
+          description:
+            'Choose video or image for each item. Portrait media works best in the current story frame.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'mediaType',
+                  title: 'Media type',
+                  type: 'string',
+                  initialValue: 'video',
+                  options: {
+                    list: [
+                      { title: 'Video', value: 'video' },
+                      { title: 'Image', value: 'image' },
+                    ],
+                    layout: 'radio',
+                  },
+                }),
+                defineField({
+                  name: 'video',
+                  title: 'Video file',
+                  type: 'file',
+                  options: { accept: 'video/*' },
+                  hidden: ({ parent }) => parent?.mediaType !== 'video',
+                }),
+                defineField({
+                  name: 'image',
+                  title: 'Image',
+                  type: 'image',
+                  options: { hotspot: true },
+                  hidden: ({ parent }) => parent?.mediaType !== 'image',
+                }),
+                defineField({
+                  name: 'externalUrl',
+                  title: 'External media URL',
+                  type: 'url',
+                  description:
+                    'Optional fallback for existing Cloudinary video or image URLs.',
+                }),
+                defineField({
+                  name: 'label',
+                  title: 'Accessible media description',
+                  type: 'string',
+                }),
+              ],
+              preview: { select: { title: 'label', media: 'image' } },
+            }),
+          ],
+          validation: (Rule) =>
+            Rule.custom((value: any, context) => {
+              if (!sourceEnabled(context.parent)) return true
+              if (!Array.isArray(value) || value.length === 0) {
+                return 'Add at least one gallery item when Sanity content is enabled.'
+              }
+              return (
+                value.every(
+                  (item) =>
+                    item?.label?.trim() &&
+                    ((item.mediaType === 'video' &&
+                      (item.video?.asset || item.externalUrl)) ||
+                      (item.mediaType === 'image' &&
+                        (item.image?.asset || item.externalUrl)))
+                ) ||
+                'Every gallery item needs a matching video/image asset (or external URL) and description.'
+              )
+            }),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'ctaBanner',
+      title: '7. CTA Banner',
+      type: 'ctaBanner',
+      description:
+        'Final dark CTA banner. Its source toggle controls only this Services-page section.',
     }),
   ],
 })

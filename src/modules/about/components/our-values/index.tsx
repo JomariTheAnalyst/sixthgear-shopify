@@ -4,59 +4,18 @@ import React from "react"
 import { Award, Coffee, ShieldCheck, Users, Wrench, Zap } from "lucide-react"
 import { inter, montserrat } from "@lib/fonts"
 import {
-  AboutValueCard,
   AboutValueIconKey,
-  AboutValuesContent,
 } from "@modules/about/types"
+import type { AboutValuesSectionContent } from "@lib/cms/about-page-main"
+import {
+  createSanityDataAttribute,
+  keyedSanityPath,
+} from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface OurValuesProps {
-  data?: AboutValuesContent | null
+  data: AboutValuesSectionContent
 }
-
-const FALLBACK_ABOUT_VALUES: AboutValueCard[] = [
-  {
-    id: 1,
-    title: "Precision & Expertise",
-    description:
-      "We treat every motorcycle as our own, delivering meticulous service, diagnostics, and performance upgrades with zero compromises.",
-    icon: "wrench",
-  },
-  {
-    id: 2,
-    title: "Community First",
-    description:
-      "More than customers, we build a family. A true hub for riders to connect, share stories, and build lasting friendships on and off the road.",
-    icon: "users",
-  },
-  {
-    id: 3,
-    title: "Uncompromising Quality",
-    description:
-      "We only stock, sell, and recommend gear, parts, and accessories that we personally trust, test, and use for our own rides.",
-    icon: "shield",
-  },
-  {
-    id: 4,
-    title: "The Rider's Experience",
-    description:
-      "More than just a workshop\u2014a destination. Refuel with First Gear Coffee, relax in our lounge, and immerse yourself in real motorcycle culture.",
-    icon: "coffee",
-  },
-  {
-    id: 5,
-    title: "Passion Driven",
-    description:
-      "Our pure enthusiasm for two wheels fuels our dedication to continuous learning, improvement, and innovation in everything we do.",
-    icon: "energy",
-  },
-  {
-    id: 6,
-    title: "Integrity & Trust",
-    description:
-      "Honest advice, transparent pricing, and a solid commitment to doing what's right for you, your safety, and your machine.",
-    icon: "award",
-  },
-]
 
 const ICON_MAP: Record<
   AboutValueIconKey,
@@ -77,12 +36,9 @@ function getValueIcon(iconKey?: string | null) {
 }
 
 export default function OurValues({ data }: OurValuesProps) {
-  const heading = data?.heading?.trim() || "Our Values"
-  const description =
-    data?.description?.trim() ||
-    "The principles that steer our workshop, curate our gear, and brew our coffee. Built by riders, for riders."
-  const cards =
-    data?.cards && data.cards.length > 0 ? data.cards : FALLBACK_ABOUT_VALUES
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sanitySource = data.source === "sanity"
+  const { heading, description, cards } = data
 
   return (
     <section className="bg-white py-24 px-6 md:px-12 lg:px-24">
@@ -103,7 +59,16 @@ export default function OurValues({ data }: OurValuesProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {cards.map((val) => (
             <div
-              key={val.id}
+              key={val.key}
+              data-sanity={
+                sanitySource
+                  ? createSanityDataAttribute(visualEditingEnabled, {
+                      documentId: "aboutPage",
+                      documentType: "aboutPage",
+                      path: keyedSanityPath("ourValues.cards", val.key),
+                    })
+                  : undefined
+              }
               className="border border-gray-200 rounded-3xl p-8 sm:p-10 bg-white transition-shadow duration-300 hover:shadow-lg hover:border-gray-300 flex flex-col"
             >
               <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-8">

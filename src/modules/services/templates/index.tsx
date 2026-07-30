@@ -1,19 +1,6 @@
 "use client"
 
-/**
- * Services List Template
- * Main services page showing all service categories with tilted landscape cards
- */
-
 import { useParams } from "next/navigation"
-import { ServiceCategory } from "@lib/services-data"
-import {
-  SanityService,
-  SanityServicesBrandsWeService,
-  SanityServicesExpertiseStats,
-  SanityServicesGrid,
-  SanityServicesHero,
-} from "@lib/cms/types"
 import CTABanner from "@modules/home/components/cta-banner"
 import ServiceHero from "@modules/services/components/service-hero"
 import BrandsWeService from "@modules/services/components/brands-we-service"
@@ -21,71 +8,89 @@ import ExpertiseStats from "@modules/services/components/expertise-stats"
 import ModernServicesGrid from "@modules/services/components/modern-services-grid"
 import ProcessOfWork from "@modules/services/components/process-of-work"
 import ServicesGallery from "@modules/services/components/services-gallery"
-
-export const FALLBACK_SERVICES_HERO: ServiceCategory = {
-  id: "services-main",
-  slug: "services",
-  title: "Our Services",
-  shortTitle: "Services",
-  description:
-    "Complete motorcycle care from routine maintenance to performance upgrades. Expert technicians, quality parts, and attention to detail.",
-  image: "/images/homepage/services/hero.png",
-  heroImage: "/images/homepage/services/hero3.png",
-  items: [],
-}
+import type { ServicesPageContent } from "@lib/cms/services-page-content"
+import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface ServicesListTemplateProps {
-  services: ServiceCategory[]
-  cmsServices?: SanityService[] | null
-  hero?: SanityServicesHero | null
-  expertiseStats?: SanityServicesExpertiseStats | null
-  brandsWeService?: SanityServicesBrandsWeService | null
-  servicesGrid?: SanityServicesGrid | null
+  content: ServicesPageContent
+}
+
+function sectionPath(
+  source: "sanity" | "fallback",
+  path: string
+): string {
+  return source === "sanity" ? path : `${path}.useSanityContent`
 }
 
 export default function ServicesListTemplate({
-  services,
-  cmsServices,
-  hero,
-  expertiseStats,
-  brandsWeService,
-  servicesGrid,
+  content,
 }: ServicesListTemplateProps) {
   const params = useParams()
   const countryCode = params?.countryCode as string
-  const activeHero: ServiceCategory = {
-    ...FALLBACK_SERVICES_HERO,
-    title: hero?.title?.trim() || FALLBACK_SERVICES_HERO.title,
-    shortTitle:
-      hero?.shortTitle?.trim() || FALLBACK_SERVICES_HERO.shortTitle,
-    description:
-      hero?.description?.trim() || FALLBACK_SERVICES_HERO.description,
-    heroImage: hero?.heroImageUrl || FALLBACK_SERVICES_HERO.heroImage,
-    image: hero?.imageUrl || FALLBACK_SERVICES_HERO.image,
-  }
 
   return (
     <>
-      <ServiceHero service={activeHero} />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.hero.source, "hero")}
+      >
+        <ServiceHero content={content.hero} />
+      </SanityEditTarget>
 
-      <ExpertiseStats countryCode={countryCode} data={expertiseStats} />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.expertiseStats.source, "expertiseStats")}
+      >
+        <ExpertiseStats
+          countryCode={countryCode}
+          content={content.expertiseStats}
+        />
+      </SanityEditTarget>
 
-      <BrandsWeService data={brandsWeService} />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.brandsWeService.source, "brandsWeService")}
+      >
+        <BrandsWeService content={content.brandsWeService} />
+      </SanityEditTarget>
 
-      <ModernServicesGrid
-        countryCode={countryCode}
-        services={services}
-        data={servicesGrid}
-        cmsServices={cmsServices}
-        useCustomServices={servicesGrid?.useCustomServices ?? false}
-        featuredServices={servicesGrid?.featuredServices ?? null}
-      />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.servicesGrid.source, "servicesGrid")}
+      >
+        <ModernServicesGrid
+          countryCode={countryCode}
+          content={content.servicesGrid}
+        />
+      </SanityEditTarget>
 
-      <ProcessOfWork />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.processOfWork.source, "processOfWork")}
+      >
+        <ProcessOfWork content={content.processOfWork} />
+      </SanityEditTarget>
 
-      <ServicesGallery />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.servicesGallery.source, "servicesGallery")}
+      >
+        <ServicesGallery content={content.servicesGallery} />
+      </SanityEditTarget>
 
-      <CTABanner />
+      <SanityEditTarget
+        documentId="servicesPage"
+        documentType="servicesPage"
+        path={sectionPath(content.ctaBanner.source, "ctaBanner")}
+      >
+        <CTABanner {...content.ctaBanner} />
+      </SanityEditTarget>
     </>
   )
 }

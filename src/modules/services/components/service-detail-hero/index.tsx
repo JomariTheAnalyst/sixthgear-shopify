@@ -8,8 +8,12 @@
 import Image from "next/image"
 
 import { inter, poppins } from "@lib/fonts"
-import { ServiceCategory } from "@lib/services-data"
+import {
+  getServiceCtaAction,
+  ServiceCategory,
+} from "@lib/services-data"
 import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 interface ServiceDetailHeroProps {
   service: ServiceCategory
@@ -23,6 +27,8 @@ export default function ServiceDetailHero({
   const serviceItems = service.items.filter(Boolean)
   const leadingItems = serviceItems.slice(0, 4)
   const supportingItems = serviceItems.slice(4, 8)
+  const ctaAction = getServiceCtaAction(service.slug)
+  const ctaClassName = `${poppins.className} inline-flex min-h-12 items-center justify-center rounded-full bg-[#F16D34] px-7 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]`
   const primaryParagraph = [
     service.description?.trim(),
     leadingItems.length > 0
@@ -37,7 +43,10 @@ export default function ServiceDetailHero({
       : `The work is carried out with a practical service-first approach, focusing on the items that directly affect performance, reliability, and riding condition so the final scope remains relevant to what the motorcycle actually needs.`
 
   return (
-    <section className="bg-white pt-12 pb-10 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16">
+    <section
+      data-testid="service-detail-hero"
+      className="bg-white pt-12 pb-10 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16"
+    >
       <div className="mx-auto max-w-[1440px] px-4 md:px-8">
         <div className="mb-8 max-w-6xl md:mb-10 lg:mb-12 mx-auto text-center">
           <h1
@@ -59,11 +68,15 @@ export default function ServiceDetailHero({
         </div>
 
         <div className="mt-8 flex justify-center md:mt-10">
-          <CalBookingTrigger
-            className={`${poppins.className} inline-flex min-h-12 items-center justify-center rounded-full bg-[#F16D34] px-7 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]`}
-          >
-            Book This Service
-          </CalBookingTrigger>
+          {ctaAction === "booking" ? (
+            <CalBookingTrigger className={ctaClassName}>
+              Book This Service
+            </CalBookingTrigger>
+          ) : (
+            <LocalizedClientLink href="/contact" className={ctaClassName}>
+              Contact Us
+            </LocalizedClientLink>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-6 pt-8 md:grid-cols-2 md:gap-10 md:pt-10 lg:gap-14 lg:pt-12">

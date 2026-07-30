@@ -9,6 +9,7 @@ import {
   getNoindexFollowRobots,
   hasNonCanonicalSearchParams,
 } from "@lib/seo"
+import { selectServicesPageContent } from "@lib/cms/services-page-content"
 
 export async function generateMetadata({
   params,
@@ -49,17 +50,17 @@ export default async function ServicesPage({
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
   ])
+  const content = selectServicesPageContent(
+    servicesPage,
+    services,
+    cmsServices
+  )
 
   return (
     <>
       <JsonLd id="services-breadcrumbs" data={breadcrumbStructuredData} />
       <ServicesListTemplate
-        services={services}
-        cmsServices={cmsServices}
-        hero={servicesPage?.hero ?? null}
-        expertiseStats={servicesPage?.expertiseStats ?? null}
-        brandsWeService={servicesPage?.brandsWeService ?? null}
-        servicesGrid={servicesPage?.servicesGrid ?? null}
+        content={content}
       />
     </>
   )

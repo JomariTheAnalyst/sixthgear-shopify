@@ -1,31 +1,20 @@
-const PROCESS_STEPS = [
-  {
-    number: "01",
-    title: "Consultation & Service Intake",
-    description:
-      "We start by understanding the motorcycle, the riding concerns, and the work required. This gives the team a clear service brief before any technical work begins.",
-  },
-  {
-    number: "02",
-    title: "Inspection & Work Planning",
-    description:
-      "Our technicians inspect the bike, identify the priority issues, and map out the correct service path. Parts, labor scope, and timing are aligned before execution.",
-  },
-  {
-    number: "03",
-    title: "Workshop Execution",
-    description:
-      "Approved work is carried out using the proper tools, service procedures, and parts. Every task is handled with the same focus on reliability, cleanliness, and finish quality.",
-  },
-  {
-    number: "04",
-    title: "Final Check & Handover",
-    description:
-      "Before release, the motorcycle goes through a final review so the completed work is verified and ready for handover. The result is a clear, professional service experience from start to finish.",
-  },
-] as const
+"use client"
 
-export default function ProcessOfWork() {
+import type { ServicesProcessContent } from "@lib/cms/services-page-content"
+import {
+  createSanityDataAttribute,
+  keyedSanityPath,
+} from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
+
+export default function ProcessOfWork({
+  content,
+}: {
+  content: ServicesProcessContent
+}) {
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sanitySource = content.source === "sanity"
+
   return (
     <section className="bg-white py-24 md:py-32 w-full border-t border-[#EAEAEA]">
       <div className="w-full max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16">
@@ -34,17 +23,29 @@ export default function ProcessOfWork() {
             className="text-[2.5rem] md:text-5xl lg:text-6xl text-[#111] leading-[1.05] tracking-[-0.03em] font-semibold"
             style={{ fontFamily: "'Inter Display', sans-serif" }}
           >
-            Sixthgear process of work
+            {content.sectionHeading}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {PROCESS_STEPS.map((step, index) => {
+          {content.steps.map((step, index) => {
             const isMuted = index === 0 || index === 3
 
             return (
               <article
-                key={step.number}
+                key={step.key}
+                data-sanity={
+                  sanitySource
+                    ? createSanityDataAttribute(visualEditingEnabled, {
+                        documentId: "servicesPage",
+                        documentType: "servicesPage",
+                        path: keyedSanityPath(
+                          "processOfWork.steps",
+                          step.key
+                        ),
+                      })
+                    : undefined
+                }
                 className={`min-h-[280px] md:min-h-[320px] border border-[#EAEAEA] p-8 md:p-10 lg:p-12 flex flex-col justify-start ${
                   isMuted ? "bg-[#FAFAFA]" : "bg-white"
                 }`}
@@ -73,7 +74,6 @@ export default function ProcessOfWork() {
             )
           })}
         </div>
-
       </div>
     </section>
   )
