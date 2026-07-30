@@ -1,27 +1,4 @@
-const normalizeBaseUrl = (value?: string | null) => {
-  if (!value) {
-    return null
-  }
+export const PREFERRED_PRODUCTION_BASE_URL =
+  "https://www.sixthgearmoto.com"
 
-  const trimmedValue = value.trim()
-
-  if (!trimmedValue) {
-    return null
-  }
-
-  const withProtocol = /^https?:\/\//i.test(trimmedValue)
-    ? trimmedValue
-    : `https://${trimmedValue}`
-
-  return withProtocol.replace(/\/+$/, "")
-}
-
-export const getBaseURL = () => {
-  return (
-    normalizeBaseUrl(process.env.NEXT_PUBLIC_SITE_URL) ||
-    normalizeBaseUrl(process.env.NEXT_PUBLIC_BASE_URL) ||
-    normalizeBaseUrl(process.env.NEXT_PUBLIC_VERCEL_URL) ||
-    normalizeBaseUrl(process.env.VERCEL_URL) ||
-    "http://localhost:7000"
-  )
-}
+export const getBaseURL = () => PREFERRED_PRODUCTION_BASE_URL

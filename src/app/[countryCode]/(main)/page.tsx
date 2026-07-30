@@ -405,7 +405,7 @@ export default async function Home(props: {
             title="Featured"
             products={featuredProducts.map(mapShopifyToMedusa)}
             region={region}
-            viewAllLink={`/${countryCode}/store?tag=featured`}
+            viewAllLink="/store?tag=featured"
             maxItems={8}
           />
         )}
@@ -417,7 +417,7 @@ export default async function Home(props: {
             title="Best Sellers"
             products={featuredProducts.map(mapShopifyToMedusa)}
             region={region}
-            viewAllLink={`/${countryCode}/store?tag=best-seller`}
+            viewAllLink="/store?tag=best-seller"
             maxItems={4}
           />
         )}
@@ -429,7 +429,7 @@ export default async function Home(props: {
             title="New Arrivals"
             products={newArrivals.map(mapShopifyToMedusa)}
             region={region}
-            viewAllLink={`/${countryCode}/store?tag=new-arrival`}
+            viewAllLink="/store?tag=new-arrival"
             maxItems={4}
           />
         )}

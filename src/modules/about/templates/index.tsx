@@ -12,60 +12,96 @@ import AboutMission from "./ceo-quote"
 import OurValues from "@modules/about/components/our-values"
 import WhyChooseUs from "@modules/about/components/why-choose-us"
 import CTABanner from "@modules/home/components/cta-banner"
-import { FALLBACK_ABOUT_MISSION } from "@modules/about/constants"
-import {
-  AboutHeroContent,
-  AboutMissionContent,
-  AboutWhyChooseUsContent,
-  AboutStoryItem,
-  AboutValuesContent,
-} from "@modules/about/types"
 import type { OurSpaceExperienceContent } from "@lib/cms/our-space-experience"
+import type {
+  AboutCeoQuoteSectionContent,
+  AboutHeroSectionContent,
+  AboutStorySectionContent,
+  AboutValuesSectionContent,
+  AboutWhyChooseUsSectionContent,
+} from "@lib/cms/about-page-main"
+import type { PageCtaContent } from "@lib/cms/page-cta"
+import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface AboutTemplateProps {
-  heroContent: AboutHeroContent
-  storyItems?: AboutStoryItem[] | null
+  heroContent: AboutHeroSectionContent
+  storyContent: AboutStorySectionContent
   ourSpaceExperienceContent: OurSpaceExperienceContent
-  ourValuesContent?: AboutValuesContent | null
-  whyChooseUsContent?: AboutWhyChooseUsContent | null
-  ceoQuoteContent: AboutMissionContent | null
+  ourValuesContent: AboutValuesSectionContent
+  whyChooseUsContent: AboutWhyChooseUsSectionContent
+  ceoQuoteContent: AboutCeoQuoteSectionContent
+  ctaBannerContent: PageCtaContent
 }
 
 export default function AboutTemplate({
   heroContent,
-  storyItems,
+  storyContent,
   ourSpaceExperienceContent,
   ourValuesContent,
   whyChooseUsContent,
   ceoQuoteContent,
+  ctaBannerContent,
 }: AboutTemplateProps) {
-  const missionContent = ceoQuoteContent || FALLBACK_ABOUT_MISSION
-
   return (
     <>
-      <AboutHero
-        title={heroContent.title}
-        subtitle={heroContent.subtitle}
-        backgroundImage={heroContent.backgroundImage}
-      />
-      <WhyChooseUs data={whyChooseUsContent} />
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={heroContent.source === "sanity" ? "hero" : "hero.useSanityContent"}
+      >
+        <AboutHero
+          title={heroContent.title}
+          subtitle={heroContent.subtitle}
+          backgroundImage={heroContent.backgroundImage}
+          backgroundImageAlt={heroContent.backgroundImageAlt}
+        />
+      </SanityEditTarget>
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={whyChooseUsContent.source === "sanity" ? "whyChooseUs" : "whyChooseUs.useSanityContent"}
+      >
+        <WhyChooseUs data={whyChooseUsContent} />
+      </SanityEditTarget>
       <div className="h-6 sm:h-8 md:h-10 lg:h-12 bg-white" />
-      <AboutStory items={storyItems} />
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={storyContent.source === "sanity" ? "ourStory" : "ourStory.useSanityContent"}
+      >
+        <AboutStory content={storyContent} />
+      </SanityEditTarget>
       <div className="h-16 md:h-24 lg:h-32 bg-[#FAFAFA]" />
       <ProjectsSection content={ourSpaceExperienceContent} variant="dark" />
       <div className="h-12 md:h-20 bg-white" />
-      <OurValues data={ourValuesContent} />
-
-      <AboutMission
-        quoteText={missionContent.quoteText}
-        highlightedPhrase={missionContent.highlightedPhrase}
-        ceoName={missionContent.ceoName}
-        ceoTitle={missionContent.ceoTitle}
-        ceoPhoto={missionContent.ceoPhoto}
-        ceoPhotoDescription={missionContent.ceoPhotoDescription}
-      />
-
-      <CTABanner />
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={ourValuesContent.source === "sanity" ? "ourValues" : "ourValues.useSanityContent"}
+      >
+        <OurValues data={ourValuesContent} />
+      </SanityEditTarget>
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={ceoQuoteContent.source === "sanity" ? "ceoQuote" : "ceoQuote.useSanityContent"}
+      >
+        <AboutMission
+          quoteText={ceoQuoteContent.quoteText}
+          highlightedPhrase={ceoQuoteContent.highlightedPhrase}
+          ceoName={ceoQuoteContent.ceoName}
+          ceoTitle={ceoQuoteContent.ceoTitle}
+          ceoPhoto={ceoQuoteContent.ceoPhotoUrl}
+          ceoPhotoDescription={ceoQuoteContent.ceoPhotoDescription}
+        />
+      </SanityEditTarget>
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={ctaBannerContent.source === "sanity" ? "ctaBanner" : "ctaBanner.useSanityContent"}
+      >
+        <CTABanner {...ctaBannerContent} />
+      </SanityEditTarget>
     </>
   )
 }

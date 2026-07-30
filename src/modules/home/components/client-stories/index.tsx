@@ -188,43 +188,51 @@ export default function ClientStories({
             ))}
           </div>
 
-          <div className="mt-8 flex justify-center gap-3">
-            <button
-              onClick={() => scroll("left")}
-              className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
-              aria-label="Previous"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <div className="mt-8 flex flex-col items-center gap-5">
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={() => scroll("left")}
+                className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
+                aria-label="Previous"
               >
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
-              aria-label="Next"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
+                aria-label="Next"
               >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            <LocalizedClientLink
+              href="/rider-stories"
+              className={`${montserrat.className} inline-flex min-h-12 items-center justify-center bg-black px-7 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#FF5000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF5000]`}
+            >
+              View All Rider Stories
+            </LocalizedClientLink>
           </div>
         </>
         

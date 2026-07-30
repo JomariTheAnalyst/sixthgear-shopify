@@ -2,7 +2,7 @@ import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'ctaBanner',
-  title: 'Final Call to Action Banner',
+  title: 'CTA Banner',
   type: 'object',
   validation: (Rule) =>
     Rule.custom((value: any) => {
@@ -23,6 +23,8 @@ export default defineType({
       title: 'Use Sanity content',
       type: 'boolean',
       initialValue: false,
+      description:
+        'Turn on only when every banner field is complete. Turn off to use the page’s complete existing local CTA fallback; incomplete enabled content also falls back safely.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -37,7 +39,7 @@ export default defineType({
       type: 'text',
       rows: 4,
       description:
-        'Large text shown in the final homepage banner. You can use line breaks if you want to control where the text wraps.',
+        'Large text shown in the final page banner. You can use line breaks to control wrapping.',
     }),
     defineField({
       name: 'headlineHighlight',
@@ -69,7 +71,7 @@ export default defineType({
       title: 'Social media links',
       type: 'object',
       description:
-        'Add the social links shown in the final homepage banner. Leave any field empty to hide that platform.',
+        'Social links shown in the final page banner. All three are required when this Sanity section is enabled.',
       fields: [
         defineField({
           name: 'instagram',

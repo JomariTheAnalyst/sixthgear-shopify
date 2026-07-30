@@ -12,47 +12,18 @@ import {
 
 import { inter, montserrat } from "@lib/fonts"
 import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
+import type { ServicesGalleryContent } from "@lib/cms/services-page-content"
+import {
+  createSanityDataAttribute,
+  keyedSanityPath,
+} from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
-type ServicesGalleryItem = {
-  src: string
-  label: string
-}
-
-const SERVICES_GALLERY_ITEMS: ServicesGalleryItem[] = [
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688482/services-gallery1_opnub5.mp4",
-    label: "Sixthgear services gallery video 1",
-  },
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688481/services-gallery6_wp4xru.mp4",
-    label: "Sixthgear services gallery video 2",
-  },
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688480/services-gallery4_ragdgc.mp4",
-    label: "Sixthgear services gallery video 3",
-  },
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688479/snapsave-app_1B4YD3Ug6a_hd_xyvrr1.mp4",
-    label: "Sixthgear services gallery video 4",
-  },
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688478/services-gallery5_d5dgo5.mp4",
-    label: "Sixthgear services gallery video 5",
-  },
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688477/services-gallery3_ephlaj.mp4",
-    label: "Sixthgear services gallery video 6",
-  },
-  {
-    src: "https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1779688477/services-gallery2_y14j4u.mp4",
-    label: "Sixthgear services gallery video 7",
-  },
-]
-
-const SIXTHGEAR_LOGO =
-  "/images/logo/Sixthgear_Moto_Supply-removebg-preview.png"
-
-export default function ServicesGallery() {
+export default function ServicesGallery({
+  content,
+}: {
+  content: ServicesGalleryContent
+}) {
   const sectionRef = useRef<HTMLElement | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -60,6 +31,8 @@ export default function ServicesGallery() {
   const [isPaused, setIsPaused] = useState(false)
   const [isEnded, setIsEnded] = useState(false)
   const [isInViewport, setIsInViewport] = useState(false)
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sanitySource = content.source === "sanity"
 
   useEffect(() => {
     const section = sectionRef.current
@@ -132,7 +105,7 @@ export default function ServicesGallery() {
   }, [currentIndex, isEnded, isInViewport, isPaused])
 
   const goToStory = (index: number) => {
-    const totalItems = SERVICES_GALLERY_ITEMS.length
+    const totalItems = content.items.length
     const normalizedIndex = (index + totalItems) % totalItems
 
     setCurrentIndex(normalizedIndex)
@@ -151,7 +124,7 @@ export default function ServicesGallery() {
   }
 
   const handleEnded = () => {
-    if (currentIndex < SERVICES_GALLERY_ITEMS.length - 1) {
+    if (currentIndex < content.items.length - 1) {
       goToStory(currentIndex + 1)
       return
     }
@@ -195,23 +168,48 @@ export default function ServicesGallery() {
                   className="flex h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                   style={{ transform: `translateX(-${currentIndex * 100}%)` }}
                 >
-                  {SERVICES_GALLERY_ITEMS.map((item, index) => (
-                    <div key={item.src} className="h-full w-full flex-shrink-0 bg-black">
-                      <video
-                        ref={(node) => {
-                          videoRefs.current[index] = node
-                        }}
-                        className="h-full w-full object-cover"
-                        src={item.src}
-                        aria-label={item.label}
-                        muted
-                        playsInline
-                        preload={index === 0 ? "auto" : "metadata"}
-                        onTimeUpdate={(event) =>
-                          handleTimeUpdate(event.currentTarget)
-                        }
-                        onEnded={handleEnded}
-                      />
+                  {content.items.map((item, index) => (
+                    <div
+                      key={item.key}
+                      data-sanity={
+                        sanitySource
+                          ? createSanityDataAttribute(visualEditingEnabled, {
+                              documentId: "servicesPage",
+                              documentType: "servicesPage",
+                              path: keyedSanityPath(
+                                "servicesGallery.items",
+                                item.key
+                              ),
+                            })
+                          : undefined
+                      }
+                      className="relative h-full w-full flex-shrink-0 bg-black"
+                    >
+                      {item.mediaType === "video" ? (
+                        <video
+                          ref={(node) => {
+                            videoRefs.current[index] = node
+                          }}
+                          className="h-full w-full object-cover"
+                          src={item.mediaUrl}
+                          aria-label={item.label}
+                          muted
+                          playsInline
+                          preload={index === 0 ? "auto" : "metadata"}
+                          onTimeUpdate={(event) =>
+                            handleTimeUpdate(event.currentTarget)
+                          }
+                          onEnded={handleEnded}
+                        />
+                      ) : (
+                        <Image
+                          src={item.mediaUrl}
+                          alt={item.label}
+                          fill
+                          sizes="390px"
+                          className="object-cover"
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -220,7 +218,7 @@ export default function ServicesGallery() {
 
                 <div className="absolute inset-x-0 top-0 z-20 px-4 pt-4">
                   <div className="flex gap-1.5">
-                    {SERVICES_GALLERY_ITEMS.map((item, index) => {
+                    {content.items.map((item, index) => {
                       const width =
                         index < currentIndex
                           ? "100%"
@@ -230,7 +228,7 @@ export default function ServicesGallery() {
 
                       return (
                         <button
-                          key={item.src}
+                          key={item.key}
                           type="button"
                           onClick={() => goToStory(index)}
                           aria-label={`Show services story ${index + 1}`}
@@ -249,8 +247,8 @@ export default function ServicesGallery() {
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-[#F16D34] bg-white">
                         <Image
-                          src={SIXTHGEAR_LOGO}
-                          alt=""
+                          src={content.profileLogoUrl}
+                          alt={content.profileLogoAlt}
                           fill
                           sizes="40px"
                           className="object-contain p-1"
@@ -260,10 +258,10 @@ export default function ServicesGallery() {
                         <p
                           className={`${montserrat.className} truncate text-sm font-black uppercase tracking-[0.08em] text-white`}
                         >
-                          Sixthgear Moto
+                          {content.profileName}
                         </p>
                         <p className={`${inter.className} text-xs text-white`}>
-                          Workshop stories
+                          {content.profileSubtitle}
                         </p>
                       </div>
                     </div>
@@ -333,19 +331,17 @@ export default function ServicesGallery() {
           <h2
             className={`${montserrat.className} mt-4 text-[2.5rem] font-black uppercase leading-[0.92] tracking-[-0.06em] text-[#111] md:text-5xl lg:text-6xl`}
           >
-            See the workshop before you book
+            {content.heading}
           </h2>
           <p
             className={`${inter.className} mt-6 max-w-[560px] text-sm font-medium leading-7 text-black/62 md:text-base`}
           >
-            A quick look inside the Sixthgear Moto service floor: real hands,
-            real bikes, and the kind of careful workshop rhythm that turns a
-            booking into a smoother, safer ride.
+            {content.description}
           </p>
           <CalBookingTrigger
             className={`${montserrat.className} mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#F16D34] px-7 py-4 text-sm font-black uppercase tracking-[0.08em] text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]`}
           >
-            Book Now
+            {content.buttonText}
             <ChevronRight className="h-4 w-4" strokeWidth={2.8} />
           </CalBookingTrigger>
         </div>

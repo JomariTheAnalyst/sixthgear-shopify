@@ -78,6 +78,15 @@ const nextConfig = {
         : []),
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/:countryCode/collections/helmets",
+        destination: "/:countryCode/collections/helmet",
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

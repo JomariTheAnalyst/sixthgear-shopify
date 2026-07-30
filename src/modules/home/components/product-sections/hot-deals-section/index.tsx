@@ -14,7 +14,7 @@ interface HotDealsSectionProps {
 
 export default async function HotDealsSection({
   region,
-  countryCode,
+  countryCode: _countryCode,
 }: HotDealsSectionProps) {
   const products = await getProductsByTagValue("Hot Deals", 4, region.id)
 
@@ -28,7 +28,7 @@ export default async function HotDealsSection({
       badges={["hot"]}
       products={products}
       region={region}
-      viewAllLink={`/${countryCode}/store?tag=hot-deals`}
+      viewAllLink="/store?tag=hot-deals"
       maxItems={4}
     />
   )

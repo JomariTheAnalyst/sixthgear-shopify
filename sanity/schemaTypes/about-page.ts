@@ -1,347 +1,375 @@
-import { defineField, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
-type AboutPageDocument = {
-  whatWeOffer?: {
-    useSanityContent?: boolean
-  }
-}
-
-type WhatWeOfferParent = {
+type SourceSection = {
   useSanityContent?: boolean
 }
 
-function whatWeOfferIsEnabled(document: unknown) {
-  return (document as AboutPageDocument | undefined)?.whatWeOffer?.useSanityContent === true
+function sourceEnabled(parent: unknown) {
+  return (parent as SourceSection | undefined)?.useSanityContent === true
 }
 
-function whatWeOfferParentIsEnabled(parent: unknown) {
-  return (parent as WhatWeOfferParent | undefined)?.useSanityContent === true
+function requiredWhenEnabled(message: string) {
+  return (Rule: any) =>
+    Rule.custom((value: unknown, context: { parent?: unknown }) =>
+      !sourceEnabled(context.parent) ||
+      (typeof value === 'string' && value.trim().length > 0) ||
+      message
+    )
 }
 
-function isValidEditorialLink(value: string) {
-  if (value.startsWith('/')) return true
+function assetRequiredWhenEnabled(message: string) {
+  return (Rule: any) =>
+    Rule.custom((value: unknown, context: { parent?: unknown }) =>
+      !sourceEnabled(context.parent) || Boolean(value) || message
+    )
+}
 
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
+function hasText(value: unknown) {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function sectionToggle(fallbackName: string) {
+  return defineField({
+    name: 'useSanityContent',
+    title: 'Use Sanity content',
+    type: 'boolean',
+    initialValue: false,
+    description: `Turn on only when this entire section is ready. Turn off to keep the complete existing ${fallbackName} fallback visible. If enabled content is incomplete, the website safely uses that same fallback.`,
+    validation: (Rule) => Rule.required(),
+  })
 }
 
 export default defineType({
   name: 'aboutPage',
   title: 'About Page',
   type: 'document',
-  validation: (Rule) =>
-    Rule.custom((value: any) => {
-      if (value?.useSanityContent !== true) return true
-      const complete =
-        Boolean(value.hero?.title && value.hero?.description && value.hero?.backgroundImage) &&
-        Array.isArray(value.story) && value.story.length > 0 &&
-        Boolean(value.ourValues?.heading && value.ourValues?.description) &&
-        Array.isArray(value.ourValues?.cards) && value.ourValues.cards.length > 0 &&
-        Boolean(value.whyChooseUs?.sectionLabel && value.whyChooseUs?.heading && value.whyChooseUs?.subtitle) &&
-        Array.isArray(value.whyChooseUs?.items) && value.whyChooseUs.items.length > 0 &&
-        Boolean(value.whyChooseUs?.topImage && value.whyChooseUs?.topImageAlt) &&
-        Boolean(value.whyChooseUs?.bottomImage && value.whyChooseUs?.bottomImageAlt) &&
-        Boolean(value.ceoQuote?.quoteText && value.ceoQuote?.ceoName && value.ceoQuote?.ceoTitle && value.ceoQuote?.ceoPhoto && value.ceoQuote?.ceoPhotoDescription)
-      return complete || 'Complete every About-page main-content section before enabling Sanity content.'
-    }),
   fields: [
     defineField({
       name: 'useSanityContent',
-      title: 'Use Sanity main content',
+      title: 'Legacy main-content toggle (deprecated)',
       type: 'boolean',
+      readOnly: true,
       initialValue: false,
       description:
-        'Turn on to use all main About-page content below. Turn off to keep the complete built-in About content visible.',
-      validation: (Rule) => Rule.required(),
+        'Deprecated compatibility field. It no longer controls the website; each section below has its own source toggle.',
     }),
     defineField({
       name: 'hero',
-      title: 'Hero Section',
+      title: '1. Hero',
       type: 'object',
       description:
-        'This controls the large banner at the top of the About page. Use it to update the main heading, supporting text, and background image visitors see first.',
+        'Top About-page banner. A disabled or incomplete section uses the complete existing Hero fallback.',
       fields: [
+        sectionToggle('About Hero'),
         defineField({
           name: 'title',
-          title: 'Page Heading',
+          title: 'Page heading',
           type: 'string',
-          description:
-            'This is the main headline shown in large text on the About page hero. Keep it short and clear so it stays readable over the image.',
+          description: 'Large heading shown over the Hero image.',
+          validation: requiredWhenEnabled(
+            'Page heading is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'description',
-          title: 'Short Description',
+          title: 'Short description',
           type: 'text',
           rows: 3,
-          description:
-            'This short paragraph appears below the page heading in the hero banner. Keep it concise so it remains easy to read on mobile and desktop.',
+          description: 'Supporting paragraph below the Hero heading.',
+          validation: requiredWhenEnabled(
+            'Description is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'backgroundImage',
-          title: 'Background Image',
+          title: 'Background image',
           type: 'image',
           options: { hotspot: true },
           description:
-            'This image fills the hero banner behind the text on the About page. Use a wide landscape image, ideally at least 2000 x 1200 pixels, and leave enough darker space for the text to stay readable. If you leave this empty, the website will use its built-in fallback image.',
-        }),
-      ],
-    }),
-    defineField({
-      name: 'story',
-      title: 'Our Story',
-      type: 'array',
-      description:
-        'The story cards shown in the Our Story section. Each card has a heading, text, and photo. Drag to reorder.',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'heading',
-              title: 'Heading',
-              type: 'string',
-              description: 'The bold title for this story card.',
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'body',
-              title: 'Body Text',
-              type: 'text',
-              rows: 4,
-              description: 'The main paragraph. 2-3 sentences works best.',
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'image',
-              title: 'Photo',
-              type: 'image',
-              options: { hotspot: true },
-              description:
-                'The image shown beside the text. Landscape format recommended.',
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'imageAlt',
-              title: 'Image Description',
-              type: 'string',
-              description:
-                'A short description of the photo for accessibility. Example: Sixthgear workshop with mechanics working on a motorcycle.',
-              validation: (Rule) => Rule.required(),
-            }),
-          ],
-          preview: {
-            select: {
-              title: 'heading',
-              subtitle: 'body',
-              media: 'image',
-            },
-          },
-        },
-      ],
-    }),
-    defineField({
-      name: 'whatWeOffer',
-      title: 'What We Offer (deprecated)',
-      type: 'object',
-      hidden: true,
-      readOnly: true,
-      description:
-        'Legacy source retained temporarily for migration to the canonical Homepage singleton. Do not edit this field.',
-      fields: [
-        defineField({
-          name: 'useSanityContent',
-          title: 'Use Sanity content',
-          type: 'boolean',
-          initialValue: false,
-          description:
-            'Turn on to use this complete section. Turn off to use the website’s built-in What We Offer content.',
-          validation: (Rule) => Rule.required(),
+            'Wide landscape image behind the Hero copy; approximately 2000 × 1200 px or larger is recommended.',
+          validation: assetRequiredWhenEnabled(
+            'Background image is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
-          name: 'sectionName',
-          title: 'Section Label',
+          name: 'backgroundImageAlt',
+          title: 'Background image description',
           type: 'string',
-          description:
-            'The small text above the heading. Example: What We Offer',
-          validation: (Rule) =>
-            Rule.custom((value, context) =>
-              !whatWeOfferParentIsEnabled(context.parent) ||
-              (typeof value === 'string' && value.trim().length > 0) ||
-              'Section label is required when Sanity content is enabled.'
-            ),
+          description: 'Accessible description of the Hero image.',
+          validation: requiredWhenEnabled(
+            'Image description is required when Sanity content is enabled.'
+          ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'whyChooseUs',
+      title: '2. Why Choose Us',
+      type: 'object',
+      description:
+        'Reasons and overlapping workshop photos shown below the Hero. Disabled or incomplete content uses the full local section.',
+      fields: [
+        sectionToggle('Why Choose Us'),
+        defineField({
+          name: 'sectionLabel',
+          title: 'Section label',
+          type: 'string',
+          description: 'Small orange label above the heading.',
+          validation: requiredWhenEnabled(
+            'Section label is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'heading',
           title: 'Heading',
-          type: 'text',
-          rows: 2,
-          description:
-            'The large bold heading for this section. Example: Complete Care for Your Ride',
-          validation: (Rule) =>
-            Rule.custom((value, context) =>
-              !whatWeOfferParentIsEnabled(context.parent) ||
-              (typeof value === 'string' && value.trim().length > 0) ||
-              'Heading is required when Sanity content is enabled.'
-            ),
-        }),
-        defineField({
-          name: 'cards',
-          title: 'Offer Cards',
-          type: 'array',
-          description:
-            'The cards shown in this section. Each card has a title, photo, and a button linking to a page. Drag to reorder.',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                defineField({
-                  name: 'title',
-                  title: 'Card Title',
-                  type: 'string',
-                  description:
-                    'The title shown on the card. Example: Motorcycle Service & Diagnostics',
-                  validation: (Rule) =>
-                    Rule.custom((value, context) =>
-                      !whatWeOfferIsEnabled(context.document) ||
-                      (typeof value === 'string' && value.trim().length > 0) ||
-                      'Card title is required when Sanity content is enabled.'
-                    ),
-                }),
-                defineField({
-                  name: 'backgroundImage',
-                  title: 'Background Photo',
-                  type: 'image',
-                  options: { hotspot: true },
-                  description: 'The photo behind the card title. Use a clear, high-resolution image.',
-                  validation: (Rule) =>
-                    Rule.custom((value, context) =>
-                      !whatWeOfferIsEnabled(context.document) ||
-                      Boolean(value) ||
-                      'Background photo is required when Sanity content is enabled.'
-                    ),
-                }),
-                defineField({
-                  name: 'imageAlt',
-                  title: 'Image description',
-                  type: 'string',
-                  description: 'Accessible description of the card image.',
-                  validation: (Rule) =>
-                    Rule.custom((value, context) =>
-                      !whatWeOfferIsEnabled(context.document) ||
-                      (typeof value === 'string' && value.trim().length > 0) ||
-                      'Image description is required when Sanity content is enabled.'
-                    ),
-                }),
-                defineField({
-                  name: 'buttonText',
-                  title: 'Button Text',
-                  type: 'string',
-                  description:
-                    'The text on the card button. Example: DISCOVER, SHOP',
-                  validation: (Rule) =>
-                    Rule.custom((value, context) =>
-                      !whatWeOfferIsEnabled(context.document) ||
-                      (typeof value === 'string' && value.trim().length > 0) ||
-                      'Button text is required when Sanity content is enabled.'
-                    ),
-                }),
-                defineField({
-                  name: 'linkUrl',
-                  title: 'Button Link',
-                  type: 'string',
-                  description:
-                    'Where the button goes when clicked. Example: /services, /store, /first-gear',
-                  validation: (Rule) =>
-                    Rule.custom((value, context) => {
-                      if (!whatWeOfferIsEnabled(context.document)) return true
-                      if (typeof value !== 'string' || value.trim().length === 0) {
-                        return 'Button link is required when Sanity content is enabled.'
-                      }
-
-                      return (
-                        isValidEditorialLink(value) ||
-                        'Enter an internal path beginning with / or a complete http(s) URL.'
-                      )
-                    }),
-                }),
-              ],
-              preview: {
-                select: {
-                  title: 'title',
-                  subtitle: 'linkUrl',
-                  media: 'backgroundImage',
-                },
-              },
-            },
-          ],
-          validation: (Rule) =>
-            Rule.custom((value, context) =>
-              !whatWeOfferParentIsEnabled(context.parent) ||
-              (Array.isArray(value) && value.length > 0) ||
-              'Add at least one offer card when Sanity content is enabled.'
-            ),
-        }),
-      ],
-    }),
-    defineField({
-      name: 'ourSpaceExperience',
-      title: 'Our Space & Experience',
-      type: 'ourSpaceExperienceSection',
-      description:
-        'Controls the About-page section for the café, rider lounge, and community space.',
-    }),
-    defineField({
-      name: 'ourValues',
-      title: 'Our Values',
-      type: 'object',
-      description:
-        'The values section on the About page showing what SixthGearMoto stands for.',
-      fields: [
-        defineField({
-          name: 'heading',
-          title: 'Section Heading',
           type: 'string',
-          description:
-            'The bold heading above the value cards. Example: Our Values',
+          description: 'Main heading for this section.',
+          validation: requiredWhenEnabled(
+            'Heading is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
-          name: 'description',
-          title: 'Section Description',
+          name: 'subtitle',
+          title: 'Subtitle',
           type: 'text',
           rows: 3,
-          description:
-            'The short paragraph below the heading. 1-2 sentences that summarize your values.',
+          description: 'Supporting text below the heading.',
+          validation: requiredWhenEnabled(
+            'Subtitle is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
-          name: 'cards',
-          title: 'Value Cards',
+          name: 'items',
+          title: 'Reasons',
           type: 'array',
-          description:
-            'The individual value cards shown in this section. Each card has a title, description, and icon. Drag to reorder.',
+          description: 'Reason cards shown in this order.',
           of: [
-            {
+            defineArrayMember({
               type: 'object',
               fields: [
                 defineField({
                   name: 'title',
                   title: 'Title',
                   type: 'string',
-                  description:
-                    'The name of this value. Example: Precision & Expertise',
-                  validation: (Rule) => Rule.required(),
+                }),
+                defineField({
+                  name: 'description',
+                  title: 'Description',
+                  type: 'text',
+                  rows: 3,
+                }),
+                defineField({
+                  name: 'icon',
+                  title: 'Icon',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Expert Workshop', value: 'wrench' },
+                      { title: 'Quality Gear', value: 'shield' },
+                      { title: 'Rider Community', value: 'users' },
+                      { title: 'Coffee & Lounge', value: 'coffee' },
+                    ],
+                  },
+                }),
+              ],
+              preview: { select: { title: 'title', subtitle: 'description' } },
+            }),
+          ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length > 0 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.title) &&
+                    hasText(item?.description) &&
+                    hasText(item?.icon)
+                )) ||
+              'Add at least one complete reason when Sanity content is enabled.'
+            ),
+        }),
+        defineField({
+          name: 'topImage',
+          title: 'Top photo',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Upper portrait-oriented overlapping workshop photo.',
+          validation: assetRequiredWhenEnabled(
+            'Top photo is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'topImageAlt',
+          title: 'Top photo description',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Top photo description is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'bottomImage',
+          title: 'Bottom photo',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Lower portrait-oriented overlapping workshop photo.',
+          validation: assetRequiredWhenEnabled(
+            'Bottom photo is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'bottomImageAlt',
+          title: 'Bottom photo description',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Bottom photo description is required when Sanity content is enabled.'
+          ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'ourStory',
+      title: '3. Our Story',
+      type: 'object',
+      description:
+        'Alternating story rows on the About page. Disabled or incomplete content uses all existing local story rows.',
+      fields: [
+        sectionToggle('Our Story'),
+        defineField({
+          name: 'items',
+          title: 'Story rows',
+          type: 'array',
+          description:
+            'Each row needs complete copy, a landscape image, and accessible image text. Drag to reorder.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'heading',
+                  title: 'Heading',
+                  type: 'string',
+                }),
+                defineField({
+                  name: 'body',
+                  title: 'Body text',
+                  type: 'text',
+                  rows: 4,
+                }),
+                defineField({
+                  name: 'image',
+                  title: 'Landscape photo',
+                  type: 'image',
+                  options: { hotspot: true },
+                }),
+                defineField({
+                  name: 'imageAlt',
+                  title: 'Photo description',
+                  type: 'string',
+                }),
+              ],
+              preview: {
+                select: { title: 'heading', subtitle: 'body', media: 'image' },
+              },
+            }),
+          ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length > 0 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.heading) &&
+                    hasText(item?.body) &&
+                    Boolean(item?.image?.asset) &&
+                    hasText(item?.imageAlt)
+                )) ||
+              'Add at least one complete story row when Sanity content is enabled.'
+            ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'story',
+      title: 'Legacy Our Story rows (deprecated)',
+      type: 'array',
+      hidden: true,
+      readOnly: true,
+      description:
+        'Retained for compatibility with the old schema. The website now reads ourStory.items.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({ name: 'heading', title: 'Heading', type: 'string' }),
+            defineField({ name: 'body', title: 'Body', type: 'text' }),
+            defineField({ name: 'image', title: 'Image', type: 'image' }),
+            defineField({ name: 'imageAlt', title: 'Image description', type: 'string' }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
+      name: 'whatWeOffer',
+      title: 'What We Offer (deprecated)',
+      type: 'whatWeOfferSection',
+      hidden: true,
+      readOnly: true,
+      description:
+        'Legacy field retained for compatibility. It is not rendered on the About page and is not restored by this repair.',
+    }),
+    defineField({
+      name: 'ourSpaceExperience',
+      title: '4. Our Space & Experience',
+      type: 'ourSpaceExperienceSection',
+      description:
+        'Coffee, rider lounge, and community cards. Its own toggle controls only this section.',
+    }),
+    defineField({
+      name: 'ourValues',
+      title: '5. Our Values',
+      type: 'object',
+      description:
+        'Value cards shown below Our Space. Disabled or incomplete content uses the complete local Values section.',
+      fields: [
+        sectionToggle('Our Values'),
+        defineField({
+          name: 'heading',
+          title: 'Heading',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Heading is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'description',
+          title: 'Description',
+          type: 'text',
+          rows: 3,
+          validation: requiredWhenEnabled(
+            'Description is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'cards',
+          title: 'Value cards',
+          type: 'array',
+          description: 'Complete value cards shown in this order.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'title',
+                  title: 'Title',
+                  type: 'string',
                 }),
                 defineField({
                   name: 'description',
                   title: 'Description',
                   type: 'text',
                   rows: 4,
-                  description:
-                    'A short explanation of this value. 2-3 sentences works best.',
-                  validation: (Rule) => Rule.required(),
                 }),
                 defineField({
                   name: 'icon',
@@ -357,188 +385,93 @@ export default defineType({
                       { title: 'Award & Trust', value: 'award' },
                     ],
                   },
-                  description:
-                    'Pick the icon that best represents this value. This icon appears on the card in the website.',
-                  validation: (Rule) => Rule.required(),
                 }),
               ],
-              preview: {
-                select: {
-                  title: 'title',
-                  subtitle: 'icon',
-                },
-              },
-            },
+              preview: { select: { title: 'title', subtitle: 'description' } },
+            }),
           ],
-        }),
-      ],
-    }),
-    defineField({
-      name: 'whyChooseUs',
-      title: 'Why Choose Us',
-      type: 'object',
-      description:
-        'The section explaining why riders trust SixthGearMoto. Shows a list of reasons on the left and two overlapping photos on the right.',
-      fields: [
-        defineField({
-          name: 'sectionLabel',
-          title: 'Section Label',
-          type: 'string',
-          description:
-            'The small text above the main heading. Example: Why Sixth Gear',
-        }),
-        defineField({
-          name: 'heading',
-          title: 'Heading',
-          type: 'string',
-          description:
-            'The main section title. Example: Why Choose Us?',
-        }),
-        defineField({
-          name: 'subtitle',
-          title: 'Subtitle',
-          type: 'text',
-          rows: 3,
-          description:
-            'The paragraph below the heading. 2-3 sentences.',
-        }),
-        defineField({
-          name: 'items',
-          title: 'Feature List',
-          type: 'array',
-          description:
-            'The list of reasons with icons. Drag to reorder.',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                defineField({
-                  name: 'title',
-                  title: 'Title',
-                  type: 'string',
-                  description:
-                    'The name of this reason. Example: Expert Workshop',
-                  validation: (Rule) => Rule.required(),
-                }),
-                defineField({
-                  name: 'description',
-                  title: 'Description',
-                  type: 'text',
-                  rows: 3,
-                  description:
-                    'Short explanation. 1 sentence works best.',
-                  validation: (Rule) => Rule.required(),
-                }),
-                defineField({
-                  name: 'icon',
-                  title: 'Icon',
-                  type: 'string',
-                  options: {
-                    list: [
-                      { title: 'Expert Workshop', value: 'wrench' },
-                      { title: 'Quality Gear', value: 'shield' },
-                      { title: 'Rider Community', value: 'users' },
-                      { title: 'Coffee & Lounge', value: 'coffee' },
-                    ],
-                  },
-                  description:
-                    'Pick the icon shown next to this reason.',
-                  validation: (Rule) => Rule.required(),
-                }),
-              ],
-              preview: {
-                select: {
-                  title: 'title',
-                  subtitle: 'icon',
-                },
-              },
-            },
-          ],
-        }),
-        defineField({
-          name: 'topImage',
-          title: 'Top Photo',
-          type: 'image',
-          options: { hotspot: true },
-          description:
-            'The upper photo shown on the right side (desktop only). Landscape format works best.',
-        }),
-        defineField({
-          name: 'topImageAlt',
-          title: 'Top Photo Description',
-          type: 'string',
-          description:
-            "Accessibility text for the top photo. Describe what's in the image.",
-        }),
-        defineField({
-          name: 'bottomImage',
-          title: 'Bottom Photo',
-          type: 'image',
-          options: { hotspot: true },
-          description:
-            'The lower overlapping photo shown on the right side. Landscape format works best.',
-        }),
-        defineField({
-          name: 'bottomImageAlt',
-          title: 'Bottom Photo Description',
-          type: 'string',
-          description:
-            'Accessibility text for the bottom photo.',
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length > 0 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.title) &&
+                    hasText(item?.description) &&
+                    hasText(item?.icon)
+                )) ||
+              'Add at least one complete value card when Sanity content is enabled.'
+            ),
         }),
       ],
     }),
     defineField({
       name: 'ceoQuote',
-      title: 'CEO Quote',
+      title: '6. CEO Quote',
       type: 'object',
       description:
-        'The quote section near the bottom of the About page featuring a message from the founder.',
+        'Founder quote and portrait near the page bottom. Disabled or incomplete content uses the complete local quote.',
       fields: [
+        sectionToggle('CEO Quote'),
         defineField({
           name: 'quoteText',
           title: 'Quote',
           type: 'text',
           rows: 4,
-          description:
-            'The full quote text. This is the main message shown in large text. 2-3 sentences works best.',
+          validation: requiredWhenEnabled(
+            'Quote is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'highlightedPhrase',
-          title: 'Highlighted Words',
+          title: 'Highlighted phrase',
           type: 'string',
           description:
-            'The exact words from the quote that should be highlighted in orange. Must match the quote text exactly — copy and paste from the quote to be safe. If left empty, no words are highlighted.',
+            'Optional exact phrase from the quote that should appear in orange.',
         }),
         defineField({
           name: 'ceoName',
           title: 'Name',
           type: 'string',
-          description:
-            "The person's name shown below the quote. Example: John Doe",
+          validation: requiredWhenEnabled(
+            'Name is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'ceoTitle',
-          title: 'Title',
+          title: 'Role',
           type: 'string',
-          description:
-            'Their role or position. Example: Founder & CEO, SixthGearMoto',
+          validation: requiredWhenEnabled(
+            'Role is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'ceoPhoto',
-          title: 'Photo',
+          title: 'Portrait',
           type: 'image',
           options: { hotspot: true },
-          description:
-            'A portrait photo of the person. Square format works best.',
+          description: 'Square or portrait photo used in the circular profile image.',
+          validation: assetRequiredWhenEnabled(
+            'Portrait is required when Sanity content is enabled.'
+          ),
         }),
         defineField({
           name: 'ceoPhotoDescription',
-          title: 'Photo Description',
+          title: 'Portrait description',
           type: 'string',
-          description:
-            'A short description of the photo for accessibility. Example: Portrait of John Doe, founder of SixthGearMoto, standing in the workshop.',
+          validation: requiredWhenEnabled(
+            'Portrait description is required when Sanity content is enabled.'
+          ),
         }),
       ],
+    }),
+    defineField({
+      name: 'ctaBanner',
+      title: '7. CTA Banner',
+      type: 'ctaBanner',
+      description:
+        'Final dark CTA banner. Its source toggle is independent from every other About section.',
     }),
   ],
 })
