@@ -1,7 +1,7 @@
 import { defineField, defineType } from 'sanity'
 
 // Thin strip at the very top of every page.
-// Messages rotate automatically.
+// Active messages scroll continuously in a marquee.
 // Toggle isActive to hide instantly sitewide.
 export default defineType({
   name: 'announcementBar',
@@ -31,10 +31,12 @@ export default defineType({
     }),
     defineField({
       name: 'rotationSpeed',
-      title: 'Rotation Speed (seconds)',
+      title: 'Marquee Pace (seconds per message)',
       type: 'number',
       initialValue: 4,
-      description: 'Seconds per message. Default 4.',
+      description:
+        'Approximate seconds each message spends crossing the bar. Default 4.',
+      validation: (Rule) => Rule.min(2).max(20),
     }),
     defineField({
       name: 'messages',
@@ -49,6 +51,7 @@ export default defineType({
               title: 'Message Text',
               type: 'string',
               description: 'Keep under 60 characters for mobile.',
+              validation: (Rule) => Rule.required().max(60),
             }),
             defineField({
               name: 'link',
