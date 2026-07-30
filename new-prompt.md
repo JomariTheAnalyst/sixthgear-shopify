@@ -1,109 +1,90 @@
-Use this prompt:
 
-````markdown
-# Implement SEO and Sitelink Readiness Fixes
+# Fix Sitemap Accuracy Issues
 
-Act as the senior Next.js SEO engineer for Sixthgear.
+Act as the senior Next.js technical SEO engineer for Sixthgear.
 
-Implement only the confirmed issues from the latest audit. Preserve the current design, Shopify logic, Sanity integration, Cal.com integration, and routing behavior. :contentReference[oaicite:0]{index=0}
+Inspect the current sitemap implementation before editing. Make only the smallest safe changes required to correct the confirmed issues in the uploaded sitemap. :contentReference[oaicite:0]{index=0}
 
 ## Required fixes
 
-1. Standardize the preferred production host to:
+### 1. Correct service `lastModified`
 
-```text
-https://www.sixthgearmoto.com
-````
+The eight local service URLs currently receive the same sitemap-generation timestamp.
 
-Align:
+- Do not use `new Date()` as `lastModified`.
+- Use a real stored content-update date only when one exists.
+- For local fallback services without a trustworthy update date, omit `lastModified`.
+- When Sanity service documents are introduced later, use their `_updatedAt`.
 
-* Canonical URLs
-* Sitemap URLs
-* robots sitemap URL
-* JSON-LD URLs
-* Open Graph URLs
-* Base URL helpers
+Do not invent dates.
 
-Do not create redirect loops or hardcode preview domains.
+### 2. Safely encode sitemap URLs
 
-2. Add a permanent redirect:
+Ensure every generated `<loc>` is a valid absolute, percent-encoded URL.
 
-```text
-/[countryCode]/collections/helmets
-→
-/[countryCode]/collections/helmet
-```
+The current sitemap contains product handles with a literal `™` character.
 
-Update internal Helmets links to use the singular collection handle while keeping the visible label `Helmets`.
+- Use a reusable URL builder based on the production origin:
+  `https://www.sixthgearmoto.com`
+- Encode non-ASCII path characters safely.
+- Do not double-encode already encoded URLs.
+- Do not rename Shopify product handles in this task.
+- Do not manually edit the generated XML.
 
-3. Fix the broken double-localized link:
+### 3. Preserve current correct behavior
 
-```text
-/ph/ph/store?tag=new-arrival
-```
+Keep:
 
-The localized-link component must receive:
+- `/ph/collections/helmet`
+- `www` canonical host
+- Shopify product and collection `updatedAt` values
+- Sanity Rider Story `_updatedAt` values
+- All valid main, service, collection, product and story URLs
 
-```text
-/store?tag=new-arrival
-```
+Do not add:
 
-Audit other `LocalizedClientLink` callers for the same pre-localized-path mistake.
+- Redirect URLs
+- `noindex` routes
+- Query parameters
+- `/ph/ph/`
+- `/PH/`
+- `/collections/helmets`
+- Cart, account, search, Studio, preview or API routes
 
-4. Fix service-detail CTA behavior:
-
-* Six regular workshop services → Cal.com booking
-* `roadside-assistance` → Contact
-* `rider-support` → Contact
-
-Use existing service data or a reusable CTA action model. Do not hardcode Cal.com for every service.
-
-5. Keep only one H1 on the homepage.
-
-Preserve the Hero H1 and change the decorative `CATEGORIES` heading to an appropriate non-H1 element.
-
-6. Add a crawlable link to:
-
-```text
-/[countryCode]/rider-stories
-```
-
-Prefer a `View All Rider Stories` CTA in the homepage Rider Stories section or a footer link. Reuse existing styling.
-
-## Out of scope
-
-* Full locale or `hreflang` redesign
-* First Gear Coffee CMS migration
-* First Gear menu implementation
-* Metadata rewriting beyond host consistency
-* Curator.io
-* Sanity content migration
-* Visual redesign
+`changeFrequency` and `priority` may remain because they are not blocking correctness. Do not redesign or split the sitemap.
 
 ## Verification
+
+Add or update focused sitemap tests that verify:
+
+- Valid XML output
+- Unique URLs
+- Every URL starts with `https://www.sixthgearmoto.com/`
+- No `/ph/ph/`, `/PH/`, query strings or plural Helmets route
+- Non-ASCII URL characters are percent-encoded
+- Local service URLs do not receive the current generation timestamp
+- Product, collection and Rider Story dates still use real source dates
+- All eight main pages and eight service pages remain present
 
 Run:
 
 ```bash
-pnpm test
 pnpm exec tsc --noEmit --incremental false
 pnpm build
 git diff --check
-```
+````
 
-Verify locally and in production:
+Then generate or fetch the sitemap and report:
 
-* Canonicals, sitemap, robots and JSON-LD use `www`
-* `/ph/collections/helmets` permanently redirects to `/ph/collections/helmet`
-* No `/ph/ph/` links remain
-* All internal audited links return valid pages
-* Roadside Assistance and Rider Support are Contact-only
-* Other service pages still open Cal.com
-* Homepage has exactly one H1
-* Rider Stories index has a crawlable link
-* No hydration, redirect, SEO metadata or console errors
+1. Exact files changed
+2. How service dates are now handled
+3. How URL encoding is handled
+4. Sitemap URL count
+5. Test and build results
+6. Any URLs that still require manual review
 
-Report exact files changed, redirects added, link corrections, CTA behavior, command results and browser checks actually completed.
+Do not modify Shopify handles, Sanity content, routes, metadata, redirects or unrelated files.
+Do not claim production or GSC verification unless the corrected version has been deployed and checked live.
 
 ```
 ```
