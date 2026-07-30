@@ -10,7 +10,7 @@ export default defineType({
       title: 'Shopify collection handle',
       type: 'string',
       description:
-        'Exact collection handle from Shopify. Example: helmets, riding-jackets, new-arrivals.',
+        'Exact collection handle from Shopify. Example: helmet, riding-jackets, new-arrivals.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({

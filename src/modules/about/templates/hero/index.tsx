@@ -12,12 +12,14 @@ interface AboutHeroProps {
   title: string
   subtitle: string
   backgroundImage: string | null
+  backgroundImageAlt: string
 }
 
 export default function AboutHero({
   title,
   subtitle,
   backgroundImage,
+  backgroundImageAlt,
 }: AboutHeroProps) {
   // Use requested fallback image if backgroundImage isn't available
   const imageSrc = backgroundImage || "/images/sixthgearleftsideimg.jpg"
@@ -29,7 +31,7 @@ export default function AboutHero({
         <div className="absolute inset-0 opacity-100 z-10">
           <Image
             src={imageSrc}
-            alt={title}
+            alt={backgroundImageAlt}
             fill
             quality={100}
             className="object-cover object-center"

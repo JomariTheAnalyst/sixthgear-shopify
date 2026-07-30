@@ -22,6 +22,23 @@ export interface ServiceLocalContent {
   body: string
 }
 
+export type ServiceCtaAction = "booking" | "contact"
+
+export const BOOKABLE_SERVICE_SLUGS = [
+  "preventive-maintenance",
+  "repairs-diagnostics",
+  "accessories-installation",
+  "wheels-drivetrain",
+  "detailing-protection",
+  "performance-upgrades",
+] as const
+
+const bookableServiceSlugs = new Set<string>(BOOKABLE_SERVICE_SLUGS)
+
+export function getServiceCtaAction(slug: string): ServiceCtaAction {
+  return bookableServiceSlugs.has(slug) ? "booking" : "contact"
+}
+
 export interface ServiceCategory {
   id: string
   slug: string

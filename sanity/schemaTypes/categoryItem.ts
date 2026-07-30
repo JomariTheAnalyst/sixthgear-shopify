@@ -50,7 +50,7 @@ export default defineType({
       title: 'Button link',
       type: 'string',
       description:
-        'Where the button should go when clicked. Most of the time this should be the matching Shopify collection page. Example: /collections/helmets',
+        'Where the button should go when clicked. Most of the time this should be the matching Shopify collection page. Example: /collections/helmet',
     }),
   ],
 })

@@ -4,6 +4,7 @@ import { defineLocations, type DocumentLocationResolvers } from 'sanity/presenta
 export const CANONICAL_SINGLETON_IDS = {
   homepage: 'homepage',
   aboutPage: 'aboutPage',
+  servicesPage: 'servicesPage',
   marketing: 'marketing',
 } as const
 
@@ -34,6 +35,16 @@ export const presentationLocations: DocumentLocationResolvers = {
     select: { id: '_id' },
     resolve: (value) =>
       singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.aboutPage, 'About Page', '/ph/about'),
+  }),
+  servicesPage: defineLocations({
+    select: { id: '_id' },
+    resolve: (value) =>
+      singletonLocation(
+        value?.id,
+        CANONICAL_SINGLETON_IDS.servicesPage,
+        'Services Page',
+        '/ph/services'
+      ),
   }),
   marketing: defineLocations({
     select: { id: '_id' },

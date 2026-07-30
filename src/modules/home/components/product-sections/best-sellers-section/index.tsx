@@ -14,7 +14,7 @@ interface BestSellersSectionProps {
 
 export default async function BestSellersSection({
   region,
-  countryCode,
+  countryCode: _countryCode,
 }: BestSellersSectionProps) {
   const products = await getProductsByTagValue("Best Seller", 4, region.id)
 
@@ -28,7 +28,7 @@ export default async function BestSellersSection({
       badges={["rank"]}
       products={products}
       region={region}
-      viewAllLink={`/${countryCode}/store?tag=best-seller`}
+      viewAllLink="/store?tag=best-seller"
       maxItems={4}
     />
   )

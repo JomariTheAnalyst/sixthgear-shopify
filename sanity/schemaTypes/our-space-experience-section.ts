@@ -39,6 +39,7 @@ export default defineType({
       name: 'sectionTitle',
       title: 'Section heading',
       type: 'string',
+      description: 'Large heading above the experience cards on the About page.',
       validation: (Rule) =>
         Rule.custom((value, context) =>
           !isEnabledFromParent(context.parent) ||
@@ -51,6 +52,7 @@ export default defineType({
       title: 'Section description',
       type: 'text',
       rows: 3,
+      description: 'Supporting copy centered below the section heading.',
       validation: (Rule) =>
         Rule.custom((value, context) =>
           !isEnabledFromParent(context.parent) ||
@@ -62,6 +64,8 @@ export default defineType({
       name: 'items',
       title: 'Experience cards',
       type: 'array',
+      description:
+        'Coffee, lounge, and community cards. Use wide landscape images and drag cards to reorder them.',
       of: [
         {
           type: 'object',
@@ -70,6 +74,7 @@ export default defineType({
               name: 'title',
               title: 'Title',
               type: 'string',
+              description: 'Card heading shown below its image.',
               validation: (Rule) =>
                 Rule.custom((value, context) =>
                   !isEnabledFromDocument(context.document) ||
@@ -82,6 +87,7 @@ export default defineType({
               title: 'Description',
               type: 'text',
               rows: 3,
+              description: 'Short card description.',
               validation: (Rule) =>
                 Rule.custom((value, context) =>
                   !isEnabledFromDocument(context.document) ||
@@ -94,6 +100,8 @@ export default defineType({
               title: 'Image',
               type: 'image',
               options: { hotspot: true },
+              description:
+                'Wide landscape card image; use the hotspot to preserve its subject across responsive crops.',
               validation: (Rule) =>
                 Rule.custom((value, context) =>
                   !isEnabledFromDocument(context.document) ||
@@ -105,6 +113,7 @@ export default defineType({
               name: 'imageAlt',
               title: 'Image description',
               type: 'string',
+              description: 'Accessible description of the card image.',
               validation: (Rule) =>
                 Rule.custom((value, context) =>
                   !isEnabledFromDocument(context.document) ||

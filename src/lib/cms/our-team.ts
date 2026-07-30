@@ -11,7 +11,6 @@ export type OurTeamContent = {
     key: string
     name: string
     role: string
-    title: string
     description: string
     image: string
     imageAlt: string
@@ -27,42 +26,84 @@ export const FALLBACK_OUR_TEAM_CONTENT: OurTeamContent = {
     {
       key: 'fallback-team-1',
       name: 'MARTIE',
-      role: 'Lead Technician',
-      title: 'Workshop Head',
+      role: 'Head Mechanic',
       description:
         'Experienced motorcycle technician specializing in diagnostics, repairs, and performance upgrades for big bikes and premium motorcycles.',
       image: '/images/team/team1.png',
       imageAlt: 'MARTIE',
     },
+     {
+      key: 'fallback-team-3',
+      name: 'JAYSON',
+      role: 'Service Advisor',
+      description:
+        'Your point of contact for service consultations, job updates, and ensuring a smooth workshop experience from start to finish.',
+      image: '/images/team/team3.png',
+      imageAlt: 'JAYSON',
+    },
     {
       key: 'fallback-team-2',
       name: 'JAMES',
-      role: 'Senior Mechanic',
-      title: 'Service & Installation Specialist',
+      role: 'Assistant Technician',
       description:
         'Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.',
       image: '/images/team/team2.png',
       imageAlt: 'JAMES',
     },
-    {
-      key: 'fallback-team-3',
-      name: 'MARVIN',
-      role: 'Service Advisor',
-      title: 'Rider Support & Coordination',
-      description:
-        'Your point of contact for service consultations, job updates, and ensuring a smooth workshop experience from start to finish.',
-      image: '/images/team/team3.png',
-      imageAlt: 'MARVIN',
-    },
-    {
+       {
       key: 'fallback-team-4',
-      name: 'JEVAN',
-      role: 'Lead Barista',
-      title: 'First Gear Coffee',
+      name: 'SANDY',
+      role: 'Senior Technician',
+      description:
+        'Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.',
+      image: '/images/team/team2.png',
+      imageAlt: 'JAMES',
+    },
+
+    {
+      key: 'fallback-team-5',
+      name: 'CAMILLE  ',
+      role: 'Supervisor',
       description:
         'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
       image: '/images/team/team4.png',
       imageAlt: 'JEVAN',
+    },
+    {
+      key: 'fallback-team-6',
+      name: 'LIZA',
+      role: 'Sales and marketing associate',
+      description:
+        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
+      image: '/images/team/team4.png',
+      imageAlt: 'LIZA',
+    },
+    {
+      key: 'fallback-team-7',
+      name: 'ALTHEA',
+      role: 'sales and marketing associate',
+      description:
+        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
+      image: '/images/team/team4.png',
+      imageAlt: 'ALTHEA',
+    },
+    {
+      key: 'fallback-team-9',
+      name: 'JAKE',
+      role: 'Marketing Strategist',
+      description:
+        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
+      image: '/images/team/team4.png',
+      imageAlt: 'JAKE',
+    },
+     {
+      key: 'fallback-team-10',
+      name: 'GINO',
+      role: 'Marketing Associate',
+      description:
+        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
+      image: '/images/team/team4.png',
+      imageAlt: 'GINO',
     },
   ],
 }

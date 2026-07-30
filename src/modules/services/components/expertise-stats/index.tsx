@@ -3,19 +3,25 @@
 import Link from "next/link"
 import Image from "next/image"
 
-import { companyData } from "@lib/company-data"
 import { inter, montserrat } from "@lib/fonts"
-import { SanityServicesExpertiseStats } from "@lib/cms/types"
+import type { ServicesExpertiseContent } from "@lib/cms/services-page-content"
+import {
+  createSanityDataAttribute,
+  keyedSanityPath,
+} from "@lib/cms/visual-editing"
+import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 type ExpertiseStatsProps = {
   countryCode: string
-  data?: SanityServicesExpertiseStats | null
+  content: ServicesExpertiseContent
 }
 
 export default function ExpertiseStats({
   countryCode,
+  content,
 }: ExpertiseStatsProps) {
-  const content = companyData.serviceExpertise
+  const visualEditingEnabled = useSanityVisualEditingEnabled()
+  const sanitySource = content.source === "sanity"
   const normalizedButtonLink = content.assistance.buttonLink.trim()
   const buttonHref = /^https?:\/\//i.test(normalizedButtonLink)
     ? normalizedButtonLink
@@ -45,7 +51,21 @@ export default function ExpertiseStats({
 
           <div className="space-y-8 md:space-y-10">
             {content.highlights.map((item) => (
-              <article key={item.title}>
+              <article
+                key={item.key}
+                data-sanity={
+                  sanitySource
+                    ? createSanityDataAttribute(visualEditingEnabled, {
+                        documentId: "servicesPage",
+                        documentType: "servicesPage",
+                        path: keyedSanityPath(
+                          "expertiseStats.highlights",
+                          item.key
+                        ),
+                      })
+                    : undefined
+                }
+              >
                 <h3
                   className={`${montserrat.className} truncate text-[1.25rem] font-black leading-none tracking-[-0.035em] text-black md:text-[1.65rem]`}
                   title={item.title}
@@ -64,8 +84,17 @@ export default function ExpertiseStats({
 
         <div className="relative min-h-[460px] overflow-hidden rounded-[28px] bg-black md:min-h-[560px]">
           <Image
-            src="/images/sixthgear-workshop.jpg"
-            alt="Sixthgear workshop"
+            src={content.backgroundImage}
+            alt={content.backgroundImageAlt}
+            data-sanity={
+              sanitySource
+                ? createSanityDataAttribute(visualEditingEnabled, {
+                    documentId: "servicesPage",
+                    documentType: "servicesPage",
+                    path: "expertiseStats.backgroundImage",
+                  })
+                : undefined
+            }
             fill
             sizes="(max-width: 1023px) 100vw, 50vw"
             className="object-cover opacity-90"

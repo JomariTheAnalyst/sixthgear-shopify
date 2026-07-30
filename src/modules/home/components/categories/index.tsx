@@ -216,9 +216,12 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
     <section className="relative w-full bg-[#fafafa] pt-12 pb-20 overflow-hidden">
       {/* Absolute Background Watermark Text - Fixed scale and opacity for legibility */}
       <div className="hidden md:flex absolute top-0 left-0 w-full h-full items-start justify-center pt-8 md:pt-12 pointer-events-none overflow-hidden select-none z-0">
-        <h1 className="font-black italic text-[11vw] sm:text-[11vw] lg:text-[12vw] uppercase tracking-normal leading-none text-center transform whitespace-nowrap text-gray-200/60 drop-shadow-sm max-w-[100vw]">
+        <div
+          aria-hidden="true"
+          className="font-black italic text-[11vw] sm:text-[11vw] lg:text-[12vw] uppercase tracking-normal leading-none text-center transform whitespace-nowrap text-gray-200/60 drop-shadow-sm max-w-[100vw]"
+        >
           {watermarkText}
-        </h1>
+        </div>
       </div>
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 md:px-8 mt-12 md:mt-24">

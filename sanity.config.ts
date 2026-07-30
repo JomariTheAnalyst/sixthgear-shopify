@@ -10,6 +10,13 @@ import { schema } from './sanity/schemaTypes'
 import { structure } from './sanity/structure'
 import { presentationLocations } from './sanity/presentation/locations'
 
+const SINGLETON_TYPES = new Set([
+  'homepage',
+  'marketing',
+  'aboutPage',
+  'servicesPage',
+])
+
 export default defineConfig({
   name: 'default',
   title: 'Sixthgear CMS',
@@ -35,4 +42,12 @@ export default defineConfig({
     visionTool({ defaultApiVersion: apiVersion }),
   ],
   schema,
+  document: {
+    newDocumentOptions: (previous) =>
+      previous.filter((option) => !SINGLETON_TYPES.has(option.templateId)),
+    actions: (previous, context) =>
+      SINGLETON_TYPES.has(context.schemaType)
+        ? previous.filter((action) => action.action !== 'duplicate')
+        : previous,
+  },
 })

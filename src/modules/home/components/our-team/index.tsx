@@ -187,11 +187,6 @@ export default function OurTeam({
                           {member.role}
                         </p>
                         <p
-                          className={`${inter.className} text-sm font-medium text-gray-500 mb-2 leading-relaxed`}
-                        >
-                          {member.title}
-                        </p>
-                        <p
                           className={`${inter.className} text-[13px] text-gray-400 leading-relaxed max-w-[260px] line-clamp-3`}
                         >
                           {member.description}

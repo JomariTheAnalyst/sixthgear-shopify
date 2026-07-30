@@ -36,9 +36,7 @@ import { isCompleteSanityMarquee } from './marquee'
 import { isCompleteSanityServiceBrands } from './service-brands'
 import { isCompleteSanityWhatWeOffer } from './what-we-offer'
 import { isCompleteSanityOurTeam } from './our-team'
-import { isCompleteSanityOurSpaceExperience } from './our-space-experience'
 import { isCompleteHomepageServices } from './homepage-services'
-import { isCompleteAboutPageMain } from './about-page-main'
 import {
   getFeaturedCollectionCampaignIssue,
   warnFeaturedCollectionInDevelopment,
@@ -793,28 +791,6 @@ export async function getAboutPage(): Promise<SanityAboutPage | null> {
         },
       }
     )
-
-    if (
-      result?.useSanityContent === true &&
-      !isCompleteAboutPageMain(result) &&
-      process.env.NODE_ENV !== 'production' &&
-      typeof window === 'undefined'
-    ) {
-      console.warn(
-        '[Sanity] About Page main content is enabled but incomplete. Rendering the complete hardcoded main-content fallback.'
-      )
-    }
-
-    if (
-      result?.ourSpaceExperience?.useSanityContent === true &&
-      !isCompleteSanityOurSpaceExperience(result.ourSpaceExperience) &&
-      process.env.NODE_ENV !== 'production' &&
-      typeof window === 'undefined'
-    ) {
-      console.warn(
-        '[Sanity] About Our Space & Experience is enabled but incomplete. Rendering the complete hardcoded fallback.'
-      )
-    }
 
     return result ?? null
   } catch (error) {

@@ -371,62 +371,122 @@ export const marketingQuery = groq`
 export const servicesPageQuery = groq`
   *[_type == "servicesPage" && _id == "servicesPage"][0]{
     hero {
+      useSanityContent,
       title,
       shortTitle,
       description,
       "heroImageUrl": heroImage.asset->url,
+      heroImageAlt,
       "imageUrl": image.asset->url
     },
     expertiseStats {
+      useSanityContent,
       sectionHeading,
       sectionDescription,
-      buttonText,
-      buttonLink,
-      stats[] {
-        number,
-        label
-      }
+      "highlights": highlights[]{
+        _key,
+        title,
+        description
+      },
+      assistance {
+        heading,
+        description,
+        buttonText,
+        buttonLink
+      },
+      "backgroundImageUrl": backgroundImage.asset->url,
+      backgroundImageAlt
     },
     brandsWeService {
+      useSanityContent,
       sectionHeading,
-      brands[] {
+      "brands": brands[] {
+        _key,
         name,
-        "logoUrl": logo.asset->url
+        "logoUrl": logo.asset->url,
+        logoAlt
       }
     },
     servicesGrid {
+      useSanityContent,
       sectionHeading,
       useCustomServices,
-      "featuredServices": featuredServices[]->{
-        _id,
-        title,
-        "slug": slug.current,
-        icon,
-        shortDescription,
-        seoTitle,
-        seoDescription,
-        displayOrder,
-        "heroImageUrl": heroImage.asset->url,
-        "socialImageUrl": socialImage.asset->url
+      "featuredServices": featuredServices[]{
+        _key,
+        "service": @->{
+          _id,
+          title,
+          "slug": slug.current,
+          icon,
+          shortDescription,
+          seoTitle,
+          seoDescription,
+          displayOrder,
+          "heroImageUrl": heroImage.asset->url,
+          "socialImageUrl": socialImage.asset->url
+        }
       }
+    },
+    processOfWork {
+      useSanityContent,
+      sectionHeading,
+      "steps": steps[]{
+        _key,
+        number,
+        title,
+        description
+      }
+    },
+    servicesGallery {
+      useSanityContent,
+      heading,
+      description,
+      profileName,
+      profileSubtitle,
+      "profileLogoUrl": profileLogo.asset->url,
+      profileLogoAlt,
+      buttonText,
+      "items": items[]{
+        _key,
+        mediaType,
+        "mediaUrl": select(
+          mediaType == "video" => coalesce(video.asset->url, externalUrl),
+          mediaType == "image" => coalesce(image.asset->url, externalUrl)
+        ),
+        label
+      }
+    },
+    ctaBanner {
+      useSanityContent,
+      preTitle,
+      headline,
+      headlineHighlight,
+      buttonLabel,
+      buttonLink,
+      footerTagline,
+      socialLinks
     }
   }
 `
 
 export const aboutPageQuery = groq`
   *[_type == "aboutPage" && _id == "aboutPage"][0]{
-    useSanityContent,
     hero {
+      useSanityContent,
       title,
       description,
-      "backgroundImageUrl": backgroundImage.asset->url
+      "backgroundImageUrl": backgroundImage.asset->url,
+      backgroundImageAlt
     },
-    "story": story[]{
-      _key,
-      heading,
-      body,
-      "imageUrl": image.asset->url,
-      imageAlt
+    ourStory {
+      useSanityContent,
+      "items": items[]{
+        _key,
+        heading,
+        body,
+        "imageUrl": image.asset->url,
+        imageAlt
+      }
     },
     ourSpaceExperience {
       useSanityContent,
@@ -441,6 +501,7 @@ export const aboutPageQuery = groq`
       }
     },
     ourValues {
+      useSanityContent,
       heading,
       description,
       "cards": cards[]{
@@ -451,6 +512,7 @@ export const aboutPageQuery = groq`
       }
     },
     whyChooseUs {
+      useSanityContent,
       sectionLabel,
       heading,
       subtitle,
@@ -466,12 +528,23 @@ export const aboutPageQuery = groq`
       bottomImageAlt
     },
     ceoQuote {
+      useSanityContent,
       quoteText,
       highlightedPhrase,
       ceoName,
       ceoTitle,
       "ceoPhotoUrl": ceoPhoto.asset->url,
       ceoPhotoDescription
+    },
+    ctaBanner {
+      useSanityContent,
+      preTitle,
+      headline,
+      headlineHighlight,
+      buttonLabel,
+      buttonLink,
+      footerTagline,
+      socialLinks
     }
   }
 `
