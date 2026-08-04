@@ -13,6 +13,7 @@ import type {
   SanityCoffeeShowcaseQueryResult,
   SanityCollectionHero,
   SanityHeroSection,
+  SanityVideoFeatureSection,
   SanityMarqueeSectionQueryResult,
   SanityServicesSection,
   SanityShopByBrandsSection,
@@ -119,6 +120,33 @@ export async function getHomepageHero(): Promise<SanityHeroSection | null> {
     return result?.hero ?? null
   } catch (error) {
     console.error(error)
+    return null
+  }
+}
+
+export async function getHomepageVideoFeature(): Promise<SanityVideoFeatureSection | null> {
+  try {
+    const result = await client.fetch<{
+      videoFeature: SanityVideoFeatureSection | null
+    } | null>(
+      homepageQuery,
+      {},
+      {
+        next: {
+          revalidate: 60,
+          tags: ['sanity'],
+        },
+      }
+    )
+
+    return result?.videoFeature ?? null
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+      console.warn(
+        '[Sanity] Featured Video fetch failed. Rendering the built-in trailer fallback.',
+        error
+      )
+    }
     return null
   }
 }

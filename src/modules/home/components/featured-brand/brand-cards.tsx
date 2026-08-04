@@ -1,176 +1,373 @@
-import Image from "next/image"
+"use client"
 
+import Image from "next/image"
+import {
+  useCallback,
+  useRef,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react"
+import { useGSAP } from "@gsap/react"
+import gsap from "gsap"
+import { Draggable } from "gsap/Draggable"
+import { InertiaPlugin } from "gsap/InertiaPlugin"
+
+import DragCursor, {
+  type DragCursorHandle,
+} from "components/drag-cursor"
 import { montserrat } from "@lib/fonts"
-import { TextRoll } from "components/ui/text-roll"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
+import { createHorizontalLoop, type HorizontalLoop } from "./horizontal-loop"
+
+gsap.registerPlugin(useGSAP, Draggable, InertiaPlugin)
+
 export type BrandCardItem = {
-  id?: number | string
-  name?: string | null
-  imageUrl?: string | null
-  imageAlt?: string | null
-  link?: string | null
-  buttonText?: string | null
+  id: string
+  name: string
+  imageUrl: string
+  imageAlt: string
+  link: string
+  decorativeImage: boolean
 }
 
-const FALLBACK_BRAND_CARDS: BrandCardItem[] = [
-  {
-    name: "AKRAPOVIC",
-    imageUrl:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=1600&fit=crop",
-    link: "/store?brand=akrapovic",
-    buttonText: "SHOP NOW",
-    imageAlt: "Akrapovic exhaust",
-  },
-  {
-    name: "SEC MOTO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=1200&h=1600&fit=crop",
-    link: "/store?brand=sec-moto",
-    buttonText: "SHOP NOW",
-    imageAlt: "SEC Moto gear",
-  },
-  {
-    name: "MOTOHUB",
-    imageUrl:
-      "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1200&h=1600&fit=crop",
-    link: "/store?brand=motohub",
-    buttonText: "SHOP NOW",
-    imageAlt: "Motohub store",
-  },
-  {
-    name: "MOTUL",
-    imageUrl:
-      "https://images.unsplash.com/photo-1558981852-426c6c22a060?w=1200&h=1600&fit=crop",
-    link: "/store?brand=motul",
-    buttonText: "SHOP NOW",
-    imageAlt: "Motul oil",
-  },
-]
+const DRAG_THRESHOLD_PX = 8
+const PARALLAX_MAX_PERCENT = 7
 
-function isRemoteImageUrl(url?: string | null) {
-  return Boolean(url && /^https?:\/\//i.test(url))
+type ParallaxMetric = {
+  left: number
+  width: number
 }
 
-function resolveBrand(brand: BrandCardItem, index: number) {
-  const fallback = FALLBACK_BRAND_CARDS[index]
-
-  return {
-    name: brand.name || fallback?.name || `Brand ${index + 1}`,
-    imageUrl:
-      brand.imageUrl ||
-      fallback?.imageUrl ||
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=1600&fit=crop",
-    imageAlt:
-      brand.imageAlt ||
-      fallback?.imageAlt ||
-      `${brand.name || fallback?.name || "Brand"} collection image`,
-    link: brand.link || fallback?.link || "/store",
-    buttonText: brand.buttonText || fallback?.buttonText || "SHOP NOW",
-  }
-}
-
-function BrandCard({
+function CardArtwork({
   brand,
-  mobile = false,
+  onImageLoad,
 }: {
-  brand: ReturnType<typeof resolveBrand>
-  mobile?: boolean
+  brand: BrandCardItem
+  onImageLoad: () => void
 }) {
   return (
-    <LocalizedClientLink
-      href={brand.link}
-      className={`group relative overflow-hidden bg-neutral-900 ${
-        mobile
-          ? "aspect-square rounded-[6px]"
-          : "min-w-0 flex-[1_1_0%] rounded-[6px] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:flex-[1.55_1_0%]"
-      }`}
-    >
-      <div className="absolute inset-0">
+    <>
+      <div
+        data-brand-parallax
+        className="absolute inset-y-0 -left-[8%] w-[116%] will-change-transform"
+      >
         <Image
           src={brand.imageUrl}
-          alt={brand.imageAlt}
+          alt={brand.decorativeImage ? "" : brand.imageAlt}
           fill
-          unoptimized={isRemoteImageUrl(brand.imageUrl)}
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          sizes={
-            mobile
-              ? "(max-width: 767px) 50vw"
-              : "(min-width: 768px) 25vw, 100vw"
-          }
+          draggable={false}
+          onLoad={onImageLoad}
+          className="select-none object-cover"
+          sizes="(max-width: 639px) 72vw, (max-width: 767px) 48vw, (max-width: 1023px) 34vw, (max-width: 1279px) 26vw, (max-width: 1535px) 22vw, 19vw"
         />
       </div>
 
-      <div className="absolute inset-0 bg-black/45 transition-colors duration-500 group-hover:bg-black/30" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
-      <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6 lg:p-8">
-        <div className="flex flex-1 items-center justify-center px-3 text-center">
-          <h3
-            className={`${montserrat.className} text-[22px] font-black uppercase tracking-[0.055em] text-white sm:text-[26px] md:text-[28px] lg:text-[34px]`}
-          >
-            {brand.name}
-          </h3>
-        </div>
+      <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5 md:p-6">
+        <h3
+          className={`${montserrat.className} text-[20px] font-black uppercase leading-[1.05] tracking-[0.045em] text-white sm:text-[22px] lg:text-[25px]`}
+        >
+          {brand.name}
+        </h3>
 
-        <div className="flex justify-start">
-          <span
-            className={`${montserrat.className} inline-flex items-center gap-3 rounded-none border border-white/20 bg-white/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.08em] text-white backdrop-blur-md transition-colors duration-300 group-hover:bg-white/20 group-hover:text-white sm:text-sm`}
-          >
-            <span
-              className={`${montserrat.className} font-bold uppercase tracking-[0.08em]`}
-            >
-              <TextRoll transition={{ duration: 0.35 }} className="whitespace-nowrap">
-                {brand.buttonText}
-              </TextRoll>
-            </span>
-            <svg
-              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 12h14M13 5l7 7-7 7"
-              />
-            </svg>
-          </span>
-        </div>
+        <span
+          className={`${montserrat.className} mt-3 hidden w-fit bg-black px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-white md:inline-flex`}
+        >
+          SHOP NOW
+        </span>
       </div>
-    </LocalizedClientLink>
+    </>
   )
 }
 
-export default function BrandCards({
-  brands,
-}: {
-  brands?: BrandCardItem[] | null
-}) {
-  const inputBrands = brands ?? FALLBACK_BRAND_CARDS
-  const resolvedBrands = inputBrands
-    .slice(0, 4)
-    .map((brand, index) => resolveBrand(brand, index))
+export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
+  const carouselRef = useRef<HTMLDivElement | null>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const dragCursorRef = useRef<DragCursorHandle | null>(null)
+  const refreshLoopRef = useRef<(() => void) | null>(null)
+  const draggedRef = useRef(false)
 
-  if (resolvedBrands.length === 0) {
-    return null
-  }
+  useGSAP(
+    () => {
+      const viewport = viewportRef.current
+      const track = trackRef.current
+
+      if (!viewport || !track || brands.length <= 1) return
+
+      const slides = gsap.utils.toArray<HTMLElement>(
+        track.querySelectorAll("[data-brand-slide]")
+      )
+      const parallaxImages = gsap.utils.toArray<HTMLElement>(
+        track.querySelectorAll("[data-brand-parallax]")
+      )
+      const wrapProgress = gsap.utils.wrap(0, 1)
+      const parallaxSetters = parallaxImages.map((image) =>
+        gsap.quickSetter(image, "xPercent")
+      )
+
+      let reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+      let loop: HorizontalLoop
+      let draggable: Draggable | null = null
+      let parallaxMetrics: ParallaxMetric[] = []
+      let viewportWidth = 0
+      let dragOriginX = 0
+      let dragStartProgress = 0
+
+      const getGap = () => {
+        const styles = window.getComputedStyle(track)
+        return Number.parseFloat(styles.columnGap || styles.gap) || 0
+      }
+
+      const measureParallax = () => {
+        const startX = slides[0]?.offsetLeft ?? 0
+        viewportWidth = viewport.clientWidth
+        parallaxMetrics = slides.map((slide) => ({
+          left: slide.offsetLeft - startX,
+          width: slide.offsetWidth,
+        }))
+      }
+
+      const updateParallax = () => {
+        if (reducedMotion) {
+          parallaxSetters.forEach((setX) => setX(0))
+          return
+        }
+
+        const totalWidth = loop.totalWidth
+        if (totalWidth <= 0 || viewportWidth <= 0) return
+
+        const travelled = loop.timeline.progress() * totalWidth
+        const viewportCenter = viewportWidth / 2
+
+        parallaxMetrics.forEach(({ left, width }, index) => {
+          const wrappedLeft = gsap.utils.wrap(
+            -width,
+            totalWidth - width,
+            left - travelled
+          )
+          const slideCenter = wrappedLeft + width / 2
+          const normalizedDistance = gsap.utils.clamp(
+            -1,
+            1,
+            (slideCenter - viewportCenter) / (viewportCenter + width / 2)
+          )
+
+          parallaxSetters[index](-normalizedDistance * PARALLAX_MAX_PERCENT)
+        })
+      }
+
+      const setLoopProgress = (progress: number) => {
+        loop.timeline.progress(wrapProgress(progress), true)
+        updateParallax()
+      }
+
+      const refreshMeasurements = () => {
+        draggable?.tween?.kill()
+        loop.refresh()
+        measureParallax()
+        updateParallax()
+      }
+
+      const updateFromProxy = (proxyX: number) => {
+        if (loop.totalWidth <= 0) return
+
+        const dragDistance = proxyX - dragOriginX
+        if (Math.abs(dragDistance) >= DRAG_THRESHOLD_PX) {
+          draggedRef.current = true
+        }
+
+        setLoopProgress(dragStartProgress - dragDistance / loop.totalWidth)
+      }
+
+      loop = createHorizontalLoop(slides, {
+        paddingRight: getGap,
+        speed: 1,
+      })
+      measureParallax()
+      updateParallax()
+
+      const proxy = document.createElement("div")
+      ;[draggable] = Draggable.create(proxy, {
+        trigger: viewport,
+        type: "x",
+        inertia: !reducedMotion,
+        dragClickables: true,
+        minimumMovement: DRAG_THRESHOLD_PX,
+        allowNativeTouchScrolling: true,
+        onPressInit() {
+          this.tween?.kill()
+          dragOriginX = this.x
+          dragStartProgress = loop.timeline.progress()
+          draggedRef.current = false
+          dragCursorRef.current?.press()
+        },
+        onDragStart() {
+          draggedRef.current = true
+        },
+        onDrag() {
+          updateFromProxy(this.x)
+        },
+        onThrowUpdate() {
+          updateFromProxy(this.x)
+        },
+        onRelease() {
+          dragCursorRef.current?.release()
+        },
+      })
+
+      const media = gsap.matchMedia()
+      media.add("(prefers-reduced-motion: reduce)", () => {
+        reducedMotion = true
+        if (draggable) draggable.vars.inertia = false
+        parallaxSetters.forEach((setX) => setX(0))
+
+        return () => {
+          reducedMotion = false
+          if (draggable) draggable.vars.inertia = true
+        }
+      })
+
+      const handleWheel = (event: WheelEvent) => {
+        if (
+          loop.totalWidth <= 0 ||
+          Math.abs(event.deltaX) <= Math.abs(event.deltaY)
+        ) {
+          return
+        }
+
+        event.preventDefault()
+        draggable?.tween?.kill()
+        setLoopProgress(
+          loop.timeline.progress() + event.deltaX / loop.totalWidth
+        )
+      }
+
+      viewport.addEventListener("wheel", handleWheel, { passive: false })
+
+      const resizeCall = gsap.delayedCall(0.12, refreshMeasurements).pause()
+      refreshLoopRef.current = () => resizeCall.restart(true)
+      const resizeObserver = new ResizeObserver(() => {
+        resizeCall.restart(true)
+      })
+      resizeObserver.observe(viewport)
+
+      return () => {
+        resizeObserver.disconnect()
+        resizeCall.kill()
+        draggable?.tween?.kill()
+        draggable?.kill()
+        loop.kill()
+        media.revert()
+        viewport.removeEventListener("wheel", handleWheel)
+        refreshLoopRef.current = null
+      }
+    },
+    {
+      scope: carouselRef,
+      dependencies: [brands.length],
+      revertOnUpdate: true,
+    }
+  )
+
+  const handleCardClickCapture = useCallback(
+    (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      const interactionWasDrag = draggedRef.current
+      draggedRef.current = false
+
+      if (interactionWasDrag) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    },
+    []
+  )
+
+  const handlePointerEnter = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      const cursorActivated = dragCursorRef.current?.enter(
+        event.clientX,
+        event.clientY
+      )
+
+      if (cursorActivated) event.currentTarget.style.cursor = "none"
+    },
+    []
+  )
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      dragCursorRef.current?.move(event.clientX, event.clientY)
+    },
+    []
+  )
+
+  const handlePointerLeave = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      event.currentTarget.style.cursor = ""
+      dragCursorRef.current?.leave()
+    },
+    []
+  )
+
+  const handlePointerDown = useCallback(() => {
+    draggedRef.current = false
+    dragCursorRef.current?.press()
+  }, [])
+
+  const handlePointerUp = useCallback(() => {
+    dragCursorRef.current?.release()
+  }, [])
+
+  const handleImageLoad = useCallback(() => {
+    refreshLoopRef.current?.()
+  }, [])
+
+  if (brands.length === 0) return null
 
   return (
-    <>
-      <div className="grid grid-cols-2 gap-3 md:hidden">
-        {resolvedBrands.map((brand) => (
-          <BrandCard key={`${brand.link}-${brand.name}`} brand={brand} mobile />
-        ))}
+    <div ref={carouselRef} className="relative w-full overflow-hidden">
+      <div
+        ref={viewportRef}
+        className="w-full overflow-hidden touch-pan-y"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Featured brands"
+      >
+        <div ref={trackRef} className="flex w-max gap-1.5" role="list">
+          {brands.map((brand, sourceIndex) => (
+            <div
+              key={brand.id}
+              data-brand-slide
+              className="relative aspect-[4/5] w-[72vw] shrink-0 will-change-transform sm:w-[48vw] md:w-[34vw] lg:w-[26vw] xl:w-[22vw] 2xl:w-[19vw]"
+              role="listitem"
+              aria-roledescription="slide"
+              aria-label={`${sourceIndex + 1} of ${brands.length}`}
+            >
+              <LocalizedClientLink
+                href={brand.link}
+                draggable={false}
+                onClickCapture={handleCardClickCapture}
+                onPointerEnter={handlePointerEnter}
+                onPointerMove={handlePointerMove}
+                onPointerLeave={handlePointerLeave}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerLeave}
+                className="group relative block h-full w-full overflow-hidden bg-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white"
+              >
+                <CardArtwork brand={brand} onImageLoad={handleImageLoad} />
+              </LocalizedClientLink>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="hidden md:flex md:h-[360px] md:w-full md:items-stretch md:gap-2 lg:h-[420px] lg:gap-3">
-        {resolvedBrands.map((brand) => (
-          <BrandCard key={`${brand.link}-${brand.name}`} brand={brand} />
-        ))}
-      </div>
-    </>
+      <DragCursor ref={dragCursorRef} />
+    </div>
   )
 }

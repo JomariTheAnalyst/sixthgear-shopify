@@ -85,6 +85,21 @@ export const homepageQuery = groq`
         description
       }
     },
+    videoFeature {
+      useSanityContent,
+      enabled,
+      sourceType,
+      "uploadedVideoUrl": videoUpload.asset->url,
+      videoUrl,
+      "posterUrl": poster.asset->url,
+      title,
+      description,
+      videoLabel,
+      startMuted,
+      loop,
+      ctaLabel,
+      ctaLink
+    },
     about {
       useCustomAbout,
       kicker,

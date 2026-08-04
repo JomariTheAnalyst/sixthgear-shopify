@@ -105,7 +105,7 @@ export default function MobileMenu({
                   {/* Centered Logo */}
                   <Dialog.Title className="flex-1 flex justify-center">
                     <LocalizedClientLink href="/" onClick={closeMenu}>
-                      <Logo />
+                      <Logo variant="navbar" />
                     </LocalizedClientLink>
                   </Dialog.Title>
 

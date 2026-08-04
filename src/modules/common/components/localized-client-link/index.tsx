@@ -18,7 +18,7 @@ const LocalizedClientLink = ({
   href: string
   preserveSource?: boolean
   className?: string
-  onClick?: () => void
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>
   passHref?: true
   [x: string]: any
 }) => {

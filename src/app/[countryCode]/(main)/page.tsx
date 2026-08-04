@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { Suspense } from "react"
 
 import MarqueeStrip from "components/marquee-strip"
+import VideoFeature from "@modules/home/components/video-feature"
 import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
 import ShopByCategories from "@modules/home/components/categories"
@@ -29,8 +30,8 @@ import type {
 } from "@lib/cms/types"
 import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
-import { getCollection, getCollections, getProducts } from "@lib/shopify"
-import type { ShopifyCollection, ShopifyProductCard } from "@lib/shopify/types"
+import { getBrandCollections, getCollection, getProducts } from "@lib/shopify"
+import type { ShopifyProductCard } from "@lib/shopify/types"
 import { HttpTypes } from "@medusajs/types"
 import {
   selectFeaturedCollectionForPosition,
@@ -49,8 +50,7 @@ import {
   getHomepageBlogPosts,
   getHomepageCategories,
   getHomepageHero,
-  getHomepageMarquee,
-  getHomepageShopByBrands,
+  getHomepageVideoFeature,
   getHomepageWhatWeOffer,
   getCoffeeShowcase,
   getServiceBrandsSection,
@@ -61,6 +61,7 @@ import {
   getHomepageCollectionSections,
   getMarketingData,
 } from "@lib/cms/client"
+import { selectVideoFeatureContent } from "@lib/cms/video-feature"
 import {
   getAbsoluteSiteUrl,
   getDefaultOpenGraphImageUrl,
@@ -84,8 +85,6 @@ import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 import { cleanSanityString } from "@lib/cms/visual-editing"
 
 export const revalidate = 60
-
-const BRAND_COLLECTION_HANDLE_PREFIX = "brand-"
 
 export async function generateMetadata({
   params,
@@ -153,25 +152,32 @@ function ProductSectionSkeleton() {
   )
 }
 
-function mapBrandCollectionToCard(
-  collection: ShopifyCollection
-): BrandCardItem {
-  return {
-    id: collection.id,
-    name: collection.title,
-    imageUrl: collection.image?.url ?? null,
-    imageAlt:
-      collection.image?.altText ?? `${collection.title} collection image`,
-    link: `/collections/${collection.handle}`,
-    buttonText: "SHOP NOW",
-  }
-}
+const BRAND_COLLECTION_PLACEHOLDER =
+  "/images/placeholders/brand-collection.svg"
 
-function isFeaturedBrandCollection(collection: ShopifyCollection) {
-  return (
-    collection.handle.startsWith(BRAND_COLLECTION_HANDLE_PREFIX) &&
-    collection.isCollectionFeatured?.value?.toLowerCase() === "true"
-  )
+async function getShopifyBrandCards(): Promise<BrandCardItem[]> {
+  try {
+    const collections = await getBrandCollections()
+
+    return collections.map((collection) => {
+      const image = collection.image
+
+      return {
+        id: collection.id,
+        name: collection.title,
+        imageUrl: image?.url ?? BRAND_COLLECTION_PLACEHOLDER,
+        imageAlt: image?.altText?.trim() || (image ? collection.title : ""),
+        link: `/collections/${collection.handle}`,
+        decorativeImage: image === null,
+      }
+    })
+  } catch (error) {
+    console.error(
+      "[homepage] Unable to load Shopify brand collections.",
+      error
+    )
+    return []
+  }
 }
 
 export default async function Home(props: {
@@ -188,8 +194,8 @@ export default async function Home(props: {
 
   const [
     homepageHero,
-    homepageMarquee,
-    homepageShopByBrands,
+    homepageVideoFeature,
+    shopifyBrandCards,
     homepageAbout,
     homepageCategories,
     homepageWhatWeOffer,
@@ -202,13 +208,12 @@ export default async function Home(props: {
     marketingData,
     homepageBlogPosts,
     collectionSections,
-    brandCollections,
     featuredProductsResp,
     newArrivalsResp,
   ] = await Promise.all([
     getHomepageHero(),
-    getHomepageMarquee(),
-    getHomepageShopByBrands(),
+    getHomepageVideoFeature(),
+    getShopifyBrandCards(),
     getHomepageAbout(),
     getHomepageCategories(),
     getHomepageWhatWeOffer(),
@@ -221,7 +226,6 @@ export default async function Home(props: {
     getMarketingData(),
     getHomepageBlogPosts(),
     getHomepageCollectionSections(),
-    getCollections(100),
     getProducts({ first: 8, query: 'tag:featured' }),
     getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
   ])
@@ -301,6 +305,7 @@ export default async function Home(props: {
   )
 
   const homepageAboutContent = selectHomepageAboutContent(homepageAbout)
+  const videoFeatureContent = selectVideoFeatureContent(homepageVideoFeature)
   const satisfiedCustomersContent =
     selectSatisfiedCustomersContent(satisfiedCustomers)
   const franchiseContent = selectFranchiseContent(franchiseSection)
@@ -324,11 +329,6 @@ export default async function Home(props: {
       imageUrl: customer.imageUrl,
     }))
   const clientStoriesContent: SanityBlogPostListItem[] = homepageBlogPosts
-  const shopifyBrandCards = brandCollections
-    .filter(isFeaturedBrandCollection)
-    .slice(0, 4)
-    .map(mapBrandCollectionToCard)
-
 
   const marketingNow = new Date()
   const getFeatured = (
@@ -354,16 +354,25 @@ export default async function Home(props: {
       <SanityEditTarget documentId="homepage" documentType="homepage" path="hero">
         <Hero data={homepageHero} />
       </SanityEditTarget>
-      <MarqueeStrip data={homepageMarquee} />
+
+      <FeaturedBrand brands={shopifyBrandCards} />
+      <MarqueeStrip />
+      {videoFeatureContent.enabled && (
+        <SanityEditTarget
+          documentId="homepage"
+          documentType="homepage"
+          path={
+            videoFeatureContent.source === "sanity"
+              ? "videoFeature"
+              : "videoFeature.useSanityContent"
+          }
+        >
+          <VideoFeature data={videoFeatureContent} />
+        </SanityEditTarget>
+      )}
+
       <FeaturedCollectionBanner data={getFeatured("after_hero")} />
       <PromoBanner data={getPromo("after_hero")} />
-
-      <SanityEditTarget documentId="homepage" documentType="homepage" path="shopByBrands">
-        <FeaturedBrand
-          data={homepageShopByBrands}
-          brands={shopifyBrandCards}
-        />
-      </SanityEditTarget>
 
       <SanityEditTarget documentId="homepage" documentType="homepage" path={homepageAboutContent.source === "sanity" ? "about" : "about.useCustomAbout"}>
       <AboutSection

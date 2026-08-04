@@ -37,8 +37,15 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'videoFeature',
+      title: 'Featured Video on Homepage - 3rd section',
+      type: 'videoFeatureSection',
+      description:
+        'Controls the video player below the brands marquee, including its media source, copy, and call to action.',
+    }),
+    defineField({
       name: 'about',
-      title: 'About Section on Homepage - 3rd section',
+      title: 'About Section on Homepage - 4th section',
       type: 'aboutSection',
       description:
         'This section introduces the brand, workshop, and what customers can expect from SixthGear.',
@@ -46,7 +53,7 @@ export default defineType({
     }),
     defineField({
       name: 'categories',
-      title: 'Product Categories Section on Homepage - 4th section',
+      title: 'Product Categories Section on Homepage - 5th section',
       type: 'categoriesSection',
       description:
         'This section shows the main shopping categories that help people jump into the store quickly.',
@@ -54,7 +61,7 @@ export default defineType({
     }),
     defineField({
       name: 'productCollectionSections',
-      title: 'Product Rows on Homepage - 5th section',
+      title: 'Product Rows on Homepage - 6th section',
       type: 'array',
       of: [{ type: 'homepageCollectionSection' }],
       description:
@@ -62,7 +69,7 @@ export default defineType({
     }),
     defineField({
       name: 'coffeeShowcase',
-      title: 'Coffee Section on Homepage - 6th section',
+      title: 'Coffee Section on Homepage - 7th section',
       type: 'coffeeShowcase',
       description:
         'This section highlights the coffee side of the business and appears in the middle of the homepage.',
@@ -70,7 +77,7 @@ export default defineType({
 
     defineField({
       name: 'services',
-      title: 'Motorcycle Services Section on Homepage - 7th section',
+      title: 'Motorcycle Services Section on Homepage - 8th section',
       type: 'servicesSection',
       description:
         'This section promotes the services offered by the workshop and service center.',
@@ -79,7 +86,7 @@ export default defineType({
 
     defineField({
       name: 'whatWeOffer',
-      title: 'What We Offer - 8th section',
+      title: 'What We Offer - 9th section',
       type: 'whatWeOfferSection',
       description:
         'Controls the What We Offer carousel on the homepage. Turn off its source toggle to keep the complete built-in fallback visible.',
@@ -87,7 +94,7 @@ export default defineType({
 
     defineField({
       name: 'serviceBrandsSection',
-      title: 'Motorcycle Brands We Service - 9th section',
+      title: 'Motorcycle Brands We Service - 10th section',
       type: 'serviceBrandsSection',
       description:
         'This section shows the motorcycle brands the workshop supports and services.',
@@ -96,7 +103,7 @@ export default defineType({
     
     defineField({
       name: 'satisfiedCustomers',
-      title: 'Customer Photos Section - 10th section',
+      title: 'Customer Photos Section - 11th section',
       type: 'satisfiedCustomers',
       description:
         'This section shows customer photos in the moving photo strip on the homepage.',
@@ -104,35 +111,35 @@ export default defineType({
    
     defineField({
       name: 'franchiseSection',
-      title: 'Franchise Invitation Section - 11th section',
+      title: 'Franchise Invitation Section - 12th section',
       type: 'franchiseSection',
       description:
         'This section invites interested partners to inquire about franchise opportunities.',
     }),
     defineField({
       name: 'ourTeamSection',
-      title: 'Meet the Team Section - 12th section',
+      title: 'Meet the Team Section - 13th section',
       type: 'ourTeamSection',
       description:
         'This section introduces team members and appears lower on the homepage.',
     }),
     defineField({
       name: 'clientTestimonials',
-      title: 'Customer Reviews Section - 13th section',
+      title: 'Customer Reviews Section - 14th section',
       type: 'clientTestimonials',
       description:
         'This section shows customer reviews and testimonials on the homepage.',
     }),
     defineField({
       name: 'storeLocation',
-      title: 'Store Location and Contact Section - 14th section',
+      title: 'Store Location and Contact Section - 15th section',
       type: 'storeLocation',
       description:
         'This section shows the store name, address, hours, and directions button.',
     }),
     defineField({
       name: 'ctaBanner',
-      title: 'Final Call to Action Banner - 15th section',
+      title: 'Final Call to Action Banner - 16th section',
       type: 'ctaBanner',
       description:
         'This is the final banner near the bottom of the homepage that encourages people to keep shopping.',

@@ -1,8 +1,13 @@
 import { shopifyGraphql } from "./client";
 import { getProductQuery, getProductsQuery, getProductsByIdsQuery, getProductRecommendationsQuery } from "./queries/product";
-import { getCollectionQuery, getCollectionsQuery } from "./queries/collection";
+import { getBrandCollectionsPageQuery, getCollectionQuery, getCollectionsQuery } from "./queries/collection";
 import { predictiveSearchQuery, searchProductsQuery } from "./queries/search";
 import { cacheKey, getCached, TTL } from "@lib/cache/redis";
+import {
+  selectBrandCollections,
+  type BrandCollection,
+  type BrandCollectionCandidate,
+} from "./brand-collections";
 
 import {
   ShopifyProduct,
@@ -208,6 +213,72 @@ export async function getCollections(first: number = 20): Promise<ShopifyCollect
       }
 
       return data?.collections?.edges.map((e) => e.node) || [];
+    },
+    TTL.COLLECTIONS_LIST
+  );
+}
+
+export async function getBrandCollections(): Promise<BrandCollection[]> {
+  const key = cacheKey("collections", "brand-prefix-v2");
+
+  return getCached(
+    key,
+    async () => {
+      const candidates: BrandCollectionCandidate[] = [];
+      const seenCursors = new Set<string>();
+      let after: string | null = null;
+
+      while (true) {
+        const { data, errors } = await shopifyGraphql<{
+          collections: {
+            edges: Array<{ node: BrandCollectionCandidate | null }>;
+            pageInfo: {
+              hasNextPage: boolean;
+              endCursor: string | null;
+            };
+          };
+        }>(getBrandCollectionsPageQuery, { first: 250, after });
+
+        if (errors && errors.length > 0) {
+          console.error(
+            "[homepage] Unable to finish loading Shopify brand collections.",
+            errors
+          );
+          break;
+        }
+
+        const connection = data?.collections;
+        if (!connection) break;
+
+        for (const edge of connection.edges ?? []) {
+          if (edge?.node) candidates.push(edge.node);
+        }
+
+        if (!connection.pageInfo?.hasNextPage) break;
+
+        const nextCursor = connection.pageInfo.endCursor;
+        if (!nextCursor || seenCursors.has(nextCursor)) {
+          console.error(
+            "[homepage] Shopify collection pagination stopped because the next cursor was invalid."
+          );
+          break;
+        }
+
+        seenCursors.add(nextCursor);
+        after = nextCursor;
+      }
+
+      const collections = selectBrandCollections(candidates);
+
+      if (process.env.NODE_ENV === "development") {
+        console.info(
+          `[homepage] Matching brand collections (${collections.length}): ${collections
+            .map((collection) => collection.handle)
+            .join(", ")}`
+        );
+      }
+
+      return collections;
     },
     TTL.COLLECTIONS_LIST
   );

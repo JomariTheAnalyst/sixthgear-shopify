@@ -4,7 +4,15 @@ import { draftMode } from "next/headers"
 import { VisualEditing } from "next-sanity/visual-editing"
 
 import { clientEnv } from "@lib/env"
-import { hendrix, inter, montserrat, poppins } from "@lib/fonts"
+import {
+  copy,
+  hendrix,
+  inter,
+  montserrat,
+  nationalCompressed,
+  nationalCondensed,
+  poppins,
+} from "@lib/fonts"
 import { getDefaultTwitterMetadata, getSeoMetadataBase } from "@lib/seo"
 import { getBaseURL } from "@lib/util/env"
 import { Toaster } from "sonner"
@@ -36,27 +44,27 @@ export const metadata: Metadata = {
   twitter: getDefaultTwitterMetadata(),
   icons: {
     icon: [
-      { url: "/images/favicon/favicon.ico" },
+      { url: "/images/favicon/favicon.ico?v=20260804-2" },
       {
-        url: "/images/favicon/favicon-16x16.png",
+        url: "/images/favicon/favicon-16x16.png?v=20260804-2",
         sizes: "16x16",
         type: "image/png",
       },
       {
-        url: "/images/favicon/favicon-32x32.png",
+        url: "/images/favicon/favicon-32x32.png?v=20260804-2",
         sizes: "32x32",
         type: "image/png",
       },
     ],
-    apple: [{ url: "/images/favicon/apple-touch-icon.png" }],
+    apple: [{ url: "/images/favicon/apple-touch-icon.png?v=20260804-2" }],
     other: [
       {
         rel: "android-chrome-192x192",
-        url: "/images/favicon/android-chrome-192x192.png",
+        url: "/images/favicon/android-chrome-192x192.png?v=20260804-2",
       },
       {
         rel: "android-chrome-512x512",
-        url: "/images/favicon/android-chrome-512x512.png",
+        url: "/images/favicon/android-chrome-512x512.png?v=20260804-2",
       },
     ],
   },
@@ -69,7 +77,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
       <body
-        className={`${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
+        className={`${copy.variable} ${nationalCompressed.variable} ${nationalCondensed.variable} ${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
       >
         <SanityVisualEditingProvider enabled={isDraftModeEnabled}>
           <ConsoleWarning />

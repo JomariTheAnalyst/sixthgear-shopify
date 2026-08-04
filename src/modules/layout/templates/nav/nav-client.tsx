@@ -136,7 +136,7 @@ const NavClient = ({
                   href="/"
                   className="flex items-center justify-center whitespace-nowrap"
                 >
-                  <Logo />
+                  <Logo variant="navbar" />
                 </LocalizedClientLink>
               </div>
 
@@ -183,7 +183,7 @@ const NavClient = ({
                   href="/"
                   className="flex items-center justify-center whitespace-nowrap"
                 >
-                  <Logo />
+                  <Logo variant="navbar" />
                 </LocalizedClientLink>
               </div>
 

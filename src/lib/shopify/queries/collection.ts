@@ -219,3 +219,25 @@ export const getCollectionsQuery = `
   }
   ${IMAGE_FRAGMENT}
 `;
+
+export const getBrandCollectionsPageQuery = `
+  query getBrandCollectionsPage($first: Int!, $after: String) {
+    collections(first: $first, after: $after, sortKey: TITLE) {
+      edges {
+        node {
+          id
+          title
+          handle
+          image {
+            ...ImageFragment
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`;

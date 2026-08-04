@@ -34,6 +34,22 @@ export interface SanityHeroSection {
   }[] | null
 }
 
+export interface SanityVideoFeatureSection {
+  useSanityContent?: boolean | null
+  enabled?: boolean | null
+  sourceType?: 'upload' | 'url' | null
+  uploadedVideoUrl?: string | null
+  videoUrl?: string | null
+  posterUrl?: string | null
+  title?: string | null
+  description?: string | null
+  videoLabel?: string | null
+  startMuted?: boolean | null
+  loop?: boolean | null
+  ctaLabel?: string | null
+  ctaLink?: string | null
+}
+
 export interface SanityShopByBrandsSection {
   useCustomShopByBrands?: boolean | null
   sectionTitle?: string | null

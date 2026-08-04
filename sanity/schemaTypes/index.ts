@@ -8,6 +8,7 @@ import marqueeSection from './marquee-section'
 import brandItem from './brandItem'
 import statItem from './statItem'
 import shopByBrandsSection from './shop-by-brands-section'
+import videoFeatureSection from './video-feature-section'
 import aboutSection from './about-section'
 import categoryItem from './categoryItem'
 import categoriesSection from './categoriesSection'
@@ -50,6 +51,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     brandItem,
     statItem,
     shopByBrandsSection,
+    videoFeatureSection,
     aboutSection,
     categoryItem,
     categoriesSection,
