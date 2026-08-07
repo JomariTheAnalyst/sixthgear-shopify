@@ -32,6 +32,9 @@ export type BrandCardItem = {
 }
 
 const DRAG_THRESHOLD_PX = 8
+const TOUCH_DRAG_THRESHOLD_PX = 2
+const TOUCH_THROW_RESISTANCE = 650
+const DEFAULT_THROW_RESISTANCE = 1000
 const PARALLAX_MAX_PERCENT = 7
 
 type ParallaxMetric = {
@@ -193,6 +196,10 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
       let viewportWidth = 0
       let dragOriginX = 0
       let dragStartProgress = 0
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches
+      const dragThreshold = coarsePointer
+        ? TOUCH_DRAG_THRESHOLD_PX
+        : DRAG_THRESHOLD_PX
 
       const getGap = () => {
         const styles = window.getComputedStyle(track)
@@ -253,7 +260,7 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
         if (loop.totalWidth <= 0) return
 
         const dragDistance = proxyX - dragOriginX
-        if (Math.abs(dragDistance) >= DRAG_THRESHOLD_PX) {
+        if (Math.abs(dragDistance) >= dragThreshold) {
           draggedRef.current = true
         }
 
@@ -273,7 +280,10 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
         type: "x",
         inertia: !reducedMotion,
         dragClickables: true,
-        minimumMovement: DRAG_THRESHOLD_PX,
+        minimumMovement: dragThreshold,
+        throwResistance: coarsePointer
+          ? TOUCH_THROW_RESISTANCE
+          : DEFAULT_THROW_RESISTANCE,
         allowNativeTouchScrolling: true,
         onPressInit() {
           this.tween?.kill()

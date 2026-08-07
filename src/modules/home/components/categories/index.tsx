@@ -37,6 +37,9 @@ type CategoryConfig = {
 }
 
 const DRAG_THRESHOLD_PX = 8
+const TOUCH_DRAG_THRESHOLD_PX = 2
+const TOUCH_THROW_RESISTANCE = 650
+const DEFAULT_THROW_RESISTANCE = 1000
 const PARALLAX_MAX_PERCENT = 6
 
 const CATEGORY_ORDER: CategoryConfig[] = [
@@ -292,6 +295,7 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
       let draggable: Draggable | null = null
       let slideMetrics: Array<{ left: number; width: number }> = []
       let viewportWidth = 0
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches
 
       const measure = () => {
         viewportWidth = viewport.clientWidth
@@ -346,9 +350,14 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
         bounds: getBounds(),
         inertia: !reducedMotion,
         edgeResistance: 0.82,
-        dragResistance: 0.04,
+        dragResistance: coarsePointer ? 0 : 0.04,
         dragClickables: true,
-        minimumMovement: DRAG_THRESHOLD_PX,
+        minimumMovement: coarsePointer
+          ? TOUCH_DRAG_THRESHOLD_PX
+          : DRAG_THRESHOLD_PX,
+        throwResistance: coarsePointer
+          ? TOUCH_THROW_RESISTANCE
+          : DEFAULT_THROW_RESISTANCE,
         allowNativeTouchScrolling: true,
         cursor: "none",
         activeCursor: "none",
