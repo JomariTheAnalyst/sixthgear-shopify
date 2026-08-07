@@ -15,13 +15,24 @@ export async function generateMetadata({
   params: Promise<{ countryCode: string }>
 }): Promise<Metadata> {
   const { countryCode } = await params
+  const title = "About Us"
+  const description =
+    "Learn about SixthgearMoto, a rider-built motorcycle shop, workshop, and cafe hub in the Philippines."
 
   return {
-    title: "About Us",
-    description:
-      "Learn about SixthgearMoto, a rider-built motorcycle shop, workshop, and cafe hub in the Philippines.",
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/about"),
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   }
 }

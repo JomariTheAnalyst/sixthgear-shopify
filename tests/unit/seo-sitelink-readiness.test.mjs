@@ -85,7 +85,102 @@ test('homepage keeps the Hero H1 and exposes the Rider Stories index', () => {
   )
 
   assert.match(hero, /<h1/)
+  assert.match(hero, /heading:\s*["']SIXTHGEAR MOTO["']/)
   assert.doesNotMatch(categories, /<h1/)
   assert.match(stories, /href="\/rider-stories"/)
   assert.match(stories, />\s*View All Rider Stories\s*</)
+})
+
+test('approved routes use clean absolute titles and matching social titles', () => {
+  const rootLayout = readSource('src/app/layout.tsx')
+  const homepage = readSource('src/app/[countryCode]/(main)/page.tsx')
+  const routeSources = [
+    {
+      source: readSource('src/app/[countryCode]/(main)/store/page.tsx'),
+      title: 'Shop',
+    },
+    {
+      source: readSource('src/app/[countryCode]/(main)/services/page.tsx'),
+      title: 'Services',
+    },
+    {
+      source: readSource('src/app/[countryCode]/(main)/contact/page.tsx'),
+      title: 'Contact Us',
+    },
+    {
+      source: readSource('src/app/[countryCode]/(main)/about/page.tsx'),
+      title: 'About Us',
+    },
+    {
+      source: readSource(
+        'src/app/[countryCode]/(main)/rider-stories/page.tsx'
+      ),
+      title: 'Rider Stories',
+    },
+  ]
+  const firstGear = readSource(
+    'src/app/[countryCode]/(main)/first-gear/page.tsx'
+  )
+  const collections = readSource(
+    'src/app/[countryCode]/(main)/collections/[handle]/page.tsx'
+  )
+
+  assert.match(rootLayout, /template:\s*["']%s \| SixthGearMoto["']/)
+  assert.match(homepage, /const title = ["']SixthGearMoto["']/)
+  assert.match(homepage, /title:\s*\{\s*absolute:\s*title,?\s*\}/)
+
+  for (const { source, title } of routeSources) {
+    assert.match(source, new RegExp(`const title = ["']${title}["']`))
+    assert.match(source, /title:\s*\{\s*absolute:\s*title,?\s*\}/)
+    assert.match(source, /openGraph:\s*\{[\s\S]*?title,/)
+    assert.match(source, /twitter:\s*\{[\s\S]*?title,/)
+  }
+
+  assert.match(
+    firstGear,
+    /title:\s*\{\s*absolute:\s*["']First Gear Coffee["']\s*\}/
+  )
+  assert.match(collections, /params\.handle === ["']helmet["']/)
+  assert.match(collections, /\? ["']Helmets["']/)
+  assert.match(
+    collections,
+    /params\.handle === ["']helmet["']\s*\?\s*\{\s*absolute:\s*title\s*\}/
+  )
+})
+
+test('primary sitelink destinations use approved labels and unlocalized paths', () => {
+  const nav = readSource('src/modules/layout/templates/nav/nav-client.tsx')
+  const footer = readSource('src/modules/layout/templates/footer/index.tsx')
+  const combined = `${nav}\n${footer}`
+  const approvedLinks = [
+    ['Shop', '/store'],
+    ['Services', '/services'],
+    ['Helmets', '/collections/helmet'],
+    ['First Gear Coffee', '/first-gear'],
+    ['Contact Us', '/contact'],
+  ]
+
+  for (const [name, href] of approvedLinks) {
+    assert.match(
+      combined,
+      new RegExp(`name:\\s*["']${name}["'],\\s*href:\\s*["']${href}["']`)
+    )
+  }
+
+  assert.doesNotMatch(combined, /href:\s*["']\/ph\//)
+  assert.doesNotMatch(combined, /\/collections\/helmets/)
+})
+
+test('WebSite schema keeps approved SixthGearMoto names', () => {
+  const seo = readSource('src/lib/seo.ts')
+
+  assert.match(seo, /const SITE_NAME = ["']SixthGearMoto["']/)
+  assert.match(
+    seo,
+    /const SITE_ALTERNATE_NAME = ["']Sixth Gear Moto["']/
+  )
+  assert.match(
+    seo,
+    /getWebsiteStructuredData[\s\S]*?name:\s*BRAND_NAME,[\s\S]*?alternateName:\s*SITE_ALTERNATE_NAME/
+  )
 })

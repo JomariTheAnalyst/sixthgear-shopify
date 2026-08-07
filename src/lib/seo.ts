@@ -14,6 +14,7 @@ const BRAND_NAME = businessInfo.brandName
 const BRAND_LEGAL_NAME = businessInfo.legalName
 const BRAND_DESCRIPTION = businessInfo.description
 const SITE_NAME = "SixthGearMoto"
+const SITE_ALTERNATE_NAME = "Sixth Gear Moto"
 const DEFAULT_OPEN_GRAPH_IMAGE_PATH = "/opengraph-image.jpg"
 const SCHEMA_SAME_AS_PROFILES = businessInfo.socialProfilesOfficialForSchema
   ? [...businessInfo.socialProfiles]
@@ -235,7 +236,7 @@ export const getWebsiteStructuredData = (countryCode = DEFAULT_COUNTRY_CODE) => 
     "@id": `${siteUrl}#website`,
     url: siteUrl,
     name: BRAND_NAME,
-    alternateName: BRAND_LEGAL_NAME,
+    alternateName: SITE_ALTERNATE_NAME,
     description: BRAND_DESCRIPTION,
     inLanguage: "en-PH",
     publisher: {

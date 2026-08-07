@@ -42,42 +42,80 @@ type ParallaxMetric = {
 function CardArtwork({
   brand,
   onImageLoad,
+  onLinkClickCapture,
+  onActionPointerEnter,
+  onActionPointerLeave,
 }: {
   brand: BrandCardItem
   onImageLoad: () => void
+  onLinkClickCapture: (event: ReactMouseEvent<HTMLAnchorElement>) => void
+  onActionPointerEnter: (
+    event: ReactPointerEvent<HTMLAnchorElement>
+  ) => void
+  onActionPointerLeave: (
+    event: ReactPointerEvent<HTMLAnchorElement>
+  ) => void
 }) {
   return (
     <>
-      <div
-        data-brand-parallax
-        className="absolute inset-y-0 -left-[8%] w-[116%] will-change-transform"
-      >
-        <Image
-          src={brand.imageUrl}
-          alt={brand.decorativeImage ? "" : brand.imageAlt}
-          fill
-          draggable={false}
-          onLoad={onImageLoad}
-          className="select-none object-cover"
-          sizes="(max-width: 639px) 72vw, (max-width: 767px) 48vw, (max-width: 1023px) 34vw, (max-width: 1279px) 26vw, (max-width: 1535px) 22vw, 19vw"
-        />
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#f2f2ef] md:absolute md:inset-0 md:aspect-auto">
+        <div
+          data-brand-parallax
+          className="absolute inset-0 will-change-transform"
+        >
+          <div
+            data-brand-image-zoom
+            className="absolute inset-0 will-change-transform"
+          >
+            <Image
+              src={brand.imageUrl}
+              alt={brand.decorativeImage ? "" : brand.imageAlt}
+              fill
+              draggable={false}
+              onLoad={onImageLoad}
+              className="select-none object-cover"
+              sizes="(max-width: 639px) 72vw, (max-width: 767px) 48vw, (max-width: 1023px) 34vw, (max-width: 1279px) 26vw, (max-width: 1535px) 22vw, 19vw"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-
-      <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5 md:p-6">
+      <div className="hidden md:absolute md:inset-x-0 md:top-0 md:z-10 md:block md:p-6">
         <h3
-          className={`${montserrat.className} text-[20px] font-black uppercase leading-[1.05] tracking-[0.045em] text-white sm:text-[22px] lg:text-[25px]`}
+          className={`${montserrat.className} text-[22px] font-black uppercase leading-[1.05] tracking-[0.045em] text-white [text-shadow:0_1px_5px_rgba(0,0,0,0.7)] lg:text-[25px]`}
         >
           {brand.name}
         </h3>
+      </div>
 
-        <span
-          className={`${montserrat.className} mt-3 hidden w-fit bg-black px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-white md:inline-flex`}
+      <div className="hidden md:absolute md:inset-x-0 md:bottom-0 md:z-10 md:flex md:justify-center md:p-6">
+        <LocalizedClientLink
+          href={brand.link}
+          draggable={false}
+          onClickCapture={onLinkClickCapture}
+          onPointerEnter={onActionPointerEnter}
+          onPointerLeave={onActionPointerLeave}
+          className={`${montserrat.className} inline-flex min-h-11 w-full max-w-[230px] cursor-none items-center justify-center rounded-full bg-[#0874d1] px-6 py-3 text-[12px] font-extrabold uppercase tracking-[0.12em] text-white shadow-[0_7px_18px_rgba(8,116,209,0.24)] will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white`}
         >
           SHOP NOW
-        </span>
+        </LocalizedClientLink>
       </div>
+
+      <div className="flex min-h-12 items-center justify-center bg-[#f2f2ef] px-3 py-3 text-center md:hidden">
+        <h3
+          className={`${montserrat.className} text-[13px] font-semibold uppercase leading-tight tracking-[0.04em] text-[#161616]`}
+        >
+          {brand.name}
+        </h3>
+      </div>
+
+      <LocalizedClientLink
+        href={brand.link}
+        draggable={false}
+        aria-label={`Shop ${brand.name}`}
+        onClickCapture={onLinkClickCapture}
+        className="absolute inset-0 z-20 md:hidden"
+      />
     </>
   )
 }
@@ -89,6 +127,44 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
   const dragCursorRef = useRef<DragCursorHandle | null>(null)
   const refreshLoopRef = useRef<(() => void) | null>(null)
   const draggedRef = useRef(false)
+  const { contextSafe } = useGSAP({ scope: carouselRef })
+
+  const animateCardImage = contextSafe(
+    (card: HTMLElement, scale: number) => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return
+      }
+
+      const imageLayer = card.querySelector<HTMLElement>(
+        "[data-brand-image-zoom]"
+      )
+      if (!imageLayer) return
+
+      gsap.to(imageLayer, {
+        scale,
+        duration: 0.45,
+        ease: "power2.out",
+        overwrite: "auto",
+      })
+    }
+  )
+
+  const animateActionButton = contextSafe(
+    (button: HTMLAnchorElement, active: boolean) => {
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+
+      gsap.to(button, {
+        scale: reducedMotion ? 1 : active ? 1.045 : 1,
+        y: reducedMotion ? 0 : active ? -2 : 0,
+        backgroundColor: active ? "#005fb8" : "#0874d1",
+        duration: reducedMotion ? 0 : 0.2,
+        ease: "power2.out",
+        overwrite: "auto",
+      })
+    }
+  )
 
   useGSAP(
     () => {
@@ -288,30 +364,33 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
   )
 
   const handlePointerEnter = useCallback(
-    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+    (event: ReactPointerEvent<HTMLDivElement>) => {
       const cursorActivated = dragCursorRef.current?.enter(
         event.clientX,
         event.clientY
       )
 
       if (cursorActivated) event.currentTarget.style.cursor = "none"
+      animateCardImage(event.currentTarget, 1.035)
     },
-    []
+    [animateCardImage]
   )
 
   const handlePointerMove = useCallback(
-    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+    (event: ReactPointerEvent<HTMLDivElement>) => {
       dragCursorRef.current?.move(event.clientX, event.clientY)
     },
     []
   )
 
   const handlePointerLeave = useCallback(
-    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+    (event: ReactPointerEvent<HTMLDivElement>) => {
       event.currentTarget.style.cursor = ""
+      animateCardImage(event.currentTarget, 1)
+      dragCursorRef.current?.setMode("drag")
       dragCursorRef.current?.leave()
     },
-    []
+    [animateCardImage]
   )
 
   const handlePointerDown = useCallback(() => {
@@ -326,6 +405,22 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
   const handleImageLoad = useCallback(() => {
     refreshLoopRef.current?.()
   }, [])
+
+  const handleActionPointerEnter = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      dragCursorRef.current?.setMode("explore")
+      animateActionButton(event.currentTarget, true)
+    },
+    [animateActionButton]
+  )
+
+  const handleActionPointerLeave = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      dragCursorRef.current?.setMode("drag")
+      animateActionButton(event.currentTarget, false)
+    },
+    [animateActionButton]
+  )
 
   if (brands.length === 0) return null
 
@@ -343,25 +438,26 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
             <div
               key={brand.id}
               data-brand-slide
-              className="relative aspect-[4/5] w-[72vw] shrink-0 will-change-transform sm:w-[48vw] md:w-[34vw] lg:w-[26vw] xl:w-[22vw] 2xl:w-[19vw]"
+              className="relative w-[72vw] shrink-0 will-change-transform sm:w-[48vw] md:aspect-[4/5] md:w-[34vw] lg:w-[26vw] xl:w-[22vw] 2xl:w-[19vw]"
               role="listitem"
               aria-roledescription="slide"
               aria-label={`${sourceIndex + 1} of ${brands.length}`}
+              onPointerEnter={handlePointerEnter}
+              onPointerMove={handlePointerMove}
+              onPointerLeave={handlePointerLeave}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerLeave}
             >
-              <LocalizedClientLink
-                href={brand.link}
-                draggable={false}
-                onClickCapture={handleCardClickCapture}
-                onPointerEnter={handlePointerEnter}
-                onPointerMove={handlePointerMove}
-                onPointerLeave={handlePointerLeave}
-                onPointerDown={handlePointerDown}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerLeave}
-                className="group relative block h-full w-full overflow-hidden bg-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-white"
-              >
-                <CardArtwork brand={brand} onImageLoad={handleImageLoad} />
-              </LocalizedClientLink>
+              <div className="group relative block w-full overflow-hidden bg-[#f2f2ef] md:h-full">
+                <CardArtwork
+                  brand={brand}
+                  onImageLoad={handleImageLoad}
+                  onLinkClickCapture={handleCardClickCapture}
+                  onActionPointerEnter={handleActionPointerEnter}
+                  onActionPointerLeave={handleActionPointerLeave}
+                />
+              </div>
             </div>
           ))}
         </div>

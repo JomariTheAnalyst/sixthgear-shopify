@@ -7,6 +7,24 @@ export const IMAGE_FRAGMENT = `
   }
 `;
 
+export const IMAGE_METAFIELD_FRAGMENT = `
+  fragment ImageMetafieldFragment on Metafield {
+    key
+    namespace
+    type
+    value
+    reference {
+      __typename
+      ... on MediaImage {
+        alt
+        image {
+          ...ImageFragment
+        }
+      }
+    }
+  }
+`;
+
 export const MONEY_FRAGMENT = `
   fragment MoneyFragment on MoneyV2 {
     amount

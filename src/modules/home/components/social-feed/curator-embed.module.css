@@ -1,0 +1,90 @@
+.embed {
+  width: 100%;
+  max-width: none;
+  overflow: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: none;
+  min-height: 240px;
+}
+
+.embed :global(.crt-widget),
+.embed :global(.crt-widget-grid),
+.embed :global(.crt-grid),
+.embed :global(.crt-grid-col1),
+.embed :global(.crt-feed-window),
+.embed :global(.crt-feed-scroll) {
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.embed :global(.crt-feed) {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: stretch;
+  gap: clamp(0.5rem, 0.75vw, 0.75rem);
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 clamp(0.75rem, 2vw, 2rem) 0.75rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.embed :global(.crt-feed::-webkit-scrollbar) {
+  display: none;
+}
+
+.embed :global(.crt-grid-post) {
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 clamp(16rem, 24vw, 26.25rem) !important;
+  width: clamp(16rem, 24vw, 26.25rem) !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  transform: none !important;
+  scroll-snap-align: start;
+}
+
+.embed :global(.crt-feed[data-curator-dragging="true"]) {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+.embed :global(.crt-feed img) {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.embed :global(.crt-load-more-container),
+.embed :global(.crt-load-more[disabled]),
+.embed :global(.crt-load-more:empty) {
+  display: none !important;
+}
+
+@media (max-width: 639px) {
+  .embed :global(.crt-grid-post) {
+    flex-basis: clamp(13.75rem, 78vw, 20rem) !important;
+    width: clamp(13.75rem, 78vw, 20rem) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .embed :global(.crt-feed) {
+    scroll-behavior: auto !important;
+  }
+}

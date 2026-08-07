@@ -23,13 +23,24 @@ export async function generateMetadata({
   const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
     allowPaginationParams: true,
   })
+  const title = "Services"
+  const description =
+    "Book motorcycle PMS, diagnostics, repairs, oil change, detailing, accessories installation, performance upgrades, towing, and rider support with SixthgearMoto in Makati."
 
   return {
-    title: "Motorcycle Services in Makati Philippines",
-    description:
-      "Book motorcycle PMS, diagnostics, repairs, oil change, detailing, accessories installation, performance upgrades, towing, and rider support with SixthgearMoto in Makati.",
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/services"),
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
     ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }

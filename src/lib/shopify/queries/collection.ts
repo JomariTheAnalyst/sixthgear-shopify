@@ -1,4 +1,10 @@
-import { IMAGE_FRAGMENT, MONEY_FRAGMENT, PRODUCT_CARD_FRAGMENT, SEO_FRAGMENT } from "../fragments";
+import {
+  IMAGE_FRAGMENT,
+  IMAGE_METAFIELD_FRAGMENT,
+  MONEY_FRAGMENT,
+  PRODUCT_CARD_FRAGMENT,
+  SEO_FRAGMENT,
+} from "../fragments";
 
 // Fetch all available filter options for the collection sidebar.
 // Uses first: 0 to fetch zero products — only filter metadata needed.
@@ -45,6 +51,9 @@ export const getCollectionWithFiltersQuery = `
       description
       image {
         ...ImageFragment
+      }
+      brandImageBanner: metafield(namespace: "custom", key: "brand_image_banner") {
+        ...ImageMetafieldFragment
       }
       metafields(identifiers: [
         {namespace: "seo_landing", key: "intro_heading"},
@@ -129,6 +138,7 @@ export const getCollectionWithFiltersQuery = `
     }
   }
   ${IMAGE_FRAGMENT}
+  ${IMAGE_METAFIELD_FRAGMENT}
   ${MONEY_FRAGMENT}
 `;
 
@@ -142,6 +152,9 @@ export const getCollectionQuery = `
       description
       image {
         ...ImageFragment
+      }
+      brandImageBanner: metafield(namespace: "custom", key: "brand_image_banner") {
+        ...ImageMetafieldFragment
       }
       seo {
         ...SeoFragment
@@ -190,6 +203,7 @@ export const getCollectionQuery = `
     }
   }
   ${IMAGE_FRAGMENT}
+  ${IMAGE_METAFIELD_FRAGMENT}
   ${MONEY_FRAGMENT}
   ${PRODUCT_CARD_FRAGMENT}
   ${SEO_FRAGMENT}
@@ -231,6 +245,9 @@ export const getBrandCollectionsPageQuery = `
           image {
             ...ImageFragment
           }
+          brandImage: metafield(namespace: "custom", key: "brand_image") {
+            ...ImageMetafieldFragment
+          }
         }
       }
       pageInfo {
@@ -240,4 +257,5 @@ export const getBrandCollectionsPageQuery = `
     }
   }
   ${IMAGE_FRAGMENT}
+  ${IMAGE_METAFIELD_FRAGMENT}
 `;

@@ -8,6 +8,7 @@ import {
   listCollections,
 } from "@lib/data/collections";
 import { getCollectionProductsByHandle } from "@lib/shopify";
+import { resolveShopifyImageMetafield } from "@lib/shopify/collection-images";
 import type { ShopifyProductCard } from "@lib/shopify/types";
 import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
@@ -156,13 +157,24 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
   const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
     allowPaginationParams: true,
   });
+  const title = "Shop";
+  const description =
+    "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.";
 
   return {
-    title: "Shop",
-    description:
-      "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.",
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/store"),
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
     ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   };
@@ -302,6 +314,9 @@ export default async function StorePage(props: Params) {
           description: "Explore all of our products.",
         }
       : result.collection;
+  const heroImage =
+    resolveShopifyImageMetafield(result.collection.brandImageBanner) ??
+    result.collection.image;
 
   return (
     <>
@@ -309,7 +324,7 @@ export default async function StorePage(props: Params) {
       <CollectionHero
         title={result.collection.title}
         description={result.collection.description}
-        backgroundImageUrl={result.collection.image?.url ?? null}
+        backgroundImageUrl={heroImage?.url ?? null}
       />
       <CollectionTemplate
         collection={storeCollection}

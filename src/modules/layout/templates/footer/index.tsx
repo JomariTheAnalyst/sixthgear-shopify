@@ -13,7 +13,9 @@ import { businessInfo } from "@lib/business"
 const menuLinks = [
   { name: "Home", href: "/" },
   { name: "Shop", href: "/store" },
+  { name: "Helmets", href: "/collections/helmet" },
   { name: "Services", href: "/services" },
+  { name: "First Gear Coffee", href: "/first-gear" },
   { name: "About Us", href: "/about" },
 ]
 

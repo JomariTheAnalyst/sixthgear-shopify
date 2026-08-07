@@ -13,13 +13,24 @@ export async function generateMetadata({
   params: Promise<{ countryCode: string }>
 }): Promise<Metadata> {
   const { countryCode } = await params
+  const title = "Contact Us"
+  const description =
+    "Contact SixthGearMoto for motorcycle parts, workshop bookings, carwash, coffee, and rider support from Makati for Metro Manila."
 
   return {
-    title: "Contact Us",
-    description:
-      "Contact SixthGearMoto for motorcycle parts, workshop bookings, carwash, coffee, and rider support from Makati for Metro Manila.",
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/contact"),
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
   }
 }
@@ -32,7 +43,7 @@ export default async function Contact({
   const { countryCode } = await params
   const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
     { name: "Home", path: "/" },
-    { name: "Contact", path: "/contact" },
+    { name: "Contact Us", path: "/contact" },
   ])
 
   return (

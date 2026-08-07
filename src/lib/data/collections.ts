@@ -56,6 +56,7 @@ export async function getFilteredCollection(
     handle: string;
     description: string;
     image: ShopifyImage | null;
+    brandImageBanner?: ShopifyMetafield | null;
     metafields?: ShopifyMetafield[] | null;
     seoLanding?: ShopifyCollectionSeoLanding;
   };
@@ -69,6 +70,7 @@ export async function getFilteredCollection(
 
   const key = cacheKey(
     "collection",
+    "image-metafields-v1",
     handle,
     options?.sortKey ?? "default",
     String(options?.first ?? "null"),
@@ -88,6 +90,7 @@ export async function getFilteredCollection(
           handle: string;
           description: string;
           image: ShopifyImage | null;
+          brandImageBanner?: ShopifyMetafield | null;
           metafields?: Array<ShopifyMetafield | null> | null;
           products: {
             filters: ShopifyFilter[];

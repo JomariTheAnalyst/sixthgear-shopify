@@ -153,6 +153,7 @@ export async function getCollection(
 ): Promise<ShopifyCollection | null> {
   const key = cacheKey(
     "collection",
+    "image-metafields-v1",
     handle,
     String(options?.first || 20),
     options?.after || "page-1",
@@ -219,7 +220,7 @@ export async function getCollections(first: number = 20): Promise<ShopifyCollect
 }
 
 export async function getBrandCollections(): Promise<BrandCollection[]> {
-  const key = cacheKey("collections", "brand-prefix-v2");
+  const key = cacheKey("collections", "brand-prefix-v3");
 
   return getCached(
     key,

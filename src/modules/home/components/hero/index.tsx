@@ -10,7 +10,7 @@ import { cleanSanityString } from "@lib/cms/visual-editing"
 
 const FALLBACK_HERO: SanityHeroSection = {
   useCustomHero: false,
-  heading: "Best Bike\nRepair & Service",
+  heading: "SIXTHGEAR MOTO",
   description: "Professional servicing, repairs, detailing & performance upgrades. Trusted by riders for precision and care.",
   primaryLabel: "Shop Now",
   primaryLink: "/store",

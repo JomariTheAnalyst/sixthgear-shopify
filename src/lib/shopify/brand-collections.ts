@@ -1,10 +1,11 @@
-import type { ShopifyImage } from "./types"
+import type { ShopifyImage, ShopifyMetafield } from "./types"
 
 export type BrandCollection = {
   id: string
   title: string
   handle: string
   image: ShopifyImage | null
+  brandImage: ShopifyMetafield | null
 }
 
 export type BrandCollectionCandidate = {
@@ -12,6 +13,7 @@ export type BrandCollectionCandidate = {
   title?: string | null
   handle?: string | null
   image?: ShopifyImage | null
+  brandImage?: ShopifyMetafield | null
 }
 
 const BRAND_COLLECTION_PREFIX = "brand-"
@@ -42,6 +44,7 @@ export function selectBrandCollections(
       title,
       handle,
       image: candidate?.image ?? null,
+      brandImage: candidate?.brandImage ?? null,
     })
   }
 

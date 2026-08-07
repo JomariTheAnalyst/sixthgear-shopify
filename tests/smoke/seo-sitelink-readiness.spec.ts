@@ -1,5 +1,55 @@
 import { expect, test, type Page } from "@playwright/test"
 
+const targetRouteMetadata = [
+  { path: "/ph", title: "SixthGearMoto", canonicalPath: "/ph" },
+  { path: "/ph/store", title: "Shop", canonicalPath: "/ph/store" },
+  {
+    path: "/ph/services",
+    title: "Services",
+    canonicalPath: "/ph/services",
+  },
+  {
+    path: "/ph/collections/helmet",
+    title: "Helmets",
+    canonicalPath: "/ph/collections/helmet",
+  },
+  {
+    path: "/ph/first-gear",
+    title: "First Gear Coffee",
+    canonicalPath: "/ph/first-gear",
+  },
+  {
+    path: "/ph/contact",
+    title: "Contact Us",
+    canonicalPath: "/ph/contact",
+  },
+  { path: "/ph/about", title: "About Us", canonicalPath: "/ph/about" },
+  {
+    path: "/ph/rider-stories",
+    title: "Rider Stories",
+    canonicalPath: "/ph/rider-stories",
+  },
+]
+
+function getTagAttribute(
+  html: string,
+  tagName: "link" | "meta",
+  identifyingAttribute: string,
+  identifyingValue: string,
+  requestedAttribute: string
+) {
+  const tag = html.match(
+    new RegExp(
+      `<${tagName}(?=[^>]*${identifyingAttribute}=["']${identifyingValue}["'])[^>]*>`,
+      "i"
+    )
+  )?.[0]
+
+  return tag?.match(
+    new RegExp(`${requestedAttribute}=["']([^"']*)["']`, "i")
+  )?.[1]
+}
+
 function captureBrowserErrors(page: Page) {
   const errors: string[] = []
   page.on("console", (message) => {
@@ -14,6 +64,25 @@ function captureBrowserErrors(page: Page) {
 }
 
 test.describe("SEO and sitelink readiness", () => {
+  test("all approved routes render exact clean metadata", async ({ request }) => {
+    for (const route of targetRouteMetadata) {
+      const response = await request.get(route.path)
+      const html = await response.text()
+
+      expect(response.ok(), route.path).toBe(true)
+      expect(html.match(/<title>([\s\S]*?)<\/title>/i)?.[1]).toBe(route.title)
+      expect(
+        getTagAttribute(html, "link", "rel", "canonical", "href"),
+        `${route.path} canonical`
+      ).toBe(`https://www.sixthgearmoto.com${route.canonicalPath}`)
+      expect(
+        getTagAttribute(html, "meta", "property", "og:title", "content"),
+        `${route.path} og:title`
+      ).toBe(route.title)
+      expect(html).not.toContain(`${route.title} | SixthGearMoto`)
+    }
+  })
+
   test("homepage exposes consistent SEO and crawlable links", async ({ page }) => {
     const browserErrors = captureBrowserErrors(page)
     await page.goto("/ph")
@@ -27,7 +96,11 @@ test.describe("SEO and sitelink readiness", () => {
       "https://www.sixthgearmoto.com/ph"
     )
     await expect(page.locator("h1")).toHaveCount(1)
+    await expect(page.locator("h1")).toHaveText("SIXTHGEAR MOTO")
     await expect(page.locator('a[href^="/ph/ph/"]')).toHaveCount(0)
+    await expect(page.locator('a[href="/ph/collections/helmets"]')).toHaveCount(
+      0
+    )
     await expect(
       page.locator('a[href="/ph/store?tag=new-arrival"]')
     ).toBeVisible()
@@ -40,6 +113,26 @@ test.describe("SEO and sitelink readiness", () => {
       .allTextContents()
     expect(jsonLd.length).toBeGreaterThan(0)
     expect(jsonLd.join("\n")).toContain("https://www.sixthgearmoto.com")
+    const websiteSchema = jsonLd
+      .map((value) => JSON.parse(value))
+      .find((value) => value["@type"] === "WebSite")
+    expect(websiteSchema).toMatchObject({
+      name: "SixthGearMoto",
+      alternateName: "Sixth Gear Moto",
+    })
+
+    for (const [label, href] of [
+      ["Shop", "/ph/store"],
+      ["Services", "/ph/services"],
+      ["Helmets", "/ph/collections/helmet"],
+      ["First Gear Coffee", "/ph/first-gear"],
+      ["Contact Us", "/ph/contact"],
+    ]) {
+      expect(
+        await page.locator(`a[href="${href}"]`, { hasText: label }).count(),
+        `${label} crawlable link`
+      ).toBeGreaterThan(0)
+    }
     expect(browserErrors).toEqual([])
   })
 

@@ -5,6 +5,7 @@ import MarqueeStrip from "components/marquee-strip"
 import VideoFeature from "@modules/home/components/video-feature"
 import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
+import SocialFeed from "@modules/home/components/social-feed"
 import ShopByCategories from "@modules/home/components/categories"
 import SatisfiedCustomers from "@modules/home/components/satisfied-customers"
 import CoffeeShowcase from "@modules/home/components/coffee-showcase"
@@ -31,6 +32,7 @@ import type {
 import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
 import { getBrandCollections, getCollection, getProducts } from "@lib/shopify"
+import { resolveShopifyImageMetafield } from "@lib/shopify/collection-images"
 import type { ShopifyProductCard } from "@lib/shopify/types"
 import { HttpTypes } from "@medusajs/types"
 import {
@@ -99,8 +101,7 @@ export async function generateMetadata({
   const heroImageUrl =
     homepageHero?.slides?.find((slide) => slide.imageUrl)?.imageUrl ?? null
   const imageUrl = getMetadataImageUrl(heroImageUrl ? cleanSanityString(heroImageUrl) : null) || getDefaultOpenGraphImageUrl()
-  const title =
-    "SixthGearMoto | Motorcycle Parts, Riding Gear & Service Center Makati"
+  const title = "SixthGearMoto"
   const description =
     "Shop premium motorcycle parts, riding gear, Akrapovic exhausts, and big bike accessories at SixthGearMoto. Visit our motorcycle shop, service center, carwash, and coffee spot in Makati, Philippines."
   const canonicalUrl = getAbsoluteSiteUrl(countryCode)
@@ -160,7 +161,8 @@ async function getShopifyBrandCards(): Promise<BrandCardItem[]> {
     const collections = await getBrandCollections()
 
     return collections.map((collection) => {
-      const image = collection.image
+      const image =
+        resolveShopifyImageMetafield(collection.brandImage) ?? collection.image
 
       return {
         id: collection.id,
@@ -389,6 +391,7 @@ export default async function Home(props: {
         }}
       />
       </SanityEditTarget>
+      <SocialFeed />
       <FeaturedCollectionBanner data={getFeatured("after_about")} />
       <PromoBanner data={getPromo("after_about")} />
 

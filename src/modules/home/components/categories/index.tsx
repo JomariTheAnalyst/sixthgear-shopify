@@ -1,119 +1,169 @@
-/**
- * Shop By Categories Section
- * Modern, professional grid layout with hover effects
- */
+"use client"
 
 import Image from "next/image"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import {
+  useCallback,
+  useRef,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react"
+import { useGSAP } from "@gsap/react"
+import gsap from "gsap"
+import { Draggable } from "gsap/Draggable"
+import { InertiaPlugin } from "gsap/InertiaPlugin"
 
 import type { SanityCategoriesSection } from "@lib/cms/types"
 import { cleanSanityString } from "@lib/cms/visual-editing"
-import { montserrat } from "@lib/fonts"
+import { montserrat, nationalCompressed } from "@lib/fonts"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import DragCursor, {
+  type DragCursorHandle,
+} from "components/drag-cursor"
+
+gsap.registerPlugin(useGSAP, Draggable, InertiaPlugin)
 
 type CmsCategoryItem = NonNullable<SanityCategoriesSection["items"]>[number]
-type DisplayCategoryItem = CmsCategoryItem & {
-  description?: string | null
-  productCount?: string | number | null
+type CategoryKey =
+  | "helmets"
+  | "bags-and-luggage"
+  | "parts-and-accessories"
+  | "communications"
+  | "riding-gear"
+
+type CategoryConfig = {
+  key: CategoryKey
+  label: string
+  aliases: string[]
 }
 
-const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  "bags-and-luggage":
-    "Storage solutions for city errands, long rides, and everything you need to keep secure on the road.",
-  communications:
-    "Stay connected with rider-ready intercoms and accessories built for clear conversations in motion.",
-  helmets:
-    "Protective lids selected for fit, comfort, airflow, and confidence on every kind of ride.",
-  "parts-and-accessories":
-    "Practical upgrades and replacement essentials for cleaner builds, better utility, and everyday reliability.",
-  "riding-gear":
-    "Ride-focused footwear and gear made for grip, support, and long-wearing comfort.",
-  apparel:
-    "Moto-inspired layers that work at the shop, on the road, and everywhere between stops.",
-}
+const DRAG_THRESHOLD_PX = 8
+const PARALLAX_MAX_PERCENT = 6
 
-const getCategoryDescription = (
-  slug: string,
-  name: string,
-  description?: string | null
-) =>
-  description?.trim() ||
-  CATEGORY_DESCRIPTIONS[slug] ||
-  `Explore ${name.toLowerCase()} selected for the way Sixthgear riders actually use their gear.`
-
-const FALLBACK_CATEGORIES_SECTION = {
-  title: "Browse By Categories",
-  watermarkText: "CATEGORIES",
-  items: [
+const CATEGORY_ORDER: CategoryConfig[] = [
   {
-    name: "BAGS AND LUGGAGE",
-    slug: "bags-and-luggage",
-    image: "/images/product-categories/bags-and-boxes (1).png",
-    imageAlt: "Black motorcycle top box and luggage case",
-    description:
-      "Storage solutions for city errands, long rides, and everything you need to keep secure on the road.",
-    buttonLabel: "Shop Now",
-    buttonLink: "/collections/bags-and-luggages",
+    key: "helmets",
+    label: "Helmets",
+    aliases: ["helmet", "helmets"],
   },
   {
-    name: "COMMUNICATIONS",
-    slug: "communications",
-    image: "/images/product-categories/intercom.png",
-    imageAlt: "Motorcycle intercom communication device",
-    description:
-      "Stay connected with rider-ready intercoms and accessories built for clear conversations in motion.",
-    buttonLabel: "Shop Now",
-    buttonLink: "/collections/communications",
+    key: "bags-and-luggage",
+    label: "Bags and Luggages",
+    aliases: [
+      "bags-and-luggage",
+      "bags-and-luggages",
+      "bags-luggage",
+      "bags-and-boxes",
+    ],
   },
   {
-    name: "HELMETS",
-    slug: "helmets",
-    image: "/images/product-categories/helmets.png",
-    imageAlt: "Black off-road motorcycle helmet",
-    description:
-      "Protective lids selected for fit, comfort, airflow, and confidence on every kind of ride.",
-    buttonLabel: "Shop Now",
-    buttonLink: "/collections/helmet",
+    key: "parts-and-accessories",
+    label: "Parts and Accessories",
+    aliases: ["parts-and-accessories", "parts-accessories"],
   },
   {
-    name: "PARTS AND ACCESSORIES",
-    slug: "parts-and-accessories",
-    image: "/images/product-categories/exhaust.png", // Using the closest placeholder we have
-    imageAlt: "Motorcycle exhaust accessory",
-    description:
-      "Practical upgrades and replacement essentials for cleaner builds, better utility, and everyday reliability.",
-    buttonLabel: "Shop Now",
-    buttonLink: "/collections/parts-and-accessories",
+    key: "communications",
+    label: "Communications",
+    aliases: ["communication", "communications"],
   },
   {
-    name: "RIDING GEAR",
-    slug: "riding-gear",
-    image: "/images/product-categories/shoes.png",
-    imageAlt: "Pair of black riding boots",
-    description:
-      "Ride-focused footwear and gear made for grip, support, and long-wearing comfort.",
-    buttonLabel: "Shop Now",
-    buttonLink: "/collections/riding-gear",
-  },
-  {
-    name: "APPAREL",
-    slug: "apparel",
-    image: "/images/product-categories/apparel.png",
-    imageAlt: "Black motorcycle riding jacket",
-    description:
-      "Moto-inspired layers that work at the shop, on the road, and everywhere between stops.",
-    buttonLabel: "Shop Now",
-    buttonLink: "/collections/apparel",
+    key: "riding-gear",
+    label: "Riding Gear",
+    aliases: ["riding-gear", "rider-gear"],
   },
 ]
+
+const FALLBACK_CATEGORIES_SECTION = {
+  title: "Product Categories",
+  items: [
+    {
+      name: "Helmets",
+      slug: "helmets",
+      image: "/images/product-categories/helmets.png",
+      imageAlt: "Black off-road motorcycle helmet",
+      buttonLink: "/collections/helmet",
+    },
+    {
+      name: "Bags and Luggages",
+      slug: "bags-and-luggage",
+      image: "/images/product-categories/bags-and-boxes (1).png",
+      imageAlt: "Black motorcycle top box and luggage case",
+      buttonLink: "/collections/bags-and-luggages",
+    },
+    {
+      name: "Parts and Accessories",
+      slug: "parts-and-accessories",
+      image: "/images/product-categories/exhaust.png",
+      imageAlt: "Motorcycle exhaust accessory",
+      buttonLink: "/collections/parts-and-accessories",
+    },
+    {
+      name: "Communications",
+      slug: "communications",
+      image: "/images/product-categories/intercom.png",
+      imageAlt: "Motorcycle intercom communication device",
+      buttonLink: "/collections/communications",
+    },
+    {
+      name: "Riding Gear",
+      slug: "riding-gear",
+      image: "/images/product-categories/shoes.png",
+      imageAlt: "Pair of black riding boots",
+      buttonLink: "/collections/riding-gear",
+    },
+  ],
+} satisfies {
+  title: string
+  items: CmsCategoryItem[]
 }
+
+const normalizeCategoryValue = (value?: string | null) =>
+  cleanSanityString(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+
+const getCategoryKey = (item: CmsCategoryItem): CategoryKey | null => {
+  const values = [
+    normalizeCategoryValue(item.slug),
+    normalizeCategoryValue(item.name),
+  ]
+
+  return (
+    CATEGORY_ORDER.find((category) =>
+      values.some((value) => category.aliases.includes(value))
+    )?.key ?? null
+  )
+}
+
+const resolveCategoryItems = (
+  items: CmsCategoryItem[] | null | undefined
+): CmsCategoryItem[] =>
+  CATEGORY_ORDER.map((category) => {
+    const fallback = FALLBACK_CATEGORIES_SECTION.items.find(
+      (item) => getCategoryKey(item) === category.key
+    )!
+    const cmsItem = items?.find(
+      (item) => getCategoryKey(item) === category.key
+    )
+    const selected = cmsItem ?? fallback
+
+    return {
+      ...selected,
+      name: category.label,
+      slug: selected.slug || fallback.slug,
+      image: selected.image || fallback.image,
+      imageAlt: selected.imageAlt || fallback.imageAlt,
+      buttonLink: selected.buttonLink || fallback.buttonLink,
+    }
+  })
 
 const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
   const rawHref = buttonLink ? cleanSanityString(buttonLink).trim() : undefined
 
   if (rawHref) {
-    if (/^https?:\/\//i.test(rawHref)) {
-      return rawHref
-    }
+    if (/^https?:\/\//i.test(rawHref)) return rawHref
 
     const withoutLocalePrefix = rawHref.replace(/^\/[a-z]{2}(?=\/)/i, "")
     return withoutLocalePrefix.startsWith("/")
@@ -121,77 +171,82 @@ const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
       : `/${withoutLocalePrefix}`
   }
 
-  if (slug) {
-    return `/collections/${encodeURIComponent(cleanSanityString(slug))}`
-  }
+  return slug
+    ? `/collections/${encodeURIComponent(cleanSanityString(slug))}`
+    : "#"
+}
 
-  return "#"
+type CategoryCardProps = {
+  category: CmsCategoryItem
+  index: number
+  total: number
+  onClickCapture: (event: ReactMouseEvent<HTMLAnchorElement>) => void
+  onPointerEnter: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onPointerLeave: (event: ReactPointerEvent<HTMLDivElement>) => void
+  onPointerDown: () => void
+  onPointerUp: () => void
 }
 
 function CategoryCard({
-  name,
-  slug,
-  image,
-  imageAlt,
-  description,
-  productCount,
-  buttonLabel,
-  buttonLink,
-}: {
-  name: string
-  slug: string
-  image: string
-  imageAlt?: string | null
-  description?: string | null
-  productCount?: string | number | null
-  buttonLabel?: string | null
-  buttonLink?: string | null
-}) {
-  const href = normalizeCategoryHref(buttonLink, slug)
-  const ctaLabel = buttonLabel || "Shop Now"
-  const productLabel =
-    typeof productCount === "number"
-      ? `${productCount} PRODUCTS`
-      : productCount || "SHOP COLLECTION"
-  const summary = getCategoryDescription(slug, name, description)
+  category,
+  index,
+  total,
+  onClickCapture,
+  onPointerEnter,
+  onPointerMove,
+  onPointerLeave,
+  onPointerDown,
+  onPointerUp,
+}: CategoryCardProps) {
+  const href = normalizeCategoryHref(category.buttonLink, category.slug)
 
   return (
-    <article className="group relative block min-h-[300px] w-full overflow-hidden rounded-[24px] bg-[#eeeeee] shadow-[0_12px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:bg-[#e9e9e9] hover:shadow-[0_18px_45px_rgba(15,23,42,0.09)] md:min-h-[330px] lg:min-h-[350px]">
-      <div className="relative z-10 flex h-full min-h-[300px] w-full flex-col p-5 text-black sm:p-6 md:min-h-[330px] lg:min-h-[350px] lg:p-7">
-        <div className="relative z-20 max-w-[78%]">
-          <h3 className={`${montserrat.className} text-[26px] font-black uppercase leading-[0.95] tracking-[-0.01em] text-black sm:text-[28px] lg:text-[31px]`}>
-            {name}
-          </h3>
-          <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
-            {productLabel}
-          </p>
+    <div
+      data-category-slide
+      className="relative aspect-[2/3] w-[88vw] shrink-0 sm:w-[52vw] md:w-[37vw] lg:h-[630.5px] lg:w-[442.922px] lg:aspect-auto"
+      role="listitem"
+      aria-roledescription="slide"
+      aria-label={`${index + 1} of ${total}`}
+      onPointerEnter={onPointerEnter}
+      onPointerMove={onPointerMove}
+      onPointerLeave={onPointerLeave}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerLeave}
+    >
+      <LocalizedClientLink
+        href={href}
+        draggable={false}
+        onClickCapture={onClickCapture}
+        aria-label={`Shop ${category.name}`}
+        className="group relative block h-full w-full overflow-hidden bg-[#f1f1ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#111111]"
+      >
+        <div
+          data-category-parallax
+          className="pointer-events-none absolute inset-y-0 -left-[8%] w-[116%] will-change-transform"
+        >
+          <Image
+            src={cleanSanityString(category.image)}
+            alt={category.imageAlt || category.name}
+            fill
+            draggable={false}
+            className="select-none object-contain p-[7%] transition-transform duration-500 ease-out group-hover:scale-[1.025]"
+            sizes="(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, 443px"
+          />
         </div>
 
-        <div className="relative z-20 mt-auto max-w-[56%] translate-y-0 pb-1 transition-transform duration-500 ease-out group-hover:translate-y-0 sm:max-w-[58%] md:translate-y-9 md:group-hover:translate-y-0">
-          <p className="mb-3 text-[11px] leading-[1.25] text-neutral-700 sm:text-xs">
-            {summary}
-          </p>
-          <LocalizedClientLink
-            href={cleanSanityString(href)}
-            className={`${montserrat.className} inline-flex translate-y-0 items-center justify-center rounded-full bg-black px-4 py-2 text-[10px] font-black uppercase tracking-[0.08em] text-white opacity-100 transition-all duration-300 hover:bg-[#ff4e00] md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100`}
-          >
-            {ctaLabel}
-          </LocalizedClientLink>
-        </div>
-
-        <div className="pointer-events-none absolute bottom-0 right-0 z-10 flex h-[62%] w-[58%] items-end justify-end sm:h-[66%] sm:w-[60%]">
-          <div className="relative h-full w-full translate-x-[8%] translate-y-[8%] transition-transform duration-700 ease-out group-hover:translate-x-[4%] group-hover:translate-y-[4%] group-hover:scale-[1.04]">
-            <Image
-              src={cleanSanityString(image)}
-              alt={imageAlt || name}
-              fill
-              className="object-contain object-bottom grayscale contrast-[0.78] brightness-[0.84] saturate-0 opacity-75 mix-blend-multiply drop-shadow-[0_16px_22px_rgba(15,23,42,0.08)]"
-              sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-            />
-          </div>
-        </div>
-      </div>
-    </article>
+        <h3
+          className={`${nationalCompressed.className} pointer-events-none absolute bottom-5 left-3 z-10 text-[clamp(2rem,3.1vw,4rem)] uppercase leading-[0.82] tracking-[0.01em] text-[#111111] sm:bottom-6 sm:left-4`}
+          style={{
+            writingMode: "vertical-rl",
+            transform: "rotate(180deg)",
+          }}
+        >
+          {category.name}
+        </h3>
+      </LocalizedClientLink>
+    </div>
   )
 }
 
@@ -200,45 +255,240 @@ interface ShopByCategoriesProps {
 }
 
 export default function ShopByCategories({ data }: ShopByCategoriesProps) {
-  // Determine if we should completely ignore CMS and force default
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const cursorRef = useRef<DragCursorHandle | null>(null)
+  const draggedRef = useRef(false)
   const useCustom = data?.useCustomCategories !== false
-  
-  // Destructure with priority to CMS (if valid/enabled), otherwise fill from fallback
-  const title = (useCustom && data?.title) || FALLBACK_CATEGORIES_SECTION.title
-  const watermarkText = (useCustom && data?.watermarkText) || FALLBACK_CATEGORIES_SECTION.watermarkText
+  const title =
+    (useCustom && data?.title) || FALLBACK_CATEGORIES_SECTION.title
+  const sourceItems =
+    useCustom && data?.items?.length
+      ? data.items
+      : FALLBACK_CATEGORIES_SECTION.items
+  const items = resolveCategoryItems(sourceItems)
 
-  // Decide which items array to loop over
-  const items: DisplayCategoryItem[] = (useCustom && data?.items && data.items.length > 0)
-    ? data.items 
-    : FALLBACK_CATEGORIES_SECTION.items
+  useGSAP(
+    () => {
+      const viewport = viewportRef.current
+      const track = trackRef.current
+      if (!viewport || !track) return
+
+      const slides = gsap.utils.toArray<HTMLElement>(
+        track.querySelectorAll("[data-category-slide]")
+      )
+      const imageLayers = gsap.utils.toArray<HTMLElement>(
+        track.querySelectorAll("[data-category-parallax]")
+      )
+      const parallaxSetters = imageLayers.map((image) =>
+        gsap.quickSetter(image, "xPercent")
+      )
+      const reducedMotionQuery = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      )
+
+      let reducedMotion = reducedMotionQuery.matches
+      let draggable: Draggable | null = null
+      let slideMetrics: Array<{ left: number; width: number }> = []
+      let viewportWidth = 0
+
+      const measure = () => {
+        viewportWidth = viewport.clientWidth
+        slideMetrics = slides.map((slide) => ({
+          left: slide.offsetLeft,
+          width: slide.offsetWidth,
+        }))
+      }
+
+      const updateParallax = () => {
+        if (reducedMotion || viewportWidth <= 0) {
+          parallaxSetters.forEach((setX) => setX(0))
+          return
+        }
+
+        const trackX = Number(gsap.getProperty(track, "x")) || 0
+        const viewportCenter = viewportWidth / 2
+
+        slideMetrics.forEach(({ left, width }, index) => {
+          const slideCenter = left + trackX + width / 2
+          const distance = gsap.utils.clamp(
+            -1,
+            1,
+            (slideCenter - viewportCenter) / (viewportCenter + width / 2)
+          )
+          parallaxSetters[index](-distance * PARALLAX_MAX_PERCENT)
+        })
+      }
+
+      const getBounds = () => ({
+        minX: Math.min(0, viewport.clientWidth - track.scrollWidth),
+        maxX: 0,
+      })
+
+      const refresh = () => {
+        draggable?.tween?.kill()
+        const bounds = getBounds()
+        const currentX = Number(gsap.getProperty(track, "x")) || 0
+        gsap.set(track, {
+          x: gsap.utils.clamp(bounds.minX, bounds.maxX, currentX),
+        })
+        draggable?.applyBounds(bounds)
+        draggable?.update(true)
+        measure()
+        updateParallax()
+      }
+
+      measure()
+      ;[draggable] = Draggable.create(track, {
+        trigger: viewport,
+        type: "x",
+        bounds: getBounds(),
+        inertia: !reducedMotion,
+        edgeResistance: 0.82,
+        dragResistance: 0.04,
+        dragClickables: true,
+        minimumMovement: DRAG_THRESHOLD_PX,
+        allowNativeTouchScrolling: true,
+        cursor: "none",
+        activeCursor: "none",
+        onPressInit() {
+          this.tween?.kill()
+          draggedRef.current = false
+          cursorRef.current?.press()
+        },
+        onDragStart() {
+          draggedRef.current = true
+        },
+        onDrag: updateParallax,
+        onThrowUpdate: updateParallax,
+        onRelease() {
+          cursorRef.current?.release()
+        },
+      })
+      updateParallax()
+
+      const media = gsap.matchMedia()
+      media.add("(prefers-reduced-motion: reduce)", () => {
+        reducedMotion = true
+        if (draggable) draggable.vars.inertia = false
+        parallaxSetters.forEach((setX) => setX(0))
+
+        return () => {
+          reducedMotion = false
+          if (draggable) draggable.vars.inertia = true
+          updateParallax()
+        }
+      })
+
+      const resizeCall = gsap.delayedCall(0.12, refresh).pause()
+      const resizeObserver = new ResizeObserver(() => {
+        resizeCall.restart(true)
+      })
+      resizeObserver.observe(viewport)
+
+      return () => {
+        resizeObserver.disconnect()
+        resizeCall.kill()
+        draggable?.tween?.kill()
+        draggable?.kill()
+        media.revert()
+      }
+    },
+    {
+      scope: sectionRef,
+      dependencies: [items.length],
+      revertOnUpdate: true,
+    }
+  )
+
+  const handleCardClickCapture = useCallback(
+    (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      const interactionWasDrag = draggedRef.current
+      draggedRef.current = false
+
+      if (interactionWasDrag) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    },
+    []
+  )
+
+  const handlePointerEnter = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const cursorActivated = cursorRef.current?.enter(
+        event.clientX,
+        event.clientY
+      )
+      if (cursorActivated) event.currentTarget.style.cursor = "none"
+    },
+    []
+  )
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      cursorRef.current?.move(event.clientX, event.clientY)
+    },
+    []
+  )
+
+  const handlePointerLeave = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      event.currentTarget.style.cursor = ""
+      cursorRef.current?.leave()
+    },
+    []
+  )
+
+  const handlePointerDown = useCallback(() => {
+    draggedRef.current = false
+    cursorRef.current?.press()
+  }, [])
+
+  const handlePointerUp = useCallback(() => {
+    cursorRef.current?.release()
+  }, [])
 
   return (
-    <section className="relative w-full bg-[#fafafa] pt-12 pb-20 overflow-hidden">
-      {/* Absolute Background Watermark Text - Fixed scale and opacity for legibility */}
-      <div className="hidden md:flex absolute top-0 left-0 w-full h-full items-start justify-center pt-8 md:pt-12 pointer-events-none overflow-hidden select-none z-0">
-        <div
-          aria-hidden="true"
-          className="font-black italic text-[11vw] sm:text-[11vw] lg:text-[12vw] uppercase tracking-normal leading-none text-center transform whitespace-nowrap text-gray-200/60 drop-shadow-sm max-w-[100vw]"
-        >
-          {watermarkText}
-        </div>
-      </div>
+    <section
+      ref={sectionRef}
+      aria-labelledby="product-categories-heading"
+      className="relative w-full overflow-hidden bg-white py-8 text-[#111111] md:py-12"
+    >
+      <h2
+        id="product-categories-heading"
+        className={`${montserrat.className} mb-4 text-left text-[28px] font-black uppercase leading-none tracking-[0.035em] text-[#161616] sm:text-[34px] md:mb-5 md:text-[42px]`}
+      >
+        {cleanSanityString(title)}
+      </h2>
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-4 md:px-8 mt-12 md:mt-24">
-        {/* Section Header */}
-        <div className="text-center mb-16 flex flex-col items-center">
-          <h2 className={`${montserrat.className} text-[#ff4e00] font-black uppercase text-[2.8rem] sm:text-[3.3rem] md:text-[4rem] lg:text-[4.65rem] tracking-[0.05em] leading-[0.92] drop-shadow-sm`}>
-            {title}
-          </h2>
-        </div>
-
-        {/* Uniform 3x2 Grid Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {items.map((category) => (
-            <CategoryCard key={category.slug} {...category} />
+      <div
+        ref={viewportRef}
+        className="w-full cursor-none overflow-hidden touch-pan-y"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Product categories"
+      >
+        <div ref={trackRef} className="flex w-max gap-2" role="list">
+          {items.map((category, index) => (
+            <CategoryCard
+              key={`${getCategoryKey(category)}-${category._key || category.slug}`}
+              category={category}
+              index={index}
+              total={items.length}
+              onClickCapture={handleCardClickCapture}
+              onPointerEnter={handlePointerEnter}
+              onPointerMove={handlePointerMove}
+              onPointerLeave={handlePointerLeave}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+            />
           ))}
         </div>
       </div>
+
+      <DragCursor ref={cursorRef} primaryLabel="CLICK" />
     </section>
   )
 }

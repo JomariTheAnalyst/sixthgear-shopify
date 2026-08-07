@@ -21,7 +21,7 @@ export default function FeaturedBrand({ brands }: FeaturedBrandProps) {
       <div className="w-full">
         <h2
           id="featured-brands-heading"
-          className={`${montserrat.className} mb-5 text-left text-[28px] font-black uppercase tracking-[0.035em] text-[#161616] sm:text-[34px] md:mb-8 md:text-[42px]`}
+          className={`${montserrat.className} mb-1 text-left text-[28px] font-black uppercase leading-none tracking-[0.035em] text-[#161616] sm:text-[34px] md:text-[42px]`}
         >
           {SECTION_TITLE}
         </h2>

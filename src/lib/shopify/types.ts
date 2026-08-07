@@ -42,6 +42,8 @@ export interface ShopifyMetafield {
   value: string;
   type?: string;
   reference?: {
+    __typename?: string | null;
+    alt?: string | null;
     image?: ShopifyImage | null;
     url?: string | null;
   } | null;
@@ -162,6 +164,8 @@ export interface ShopifyCollection {
   handle: string;
   description: string;
   image: ShopifyImage | null;
+  brandImage?: ShopifyMetafield | null;
+  brandImageBanner?: ShopifyMetafield | null;
   isCollectionFeatured?: ShopifyMetafield | null;
   seo?: ShopifySeo;
   metafields?: ShopifyMetafield[] | null;

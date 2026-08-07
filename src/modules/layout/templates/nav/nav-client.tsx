@@ -22,7 +22,7 @@ const navLinks = [
   { name: "Shop", href: "/store" },
   { name: "Services", href: "/services", hasDropdown: true },
   { name: "First Gear Coffee", href: "/first-gear" },
-  { name: "Contact", href: "/contact" },
+  { name: "Contact Us", href: "/contact" },
 ]
 
 interface NavClientProps {

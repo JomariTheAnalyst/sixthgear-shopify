@@ -39,6 +39,24 @@ const clientSchema = z.object({
   NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: z.string().min(1).optional(),
   NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: z.string().min(1).optional(),
   NEXT_PUBLIC_TIDIO_PUBLIC_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_CURATOR_CONTAINER_ID: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z][A-Za-z0-9_:.-]*$/)
+    .default("curator-feed-default-feed-layout"),
+  NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL: z
+    .string()
+    .url()
+    .refine(
+      (value) => {
+        const url = new URL(value)
+        return url.protocol === "https:" && url.hostname === "cdn.curator.io"
+      },
+      "NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL must use https://cdn.curator.io"
+    )
+    .default(
+      "https://cdn.curator.io/published/53c1cdf2-8eb0-4030-a0f9-11503967d19a.js"
+    ),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>
@@ -93,6 +111,10 @@ function createClientEnv(): ClientEnv {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
     NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
+    NEXT_PUBLIC_CURATOR_CONTAINER_ID:
+      process.env.NEXT_PUBLIC_CURATOR_CONTAINER_ID,
+    NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL:
+      process.env.NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL,
   })
 
   if (!parsed.success) {
@@ -127,6 +149,12 @@ export const clientEnv: ClientEnv =
         NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
         NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
         NEXT_PUBLIC_TIDIO_PUBLIC_KEY: process.env.NEXT_PUBLIC_TIDIO_PUBLIC_KEY,
+        NEXT_PUBLIC_CURATOR_CONTAINER_ID:
+          process.env.NEXT_PUBLIC_CURATOR_CONTAINER_ID ||
+          "curator-feed-default-feed-layout",
+        NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL:
+          process.env.NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL ||
+          "https://cdn.curator.io/published/53c1cdf2-8eb0-4030-a0f9-11503967d19a.js",
       } as ClientEnv)
     : createClientEnv()
 

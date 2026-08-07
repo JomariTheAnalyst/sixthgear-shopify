@@ -24,13 +24,24 @@ export async function generateMetadata({
   const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
     allowPaginationParams: true,
   })
+  const title = "Rider Stories"
+  const description =
+    "Read rider stories, garage notes, and workshop articles from the SixthgearMoto team and community."
 
   return {
-    title: "Rider Stories",
-    description:
-      "Read rider stories, garage notes, and workshop articles from the SixthgearMoto team and community.",
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: getLocalizedCanonicalPath(countryCode, "/rider-stories"),
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
     },
     ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }

@@ -8,6 +8,7 @@ import {
   listCollections,
 } from "@lib/data/collections";
 import { getCollection } from "@lib/shopify";
+import { resolveShopifyImageMetafield } from "@lib/shopify/collection-images";
 import { parseSearchParams } from "@lib/util/filterParams";
 import JsonLd from "@modules/common/components/json-ld";
 import {
@@ -43,7 +44,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   if (!collection) notFound();
 
-  const title = collection.seo?.title?.trim() || collection.title;
+  const title =
+    params.handle === "helmet"
+      ? "Helmets"
+      : collection.seo?.title?.trim() || collection.title;
   const description =
     collection.seo?.description?.trim() ||
     collection.description ||
@@ -53,7 +57,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const imageUrl = getMetadataImageUrl(collection.image?.url);
 
   return {
-    title,
+    title: params.handle === "helmet" ? { absolute: title } : title,
     description,
     alternates: {
       canonical: getLocalizedCanonicalPath(params.countryCode, canonicalPath),
@@ -115,7 +119,8 @@ export default async function CollectionPage(props: Props) {
       { name: "Home", path: "/" },
       { name: "Shop", path: "/store" },
       {
-        name: result.collection.title,
+        name:
+          params.handle === "helmet" ? "Helmets" : result.collection.title,
         path: `/collections/${params.handle}`,
       },
     ]
@@ -155,6 +160,9 @@ export default async function CollectionPage(props: Props) {
     seoLanding?.faqItems && seoLanding.faqItems.length > 0
       ? getFaqStructuredData(seoLanding.faqItems)
       : null;
+  const heroImage =
+    resolveShopifyImageMetafield(result.collection.brandImageBanner) ??
+    result.collection.image;
 
   return (
     <>
@@ -168,7 +176,7 @@ export default async function CollectionPage(props: Props) {
       <CollectionHero
         title={result.collection.title}
         description={result.collection.description}
-        backgroundImageUrl={result.collection.image?.url ?? null}
+        backgroundImageUrl={heroImage?.url ?? null}
       />
       <CollectionSeoContent
         countryCode={params.countryCode}

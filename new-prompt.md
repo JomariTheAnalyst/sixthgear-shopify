@@ -1,142 +1,74 @@
-Fix the Shop by Brands drag interaction and custom cursor. Inspect the current GSAP implementation before editing and correct the root causes rather than layering another workaround.
+Revamp the existing homepage **Product Categories** section only.
 
-## 1. Fix the sticky carousel drag
+## Design direction
 
-The current horizontal infinite carousel feels resistant/sticky and sometimes opens a collection while dragging.
+Use the attached reference only for layout inspiration.
 
-Update the GSAP Draggable integration so that:
+Implement:
 
-- Dragging follows the pointer/finger directly and smoothly
-- Remove excessive `dragResistance`, forced snapping, delayed progress updates, or heavy easing during active drag
-- Map drag distance directly to the seamless-loop timeline progress
-- Keep the infinite loop continuous in both directions
-- Preserve the existing single visual set of brand cards
-- Do not create a visible second track or separate duplicated group
-- Keep the subtle image parallax, but ensure it does not fight the main track transform
-- The parallax must affect only the image inside each card, never the card/slide wrapper
-- Recalculate measurements correctly after resize and image loading
+- full-width horizontal category slider
+- **not** infinite loop
+- draggable on desktop and swipeable on mobile
+- subtle **parallax slider** effect
+- white section background
+- category cards in minimal light gray
+- small gaps only between cards
+- card ratio: **9:16**
+- clean modern editorial look
+- do **not** copy the reference color palette exactly
+- add section title in the very left side similar to shop by brand section top of category cards.
+- dont add any cta button or description inside the card
+- dont add border radius. 
+- since we implement mouse pointer changing when hovering in the shop by brand section why dont we apply it there. instead of "drag" make it "click" 
+-use gsap skills and follow best practices 
 
-Use GSAP Draggable best practices and the existing seamless-loop timeline. Do not run another carousel library against the same track.
+## Categories
 
-## 2. Prevent drag from triggering collection navigation
+Use these homepage categories and keep them in this order:
 
-Each brand card remains a link, but a real drag must never navigate.
+1. Helmets
+2. Bags and Luggages
+3. Parts and Accessories
+4. Communications
+5. Riding Gear
 
-Implement a reliable click-versus-drag rule:
+## Card behavior
 
-- Configure an intentional Draggable `minimumMovement` threshold
-- Record whether meaningful horizontal movement occurred during the current pointer interaction
-- On the card link’s click-capture event, call `preventDefault()` and stop navigation only when that interaction was a drag
-- Reset the drag state after release/click handling
-- A normal click or tap without meaningful movement must still open the collection
-- Do not rely only on a timeout
-- Verify this on mouse, trackpad, and touch
+Each card should:
 
-## 3. Create a reusable drag-cursor component
+- use a 9:16 portrait layout
+- show the category image clearly
+- keep the content readable and clean
+- have subtle parallax image movement while dragging/scrolling
+- remain clickable to the correct category destination
+- avoid infinite looping
+- avoid oversized empty space at the end of the track
 
-Create a separate component under the shared components folder, following the repository’s naming structure, for example:
+## Layout behavior
 
-`src/components/drag-cursor/index.tsx`
+- full-width section
+- horizontal draggable track
+- desktop: multiple cards visible
+- mobile: one card plus part of the next is acceptable
+- keep spacing tight and visually balanced
+- no masonry or stacked layout
 
-Do not keep the cursor markup inside the carousel component.
+## Requirements
 
-The component must render a larger pill-shaped pointer containing:
+- update the existing homepage product categories section only
+- inspect current component, data source, and links before editing
+- preserve existing CMS/fallback/data behavior unless a small scoped adjustment is required
+- do not modify unrelated homepage sections
+- do not run browser tests or production build
 
-`←  DRAG  →`
+Run only:
 
-Design:
-
-- White background
-- Strong/heavy dark outline
-- Larger than the current cursor
-- Fully rounded pill
-- Clear bold label and arrows
-- High enough z-index to remain visible above card images
-- `pointer-events: none`
-- `aria-hidden="true"`
-
-## 4. Cursor behavior
-
-The custom pill must replace the native pointer only while hovering a brand image/card.
-
-Requirements:
-
-- Apply `cursor: none` only to the interactive brand-card area
-- Do not hide the pointer over the entire carousel section or page
-- On pointer enter:
-  - position the pill at the actual pointer coordinates immediately
-  - fade and scale it in smoothly
-- On pointer move:
-  - follow the real pointer position
-  - use GSAP `quickTo()` or `quickSetter()` for performant `x` and `y` updates
-  - use `position: fixed` with viewport `clientX/clientY` coordinates, or use correctly converted local coordinates—do not mix both coordinate systems
-- On pointer leave:
-  - fade and scale it out
-  - restore the normal native cursor
-- While pressing/dragging:
-  - slightly scale down or visually strengthen the pill
-- On release:
-  - return to the hover state
-- The pill must stay under the actual pointer; it must never remain centered in the viewport
-
-Enable it only for:
-
-`(hover: hover) and (pointer: fine)`
-
-Do not render or activate the custom cursor on touch/mobile devices.
-
-## 5. Smooth transition
-
-The transition between the native pointer and pill must feel seamless:
-
-- Position the pill before making it visible
-- Avoid the pill appearing briefly at `0,0` or in the viewport center
-- Use short opacity/scale transitions
-- Use a subtle following delay, but keep it close enough to behave like the actual pointer
-- Do not add a long elastic or floaty lag
-- Preserve visible keyboard focus states because keyboard users will not use the custom pointer
-
-For reduced-motion users:
-
-- Remove the delayed follower motion
-- Either track the pointer directly or keep the native cursor
-- Do not remove carousel functionality
-
-## 6. GSAP lifecycle
-
-Use the project’s React GSAP pattern:
-
-- Scope animations and selectors to component refs
-- Use `useGSAP()` or `gsap.context()`
-- Clean up Draggable instances, timelines, quick setters/tweens, media-query contexts, and pointer listeners
-- Avoid duplicate listeners during React Strict Mode remounts
-- Do not trigger React state updates on every pointer movement
-
-## Verify
-
-Verify all of the following:
-
-- Carousel drag feels direct and smooth, not sticky
-- Image parallax remains subtle and does not resist dragging
-- Infinite looping works in both directions
-- No visible duplicated group or large seam
-- Dragging never opens a collection
-- Normal clicks still open the correct collection
-- The pill appears only over brand cards
-- The native cursor changes smoothly into the pill
-- The pill follows the actual pointer instead of staying at viewport center
-- The pill has a larger white body and strong dark outline
-- Touch/mobile receives no custom cursor
-- Keyboard focus remains visible
-- No listener leaks, hydration warnings, TypeScript errors, or build failures
-
-## Deliverables
+`pnpm exec tsc --noEmit --incremental false`
 
 Return:
 
-1. Root cause of the sticky drag
-2. Root cause of the centered cursor
-3. Exact files modified and created
-4. Drag-versus-click solution
-5. GSAP cursor-follow implementation
-6. Commands run and results
+1. summary of the final design
+2. exact files changed
+3. parallax/drag implementation approach
+4. responsive behavior
+5. TypeScript result
