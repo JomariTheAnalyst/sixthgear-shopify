@@ -7,15 +7,10 @@ import Hero from "@modules/home/components/hero"
 import AboutSection from "@modules/home/components/about"
 import SocialFeed from "@modules/home/components/social-feed"
 import ShopByCategories from "@modules/home/components/categories"
-import SatisfiedCustomers from "@modules/home/components/satisfied-customers"
-import CoffeeShowcase from "@modules/home/components/coffee-showcase"
 import CTABanner from "@modules/home/components/cta-banner"
-import Franchise from "@modules/home/components/franchise"
 import Stats from "@modules/home/components/stats"
-import Brands from "@modules/home/components/brands"
 import ClientStories from "@modules/home/components/client-stories"
 import StoreLocation from "@modules/home/components/store-location"
-import WhatWeOffer from "@modules/home/components/what-we-offer"
 import FeaturedBrand, {
   type BrandCardItem,
 } from "@modules/home/components/featured-brand"
@@ -42,9 +37,7 @@ import {
 
 import {
   selectCtaBannerContent,
-  selectFranchiseContent,
   selectHomepageAboutContent,
-  selectSatisfiedCustomersContent,
   selectStoreLocationContent,
 } from "@lib/cms/homepage-editorial"
 import {
@@ -53,11 +46,6 @@ import {
   getHomepageCategories,
   getHomepageHero,
   getHomepageVideoFeature,
-  getHomepageWhatWeOffer,
-  getCoffeeShowcase,
-  getServiceBrandsSection,
-  getSatisfiedCustomers,
-  getFranchiseSection,
   getStoreLocation,
   getCtaBanner,
   getHomepageCollectionSections,
@@ -200,11 +188,6 @@ export default async function Home(props: {
     shopifyBrandCards,
     homepageAbout,
     homepageCategories,
-    homepageWhatWeOffer,
-    coffeeShowcase,
-    serviceBrandsSection,
-    satisfiedCustomers,
-    franchiseSection,
     storeLocation,
     ctaBanner,
     marketingData,
@@ -218,11 +201,6 @@ export default async function Home(props: {
     getShopifyBrandCards(),
     getHomepageAbout(),
     getHomepageCategories(),
-    getHomepageWhatWeOffer(),
-    getCoffeeShowcase(),
-    getServiceBrandsSection(),
-    getSatisfiedCustomers(),
-    getFranchiseSection(),
     getStoreLocation(),
     getCtaBanner(),
     getMarketingData(),
@@ -308,28 +286,8 @@ export default async function Home(props: {
 
   const homepageAboutContent = selectHomepageAboutContent(homepageAbout)
   const videoFeatureContent = selectVideoFeatureContent(homepageVideoFeature)
-  const satisfiedCustomersContent =
-    selectSatisfiedCustomersContent(satisfiedCustomers)
-  const franchiseContent = selectFranchiseContent(franchiseSection)
   const storeLocationContent = selectStoreLocationContent(storeLocation)
   const ctaBannerContent = selectCtaBannerContent(ctaBanner)
-  const satisfiedCustomersMidpoint = Math.ceil(
-    satisfiedCustomersContent.customers.length / 2
-  )
-  const satisfiedCustomersRow1 = satisfiedCustomersContent.customers
-    .slice(0, satisfiedCustomersMidpoint)
-    .map((customer) => ({
-      id: customer.key,
-      name: customer.name,
-      imageUrl: customer.imageUrl,
-    }))
-  const satisfiedCustomersRow2 = satisfiedCustomersContent.customers
-    .slice(satisfiedCustomersMidpoint)
-    .map((customer) => ({
-      id: customer.key,
-      name: customer.name,
-      imageUrl: customer.imageUrl,
-    }))
   const clientStoriesContent: SanityBlogPostListItem[] = homepageBlogPosts
 
   const marketingNow = new Date()
@@ -391,7 +349,6 @@ export default async function Home(props: {
         }}
       />
       </SanityEditTarget>
-      <SocialFeed />
       <FeaturedCollectionBanner data={getFeatured("after_about")} />
       <PromoBanner data={getPromo("after_about")} />
 
@@ -447,45 +404,26 @@ export default async function Home(props: {
         )}
       </Suspense>
 
-      <SanityEditTarget documentId="homepage" documentType="homepage" path={coffeeShowcase?.useSanityContent === true ? "coffeeShowcase" : "coffeeShowcase.useSanityContent"}>
-        <CoffeeShowcase data={coffeeShowcase} />
-      </SanityEditTarget>
+      {/* Coffee Showcase is temporarily hidden on the homepage. */}
       <FeaturedCollectionBanner data={getFeatured("after_coffee")} />
       <PromoBanner data={getPromo("after_coffee")} />
 
       <Suspense fallback={<ServicesSectionSkeleton />}>
         <DeferredOurServicesSection />
       </Suspense>
-      <WhatWeOffer data={homepageWhatWeOffer} />
+      {/* What We Offer is temporarily hidden on the homepage. */}
       <FeaturedCollectionBanner data={getFeatured("after_services")} />
       <PromoBanner data={getPromo("after_services")} />
 
-      <Brands data={serviceBrandsSection} />
+      {/* Motorcycle brands we service and support is temporarily hidden. */}
       <FeaturedCollectionBanner data={getFeatured("after_brands")} />
       <PromoBanner data={getPromo("after_brands")} />
 
-      <SanityEditTarget documentId="homepage" documentType="homepage" path={satisfiedCustomersContent.source === "sanity" ? "satisfiedCustomers" : "satisfiedCustomers.useSanityContent"}>
-        <SatisfiedCustomers
-          sectionTitle={satisfiedCustomersContent.sectionTitle}
-          row1={satisfiedCustomersRow1}
-          row2={satisfiedCustomersRow2}
-        />
-      </SanityEditTarget>
+      {/* Satisfied Customers is temporarily hidden on the homepage. */}
       <FeaturedCollectionBanner data={getFeatured("after_satisfied")} />
       <PromoBanner data={getPromo("after_satisfied")} />
 
-      <SanityEditTarget documentId="homepage" documentType="homepage" path={franchiseContent.source === "sanity" ? "franchiseSection" : "franchiseSection.useSanityContent"}>
-        <Franchise
-          mainTitle={franchiseContent.mainTitle}
-          subtitle={franchiseContent.subtitle}
-          badge1Text={franchiseContent.badge1Text}
-          badge2Text={franchiseContent.badge2Text}
-          ctaLabel={franchiseContent.ctaLabel}
-          ctaLink={franchiseContent.ctaLink}
-          leftImageUrl={franchiseContent.leftImageUrl}
-          rightImageUrl={franchiseContent.rightImageUrl}
-        />
-      </SanityEditTarget>
+      {/* Franchise is temporarily hidden on the homepage. */}
       <FeaturedCollectionBanner data={getFeatured("after_franchise")} />
       <PromoBanner data={getPromo("after_franchise")} />
 
@@ -498,6 +436,7 @@ export default async function Home(props: {
       <Suspense fallback={<TestimonialsSectionSkeleton />}>
         <DeferredClientTestimonialsSection />
       </Suspense>
+      <SocialFeed />
       <FeaturedCollectionBanner data={getFeatured("after_testimonials")} />
       <PromoBanner data={getPromo("after_testimonials")} />
 

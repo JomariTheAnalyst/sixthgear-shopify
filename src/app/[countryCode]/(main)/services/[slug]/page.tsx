@@ -140,6 +140,7 @@ export async function generateMetadata(
   }
 }
 
+
 export default async function ServicePage({ params }: ServicePageProps) {
   try {
     const { slug, countryCode } = await params

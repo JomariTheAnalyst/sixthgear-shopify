@@ -24,27 +24,26 @@ function SectionHeaderSkeleton({
 
 export function ServicesSectionSkeleton() {
   return (
-    <section className="py-16 md:py-20 bg-white overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-        <SectionHeaderSkeleton />
-        <div className="flex gap-4 md:gap-6 overflow-hidden -mx-4 px-4 md:-mx-0 md:px-0">
+    <section className="w-full overflow-hidden bg-white px-4 py-14 md:px-8 md:py-16 lg:px-12 lg:py-20">
+      <div className="w-full">
+        <div className="mb-8 md:mb-10">
+          <div className="h-9 w-64 animate-pulse rounded bg-[#14120F]/15 md:h-12 md:w-80" />
+        </div>
+        <div className="border-b border-[#14120F]/25">
           {[...Array(3)].map((_, index) => (
             <div
               key={index}
-              className="relative flex-shrink-0 w-[75vw] sm:w-[60vw] md:w-[350px] lg:w-[400px] h-[400px] md:h-[450px] lg:h-[500px] rounded-2xl overflow-hidden bg-gray-100"
+              className="grid h-[clamp(6.2rem,9vw,8.5rem)] grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 border-t border-[#14120F]/25 md:grid-cols-[4rem_minmax(0,1fr)] md:gap-6"
             >
-              <SkeletonBlock className="h-full w-full rounded-none" />
-              <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-                <div className="h-7 w-3/4 animate-pulse rounded bg-white/70" />
-                <div className="mt-5 h-10 w-32 animate-pulse rounded bg-white/60" />
+              <div className="h-3 w-6 animate-pulse rounded bg-[#E0521F]/35" />
+              <div className="flex-1">
+                <div className={`h-10 animate-pulse rounded bg-[#14120F]/15 md:h-16 ${index === 1 ? "w-3/5" : "w-2/5"}`} />
+                <div className="mt-3 h-3 w-1/2 animate-pulse rounded bg-[#14120F]/10" />
               </div>
             </div>
           ))}
         </div>
-        <div className="mt-6 md:mt-8 flex justify-center gap-3">
-          <SkeletonBlock className="h-11 w-11 md:h-12 md:w-12 rounded-lg" />
-          <SkeletonBlock className="h-11 w-11 md:h-12 md:w-12 rounded-lg" />
-        </div>
+        <div className="mt-8 h-12 w-48 animate-pulse rounded-full bg-[#14120F]/20 md:mt-10 md:w-56" />
       </div>
     </section>
   )

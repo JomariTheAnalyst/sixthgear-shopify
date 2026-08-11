@@ -80,7 +80,7 @@ export default async function ProductSection({
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
-            }}
+            }} 
           >
             {displayProducts.map((product) => (
               <div

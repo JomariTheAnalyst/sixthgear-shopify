@@ -131,3 +131,4 @@ export function isBookServiceHref(href: string) {
   const pathname = href.split(/[?#]/, 1)[0]?.replace(/\/+$/, "") || "/"
   return pathname === "/book-service" || /\/book-service$/.test(pathname)
 }
+

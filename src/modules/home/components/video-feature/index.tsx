@@ -253,9 +253,9 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
     <section
       ref={sectionRef}
       aria-labelledby="homepage-video-feature-title"
-      className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20"
+      className="w-full bg-white py-12 sm:py-16 lg:py-20"
     >
-      <div className="mx-auto max-w-[1180px]">
+      <div className="w-full">
         <div
           ref={playerRef}
           className="relative aspect-video overflow-hidden bg-[#111]"
