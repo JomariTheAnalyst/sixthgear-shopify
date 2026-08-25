@@ -44,27 +44,27 @@ export const metadata: Metadata = {
   twitter: getDefaultTwitterMetadata(),
   icons: {
     icon: [
-      { url: "/images/favicon/favicon.ico?v=20260804-2" },
+      { url: "/images/favicon/favicon.ico?v=20260824" },
       {
-        url: "/images/favicon/favicon-16x16.png?v=20260804-2",
+        url: "/images/favicon/favicon-16x16.png?v=20260824",
         sizes: "16x16",
         type: "image/png",
       },
       {
-        url: "/images/favicon/favicon-32x32.png?v=20260804-2",
+        url: "/images/favicon/favicon-32x32.png?v=20260824",
         sizes: "32x32",
         type: "image/png",
       },
     ],
-    apple: [{ url: "/images/favicon/apple-touch-icon.png?v=20260804-2" }],
+    apple: [{ url: "/images/favicon/apple-touch-icon.png?v=20260824" }],
     other: [
       {
         rel: "android-chrome-192x192",
-        url: "/images/favicon/android-chrome-192x192.png?v=20260804-2",
+        url: "/images/favicon/android-chrome-192x192.png?v=20260824",
       },
       {
         rel: "android-chrome-512x512",
-        url: "/images/favicon/android-chrome-512x512.png?v=20260804-2",
+        url: "/images/favicon/android-chrome-512x512.png?v=20260824",
       },
     ],
   },

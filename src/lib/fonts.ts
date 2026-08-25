@@ -136,3 +136,15 @@ export const silka = localFont({
   variable: "--font-silka",
   display: "swap",
 })
+
+export const outfit = localFont({
+  src: [
+    {
+      path: "../../public/fonts/outfit-variable-latin.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-outfit",
+  display: "swap",
+})

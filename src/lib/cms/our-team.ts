@@ -12,98 +12,88 @@ export type OurTeamContent = {
     name: string
     role: string
     description: string
-    image: string
+    professionalImage: string
+    wackyImage: string
     imageAlt: string
+    instagramUrl?: string
+    facebookUrl?: string
   }>
 }
 
 export const FALLBACK_OUR_TEAM_CONTENT: OurTeamContent = {
   source: 'fallback',
-  sectionTitle: 'Our  Team',
-  sectionDescription:
-    'Riders, Technicians, and Professionals Who Care About Your Bike',
+  sectionTitle: 'OUR TEAM',
+  sectionDescription: 'MEET THE PEOPLE BEHIND SIXTHGEAR',
   teamMembers: [
     {
       key: 'fallback-team-1',
       name: 'MARTIE',
       role: 'Head Mechanic',
       description:
-        'Experienced motorcycle technician specializing in diagnostics, repairs, and performance upgrades for big bikes and premium motorcycles.',
-      image: '/images/team/team1.png',
-      imageAlt: 'MARTIE',
-    },
-     {
-      key: 'fallback-team-3',
-      name: 'JAYSON',
-      role: 'Service Advisor',
-      description:
-        'Your point of contact for service consultations, job updates, and ensuring a smooth workshop experience from start to finish.',
-      image: '/images/team/team3.png',
-      imageAlt: 'JAYSON',
+        'Keeps every motorcycle performing at its best through expert diagnostics and precision repairs.',
+      professionalImage: '/images/team/team1.png',
+      wackyImage: '/images/team/team1.png',
+      imageAlt: 'Martie, Sixthgear head mechanic',
     },
     {
       key: 'fallback-team-2',
+      name: 'JAYSON',
+      role: 'Service Advisor',
+      description:
+        'Guides riders through service needs with clear advice and smooth workshop coordination.',
+      professionalImage: '/images/team/team3.png',
+      wackyImage: '/images/team/team3.png',
+      imageAlt: 'Jayson, Sixthgear service advisor',
+    },
+    {
+      key: 'fallback-team-3',
       name: 'JAMES',
       role: 'Assistant Technician',
       description:
-        'Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.',
-      image: '/images/team/team2.png',
-      imageAlt: 'JAMES',
+        'Supports repairs, maintenance, and installations with care, consistency, and technical attention.',
+      professionalImage: '/images/team/team2.png',
+      wackyImage: '/images/team/team2.png',
+      imageAlt: 'James, Sixthgear assistant technician',
     },
-       {
-      key: 'fallback-team-4',
-      name: 'SANDY',
-      role: 'Senior Technician',
-      description:
-        'Focused on PMS, mechanical repairs, and proper installation of accessories, electronics, and safety upgrades.',
-      image: '/images/team/team2.png',
-      imageAlt: 'JAMES',
-    },
-
     {
-      key: 'fallback-team-5',
-      name: 'CAMILLE  ',
+      key: 'fallback-team-4',
+      name: 'CAMILLE',
       role: 'Supervisor',
       description:
-        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
-      image: '/images/team/team4.png',
-      imageAlt: 'JEVAN',
+        'Keeps daily operations organized while helping the team deliver a smooth customer experience.',
+      professionalImage: '/images/team/team4.png',
+      wackyImage: '/images/team/team4.png',
+      imageAlt: 'Camille, Sixthgear supervisor',
+    },
+    {
+      key: 'fallback-team-5',
+      name: 'LIZA',
+      role: 'Sales and Marketing Associate',
+      description:
+        'Connects riders with the right products through thoughtful service and brand communication.',
+      professionalImage: '/images/team/team4.png',
+      wackyImage: '/images/team/team4.png',
+      imageAlt: 'Liza, Sixthgear sales and marketing associate',
     },
     {
       key: 'fallback-team-6',
-      name: 'LIZA',
-      role: 'Sales and marketing associate',
+      name: 'ALTHEA',
+      role: 'Sales and Marketing Associate',
       description:
-        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
-      image: '/images/team/team4.png',
-      imageAlt: 'LIZA',
+        'Supports customer engagement and strengthens the brand through energetic, professional communication.',
+      professionalImage: '/images/team/team4.png',
+      wackyImage: '/images/team/team4.png',
+      imageAlt: 'Althea, Sixthgear sales and marketing associate',
     },
     {
       key: 'fallback-team-7',
-      name: 'ALTHEA',
-      role: 'sales and marketing associate',
-      description:
-        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
-      image: '/images/team/team4.png',
-      imageAlt: 'ALTHEA',
-    },
-    {
-      key: 'fallback-team-9',
       name: 'JAKE',
       role: 'Marketing Strategist',
       description:
-        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
-      image: '/images/team/team4.png',
-      imageAlt: 'JAKE',
-    },
-     {
-      key: 'fallback-team-10',
-      name: 'GINO',
-      role: 'Marketing Associate',
-      description:
-        'Expert barista crafting premium coffee beverages, ensuring riders have the perfect brew while they wait.',
-      image: '/images/team/team4.png',
-      imageAlt: 'GINO',
+        'Shapes campaigns and content that strengthen brand presence and deepen customer connection.',
+      professionalImage: '/images/team/team4.png',
+      wackyImage: '/images/team/team4.png',
+      imageAlt: 'Jake, Sixthgear marketing strategist',
     },
   ],
 }
@@ -114,12 +104,11 @@ function isNonEmptyString(value: unknown): value is string {
 
 type CompleteTeamMember = Omit<
   SanityTeamMemberQueryResult,
-  '_key' | 'name' | 'role' | 'title' | 'description' | 'photoUrl' | 'imageAlt'
+  '_key' | 'name' | 'role' | 'description' | 'photoUrl' | 'imageAlt'
 > & {
   _key: string
   name: string
   role: string
-  title: string
   description: string
   photoUrl: string
   imageAlt: string
@@ -143,7 +132,6 @@ function isCompleteTeamMember(
     isNonEmptyString(member?._key) &&
     isNonEmptyString(member?.name) &&
     isNonEmptyString(member?.role) &&
-    isNonEmptyString(member?.title) &&
     isNonEmptyString(member?.description) &&
     isNonEmptyString(member?.photoUrl) &&
     isNonEmptyString(member?.imageAlt)
@@ -178,10 +166,16 @@ export function selectOurTeamContent(
       key: member._key,
       name: member.name,
       role: member.role,
-      title: member.title,
       description: member.description,
-      image: member.photoUrl,
+      professionalImage: member.photoUrl,
+      wackyImage: member.wackyPhotoUrl || member.photoUrl,
       imageAlt: member.imageAlt,
+      instagramUrl: isNonEmptyString(member.instagramUrl)
+        ? member.instagramUrl
+        : undefined,
+      facebookUrl: isNonEmptyString(member.facebookUrl)
+        ? member.facebookUrl
+        : undefined,
     })),
   }
 }
