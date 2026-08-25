@@ -504,10 +504,14 @@ export interface SanityTeamMemberQueryResult {
   _key?: string | null
   name?: string | null
   role?: string | null
-  title?: string | null
   description?: string | null
   photoUrl?: string | null
+  wackyPhotoUrl?: string | null
   imageAlt?: string | null
+  instagramUrl?: string | null
+  facebookUrl?: string | null
+  displayOrder?: number | null
+  isActive?: boolean | null
 }
 
 export interface SanityOurTeamSectionQueryResult {

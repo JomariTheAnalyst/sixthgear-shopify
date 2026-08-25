@@ -42,18 +42,14 @@ export default defineType({
       name: 'title',
       title: 'Specialization',
       type: 'string',
-      description: 'Specific job title or specialization shown below the main role.',
-      validation: (Rule) =>
-        Rule.custom(
-          requiredTextWhenEnabled('Specialization is required when Sanity content is enabled.')
-        ),
+      description: 'Optional internal specialization retained for existing team content.',
     }),
     defineField({
       name: 'description',
-      title: 'Short introduction',
+      title: 'Short description',
       type: 'text',
       rows: 3,
-      description: 'Brief introduction shown at the bottom of the card.',
+      description: 'Role-focused homepage introduction. Keep it to 15 words or fewer.',
       validation: (Rule) =>
         Rule.custom(
           requiredTextWhenEnabled('Introduction is required when Sanity content is enabled.')
@@ -61,9 +57,9 @@ export default defineType({
     }),
     defineField({
       name: 'photo',
-      title: 'Team member photo',
+      title: 'Professional photo',
       type: 'image',
-      description: 'Portrait photo shown on the card. A vertical image works best.',
+      description: 'Default portrait shown on the card. A vertical image works best.',
       options: { hotspot: true },
       validation: (Rule) =>
         Rule.custom((value, context) =>
@@ -71,6 +67,14 @@ export default defineType({
           Boolean(value) ||
           'Photo is required when Sanity content is enabled.'
         ),
+    }),
+    defineField({
+      name: 'wackyPhoto',
+      title: 'Happy / wacky photo',
+      type: 'image',
+      description:
+        'Optional alternate photo shown on hover. The professional photo is used if empty.',
+      options: { hotspot: true },
     }),
     defineField({
       name: 'imageAlt',
@@ -81,6 +85,32 @@ export default defineType({
         Rule.custom(
           requiredTextWhenEnabled('Photo description is required when Sanity content is enabled.')
         ),
+    }),
+    defineField({
+      name: 'instagramUrl',
+      title: 'Instagram URL',
+      type: 'url',
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }),
+    }),
+    defineField({
+      name: 'facebookUrl',
+      title: 'Facebook URL',
+      type: 'url',
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }),
+    }),
+    defineField({
+      name: 'displayOrder',
+      title: 'Display order',
+      type: 'number',
+      description: 'Lower numbers appear first.',
+      initialValue: 0,
+      validation: (Rule) => Rule.integer().min(0),
+    }),
+    defineField({
+      name: 'isActive',
+      title: 'Show on homepage',
+      type: 'boolean',
+      initialValue: true,
     }),
   ],
   preview: {

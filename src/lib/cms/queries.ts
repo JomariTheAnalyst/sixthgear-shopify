@@ -260,14 +260,18 @@ export const ourTeamSectionQuery = groq`
       useSanityContent,
       sectionTitle,
       sectionDescription,
-      teamMembers[]{
+      "teamMembers": teamMembers[isActive != false] | order(coalesce(displayOrder, 9999) asc, _key asc) {
         _key,
         name,
         role,
-        title,
         description,
         "photoUrl": photo.asset->url,
-        imageAlt
+        "wackyPhotoUrl": wackyPhoto.asset->url,
+        imageAlt,
+        instagramUrl,
+        facebookUrl,
+        displayOrder,
+        isActive
       }
     }
   }

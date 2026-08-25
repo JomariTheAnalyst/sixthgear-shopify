@@ -223,7 +223,7 @@ export default function OurServices({
   const servicesIndexHref = countryCode
     ? `/${countryCode}/services`
     : "/services"
-  const workListServices = content.cards.slice(0, 3).map((service, index) => {
+  const workListServices = content.cards.map((service, index) => {
     const fallbackService = fallbackCards[index]
     const cleanSlug = service.slug ? cleanSanityString(service.slug) : null
     const href =
