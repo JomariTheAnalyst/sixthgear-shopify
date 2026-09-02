@@ -596,8 +596,9 @@ export const latestBlogPostsQuery = groq`
 
 export const homepageBlogPostsQuery = groq`
   *[_type == "blogPost" && defined(slug.current) && defined(publishedAt)]
-  | order(featured desc, publishedAt desc)[0...6]{
-    ${blogPostListProjection}
+  | order(publishedAt desc)[0...4]{
+    ${blogPostListProjection},
+    "readingText": pt::text(body)
   }
 `
 

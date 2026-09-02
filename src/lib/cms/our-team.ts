@@ -86,15 +86,25 @@ export const FALLBACK_OUR_TEAM_CONTENT: OurTeamContent = {
       imageAlt: 'Althea, Sixthgear sales and marketing associate',
     },
     {
-      key: 'fallback-team-7',
-      name: 'JAKE',
-      role: 'Marketing Strategist',
-      description:
-        'Shapes campaigns and content that strengthen brand presence and deepen customer connection.',
-      professionalImage: '/images/team/team4.png',
-      wackyImage: '/images/team/team4.png',
-      imageAlt: 'Jake, Sixthgear marketing strategist',
-    },
+    key: 'fallback-team-8',
+    name: 'RHOSE',
+    role: 'Barista',
+    description:
+      'Dedicated in serving quality coffee daily with fast service and genuine Filipino warmth.',
+    professionalImage: '/images/team/team5.png',
+    wackyImage: '/images/team/team5.png',
+    imageAlt: 'Rhose, Sixthgear barista',
+  },
+  {
+    key: 'fallback-team-9',
+    name: 'REGINA',
+    role: 'Barista',
+    description:
+      'Focused on preparing smooth espresso drinks while making sure every customer feels welcomed.',
+    professionalImage: '/images/team/team6.png',
+    wackyImage: '/images/team/team6.png',
+    imageAlt: 'Regina, Sixthgear barista',
+  }
   ],
 }
 

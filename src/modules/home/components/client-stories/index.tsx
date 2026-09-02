@@ -1,241 +1,284 @@
 "use client"
 
-import { useRef } from "react"
 import Image from "next/image"
-import { inter, montserrat } from "@lib/fonts"
-import { TextRoll } from "components/ui/text-roll"
+
+import type { SanityBlogPostListItem } from "@lib/cms/types"
+import {
+  cleanSanityString,
+  createSanityDataAttribute,
+} from "@lib/cms/visual-editing"
+import { outfit } from "@lib/fonts"
 import { CLIENT_STORIES_FALLBACKS } from "@lib/strapi/client-stories"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { cleanSanityString, createSanityDataAttribute } from "@lib/cms/visual-editing"
 import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
-interface Story {
-  _id?: string
+type Story = Partial<Pick<
+  SanityBlogPostListItem,
+  | "_id"
+  | "title"
+  | "slug"
+  | "excerpt"
+  | "readingText"
+  | "publishedAt"
+  | "featuredImageUrl"
+  | "featuredImageAlt"
+>> & {
   id?: number
-  title: string | null
-  slug?: string | null
-  excerpt: string | null
-  publishedAt?: string | null
   date?: string | null
-  category: {
-    title: string | null
-    slug: string | null
-  } | string | null
-  featuredImageUrl?: string | null
   image?: string | null
 }
 
+type DisplayStory = {
+  key: string
+  documentId: string | null
+  title: string
+  slug: string
+  excerpt: string
+  publishedLabel: string
+  publishedTimestamp: number
+  featuredImageUrl: string | null
+  featuredImageAlt: string
+  readTimeLabel: string
+}
+
 interface ClientStoriesProps {
-  sectionTitle?: string
-  sectionDescription?: string
   stories?: Story[]
 }
 
-export default function ClientStories({
-  sectionTitle = "Rider Stories & Garage Notes",
-  sectionDescription = "Tips, stories, and insights from the workshop, the road, and the rider lounge",
-  stories = [],
-}: ClientStoriesProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+const WORDS_PER_MINUTE = 200
+
+const createStorySlug = (title: string) =>
+  cleanSanityString(title)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+
+const parsePublishedTimestamp = (value?: string | null) => {
+  if (!value) return 0
+
+  const timestamp = new Date(cleanSanityString(value)).getTime()
+  return Number.isNaN(timestamp) ? 0 : timestamp
+}
+
+const formatPublishedDate = (value?: string | null) => {
+  const timestamp = parsePublishedTimestamp(value)
+  if (!timestamp) return ""
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(timestamp)
+}
+
+const estimateReadTime = (text?: string | null) => {
+  const cleanedText = cleanSanityString(text || "").trim()
+  const wordCount = cleanedText ? cleanedText.split(/\s+/).length : 0
+  const minutes = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE))
+
+  return `${minutes} min read`
+}
+
+const normalizeStories = (stories: Story[]): DisplayStory[] =>
+  stories
+    .map((story, index) => {
+      const title = cleanSanityString(story.title || "Rider Story")
+      const slug = cleanSanityString(story.slug || createStorySlug(title))
+      const publishedSource = story.publishedAt || story.date || null
+      const documentId = story._id || null
+
+      return {
+        key: documentId || String(story.id || `${slug}-${index}`),
+        documentId,
+        title,
+        slug,
+        excerpt: cleanSanityString(story.excerpt || ""),
+        publishedLabel: formatPublishedDate(publishedSource),
+        publishedTimestamp: parsePublishedTimestamp(publishedSource),
+        featuredImageUrl: story.featuredImageUrl || story.image || null,
+        featuredImageAlt: cleanSanityString(story.featuredImageAlt || title),
+        readTimeLabel: estimateReadTime(story.readingText || story.excerpt),
+      }
+    })
+    .filter((story) => story.slug && story.title)
+    .sort((a, b) => b.publishedTimestamp - a.publishedTimestamp)
+
+const getStoryHref = (slug: string) =>
+  `/rider-stories/${encodeURIComponent(cleanSanityString(slug))}`
+
+export default function ClientStories({ stories = [] }: ClientStoriesProps) {
   const visualEditingEnabled = useSanityVisualEditingEnabled()
-  const placeholderStories: Story[] = CLIENT_STORIES_FALLBACKS.stories.map(
+  const fallbackStories: Story[] = CLIENT_STORIES_FALLBACKS.stories.map(
     (story) => ({
-      ...story,
-      slug: story.title
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, ""),
+      id: story.id,
+      title: story.title,
+      slug: createStorySlug(story.title),
+      excerpt: story.excerpt,
+      readingText: story.excerpt,
+      date: story.date,
+      image: story.image,
     })
   )
+  const displayStories = normalizeStories(
+    stories.length > 0 ? stories : fallbackStories
+  ).slice(0, 4)
+  const featuredStory = displayStories[0]
+  const secondaryStories = displayStories.slice(1, 4)
 
-  const normalizedStories = stories
-    .map((story) => ({
-      key: story._id || String(story.id || story.title || Math.random()),
-      documentId: story._id || null,
-      title: story.title || "Rider Story",
-      slug:
-        (story.slug ? cleanSanityString(story.slug) : null) ||
-        (story.title
-          ? cleanSanityString(story.title)
-              .toLowerCase()
-              .trim()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-+|-+$/g, "")
-          : null),
-      excerpt: story.excerpt || "",
-      publishedLabel:
-        story.publishedAt
-          ? new Date(cleanSanityString(story.publishedAt)).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          : story.date || "",
-      featuredImageUrl: story.featuredImageUrl || story.image || null,
-    }))
-    .filter((story) => story.slug && story.title)
-
-  const normalizedPlaceholders = placeholderStories.map((story) => ({
-    key: String(story.id),
-    documentId: null,
-    title: story.title || "Rider Story",
-    slug: story.slug || null,
-    excerpt: story.excerpt || "",
-    publishedLabel: story.date || "",
-    featuredImageUrl: story.image || null,
-  }))
-
-  const displayStories =
-    normalizedStories.length > 0
-      ? normalizedStories.slice(0, 6)
-      : normalizedPlaceholders.slice(0, 6)
-
-  const scroll = (direction: "left" | "right") => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = window.innerWidth >= 1024 ? 360 : 320
-      scrollContainerRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      })
-    }
-  }
+  if (!featuredStory) return null
 
   return (
     <section
       id="rider-stories"
-      className="relative py-14 md:py-18 lg:py-24 bg-white overflow-hidden"
+      aria-labelledby="rider-stories-heading"
+      className={`${outfit.className} overflow-hidden bg-white px-4 py-14 text-[#111111] sm:px-6 md:py-18 lg:px-10 lg:py-24 xl:px-[233px]`}
     >
-      <div className="relative max-w-[1440px] mx-auto px-4 md:px-8">
-        <div className="mb-10 md:mb-14 lg:mb-16">
-          <div className="mx-auto w-full max-w-[1200px] text-center">
-          <h2
-            className={`${montserrat.className} whitespace-nowrap text-center text-[clamp(1.7rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
-          >
-            {sectionTitle}
-          </h2>
-          <p
-            className={`${inter.className} mx-auto max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}
-          >
-            {sectionDescription}
-          </p>
-          </div>
-        </div>
+      <h2 id="rider-stories-heading" className="sr-only">
+        Rider Stories
+      </h2>
 
-        <>
-          <div
-            ref={scrollContainerRef}
-            className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
-            {displayStories.map((story) => (
-              <article
-                key={story.key}
-                data-sanity={story.documentId ? createSanityDataAttribute(visualEditingEnabled, {
-                  documentId: story.documentId,
+      <div className="grid items-stretch gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,1fr)] xl:gap-4">
+        <article
+          data-sanity={
+            featuredStory.documentId
+              ? createSanityDataAttribute(visualEditingEnabled, {
+                  documentId: featuredStory.documentId,
                   documentType: "blogPost",
                   path: "title",
-                }) : undefined}
-                className="group flex flex-shrink-0 w-[82vw] flex-col sm:w-[60vw] md:w-[45vw] lg:w-[calc(33.333%-22px)] snap-center border border-[#e0e0e0] bg-[#eeeeee] p-3 md:p-4"
-              >
-                <div className="flex h-full flex-col">
-                  {story.featuredImageUrl ? (
-                    <div className="relative aspect-[4/5] overflow-hidden border border-[#e0e0e0] bg-[#eeeeee]">
-                      <Image
-                        src={cleanSanityString(story.featuredImageUrl)}
-                        alt={story.title || "Rider story"}
-                        data-sanity={story.documentId ? createSanityDataAttribute(visualEditingEnabled, {
-                          documentId: story.documentId,
+                })
+              : undefined
+          }
+          className="group min-w-0"
+        >
+          <LocalizedClientLink
+            href={getStoryHref(featuredStory.slug)}
+            aria-label={`Read ${featuredStory.title}`}
+            className="flex h-full flex-col rounded-[18px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+          >
+            <div className="relative aspect-[16/10] overflow-hidden rounded-[18px] bg-[#f1f1ef]">
+              {featuredStory.featuredImageUrl ? (
+                <Image
+                  src={cleanSanityString(featuredStory.featuredImageUrl)}
+                  alt={featuredStory.featuredImageAlt}
+                  data-sanity={
+                    featuredStory.documentId
+                      ? createSanityDataAttribute(visualEditingEnabled, {
+                          documentId: featuredStory.documentId,
                           documentType: "blogPost",
                           path: "featuredImage",
-                        }) : undefined}
+                        })
+                      : undefined
+                  }
+                  fill
+                  sizes="(max-width: 1279px) calc(100vw - 48px), calc((100vw - 482px) * 0.51)"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                />
+              ) : null}
+            </div>
+
+            <div className="flex flex-1 flex-col pt-5 sm:pt-6">
+              <h3 className="max-w-[18ch] text-[clamp(2rem,3vw,3.5rem)] font-medium leading-[0.98] tracking-[-0.045em]">
+                {featuredStory.title}
+              </h3>
+
+              {featuredStory.excerpt ? (
+                <p className="mt-4 max-w-[66ch] text-sm leading-6 text-black/58 sm:text-[15px] sm:leading-7">
+                  {featuredStory.excerpt}
+                </p>
+              ) : null}
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-black/45 sm:text-[13px]">
+                <span>{featuredStory.readTimeLabel}</span>
+                {featuredStory.publishedLabel ? (
+                  <time
+                    dateTime={new Date(
+                      featuredStory.publishedTimestamp
+                    ).toISOString()}
+                  >
+                    {featuredStory.publishedLabel}
+                  </time>
+                ) : null}
+              </div>
+
+              <div className="mt-5">
+                <span className="inline-flex min-h-10 items-center justify-center rounded-full bg-black px-6 py-2.5 text-xs font-medium text-white transition-colors duration-300 group-hover:bg-[#F16D34]">
+                  Learn More
+                </span>
+              </div>
+            </div>
+          </LocalizedClientLink>
+        </article>
+
+        {secondaryStories.length > 0 ? (
+          <div className="grid gap-4 xl:grid-rows-3">
+            {secondaryStories.map((story) => (
+              <article
+                key={story.key}
+                data-sanity={
+                  story.documentId
+                    ? createSanityDataAttribute(visualEditingEnabled, {
+                        documentId: story.documentId,
+                        documentType: "blogPost",
+                        path: "title",
+                      })
+                    : undefined
+                }
+                className="group min-w-0"
+              >
+                <LocalizedClientLink
+                  href={getStoryHref(story.slug)}
+                  aria-label={`Read ${story.title}`}
+                  className="grid h-full min-w-0 grid-cols-[minmax(112px,40%)_minmax(0,1fr)] gap-4 rounded-[16px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black sm:grid-cols-[minmax(180px,42%)_minmax(0,1fr)]"
+                >
+                  <div className="relative aspect-[4/3] min-h-[112px] overflow-hidden rounded-[16px] bg-[#f1f1ef] xl:h-full xl:min-h-0 xl:aspect-auto">
+                    {story.featuredImageUrl ? (
+                      <Image
+                        src={cleanSanityString(story.featuredImageUrl)}
+                        alt={story.featuredImageAlt}
+                        data-sanity={
+                          story.documentId
+                            ? createSanityDataAttribute(
+                                visualEditingEnabled,
+                                {
+                                  documentId: story.documentId,
+                                  documentType: "blogPost",
+                                  path: "featuredImage",
+                                }
+                              )
+                            : undefined
+                        }
                         fill
-                        sizes="(max-width: 639px) 82vw, (max-width: 1023px) 45vw, 33vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        sizes="(max-width: 639px) 40vw, (max-width: 1279px) 42vw, calc((100vw - 482px) * 0.2)"
+                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025]"
                       />
-                    </div>
-                  ) : null}
+                    ) : null}
+                  </div>
 
-                  <div className="flex flex-1 flex-col pt-4 md:pt-5">
-                    <div className="mb-3">
-                      <span className={`${inter.className} text-xs md:text-sm font-semibold uppercase tracking-[0.06em] text-[#ff5000]`}>
-                        {story.publishedLabel}
-                      </span>
-                    </div>
-
-                    <h3 className={`${montserrat.className} text-xl md:text-2xl lg:text-[24px] font-bold tracking-[0.005em] text-[#111111] leading-[1.12] mb-3 decoration-black underline-offset-[10px] transition-[text-decoration-color] duration-300 group-hover:underline`}>
+                  <div className="flex min-w-0 flex-col py-1 sm:py-2">
+                    <h3 className="line-clamp-3 text-[15px] font-semibold leading-[1.2] tracking-[-0.02em] transition-colors duration-300 group-hover:text-[#F16D34] sm:text-lg xl:text-[clamp(1rem,1.15vw,1.35rem)]">
                       {story.title}
                     </h3>
-                    <p className={`${inter.className} text-gray-600 text-sm md:text-[15px] leading-relaxed line-clamp-3`}>
-                      {story.excerpt}
-                    </p>
 
-                    <div className="mt-auto flex items-end justify-end pt-6">
-                      <LocalizedClientLink
-                        href={`/rider-stories/${encodeURIComponent(cleanSanityString(story.slug || ""))}`}
-                        className="inline-flex items-center text-sm font-medium uppercase tracking-[0.12em] text-black"
-                      >
-                        <TextRoll className="inline-flex">Read article</TextRoll>
-                      </LocalizedClientLink>
+                    <div className="mt-auto flex flex-wrap items-end justify-between gap-x-4 gap-y-1 pt-4 text-[11px] text-black/42 sm:text-xs">
+                      <span>{story.readTimeLabel}</span>
+                      {story.publishedLabel ? (
+                        <time
+                          dateTime={new Date(
+                            story.publishedTimestamp
+                          ).toISOString()}
+                        >
+                          {story.publishedLabel}
+                        </time>
+                      ) : null}
                     </div>
                   </div>
-                </div>
+                </LocalizedClientLink>
               </article>
             ))}
           </div>
-
-          <div className="mt-8 flex flex-col items-center gap-5">
-            <div className="flex justify-center gap-3">
-              <button
-                onClick={() => scroll("left")}
-                className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
-                aria-label="Previous"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 12H5M12 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => scroll("right")}
-                className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
-                aria-label="Next"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            <LocalizedClientLink
-              href="/rider-stories"
-              className={`${montserrat.className} inline-flex min-h-12 items-center justify-center bg-black px-7 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#FF5000] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF5000]`}
-            >
-              View All Rider Stories
-            </LocalizedClientLink>
-          </div>
-        </>
-        
+        ) : null}
       </div>
     </section>
   )
