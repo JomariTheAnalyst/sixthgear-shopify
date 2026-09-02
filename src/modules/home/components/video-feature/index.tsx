@@ -253,12 +253,12 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
     <section
       ref={sectionRef}
       aria-labelledby="homepage-video-feature-title"
-      className="w-full bg-white py-12 sm:py-16 lg:py-20"
+      className="w-full bg-white px-4 py-12 sm:py-16 md:px-8 lg:py-20 min-[1484px]:px-0"
     >
-      <div className="w-full">
+      <div className="mx-auto w-full max-w-[1420px]">
         <div
           ref={playerRef}
-          className="relative aspect-video overflow-hidden bg-[#111]"
+          className="relative aspect-[1420/798] overflow-hidden bg-[#111]"
           onPointerEnter={() => showChrome(isPlaying)}
           onPointerMove={() => showChrome(isPlaying)}
           onPointerLeave={() => isPlaying && hideChrome(0.15)}

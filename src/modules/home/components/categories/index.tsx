@@ -1,26 +1,20 @@
 "use client"
 
 import Image from "next/image"
-import {
-  useCallback,
-  useRef,
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
-} from "react"
+import { useRef } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { Draggable } from "gsap/Draggable"
-import { InertiaPlugin } from "gsap/InertiaPlugin"
 
 import type { SanityCategoriesSection } from "@lib/cms/types"
 import { cleanSanityString } from "@lib/cms/visual-editing"
 import { montserrat, nationalCompressed } from "@lib/fonts"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import DragCursor, {
-  type DragCursorHandle,
-} from "components/drag-cursor"
+import {
+  createHorizontalLoop,
+  type HorizontalLoop,
+} from "../featured-brand/horizontal-loop"
 
-gsap.registerPlugin(useGSAP, Draggable, InertiaPlugin)
+gsap.registerPlugin(useGSAP)
 
 type CmsCategoryItem = NonNullable<SanityCategoriesSection["items"]>[number]
 type CategoryKey =
@@ -36,11 +30,7 @@ type CategoryConfig = {
   aliases: string[]
 }
 
-const DRAG_THRESHOLD_PX = 8
-const TOUCH_DRAG_THRESHOLD_PX = 2
-const TOUCH_THROW_RESISTANCE = 650
-const DEFAULT_THROW_RESISTANCE = 1000
-const PARALLAX_MAX_PERCENT = 6
+const MARQUEE_SPEED = 0.55
 
 const CATEGORY_ORDER: CategoryConfig[] = [
   {
@@ -181,47 +171,20 @@ const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
 
 type CategoryCardProps = {
   category: CmsCategoryItem
-  index: number
-  total: number
-  onClickCapture: (event: ReactMouseEvent<HTMLAnchorElement>) => void
-  onPointerEnter: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onPointerLeave: (event: ReactPointerEvent<HTMLDivElement>) => void
-  onPointerDown: () => void
-  onPointerUp: () => void
 }
 
-function CategoryCard({
-  category,
-  index,
-  total,
-  onClickCapture,
-  onPointerEnter,
-  onPointerMove,
-  onPointerLeave,
-  onPointerDown,
-  onPointerUp,
-}: CategoryCardProps) {
+function CategoryCard({ category }: CategoryCardProps) {
   const href = normalizeCategoryHref(category.buttonLink, category.slug)
 
   return (
     <div
       data-category-slide
-      className="relative aspect-[2/3] w-[88vw] shrink-0 sm:w-[52vw] md:w-[37vw] lg:h-[630.5px] lg:w-[442.922px] lg:aspect-auto"
+      className="relative aspect-[2/3] w-[88vw] shrink-0 will-change-transform motion-reduce:transform-none motion-reduce:will-change-auto sm:w-[52vw] md:w-[37vw] lg:h-[630.5px] lg:w-[max(442.922px,25vw)] lg:aspect-auto"
       role="listitem"
-      aria-roledescription="slide"
-      aria-label={`${index + 1} of ${total}`}
-      onPointerEnter={onPointerEnter}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerLeave}
     >
       <LocalizedClientLink
         href={href}
         draggable={false}
-        onClickCapture={onClickCapture}
         aria-label={`Shop ${category.name}`}
         className="group relative block h-full w-full overflow-hidden bg-[#f1f1ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#111111]"
       >
@@ -235,7 +198,7 @@ function CategoryCard({
             fill
             draggable={false}
             className="select-none object-contain p-[7%] transition-transform duration-500 ease-out group-hover:scale-[1.025]"
-            sizes="(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, 443px"
+            sizes="(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, (min-width: 1772px) 25vw, 443px"
           />
         </div>
 
@@ -261,8 +224,6 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
   const sectionRef = useRef<HTMLElement | null>(null)
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
-  const cursorRef = useRef<DragCursorHandle | null>(null)
-  const draggedRef = useRef(false)
   const useCustom = data?.useCustomCategories !== false
   const title =
     (useCustom && data?.title) || FALLBACK_CATEGORIES_SECTION.title
@@ -281,126 +242,187 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
       const slides = gsap.utils.toArray<HTMLElement>(
         track.querySelectorAll("[data-category-slide]")
       )
-      const imageLayers = gsap.utils.toArray<HTMLElement>(
-        track.querySelectorAll("[data-category-parallax]")
-      )
-      const parallaxSetters = imageLayers.map((image) =>
-        gsap.quickSetter(image, "xPercent")
-      )
-      const reducedMotionQuery = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      )
+      if (slides.length <= 1) return
 
-      let reducedMotion = reducedMotionQuery.matches
-      let draggable: Draggable | null = null
+      const scaleSetters = slides.map((slide) =>
+        gsap.quickSetter(slide, "scaleX")
+      )
+      const xSetters = slides.map((slide) =>
+        gsap.quickSetter(slide, "x", "px")
+      )
+      let reducedMotion = true
+      let isHovered = false
+      let hasFocusWithin = false
+      let speedTween: gsap.core.Tween | null = null
       let slideMetrics: Array<{ left: number; width: number }> = []
-      let viewportWidth = 0
-      const coarsePointer = window.matchMedia("(pointer: coarse)").matches
+      let cardGap = 0
+
+      const getGap = () => {
+        const styles = window.getComputedStyle(track)
+        return Number.parseFloat(styles.columnGap || styles.gap) || 0
+      }
 
       const measure = () => {
-        viewportWidth = viewport.clientWidth
+        const startX = slides[0]?.offsetLeft ?? 0
+        cardGap = getGap()
         slideMetrics = slides.map((slide) => ({
-          left: slide.offsetLeft,
+          left: slide.offsetLeft - startX,
           width: slide.offsetWidth,
         }))
       }
 
-      const updateParallax = () => {
-        if (reducedMotion || viewportWidth <= 0) {
-          parallaxSetters.forEach((setX) => setX(0))
+      const resetCardEffects = () => {
+        slides.forEach((_slide, index) => {
+          scaleSetters[index](1)
+          xSetters[index](0)
+        })
+      }
+
+      const updateCompression = () => {
+        if (reducedMotion) {
+          resetCardEffects()
           return
         }
 
-        const trackX = Number(gsap.getProperty(track, "x")) || 0
-        const viewportCenter = viewportWidth / 2
+        const positionedSlides = slideMetrics
+          .map(({ left, width }, index) => {
+            const xPercent =
+              Number(gsap.getProperty(slides[index], "xPercent")) || 0
 
-        slideMetrics.forEach(({ left, width }, index) => {
-          const slideCenter = left + trackX + width / 2
-          const distance = gsap.utils.clamp(
-            -1,
-            1,
-            (slideCenter - viewportCenter) / (viewportCenter + width / 2)
-          )
-          parallaxSetters[index](-distance * PARALLAX_MAX_PERCENT)
+            return {
+              index,
+              width,
+              logicalLeft: left + (xPercent / 100) * width,
+            }
+          })
+          .sort((a, b) => a.logicalLeft - b.logicalLeft)
+
+        let nextPackedLeft = 0
+
+        positionedSlides.forEach(({ index, width, logicalLeft }, orderIndex) => {
+          const isExiting = orderIndex === 0 && logicalLeft < 0
+          const exitProgress = isExiting
+            ? gsap.utils.clamp(0, 1, (logicalLeft + width) / width)
+            : 1
+          const scaleX = exitProgress
+          const packedLeft =
+            orderIndex === 0 ? Math.max(logicalLeft, 0) : nextPackedLeft
+
+          scaleSetters[index](scaleX)
+          xSetters[index](packedLeft - logicalLeft)
+
+          nextPackedLeft = packedLeft + width * scaleX + cardGap
         })
       }
 
-      const getBounds = () => ({
-        minX: Math.min(0, viewport.clientWidth - track.scrollWidth),
-        maxX: 0,
+      gsap.set(slides, {
+        transformOrigin: "left center",
       })
 
-      const refresh = () => {
-        draggable?.tween?.kill()
-        const bounds = getBounds()
-        const currentX = Number(gsap.getProperty(track, "x")) || 0
-        gsap.set(track, {
-          x: gsap.utils.clamp(bounds.minX, bounds.maxX, currentX),
+      const loop: HorizontalLoop = createHorizontalLoop(slides, {
+        paddingRight: getGap,
+        speed: MARQUEE_SPEED,
+      })
+      loop.timeline.eventCallback("onUpdate", updateCompression)
+
+      const smoothlySetPaused = (paused: boolean) => {
+        speedTween?.kill()
+        if (reducedMotion) return
+
+        speedTween = gsap.to(loop.timeline, {
+          timeScale: paused ? 0 : 1,
+          duration: paused ? 0.4 : 0.55,
+          ease: "power2.out",
+          overwrite: "auto",
         })
-        draggable?.applyBounds(bounds)
-        draggable?.update(true)
-        measure()
-        updateParallax()
       }
 
-      measure()
-      ;[draggable] = Draggable.create(track, {
-        trigger: viewport,
-        type: "x",
-        bounds: getBounds(),
-        inertia: !reducedMotion,
-        edgeResistance: 0.82,
-        dragResistance: coarsePointer ? 0 : 0.04,
-        dragClickables: true,
-        minimumMovement: coarsePointer
-          ? TOUCH_DRAG_THRESHOLD_PX
-          : DRAG_THRESHOLD_PX,
-        throwResistance: coarsePointer
-          ? TOUCH_THROW_RESISTANCE
-          : DEFAULT_THROW_RESISTANCE,
-        allowNativeTouchScrolling: true,
-        cursor: "none",
-        activeCursor: "none",
-        onPressInit() {
-          this.tween?.kill()
-          draggedRef.current = false
-          cursorRef.current?.press()
-        },
-        onDragStart() {
-          draggedRef.current = true
-        },
-        onDrag: updateParallax,
-        onThrowUpdate: updateParallax,
-        onRelease() {
-          cursorRef.current?.release()
-        },
-      })
-      updateParallax()
+      const syncHoverPause = () => {
+        smoothlySetPaused(isHovered || hasFocusWithin)
+      }
+
+      const handleMouseEnter = () => {
+        isHovered = true
+        syncHoverPause()
+      }
+
+      const handleMouseLeave = () => {
+        isHovered = false
+        syncHoverPause()
+      }
+
+      const handleFocusIn = () => {
+        hasFocusWithin = true
+        syncHoverPause()
+      }
+
+      const handleFocusOut = (event: FocusEvent) => {
+        hasFocusWithin = viewport.contains(event.relatedTarget as Node | null)
+        syncHoverPause()
+      }
+
+      viewport.addEventListener("mouseenter", handleMouseEnter)
+      viewport.addEventListener("mouseleave", handleMouseLeave)
+      viewport.addEventListener("focusin", handleFocusIn)
+      viewport.addEventListener("focusout", handleFocusOut)
 
       const media = gsap.matchMedia()
-      media.add("(prefers-reduced-motion: reduce)", () => {
-        reducedMotion = true
-        if (draggable) draggable.vars.inertia = false
-        parallaxSetters.forEach((setX) => setX(0))
+      media.add(
+        {
+          allowMotion: "(prefers-reduced-motion: no-preference)",
+          reduceMotion: "(prefers-reduced-motion: reduce)",
+        },
+        (context) => {
+          reducedMotion = Boolean(context.conditions?.reduceMotion)
+          speedTween?.kill()
 
-        return () => {
-          reducedMotion = false
-          if (draggable) draggable.vars.inertia = true
-          updateParallax()
+          if (reducedMotion) {
+            loop.timeline.pause(0, true).timeScale(1)
+            resetCardEffects()
+            return
+          }
+
+          measure()
+          updateCompression()
+          loop.timeline
+            .timeScale(isHovered || hasFocusWithin ? 0 : 1)
+            .play()
         }
-      })
+      )
+
+      const refresh = () => {
+        speedTween?.kill()
+        resetCardEffects()
+        loop.refresh()
+        measure()
+
+        if (reducedMotion) {
+          loop.timeline.pause(0, true).timeScale(1)
+          resetCardEffects()
+          return
+        }
+
+        updateCompression()
+        loop.timeline.timeScale(isHovered || hasFocusWithin ? 0 : 1)
+      }
 
       const resizeCall = gsap.delayedCall(0.12, refresh).pause()
       const resizeObserver = new ResizeObserver(() => {
         resizeCall.restart(true)
       })
       resizeObserver.observe(viewport)
+      resizeObserver.observe(track)
 
       return () => {
+        viewport.removeEventListener("mouseenter", handleMouseEnter)
+        viewport.removeEventListener("mouseleave", handleMouseLeave)
+        viewport.removeEventListener("focusin", handleFocusIn)
+        viewport.removeEventListener("focusout", handleFocusOut)
         resizeObserver.disconnect()
         resizeCall.kill()
-        draggable?.tween?.kill()
-        draggable?.kill()
+        speedTween?.kill()
+        loop.timeline.eventCallback("onUpdate", null)
+        loop.kill()
         media.revert()
       }
     },
@@ -410,54 +432,6 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
       revertOnUpdate: true,
     }
   )
-
-  const handleCardClickCapture = useCallback(
-    (event: ReactMouseEvent<HTMLAnchorElement>) => {
-      const interactionWasDrag = draggedRef.current
-      draggedRef.current = false
-
-      if (interactionWasDrag) {
-        event.preventDefault()
-        event.stopPropagation()
-      }
-    },
-    []
-  )
-
-  const handlePointerEnter = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      const cursorActivated = cursorRef.current?.enter(
-        event.clientX,
-        event.clientY
-      )
-      if (cursorActivated) event.currentTarget.style.cursor = "none"
-    },
-    []
-  )
-
-  const handlePointerMove = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      cursorRef.current?.move(event.clientX, event.clientY)
-    },
-    []
-  )
-
-  const handlePointerLeave = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      event.currentTarget.style.cursor = ""
-      cursorRef.current?.leave()
-    },
-    []
-  )
-
-  const handlePointerDown = useCallback(() => {
-    draggedRef.current = false
-    cursorRef.current?.press()
-  }, [])
-
-  const handlePointerUp = useCallback(() => {
-    cursorRef.current?.release()
-  }, [])
 
   return (
     <section
@@ -474,30 +448,23 @@ export default function ShopByCategories({ data }: ShopByCategoriesProps) {
 
       <div
         ref={viewportRef}
-        className="w-full cursor-none overflow-hidden touch-pan-y"
+        className="w-full overflow-hidden motion-reduce:overflow-x-auto"
         role="region"
-        aria-roledescription="carousel"
         aria-label="Product categories"
       >
-        <div ref={trackRef} className="flex w-max gap-2" role="list">
-          {items.map((category, index) => (
+        <div
+          ref={trackRef}
+          className="flex w-max gap-2 motion-reduce:transform-none"
+          role="list"
+        >
+          {items.map((category) => (
             <CategoryCard
               key={`${getCategoryKey(category)}-${category._key || category.slug}`}
               category={category}
-              index={index}
-              total={items.length}
-              onClickCapture={handleCardClickCapture}
-              onPointerEnter={handlePointerEnter}
-              onPointerMove={handlePointerMove}
-              onPointerLeave={handlePointerLeave}
-              onPointerDown={handlePointerDown}
-              onPointerUp={handlePointerUp}
             />
           ))}
         </div>
       </div>
-
-      <DragCursor ref={cursorRef} primaryLabel="CLICK" />
     </section>
   )
 }

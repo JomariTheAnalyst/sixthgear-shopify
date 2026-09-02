@@ -670,6 +670,7 @@ export interface SanityBlogPostListItem {
   title: string | null
   slug: string | null
   excerpt: string | null
+  readingText?: string | null
   publishedAt: string | null
   authorName: string | null
   featured: boolean | null
