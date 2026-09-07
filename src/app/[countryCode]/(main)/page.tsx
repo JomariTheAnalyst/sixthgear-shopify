@@ -18,6 +18,7 @@ import FeaturedCollectionBanner from "@modules/home/components/featured-collecti
 import PromoBanner from "@modules/home/components/promo-banner"
 import PopupAd from "@modules/home/components/popup-ad"
 import HomepageCollectionRail from "@modules/home/components/product-sections/homepage-collection-rail"
+import RecommendedCollections from "@modules/home/components/recommended-collections"
 import type {
   HomepageCollectionSection,
   SanityBlogPostListItem,
@@ -432,6 +433,8 @@ export default async function Home(props: {
       </Suspense>
       <FeaturedCollectionBanner data={getFeatured("after_team")} />
       <PromoBanner data={getPromo("after_team")} />
+
+      <RecommendedCollections />
 
       <Suspense fallback={<TestimonialsSectionSkeleton />}>
         <DeferredClientTestimonialsSection />
