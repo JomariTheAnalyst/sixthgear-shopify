@@ -1,132 +1,292 @@
-Yep — the layout is clear: **latest Rider Story becomes the large featured article on the left**, while the **next 3 most recent stories stack vertically on the right**, all sourced from Sanity.
+# Task: Build Shop Mega Menu
 
-````markdown
-# SixthGear — Revamp Rider Stories Section
+## Objective
 
-## Context
+Revamp the existing **SHOP** navbar dropdown into a large visual mega menu using the attached reference image as the layout/design guide.
 
-SixthGear is a Next.js 15 + React 19 + TypeScript storefront using Shopify for commerce and Sanity as the editorial CMS.
+Reference image:
+`c058bd36-8487-467d-a1bb-975daa7aefce.png`
 
-The existing Rider Stories/blog content already comes from Sanity `blogPost` documents. Preserve the existing Rider Story routes, slugs, SEO, and Sanity data flow.
+Inspect the reference before implementing.
 
-## Task
+For this sprint:
 
-Revamp the homepage **Rider Stories** section to match the attached reference layout.
+- hardcode the menu items and images
+- use the real existing collection/page links from the repository
+- do **not** connect this to Shopify metafields or Sanity yet
+- preserve all existing navbar functionality
 
-## Layout
+---
 
-Desktop:
+## Required Menu Items
 
-- Use the project standard **233px left and right page margin**.
-- Two-column editorial layout.
-- Left column = the **latest published Rider Story**.
-- Right column = the **next 3 most recent Rider Stories**, stacked vertically.
+Use these six destinations:
 
-### Featured / Latest Story
+1. All Products
+2. Riding Gear
+3. Parts & Accessories
+4. Helmets
+5. Bags & Luggage
+6. Communications
 
-Display:
+Before coding the href values, audit the existing collection routes/handles and use the real current URLs. Do not guess routes.
 
-- Large landscape image
-- Title
-- Short excerpt/description
-- Read time
-- Published date
-- `Learn More` CTA
+Keep the data centralized in one array/object so it can later be replaced by Shopify-controlled data.
 
-The entire featured story should link to its Rider Story detail page.
+Example shape:
 
-### Right-side Stories
+```ts
+{
+  title, image, imageAlt, href
+}
+```
 
-Each card should contain:
+---
 
-- Landscape thumbnail on the left
-- Title on the right
-- Read time
-- Published date
+## Desktop Design
 
-Keep spacing and proportions close to the reference image.
+When SHOP is hovered or keyboard-focused, open a large full-width mega-menu panel directly beneath the navbar.
 
-## Sanity Data
+Use the attached reference for:
 
-Do not hardcode article content.
+- large image-first cards
+- category title at the top-left
+- very light neutral card background
+- subtle corner radius
+- clean spacing
+- minimal UI
+- no heavy shadows or borders
 
-Inspect and reuse the existing:
+### Card sizing
 
-- `blogPost` Sanity schema
-- Rider Story GROQ queries
-- CMS types/mappers
-- existing homepage Rider Stories component
-- Rider Story detail route
+Reference size:
 
-Sort by published date descending:
+```text
+366px × 436px
+```
 
-1. newest post → featured story
-2. next 3 posts → right-side list
+Treat this as the preferred/max desktop size and preserve the aspect ratio:
 
-If the existing query already provides the required fields, reuse it instead of creating duplicate CMS logic.
+```text
+366 / 436
+```
 
-If `read time` is not currently stored, first inspect whether it can be calculated safely from the article body. Do not add a new Sanity field unless necessary.
+Do **not** force six literal 366px cards if they exceed viewport width.
 
-## Design
+Cards must scale responsively to fit the available desktop width without page overflow.
 
-- Match the clean editorial appearance of the reference.
-- Use the project's existing Outfit typography.
-- White background.
-- Rounded article images.
-- Strong title hierarchy.
-- Subtle secondary metadata text.
-- No unnecessary shadows, gradients, cards, or decorative effects.
-- Keep image aspect ratios consistent and prevent layout shift.
-- Use `next/image` and existing Sanity image utilities.
+Use a small radius similar to the reference.
 
-## Responsive
+---
 
-Desktop should follow the reference closely.
+## Images
 
-For tablet/mobile:
+Use existing local project images as temporary placeholders where possible.
 
-- Remove the fixed 233px margin and use the project's responsive page padding.
-- Stack the featured story above the remaining stories.
-- Keep thumbnails and text readable without horizontal overflow.
+Do not fetch random remote images and do not create final artwork in this sprint.
+
+Each card image should:
+
+- fill the card cleanly
+- use `object-fit: cover` or `contain` depending on the chosen local asset
+- remain responsive
+- avoid distortion
+- have useful alt text
+
+---
+
+## Interaction
+
+The entire card is clickable.
+
+Use the existing Next.js `Link` pattern.
+
+On desktop:
+
+- hover/focus SHOP → mega menu opens
+- moving pointer from SHOP into the mega menu must keep it open
+- leaving both SHOP and mega menu closes it
+- pressing `Escape` closes it
+- selecting a destination closes/navigates normally
+- keyboard navigation must remain usable
+
+Use only a subtle card hover effect, such as:
+
+```text
+image scale: 1 → approximately 1.02
+```
+
+No dramatic animation.
+
+---
+
+## Mobile
+
+Do not show the desktop card grid inside the mobile navigation.
+
+For mobile/touch navigation:
+
+- SHOP expands as a simple accessible list/accordion
+- show the same six destinations
+- each item links directly to the real collection/page
+- no hover dependency
+- no horizontal overflow
+
+Preserve the existing mobile-nav architecture where possible.
+
+---
+
+## Typography
+
+Use the existing local Outfit font:
+
+`public/fonts/outfit-variable-latin.woff2`
+
+Reuse the existing font registration.
+
+Keep category titles bold, clean, and readable.
+
+---
+
+## Navbar Preservation Rule
+
+This is a presentation enhancement only.
+
+Do **not** remove or break:
+
+- Home / About / Shop / Services / First Gear Coffee / Contact links
+- Services dropdown behavior
+- search
+- cart/cart drawer/count
+- login/account
+- wishlist or other existing actions
+- sticky header behavior
+- mobile navigation
+- keyboard accessibility
+- existing route localization
+- any existing state/event logic
+
+Audit the current navbar before editing.
+
+---
+
+## Header/Dropdown Positioning
+
+Because the navbar is also being reduced/redesigned, verify the mega menu uses the **actual current header height**, not an old hardcoded offset.
+
+Check and adjust only if needed:
+
+- mega-menu top position
+- sticky header offsets
+- announcement bar interaction
+- z-index/stacking
+- page content below the header
+
+The mega menu must not appear with a gap or overlap the navbar incorrectly.
+
+---
+
+## Future Ownership
+
+For now:
+
+```text
+Hardcoded menu data
+        ↓
+ShopMegaMenu
+        ↓
+ShopMegaMenuCard
+```
+
+Later we will decide/migrate the data source to Shopify.
+
+Do not add Shopify metafields, Storefront API queries, or Sanity fields in this sprint.
+
+---
 
 ## Scope
 
-Inspect relevant files under:
+Do not:
 
-- `src/modules/home/components`
-- `src/app/[countryCode]/(main)/page.tsx`
-- `src/lib/cms/queries.ts`
-- `src/lib/cms`
-- `sanity/schemaTypes`
-- Rider Stories route/components
+- redesign unrelated homepage sections
+- change commerce logic
+- install unnecessary dependencies
+- perform broad navbar refactors beyond what this mega menu requires
+- deploy
+- push unless explicitly instructed
 
-Do not change Shopify logic, unrelated homepage sections, or the Rider Story URL structure.
+---
 
-Preserve existing CMS fallback/error handling unless it conflicts with this section.
+## Verification
 
-## Verify
-
-Run only:
+After implementation and diff inspection, run exactly once:
 
 ```bash
 npx tsc --noEmit
 npm run lint
 npm run build
 ```
-````
 
-## Report
+Do not run extra test suites or repeated verification loops.
 
-Return:
+---
 
-1. Files changed
-2. Existing Sanity fields/query reused
-3. How latest + next 3 stories are selected
-4. Responsive behavior
-5. Verification results
-6. Any missing CMS field or limitation discovered
+## Focused Browser Review
 
+Perform one focused review because this task requires interaction validation.
+
+Check desktop and mobile:
+
+### Desktop
+
+- SHOP opens the visual mega menu
+- six cards render correctly
+- cards scale without overflow
+- real collection links work
+- menu stays open while moving from SHOP into the panel
+- Escape closes it
+- keyboard focus works
+- hover effect is subtle
+- mega menu aligns correctly under the reduced navbar
+- no z-index/overlay issues
+
+### Mobile
+
+- SHOP uses a simple list/accordion
+- all six links work
+- no desktop card grid is forced into mobile
+- no horizontal overflow
+
+---
+
+## Completion Report
+
+Report only:
+
+### Files Changed
+
+List changed files.
+
+### Implementation Summary
+
+Briefly explain the mega-menu structure, responsive behavior, and hardcoded data.
+
+### Verification
+
+Report:
+
+```text
+npx tsc --noEmit
+npm run lint
+npm run build
 ```
 
-One important detail I included: the AI IDE should **reuse your existing Sanity `blogPost` pipeline rather than creating a second blog system**, because Rider Stories are already connected to Sanity in the current architecture.
-```
+### Browser Review
+
+Report the single desktop/mobile check.
+
+### Follow-up
+
+Mention that Shopify/Sanity control is intentionally deferred.
+
+Stop after reporting.

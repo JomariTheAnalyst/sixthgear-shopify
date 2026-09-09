@@ -6,11 +6,17 @@ import { StoreRegion } from "@medusajs/types"
 import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Logo from "@modules/layout/components/brand-logo"
+import { SHOP_MENU_ITEMS } from "@modules/layout/components/shop-mega-menu/data"
 import { ServiceCategory } from "@lib/services-data"
 
 type MobileMenuProps = {
   regions: StoreRegion[]
-  navLinks: { name: string; href: string; hasDropdown?: boolean }[]
+  navLinks: {
+    name: string
+    href: string
+    hasDropdown?: boolean
+    hasShopMenu?: boolean
+  }[]
   servicesData: ServiceCategory[]
 }
 
@@ -20,6 +26,7 @@ export default function MobileMenu({
   servicesData,
 }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isShopExpanded, setIsShopExpanded] = useState(false)
   const [isServicesExpanded, setIsServicesExpanded] = useState(false)
 
   const openMenu = () => setIsOpen(true)
@@ -30,7 +37,7 @@ export default function MobileMenu({
       {/* Menu Toggle Button - Hamburger Icon */}
       <button
         onClick={openMenu}
-        className="md:hidden p-2 text-gray-900 hover:text-[#F16D34] transition-colors duration-200"
+        className="lg:hidden p-2 text-gray-900 hover:text-[#F16D34] transition-colors duration-200"
         aria-label="Open menu"
       >
         <svg
@@ -121,14 +128,73 @@ export default function MobileMenu({
                   <ul className="space-y-2">
                     {navLinks.map((link) => (
                       <li key={link.name}>
-                        {link.hasDropdown ? (
+                        {link.hasShopMenu ? (
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsShopExpanded(!isShopExpanded)
+                                setIsServicesExpanded(false)
+                              }}
+                              className="flex w-full items-center justify-between px-4 py-3 text-base font-bold uppercase tracking-wider text-gray-900 transition-colors duration-200 hover:text-[#F16D34]"
+                              aria-expanded={isShopExpanded}
+                              aria-controls="mobile-shop-menu"
+                            >
+                              <span>{link.name}</span>
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                strokeWidth="2"
+                                aria-hidden="true"
+                              >
+                                {isShopExpanded ? (
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M5 12h14"
+                                  />
+                                ) : (
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 5v14M5 12h14"
+                                  />
+                                )}
+                              </svg>
+                            </button>
+
+                            {isShopExpanded ? (
+                              <div
+                                id="mobile-shop-menu"
+                                className="ml-4 mt-2 space-y-1 border-l-2 border-gray-100 pl-4"
+                              >
+                                {SHOP_MENU_ITEMS.map((item) => (
+                                  <LocalizedClientLink
+                                    key={item.href}
+                                    href={item.href}
+                                    onClick={closeMenu}
+                                    className="block px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-orange-50 hover:text-[#F16D34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F16D34]"
+                                  >
+                                    {item.title}
+                                  </LocalizedClientLink>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : link.hasDropdown ? (
                           <div>
                             {/* Services with Plus Icon */}
                             <button
-                              onClick={() =>
+                              type="button"
+                              onClick={() => {
                                 setIsServicesExpanded(!isServicesExpanded)
-                              }
+                                setIsShopExpanded(false)
+                              }}
                               className="flex items-center justify-between w-full px-4 py-3 text-base font-bold uppercase tracking-wider text-gray-900 hover:text-[#F16D34] transition-colors duration-200"
+                              aria-expanded={isServicesExpanded}
+                              aria-controls="mobile-services-menu"
                             >
                               <span>{link.name}</span>
                               {/* Plus/Minus Icon */}
@@ -159,7 +225,10 @@ export default function MobileMenu({
 
                             {/* Expandable Services List - Using CMS data */}
                             {isServicesExpanded && (
-                              <div className="mt-2 ml-4 space-y-1 border-l-2 border-gray-100 pl-4 animate-in slide-in-from-top-2 duration-200">
+                              <div
+                                id="mobile-services-menu"
+                                className="mt-2 ml-4 space-y-1 border-l-2 border-gray-100 pl-4 animate-in slide-in-from-top-2 duration-200"
+                              >
                                 {servicesData.map((service) => (
                                   <LocalizedClientLink
                                     key={service.id}
