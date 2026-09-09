@@ -98,7 +98,7 @@ function CardArtwork({
           onClickCapture={onLinkClickCapture}
           onPointerEnter={onActionPointerEnter}
           onPointerLeave={onActionPointerLeave}
-          className={`${montserrat.className} inline-flex min-h-11 w-full max-w-[230px] cursor-none items-center justify-center rounded-full bg-[#0874d1] px-6 py-3 text-[12px] font-extrabold uppercase tracking-[0.12em] text-white shadow-[0_7px_18px_rgba(8,116,209,0.24)] will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white`}
+          className={`${montserrat.className} inline-flex min-h-11 w-full max-w-[230px] cursor-none items-center justify-center rounded-full bg-black px-6 py-3 text-[12px] font-extrabold uppercase tracking-[0.12em] text-white shadow-[0_7px_18px_rgba(0,0,0,0.18)] will-change-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white`}
         >
           SHOP NOW
         </LocalizedClientLink>
@@ -161,7 +161,10 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
       gsap.to(button, {
         scale: reducedMotion ? 1 : active ? 1.045 : 1,
         y: reducedMotion ? 0 : active ? -2 : 0,
-        backgroundColor: active ? "#005fb8" : "#0874d1",
+        backgroundColor: active ? "#F16D34" : "#000000",
+        boxShadow: active
+          ? "0 9px 20px rgba(241, 109, 52, 0.28)"
+          : "0 7px 18px rgba(0, 0, 0, 0.18)",
         duration: reducedMotion ? 0 : 0.2,
         ease: "power2.out",
         overwrite: "auto",

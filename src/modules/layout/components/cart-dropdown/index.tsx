@@ -31,9 +31,12 @@ const CartDropdown = ({
   return (
     <div className="h-full z-50 flex items-center">
       <button
+        type="button"
         onClick={openCart}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all duration-200"
+        className="relative inline-flex h-10 w-10 items-center justify-center text-gray-900 transition-colors hover:text-[#F16D34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]"
         data-testid="nav-cart-link"
+        aria-label={`Open cart${totalItems > 0 ? `, ${totalItems} ${totalItems === 1 ? "item" : "items"}` : ""}`}
+        title="Cart"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

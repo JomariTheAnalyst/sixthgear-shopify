@@ -9,8 +9,10 @@ const MobileSearchButton = () => {
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsSearchOpen(true)}
         className="p-2 text-gray-900 hover:text-[#F16D34] transition-colors"
+        aria-label="Search products"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
