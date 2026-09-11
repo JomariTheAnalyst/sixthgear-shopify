@@ -3,6 +3,9 @@
 import { useParams } from "next/navigation"
 import CTABanner from "@modules/home/components/cta-banner"
 import ServiceHero from "@modules/services/components/service-hero"
+import ServicesStatementStats, {
+  type ServicesStatementStatsData,
+} from "@modules/services/components/services-statement-stats"
 import BrandsWeService from "@modules/services/components/brands-we-service"
 import ExpertiseStats from "@modules/services/components/expertise-stats"
 import ModernServicesGrid from "@modules/services/components/modern-services-grid"
@@ -13,6 +16,7 @@ import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface ServicesListTemplateProps {
   content: ServicesPageContent
+  statementStats: ServicesStatementStatsData
 }
 
 function sectionPath(
@@ -24,6 +28,7 @@ function sectionPath(
 
 export default function ServicesListTemplate({
   content,
+  statementStats,
 }: ServicesListTemplateProps) {
   const params = useParams()
   const countryCode = params?.countryCode as string
@@ -37,6 +42,8 @@ export default function ServicesListTemplate({
       >
         <ServiceHero content={content.hero} />
       </SanityEditTarget>
+
+      <ServicesStatementStats stats={statementStats} />
 
       <SanityEditTarget
         documentId="servicesPage"

@@ -1,206 +1,114 @@
-# Task: Build Shop Mega Menu
+````markdown
+# Task: Add Services Statement + Animated Stats Section
 
 ## Objective
 
-Revamp the existing **SHOP** navbar dropdown into a large visual mega menu using the attached reference image as the layout/design guide.
+Add a new section **directly below the Services hero section**.
 
-Reference image:
-`c058bd36-8487-467d-a1bb-975daa7aefce.png`
+Use the attached reference image as the layout/design inspiration:
+attached image
 
-Inspect the reference before implementing.
+Do **not** add the drone or any product image. This section should contain only:
 
-For this sprint:
+1. a large centered statement
+2. a 3-column stats block underneath
 
-- hardcode the menu items and images
-- use the real existing collection/page links from the repository
-- do **not** connect this to Shopify metafields or Sanity yet
-- preserve all existing navbar functionality
+Preserve all existing Services page functionality and sections.
 
 ---
 
-## Required Menu Items
+## Statement
 
-Use these six destinations:
+Use Outfit Variable and create a bold editorial statement centered on the page:
 
-1. All Products
-2. Riding Gear
-3. Parts & Accessories
-4. Helmets
-5. Bags & Luggage
-6. Communications
+> **From routine maintenance to performance upgrades, Sixthgear keeps every ride ready for what’s next.**
 
-Before coding the href values, audit the existing collection routes/handles and use the real current URLs. Do not guess routes.
+Highlight:
 
-Keep the data centralized in one array/object so it can later be replaced by Shopify-controlled data.
+> **ready for what’s next.**
 
-Example shape:
+Use a tasteful Sixthgear accent treatment inspired by the highlighted phrase in the reference.
 
-```ts
-{
-  title, image, imageAlt, href
-}
-```
+Requirements:
+
+- heavy/bold Outfit
+- centered
+- large responsive typography
+- generous whitespace
+- black text
+- clean white/light background
+- max-width so the statement does not stretch too wide
+- scale appropriately on tablet/mobile
+
+Do not add extra illustrations or decorative clutter.
 
 ---
 
-## Desktop Design
+## Stats Section
 
-When SHOP is hovered or keyboard-focused, open a large full-width mega-menu panel directly beneath the navbar.
+Add **3 service-related stats** beneath the statement.
 
-Use the attached reference for:
+Before hardcoding numbers, audit the existing Services data and derive verified counts where possible, such as:
 
-- large image-first cards
-- category title at the top-left
-- very light neutral card background
-- subtle corner radius
-- clean spacing
-- minimal UI
-- no heavy shadows or borders
+- number of Service Categories
+- number of Brands Serviced
+- number of individual Service Options / offerings
 
-### Card sizing
-
-Reference size:
+Example layout:
 
 ```text
-366px × 436px
+8+                     6+                     20+
+SERVICE CATEGORIES     BRANDS SERVICED        SERVICE OPTIONS
 ```
+````
 
-Treat this as the preferred/max desktop size and preserve the aspect ratio:
+Prefer deriving counts from existing project data rather than duplicating numbers.
 
-```text
-366 / 436
-```
+**Do not invent business metrics** such as jobs completed, customers served, years of experience, or percentages unless verified in the repository.
 
-Do **not** force six literal 366px cards if they exceed viewport width.
-
-Cards must scale responsively to fit the available desktop width without page overflow.
-
-Use a small radius similar to the reference.
+Keep stat configuration centralized and easy to edit later.
 
 ---
 
-## Images
+## GSAP Animation
 
-Use existing local project images as temporary placeholders where possible.
+Use the project's existing GSAP + ScrollTrigger setup.
 
-Do not fetch random remote images and do not create final artwork in this sprint.
+When the section enters the viewport:
 
-Each card image should:
+- statement: subtle fade + upward reveal
+- numeric stats: count from `0` to final value
+- slightly stagger the three stats
+- animation runs once
+- final values remain visible
 
-- fill the card cleanly
-- use `object-fit: cover` or `contain` depending on the chosen local asset
-- remain responsive
-- avoid distortion
-- have useful alt text
+Keep animation subtle and premium.
 
----
+Respect `prefers-reduced-motion`; show final values immediately when reduced motion is enabled.
 
-## Interaction
-
-The entire card is clickable.
-
-Use the existing Next.js `Link` pattern.
-
-On desktop:
-
-- hover/focus SHOP → mega menu opens
-- moving pointer from SHOP into the mega menu must keep it open
-- leaving both SHOP and mega menu closes it
-- pressing `Escape` closes it
-- selecting a destination closes/navigates normally
-- keyboard navigation must remain usable
-
-Use only a subtle card hover effect, such as:
-
-```text
-image scale: 1 → approximately 1.02
-```
-
-No dramatic animation.
+Do not add another animation dependency.
 
 ---
 
-## Mobile
+## Responsive Layout
 
-Do not show the desktop card grid inside the mobile navigation.
+### Desktop
 
-For mobile/touch navigation:
+- centered statement
+- 3 stats in one horizontal row
+- generous spacing
 
-- SHOP expands as a simple accessible list/accordion
-- show the same six destinations
-- each item links directly to the real collection/page
-- no hover dependency
+### Tablet
+
+- maintain 3 columns where readable or adapt gracefully
+
+### Mobile
+
+- stack stats vertically or use a responsive layout that keeps labels readable
 - no horizontal overflow
+- statement typography scales cleanly
 
-Preserve the existing mobile-nav architecture where possible.
-
----
-
-## Typography
-
-Use the existing local Outfit font:
-
-`public/fonts/outfit-variable-latin.woff2`
-
-Reuse the existing font registration.
-
-Keep category titles bold, clean, and readable.
-
----
-
-## Navbar Preservation Rule
-
-This is a presentation enhancement only.
-
-Do **not** remove or break:
-
-- Home / About / Shop / Services / First Gear Coffee / Contact links
-- Services dropdown behavior
-- search
-- cart/cart drawer/count
-- login/account
-- wishlist or other existing actions
-- sticky header behavior
-- mobile navigation
-- keyboard accessibility
-- existing route localization
-- any existing state/event logic
-
-Audit the current navbar before editing.
-
----
-
-## Header/Dropdown Positioning
-
-Because the navbar is also being reduced/redesigned, verify the mega menu uses the **actual current header height**, not an old hardcoded offset.
-
-Check and adjust only if needed:
-
-- mega-menu top position
-- sticky header offsets
-- announcement bar interaction
-- z-index/stacking
-- page content below the header
-
-The mega menu must not appear with a gap or overlap the navbar incorrectly.
-
----
-
-## Future Ownership
-
-For now:
-
-```text
-Hardcoded menu data
-        ↓
-ShopMegaMenu
-        ↓
-ShopMegaMenuCard
-```
-
-Later we will decide/migrate the data source to Shopify.
-
-Do not add Shopify metafields, Storefront API queries, or Sanity fields in this sprint.
+Use Outfit Variable throughout.
 
 ---
 
@@ -208,12 +116,14 @@ Do not add Shopify metafields, Storefront API queries, or Sanity fields in this 
 
 Do not:
 
-- redesign unrelated homepage sections
-- change commerce logic
-- install unnecessary dependencies
-- perform broad navbar refactors beyond what this mega menu requires
-- deploy
-- push unless explicitly instructed
+- modify the Services hero
+- redesign existing service sections
+- change service URLs/content
+- change Sanity schemas
+- change Shopify logic
+- modify navbar/dropdowns
+- install new dependencies
+- deploy or push
 
 ---
 
@@ -227,66 +137,20 @@ npm run lint
 npm run build
 ```
 
-Do not run extra test suites or repeated verification loops.
+Then perform **one focused browser check** of this new section on desktop and mobile.
 
----
+Verify:
 
-## Focused Browser Review
+- correct placement below hero
+- statement layout/highlight
+- responsive typography
+- 3 stats render correctly
+- count-up animation works
+- reduced-motion handling
+- no layout shift or horizontal overflow
 
-Perform one focused review because this task requires interaction validation.
+Report files changed, implementation summary, verification results, and browser findings. Stop after reporting.
 
-Check desktop and mobile:
-
-### Desktop
-
-- SHOP opens the visual mega menu
-- six cards render correctly
-- cards scale without overflow
-- real collection links work
-- menu stays open while moving from SHOP into the panel
-- Escape closes it
-- keyboard focus works
-- hover effect is subtle
-- mega menu aligns correctly under the reduced navbar
-- no z-index/overlay issues
-
-### Mobile
-
-- SHOP uses a simple list/accordion
-- all six links work
-- no desktop card grid is forced into mobile
-- no horizontal overflow
-
----
-
-## Completion Report
-
-Report only:
-
-### Files Changed
-
-List changed files.
-
-### Implementation Summary
-
-Briefly explain the mega-menu structure, responsive behavior, and hardcoded data.
-
-### Verification
-
-Report:
-
-```text
-npx tsc --noEmit
-npm run lint
-npm run build
 ```
 
-### Browser Review
-
-Report the single desktop/mobile check.
-
-### Follow-up
-
-Mention that Shopify/Sanity control is intentionally deferred.
-
-Stop after reporting.
+```

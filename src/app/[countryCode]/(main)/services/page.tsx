@@ -66,12 +66,21 @@ export default async function ServicesPage({
     services,
     cmsServices
   )
+  const statementStats = {
+    categoryCount: services.length,
+    brandCount: content.brandsWeService.brands.length,
+    optionCount: services.reduce(
+      (total, service) => total + service.items.length,
+      0
+    ),
+  }
 
   return (
     <>
       <JsonLd id="services-breadcrumbs" data={breadcrumbStructuredData} />
       <ServicesListTemplate
         content={content}
+        statementStats={statementStats}
       />
     </>
   )

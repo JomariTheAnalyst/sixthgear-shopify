@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { StoreRegion, HttpTypes } from "@medusajs/types"
 import { ShopifyCustomer } from "@lib/shopify/types"
 import { ServiceCategory } from "@lib/services-data"
+import type { SanityBlogPostListItem } from "@lib/cms/types"
 import { useWishlistStore } from "@lib/wishlist-store"
 import { outfit } from "@lib/fonts"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -30,6 +31,7 @@ interface NavClientProps {
   regions: StoreRegion[]
   cart: HttpTypes.StoreCart | null
   servicesData: ServiceCategory[]
+  clientStories: SanityBlogPostListItem[]
   customer: ShopifyCustomer | null
   wishlistCount: number
 }
@@ -38,6 +40,7 @@ const NavClient = ({
   regions,
   cart,
   servicesData,
+  clientStories,
   customer,
   wishlistCount,
 }: NavClientProps) => {
@@ -439,7 +442,10 @@ const NavClient = ({
         onMouseLeave={handleServicesLeave}
         onClick={handleDropdownClick}
       >
-        <ServicesDropdown servicesData={servicesData} />
+        <ServicesDropdown
+          servicesData={servicesData}
+          clientStories={clientStories}
+        />
       </div>
     </>
   )

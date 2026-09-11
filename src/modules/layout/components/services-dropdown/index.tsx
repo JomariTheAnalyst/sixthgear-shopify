@@ -1,53 +1,38 @@
 "use client"
 
-import { companyData } from "@lib/company-data"
 import Image from "next/image"
-import { useState } from "react"
+
+import type { SanityBlogPostListItem } from "@lib/cms/types"
+import { cleanSanityString } from "@lib/cms/visual-editing"
+import type { ServiceCategory } from "@lib/services-data"
 import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { ServiceCategory } from "@lib/services-data"
-
-// Popular services to tag
-const popularServices = [
-  "Periodic Maintenance Service (PMS)",
-  "ECU Scan & Error Code Diagnosis",
-  "Ceramic Coating & Paint Protection",
-  "Tyre Replacement & Wheel Balancing",
-]
 
 interface ServicesDropdownProps {
   servicesData: ServiceCategory[]
+  clientStories: SanityBlogPostListItem[]
 }
 
-const ServicesDropdown = ({ servicesData }: ServicesDropdownProps) => {
-  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0)
-
-  // Use CMS services data (already sorted by order from Strapi)
+const ServicesDropdown = ({
+  servicesData,
+  clientStories,
+}: ServicesDropdownProps) => {
   const categories = servicesData
 
   return (
     <div className="bg-white w-full">
-      {/* 90% Width Container - Reduced padding for smaller height */}
       <div className="mx-auto w-[90%] py-6">
-        <div className="flex flex-col gap-6">
-          {/* Main Content: Categories (Left) + Services (Right) */}
-          <div className="grid grid-cols-12 gap-6">
-            {/* Left Column: Categories List */}
-            <div className="col-span-12 lg:col-span-3 border-r border-gray-100 pr-6">
-              <h3 className="text-sm font-black tracking-widest uppercase mb-4 text-gray-900">
-                Services Category
-              </h3>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-12 border-r border-gray-100 pr-6 lg:col-span-3">
+            <h3 className="mb-4 text-sm font-black uppercase tracking-widest text-gray-900">
+              Services Category
+            </h3>
               <div className="flex flex-col gap-0.5">
-                {categories.map((service, index) => (
+                {categories.map((service) => (
                   <LocalizedClientLink
                     key={service.id}
                     href={`/services/${service.slug}`}
-                    onMouseEnter={() => setActiveCategoryIndex(index)}
-                    className={`text-left px-3 py-2 text-sm font-semibold transition-all duration-150 ${
-                      activeCategoryIndex === index
-                        ? "text-gray-900 bg-gray-50"
-                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
+                    className="text-left px-3 py-2 text-sm font-semibold text-gray-500 transition-colors duration-150 hover:bg-gray-50 hover:text-gray-900 focus-visible:bg-gray-50 focus-visible:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#F16D34]"
                   >
                     {service.title}
                   </LocalizedClientLink>
@@ -60,81 +45,60 @@ const ServicesDropdown = ({ servicesData }: ServicesDropdownProps) => {
                   Book Now
                 </CalBookingTrigger>
               </div>
-            </div>
+          </div>
 
-            {/* Right Column: Active Services Display */}
-            <div className="col-span-12 lg:col-span-9 pl-4">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+          <div className="col-span-12 pl-4 lg:col-span-9">
+              <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-3">
                 <h2 className="text-lg font-black uppercase tracking-tight text-gray-900">
-                  {categories[activeCategoryIndex]?.title || "Services"}
+                  Client Stories
                 </h2>
                 <LocalizedClientLink
-                  href={`/services/${
-                    categories[activeCategoryIndex]?.slug || ""
-                  }`}
+                  href="/rider-stories"
                   className="text-xs font-bold text-[#F16D34] hover:text-[#d95a2b] transition-colors uppercase tracking-wider"
                 >
                   View All →
                 </LocalizedClientLink>
               </div>
 
-              {/* Service Items Grid - 3 columns, compact */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                {categories[activeCategoryIndex]?.items
-                  .slice(0, 6)
-                  .map((item, i) => {
-                    const isPopular = popularServices.includes(item)
+              {clientStories.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {clientStories.map((story) => {
+                    const title = cleanSanityString(story.title || "Client Story")
+                    const slug = cleanSanityString(story.slug || "")
+
                     return (
-                      <LocalizedClientLink
-                        key={i}
-                        href={`/services/${categories[activeCategoryIndex].slug}`}
-                        className="group relative p-3 rounded-lg border border-gray-100 hover:border-gray-200 hover:shadow-sm bg-white transition-all duration-200"
-                      >
-                        {isPopular && (
-                          <span className="absolute -top-2 right-2 px-2 py-0.5 bg-[#F16D34] text-white text-[10px] font-bold uppercase tracking-wide rounded">
-                            Popular
-                          </span>
-                        )}
-                        <span className="font-semibold text-gray-800 text-sm block group-hover:text-gray-900 transition-colors">
-                          {item}
-                        </span>
-                      </LocalizedClientLink>
+                      <article key={story._id} className="group min-w-0">
+                        <LocalizedClientLink
+                          href={`/rider-stories/${encodeURIComponent(slug)}`}
+                          aria-label={`Read ${title}`}
+                          className="relative block aspect-video overflow-hidden rounded-md bg-[#1a1a1a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]"
+                        >
+                          {story.featuredImageUrl ? (
+                            <Image
+                              src={cleanSanityString(story.featuredImageUrl)}
+                              alt={cleanSanityString(
+                                story.featuredImageAlt || title
+                              )}
+                              fill
+                              sizes="(min-width: 1024px) 36vw, 90vw"
+                              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] group-focus-within:scale-[1.03]"
+                            />
+                          ) : null}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                          <h3 className="absolute inset-x-0 bottom-0 line-clamp-2 p-4 text-base font-bold leading-tight text-white sm:text-lg">
+                            {title}
+                          </h3>
+                        </LocalizedClientLink>
+                      </article>
                     )
                   })}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Section: Brands - No hover effects */}
-          <div className="pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-bold tracking-widest uppercase text-gray-400">
-                Brands We Service
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-              {companyData.serviceMenu.brands.map((brand, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center justify-center p-4 rounded-[10px] bg-gray-50/80"
-                >
-                  <div className="relative w-full h-10 mb-2 grayscale opacity-60">
-                    <Image
-                      src={brand.image}
-                      alt={brand.name}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    {brand.name}
-                  </span>
                 </div>
-              ))}
+              ) : (
+                <p className="py-8 text-sm font-medium text-gray-500">
+                  No client stories are published yet.
+                </p>
+              )}
             </div>
-          </div>
         </div>
       </div>
     </div>
