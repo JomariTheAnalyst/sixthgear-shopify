@@ -6,11 +6,10 @@ import ServiceHero from "@modules/services/components/service-hero"
 import ServicesStatementStats, {
   type ServicesStatementStatsData,
 } from "@modules/services/components/services-statement-stats"
-import BrandsWeService from "@modules/services/components/brands-we-service"
-import ExpertiseStats from "@modules/services/components/expertise-stats"
 import ModernServicesGrid from "@modules/services/components/modern-services-grid"
+import ServicesBookingCta from "@modules/services/components/services-booking-cta"
 import ProcessOfWork from "@modules/services/components/process-of-work"
-import ServicesGallery from "@modules/services/components/services-gallery"
+import ServicesFaqs from "@modules/services/components/services-faqs"
 import type { ServicesPageContent } from "@lib/cms/services-page-content"
 import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
@@ -48,25 +47,6 @@ export default function ServicesListTemplate({
       <SanityEditTarget
         documentId="servicesPage"
         documentType="servicesPage"
-        path={sectionPath(content.expertiseStats.source, "expertiseStats")}
-      >
-        <ExpertiseStats
-          countryCode={countryCode}
-          content={content.expertiseStats}
-        />
-      </SanityEditTarget>
-
-      <SanityEditTarget
-        documentId="servicesPage"
-        documentType="servicesPage"
-        path={sectionPath(content.brandsWeService.source, "brandsWeService")}
-      >
-        <BrandsWeService content={content.brandsWeService} />
-      </SanityEditTarget>
-
-      <SanityEditTarget
-        documentId="servicesPage"
-        documentType="servicesPage"
         path={sectionPath(content.servicesGrid.source, "servicesGrid")}
       >
         <ModernServicesGrid
@@ -74,6 +54,8 @@ export default function ServicesListTemplate({
           content={content.servicesGrid}
         />
       </SanityEditTarget>
+
+      <ServicesBookingCta />
 
       <SanityEditTarget
         documentId="servicesPage"
@@ -83,13 +65,7 @@ export default function ServicesListTemplate({
         <ProcessOfWork content={content.processOfWork} />
       </SanityEditTarget>
 
-      <SanityEditTarget
-        documentId="servicesPage"
-        documentType="servicesPage"
-        path={sectionPath(content.servicesGallery.source, "servicesGallery")}
-      >
-        <ServicesGallery content={content.servicesGallery} />
-      </SanityEditTarget>
+      <ServicesFaqs />
 
       <SanityEditTarget
         documentId="servicesPage"

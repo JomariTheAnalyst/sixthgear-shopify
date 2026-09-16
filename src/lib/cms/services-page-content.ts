@@ -1,7 +1,10 @@
 import { stegaClean } from 'next-sanity'
 
 import { companyData } from '../company-data.ts'
-import type { ServiceCategory } from '../services-data'
+import {
+  getServiceImageBySlug,
+  type ServiceCategory,
+} from '../services-data'
 import type {
   SanityService,
   SanityServicesBrandsWeService,
@@ -69,6 +72,8 @@ export type ServicesGridContent = {
     description: string
     slug: string
     icon: string
+    imageUrl: string
+    imageAlt: string
   }>
 }
 
@@ -173,7 +178,7 @@ export const FALLBACK_SERVICES_BRANDS: ServicesBrandsContent = {
 
 export const FALLBACK_SERVICES_PROCESS: ServicesProcessContent = {
   source: 'fallback',
-  sectionHeading: 'Sixthgear process of work',
+  sectionHeading: 'Building better rides through careful workmanship.',
   steps: [
     {
       key: 'fallback-process-intake',
@@ -294,6 +299,8 @@ function fallbackGrid(localServices?: ServiceCategory[] | null): ServicesGridCon
           description: service.shortDescription ?? service.description,
           slug: service.slug,
           icon: LOCAL_ICON_KEYS[service.slug] ?? 'wrench',
+          imageUrl: service.heroImage ?? service.image,
+          imageAlt: `${service.title} at Sixthgear`,
         }))
       : FALLBACK_GRID_SERVICES.map(
           ([title, description, icon, slug]) => ({
@@ -302,11 +309,13 @@ function fallbackGrid(localServices?: ServiceCategory[] | null): ServicesGridCon
             description,
             slug,
             icon,
+            imageUrl: getServiceImageBySlug(slug),
+            imageAlt: `${title} at Sixthgear`,
           })
         )
   return {
     source: 'fallback',
-    sectionHeading: 'Complete care for your ride',
+    sectionHeading: 'Everything your ride needs, handled right',
     useCustomServices: false,
     services,
   }
@@ -464,6 +473,8 @@ export function selectServicesGridContent(
       description: service.shortDescription!,
       slug: service.slug!,
       icon: service.icon!,
+      imageUrl: service.heroImageUrl || getServiceImageBySlug(service.slug!),
+      imageAlt: `${service.title!} at Sixthgear`,
     })),
   }
 }
