@@ -40,6 +40,10 @@ const STAT_DEFINITIONS = [
   },
 ] as const
 
+const STATEMENT_TEXT =
+  "From routine maintenance to performance upgrades, Sixthgear keeps every ride ready for what’s next."
+const STATEMENT_WORDS = STATEMENT_TEXT.split(" ")
+
 export default function ServicesStatementStats({
   stats,
 }: ServicesStatementStatsProps) {
@@ -61,8 +65,12 @@ export default function ServicesStatementStats({
         "[data-service-stat-value]",
         section
       )
+      const statementWords = gsap.utils.toArray<HTMLElement>(
+        "[data-statement-word]",
+        statement
+      )
 
-      if (statValues.length === 0) return
+      if (statValues.length === 0 || statementWords.length === 0) return
 
       const displayStats = STAT_DEFINITIONS.map((definition) => ({
         ...definition,
@@ -85,11 +93,29 @@ export default function ServicesStatementStats({
           const canAnimate = Boolean(context.conditions?.canAnimate)
 
           if (!canAnimate) {
-            gsap.set(statement, { autoAlpha: 1, y: 0 })
+            gsap.set(statementWords, { color: "#000000" })
             gsap.set(statItems, { autoAlpha: 1, y: 0 })
             renderFinalValues()
             return
           }
+
+          const wordTween = gsap.fromTo(
+            statementWords,
+            { color: "#b5b5b5" },
+            {
+              color: "#000000",
+              duration: 0.7,
+              stagger: { each: 0.18 },
+              ease: "none",
+              scrollTrigger: {
+                trigger: statement,
+                start: "top 78%",
+                end: "bottom 30%",
+                scrub: 0.35,
+                invalidateOnRefresh: true,
+              },
+            }
+          )
 
           statValues.forEach((element, index) => {
             const stat = displayStats[index]
@@ -98,35 +124,23 @@ export default function ServicesStatementStats({
 
           const timeline = gsap.timeline({
             scrollTrigger: {
-              trigger: section,
-              start: "top 78%",
+              trigger: statItems[0] ?? section,
+              start: "top 86%",
               once: true,
             },
           })
 
-          timeline
-            .fromTo(
-              statement,
-              { autoAlpha: 0, y: 28 },
-              {
-                autoAlpha: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "power3.out",
-              }
-            )
-            .fromTo(
-              statItems,
-              { autoAlpha: 0, y: 18 },
-              {
-                autoAlpha: 1,
-                y: 0,
-                duration: 0.55,
-                stagger: 0.12,
-                ease: "power2.out",
-              },
-              0.28
-            )
+          timeline.fromTo(
+            statItems,
+            { autoAlpha: 0, y: 18 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.55,
+              stagger: 0.12,
+              ease: "power2.out",
+            }
+          )
 
           displayStats.forEach((stat, index) => {
             const counter = { value: 0 }
@@ -150,11 +164,13 @@ export default function ServicesStatementStats({
                   }
                 },
               },
-              0.38 + index * 0.12
+              0.12 + index * 0.12
             )
           })
 
           return () => {
+            wordTween.scrollTrigger?.kill()
+            wordTween.kill()
             timeline.scrollTrigger?.kill()
             timeline.kill()
           }
@@ -188,13 +204,20 @@ export default function ServicesStatementStats({
         <h2
           ref={statementRef}
           id="services-statement-heading"
+          aria-label={STATEMENT_TEXT}
           className="mx-auto max-w-[1100px] text-center text-[clamp(2rem,3.8vw,4.5rem)] font-bold leading-[1.03] tracking-[-0.035em]"
         >
-          From routine maintenance to performance upgrades,{" "}
-          <span className="box-decoration-clone bg-[#F16D34] px-[0.09em] text-black">
-            Sixthgear keeps every ride
-          </span>{" "}
-          ready for what’s next.
+          {STATEMENT_WORDS.map((word, index) => (
+            <span key={`${word}-${index}`} aria-hidden="true">
+              <span
+                data-statement-word
+                className="inline-block text-[#b5b5b5]"
+              >
+                {word}
+              </span>
+              {index < STATEMENT_WORDS.length - 1 ? " " : null}
+            </span>
+          ))}
         </h2>
 
         <div className="mt-20 grid border-y border-black/[0.12] md:mt-28 md:grid-cols-3">

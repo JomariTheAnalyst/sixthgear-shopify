@@ -1,10 +1,14 @@
 "use client"
 
+import { useCallback, useEffect, useRef, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+
 import type { ServicesGridContent } from "@lib/cms/services-page-content"
-import { TextRoll } from "components/ui/text-roll"
-import { getServiceIcon } from "@modules/services/lib/icon-map"
+import { outfit } from "@lib/fonts"
 import {
+  cleanSanityString,
   createSanityDataAttribute,
   keyedSanityPath,
 } from "@lib/cms/visual-editing"
@@ -15,27 +19,102 @@ type ModernServicesGridProps = {
   content: ServicesGridContent
 }
 
+const LEGACY_SECTION_HEADING = "Complete care for your ride"
+const REVISED_SECTION_HEADING = "Everything your ride needs, handled right"
+const SECTION_DESCRIPTION =
+  "From regular PMS and diagnostics to upgrades and detailing, our team takes care of the work properly—so you can ride out confident and ready."
+
 export default function ModernServicesGrid({
   countryCode,
   content,
 }: ModernServicesGridProps) {
+  const railRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
   const visualEditingEnabled = useSanityVisualEditingEnabled()
   const sanitySource = content.source === "sanity"
+  const sourceHeading = cleanSanityString(content.sectionHeading)
+  const sectionHeading =
+    sourceHeading.trim().toLowerCase() ===
+    LEGACY_SECTION_HEADING.toLowerCase()
+      ? REVISED_SECTION_HEADING
+      : sourceHeading
+
+  const updateCarouselControls = useCallback(() => {
+    const rail = railRef.current
+    if (!rail) return
+
+    const maxScrollLeft = rail.scrollWidth - rail.clientWidth
+    setCanScrollLeft(rail.scrollLeft > 2)
+    setCanScrollRight(maxScrollLeft - rail.scrollLeft > 2)
+  }, [])
+
+  useEffect(() => {
+    const rail = railRef.current
+    if (!rail) return
+
+    updateCarouselControls()
+    rail.addEventListener("scroll", updateCarouselControls, { passive: true })
+
+    const resizeObserver = new ResizeObserver(updateCarouselControls)
+    resizeObserver.observe(rail)
+
+    return () => {
+      rail.removeEventListener("scroll", updateCarouselControls)
+      resizeObserver.disconnect()
+    }
+  }, [content.services.length, updateCarouselControls])
+
+  const scrollCarousel = (direction: "left" | "right") => {
+    const rail = railRef.current
+    const firstCard = rail?.querySelector<HTMLElement>("[data-service-card]")
+
+    if (!rail || !firstCard) return
+
+    const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 0
+    const distance = firstCard.getBoundingClientRect().width + gap
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+
+    rail.scrollBy({
+      left: direction === "left" ? -distance : distance,
+      behavior: reducedMotion ? "auto" : "smooth",
+    })
+  }
 
   return (
-    <section className="bg-white py-24 md:py-32 w-full">
-      <div className="w-full max-w-[1400px] mx-auto px-6 md:px-10 lg:px-16">
-        <div className="text-center md:text-left mb-16 md:mb-20">
-          <h2
-            className="text-[2.5rem] md:text-5xl lg:text-6xl text-[#111] leading-[1.1] tracking-[-0.03em] font-semibold"
-            style={{ fontFamily: "'Inter Display', sans-serif" }}
-          >
-            {content.sectionHeading}
-          </h2>
-        </div>
+    <section
+      aria-labelledby="services-carousel-heading"
+      className={`${outfit.className} w-full overflow-hidden bg-white py-20 text-[#151515] md:py-28`}
+    >
+      <header className="mx-auto grid max-w-[1400px] gap-7 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-end lg:gap-16 lg:px-12">
+        <h2
+          id="services-carousel-heading"
+          className="max-w-[21ch] text-balance text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[0.98] tracking-[-0.045em]"
+        >
+          {sectionHeading}
+        </h2>
+        <p className="max-w-[650px] text-sm leading-6 text-black/[0.62] sm:text-base sm:leading-7">
+          {SECTION_DESCRIPTION}
+        </p>
+      </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Motorcycle services"
+        className="mt-12 w-full md:mt-16"
+      >
+        <div
+          ref={railRef}
+          className="scrollbar-hide ml-5 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:ml-8 sm:gap-5 lg:ml-[max(48px,calc((100vw-1400px)/2+48px))] lg:gap-6"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {content.services.map((service) => {
+            const title = cleanSanityString(service.title)
+            const description = cleanSanityString(service.description)
+            const slug = cleanSanityString(service.slug)
             const itemTarget =
               sanitySource && content.useCustomServices
                 ? createSanityDataAttribute(visualEditingEnabled, {
@@ -55,44 +134,60 @@ export default function ModernServicesGrid({
                   : undefined
 
             return (
-              <Link
+              <article
                 key={service.key}
+                data-service-card
                 data-sanity={itemTarget}
-                href={`/${countryCode}/services/${service.slug}`}
-                className="group flex flex-col bg-[#F9F9F9] rounded-[1.5rem] p-8 lg:p-10 transition-colors duration-300 hover:bg-[#F2F2F2] h-full"
+                className="group flex basis-[84vw] shrink-0 snap-start flex-col sm:basis-[68vw] md:basis-[46vw] lg:basis-[36vw] xl:basis-[31vw] 2xl:basis-[400px] 2xl:max-w-[430px]"
               >
-                <div className="text-[#111] mb-8">
-                  {getServiceIcon(service.icon)}
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[14px] bg-[#eceae6]">
+                  <Image
+                    src={cleanSanityString(service.imageUrl)}
+                    alt={cleanSanityString(service.imageAlt)}
+                    fill
+                    sizes="(max-width: 639px) 84vw, (max-width: 767px) 68vw, (max-width: 1023px) 46vw, (max-width: 1279px) 36vw, 430px"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.025] motion-reduce:transition-none"
+                  />
                 </div>
 
-                <h3
-                  className="text-xl md:text-[22px] text-[#111] leading-[1.2] font-semibold mb-4"
-                  style={{
-                    fontFamily: "'Inter Display', sans-serif",
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {service.title}
-                </h3>
-
-                <p
-                  className="text-[#111]/70 text-[15px] md:text-base leading-relaxed mb-10 flex-1"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  {service.description}
-                </p>
-
-                <div className="mt-auto flex items-center gap-2 text-[#111] font-medium text-sm md:text-base">
-                  <TextRoll
-                    className="font-semibold"
-                    transition={{ duration: 0.3 }}
+                <div className="pt-5">
+                  <Link
+                    href={`/${countryCode}/services/${slug}`}
+                    aria-label={`View ${title} service details`}
+                    className="group/service-link block rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F16D34]"
                   >
-                    Learn More
-                  </TextRoll>
+                    <h3 className="text-xl font-semibold leading-[1.12] tracking-[-0.025em] transition-colors duration-200 group-hover/service-link:text-[#F16D34] sm:text-2xl">
+                      {title}
+                    </h3>
+                    <p className="mt-3 line-clamp-3 max-w-[42ch] text-sm leading-6 text-black/[0.62] transition-colors duration-200 group-hover/service-link:text-black/[0.78] sm:text-[15px]">
+                      {description}
+                    </p>
+                  </Link>
                 </div>
-              </Link>
+              </article>
             )
           })}
+        </div>
+
+        <div className="mx-auto mt-8 flex max-w-[1400px] items-center gap-3 px-5 sm:px-8 lg:px-12">
+          <button
+            type="button"
+            onClick={() => scrollCarousel("left")}
+            disabled={!canScrollLeft}
+            aria-label="Previous services"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.14] bg-white text-black transition-[background-color,color,transform,opacity] duration-200 hover:bg-black hover:text-white active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#F16D34] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black"
+          >
+            <ChevronLeft aria-hidden="true" size={19} strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollCarousel("right")}
+            disabled={!canScrollRight}
+            aria-label="Next services"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-black/[0.14] bg-white text-black transition-[background-color,color,transform,opacity] duration-200 hover:bg-black hover:text-white active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#F16D34] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black"
+          >
+            <ChevronRight aria-hidden="true" size={19} strokeWidth={2} />
+          </button>
         </div>
       </div>
     </section>
