@@ -33,7 +33,7 @@ export default function ServicesBookingCta() {
   return (
     <section
       aria-labelledby="services-booking-cta-heading"
-      className={`${outfit.className} w-full overflow-hidden bg-white`}
+      className={`${outfit.className} relative isolate w-full overflow-hidden bg-white`}
     >
       <div className="relative z-0 w-full overflow-hidden bg-black">
         <video
@@ -76,7 +76,7 @@ export default function ServicesBookingCta() {
         </div>
       </div>
 
-      <div className="relative z-10 -mt-[clamp(96px,12vw,230px)] overflow-hidden pb-16 pt-[clamp(150px,11vw,212px)] sm:pb-20 lg:min-h-[28.125vw] lg:pb-24">
+      <div className="relative z-0 -mt-[clamp(96px,12vw,230px)] overflow-hidden pb-16 pt-[clamp(150px,11vw,212px)] sm:pb-20 lg:min-h-[28.125vw] lg:pb-24">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute inset-x-0 bottom-0 top-[28.125vw] bg-[#F15A38]" />
           <Image
