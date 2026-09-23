@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 
@@ -28,7 +28,13 @@ type CategoryConfig = {
   key: CategoryKey
   label: string
   aliases: string[]
+  /** Optional hover-to-play video. Categories without it keep the static image. */
+  hoverVideo?: string
+  /** Still frame shown before playback and on touch / reduced-motion devices. */
+  hoverPoster?: string
 }
+
+type CategoryItem = CmsCategoryItem & Pick<CategoryConfig, "hoverVideo" | "hoverPoster">
 
 const MARQUEE_SPEED = 0.55
 
@@ -62,6 +68,10 @@ const CATEGORY_ORDER: CategoryConfig[] = [
     key: "riding-gear",
     label: "Riding Gear",
     aliases: ["riding-gear", "rider-gear"],
+    hoverVideo:
+      "https://res.cloudinary.com/djn9ubf6a/video/upload/f_auto,q_auto/riding_gear_video_hbkq96",
+    hoverPoster:
+      "https://res.cloudinary.com/djn9ubf6a/video/upload/so_0,f_auto,q_auto/riding_gear_video_hbkq96.jpg",
   },
 ]
 
@@ -132,7 +142,7 @@ const getCategoryKey = (item: CmsCategoryItem): CategoryKey | null => {
 
 const resolveCategoryItems = (
   items: CmsCategoryItem[] | null | undefined
-): CmsCategoryItem[] =>
+): CategoryItem[] =>
   CATEGORY_ORDER.map((category) => {
     const fallback = FALLBACK_CATEGORIES_SECTION.items.find(
       (item) => getCategoryKey(item) === category.key
@@ -149,6 +159,8 @@ const resolveCategoryItems = (
       image: selected.image || fallback.image,
       imageAlt: selected.imageAlt || fallback.imageAlt,
       buttonLink: selected.buttonLink || fallback.buttonLink,
+      hoverVideo: category.hoverVideo,
+      hoverPoster: category.hoverPoster,
     }
   })
 
@@ -169,12 +181,49 @@ const normalizeCategoryHref = (buttonLink?: string | null, slug?: string) => {
     : "#"
 }
 
+const HOVER_VIDEO_QUERY =
+  "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)"
+
+/**
+ * True only on hover-capable, fine-pointer devices without reduced motion.
+ * Starts false so server and first client render match (static image).
+ */
+function useHoverVideoEnabled() {
+  const [enabled, setEnabled] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia(HOVER_VIDEO_QUERY)
+    const update = () => setEnabled(media.matches)
+
+    update()
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
+
+  return enabled
+}
+
 type CategoryCardProps = {
-  category: CmsCategoryItem
+  category: CategoryItem
 }
 
 function CategoryCard({ category }: CategoryCardProps) {
   const href = normalizeCategoryHref(category.buttonLink, category.slug)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const hoverVideoEnabled = useHoverVideoEnabled()
+  const hoverVideo = category.hoverVideo
+  const hoverPoster = category.hoverPoster
+  const hasHoverMedia = Boolean(hoverVideo && hoverPoster)
+  const showVideo = hasHoverMedia && hoverVideoEnabled
+
+  const handleMouseEnter = () => {
+    videoRef.current?.play().catch(() => {})
+  }
+
+  const handleMouseLeave = () => {
+    // Pause only, so the next hover resumes where it stopped.
+    videoRef.current?.pause()
+  }
 
   return (
     <div
@@ -187,20 +236,48 @@ function CategoryCard({ category }: CategoryCardProps) {
         draggable={false}
         aria-label={`Shop ${category.name}`}
         className="group relative block h-full w-full overflow-hidden bg-[#f1f1ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#111111]"
+        onMouseEnter={showVideo ? handleMouseEnter : undefined}
+        onMouseLeave={showVideo ? handleMouseLeave : undefined}
       >
-        <div
-          data-category-parallax
-          className="pointer-events-none absolute inset-y-0 -left-[8%] w-[116%] will-change-transform"
-        >
-          <Image
-            src={cleanSanityString(category.image)}
-            alt={category.imageAlt || category.name}
-            fill
-            draggable={false}
-            className="select-none object-contain p-[7%] transition-transform duration-500 ease-out group-hover:scale-[1.025]"
-            sizes="(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, (min-width: 1772px) 25vw, 443px"
-          />
-        </div>
+        {hasHoverMedia ? (
+          showVideo ? (
+            <video
+              ref={videoRef}
+              src={hoverVideo}
+              poster={hoverPoster}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+              draggable={false}
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+            />
+          ) : (
+            // Plain <img>: static Cloudinary poster, no video download on touch devices.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={hoverPoster}
+              alt={category.imageAlt || category.name}
+              draggable={false}
+              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+            />
+          )
+        ) : (
+          <div
+            data-category-parallax
+            className="pointer-events-none absolute inset-y-0 -left-[8%] w-[116%] will-change-transform"
+          >
+            <Image
+              src={cleanSanityString(category.image)}
+              alt={category.imageAlt || category.name}
+              fill
+              draggable={false}
+              className="select-none object-contain p-[7%] transition-transform duration-500 ease-out group-hover:scale-[1.025]"
+              sizes="(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, (min-width: 1772px) 25vw, 443px"
+            />
+          </div>
+        )}
 
         <h3
           className={`${nationalCompressed.className} pointer-events-none absolute bottom-5 left-3 z-10 text-[clamp(2rem,3.1vw,4rem)] uppercase leading-[0.82] tracking-[0.01em] text-[#111111] sm:bottom-6 sm:left-4`}

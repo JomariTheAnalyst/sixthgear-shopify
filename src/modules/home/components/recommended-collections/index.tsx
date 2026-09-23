@@ -66,10 +66,10 @@ export default function RecommendedCollections({
       className={`${outfit.className} overflow-hidden bg-white py-14 text-[#111111] antialiased small:py-20 medium:py-24 ${SECTION_X_PADDING}`}
     >
       <div className="mx-auto max-w-[1454px]">
-        <header className="mx-auto flex max-w-[820px] flex-col items-center text-center">
+        <header className="mx-auto flex max-w-[900px] flex-col items-center text-center">
           <h2
             id="homepage-recommended-collections-heading"
-            className="text-[clamp(2.25rem,4vw,4rem)] font-black leading-[1.02] tracking-[-0.04em] text-[#241015] [text-wrap:balance]"
+            className="text-[clamp(2.5rem,4.3vw,4.75rem)] font-black uppercase leading-[0.98] tracking-[-0.04em] text-[#241015] [text-wrap:balance]"
           >
             {heading}
           </h2>
