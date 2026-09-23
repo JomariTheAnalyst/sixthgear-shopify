@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef } from "react"
-import { inter, montserrat } from "@lib/fonts"
+import { inter, montserrat, outfit } from "@lib/fonts"
 
 /**
  * Client Testimonials Section
@@ -201,7 +201,7 @@ export default function ClientTestimonials({
         <div className="mb-10 md:mb-14 lg:mb-16">
           <div className="mx-auto w-full max-w-[1200px] text-center">
             <h2
-              className={`${montserrat.className} whitespace-nowrap text-[clamp(1.85rem,4.15vw,3.65rem)] font-black leading-[0.9] tracking-[-0.05em] text-[#191b22] mb-3 md:mb-4`}
+              className={`${outfit.className} mb-3 text-[clamp(2.5rem,4.3vw,4.75rem)] font-black leading-[0.98] tracking-[-0.04em] text-[#241015] [text-wrap:balance] md:mb-4`}
             >
               {activeTitle}
             </h2>
