@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 
@@ -23,6 +23,7 @@ type CategoryKey =
   | "parts-and-accessories"
   | "communications"
   | "riding-gear"
+  | "oil"
 
 type CategoryConfig = {
   key: CategoryKey
@@ -32,9 +33,64 @@ type CategoryConfig = {
   hoverVideo?: string
   /** Still frame shown before playback and on touch / reduced-motion devices. */
   hoverPoster?: string
+  /**
+   * How the hover video and poster fill the card. Defaults to "contain".
+   * "cover" crops to fill, centered; "cover-top" anchors the crop to the top edge.
+   */
+  hoverFit?: HoverFit
+  /** Intrinsic width / height of the hover media, e.g. 9 / 16 for portrait. */
+  hoverAspect?: number
+  /**
+   * CSS background matching the media's own backdrop. With "contain", it fills
+   * the space beside the media and the media edges are feathered into it, so
+   * the card reads as full-bleed without cropping the subject.
+   */
+  hoverBackdrop?: string
+  /**
+   * Optional hover image that pushes the resting image out on hover.
+   * Takes priority over hoverVideo.
+   */
+  hoverImage?: string
+  hoverImageAlt?: string
+  /** Resting image paired with hoverImage so both share the same framing. */
+  restImage?: string
+  restImageAlt?: string
 }
 
-type CategoryItem = CmsCategoryItem & Pick<CategoryConfig, "hoverVideo" | "hoverPoster">
+type HoverFit = "contain" | "cover" | "cover-top"
+
+type CategoryItem = CmsCategoryItem &
+  Pick<
+    CategoryConfig,
+    | "hoverVideo"
+    | "hoverPoster"
+    | "hoverFit"
+    | "hoverAspect"
+    | "hoverBackdrop"
+    | "hoverImage"
+    | "hoverImageAlt"
+    | "restImage"
+    | "restImageAlt"
+  >
+
+// Shared by the <video> and poster <img> so nothing shifts when playback starts.
+const HOVER_FIT_CLASSES: Record<HoverFit, string> = {
+  contain: "object-contain object-center",
+  cover: "object-cover object-center",
+  "cover-top": "object-cover object-top",
+}
+
+// Soft fade on the left/right media edges so they dissolve into the backdrop.
+const HOVER_EDGE_FEATHER =
+  "linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%)"
+
+const CATEGORY_IMAGE_SIZES =
+  "(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, (min-width: 1772px) 25vw, 443px"
+
+// Push-slide layer: transform-only CSS transition, so leaving mid-slide
+// reverses from the current position.
+const HOVER_SLIDE_LAYER =
+  "pointer-events-none absolute inset-0 transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
 
 const MARQUEE_SPEED = 0.55
 
@@ -43,6 +99,13 @@ const CATEGORY_ORDER: CategoryConfig[] = [
     key: "helmets",
     label: "Helmets",
     aliases: ["helmet", "helmets"],
+    restImage: "/images/product-categories/helmets1.png",
+    restImageAlt:
+      "Rider in a gloss black full-face motorcycle helmet and black riding jacket, facing forward",
+    hoverImage: "/images/product-categories/helmets2.png",
+    hoverImageAlt:
+      "Side profile of a rider in a gloss black full-face helmet adjusting the visor with a gloved hand",
+    hoverFit: "cover",
   },
   {
     key: "bags-and-luggage",
@@ -53,25 +116,58 @@ const CATEGORY_ORDER: CategoryConfig[] = [
       "bags-luggage",
       "bags-and-boxes",
     ],
+    restImage: "/images/product-categories/bags-and-luggages1.png",
+    restImageAlt:
+      "Rider on a black adventure motorcycle fitted with aluminium top box and side cases, seen from behind",
+    hoverImage: "/images/product-categories/bags-and-luggagesp2.png",
+    hoverImageAlt:
+      "Front three-quarter view of a rider on a black adventure motorcycle carrying aluminium top box and side cases",
+    hoverFit: "cover",
   },
   {
     key: "parts-and-accessories",
     label: "Parts and Accessories",
     aliases: ["parts-and-accessories", "parts-accessories"],
+    restImage: "/images/product-categories/parts-and-accessories1.png",
+    restImageAlt:
+      "Flat lay of motorcycle parts: titanium exhaust system, LED auxiliary lights, radiator guards, brake pads and a phone mount",
+    hoverImage: "/images/product-categories/parts-and-accessories2.png",
+    hoverImageAlt:
+      "Rider on a black adventure motorcycle fitted with an aftermarket exhaust, auxiliary lights and radiator guard",
+    hoverFit: "cover",
   },
   {
     key: "communications",
     label: "Communications",
     aliases: ["communication", "communications"],
+    restImage: "/images/product-categories/intercoms1.png",
+    restImageAlt:
+      "Black motorcycle Bluetooth intercom unit with helmet speakers, boom microphone, mounting clip and USB-C cable",
+    hoverImage: "/images/product-categories/intercoms2.png",
+    hoverImageAlt:
+      "Gloved rider pressing the button on an intercom mounted to a white full-face helmet",
+    hoverFit: "cover",
   },
   {
     key: "riding-gear",
     label: "Riding Gear",
     aliases: ["riding-gear", "rider-gear"],
-    hoverVideo:
-      "https://res.cloudinary.com/djn9ubf6a/video/upload/f_auto,q_auto/riding_gear_video_hbkq96",
-    hoverPoster:
-      "https://res.cloudinary.com/djn9ubf6a/video/upload/so_0,f_auto,q_auto/riding_gear_video_hbkq96.jpg",
+    restImage: "/images/product-categories/ridinggear1.png",
+    restImageAlt:
+      "Rider in full black riding gear: helmet, armoured jacket, gloves, riding pants and touring boots",
+    hoverImage: "/images/product-categories/ridinggear2.png",
+    hoverImageAlt:
+      "Rear view of a rider in a black armoured riding jacket, pants and touring boots mid-stride",
+    hoverFit: "cover",
+  },
+  {
+    key: "oil",
+    label: "Oil",
+    aliases: ["oil", "oils", "motorcycle-oil"],
+    restImage: "/images/product-categories/oil1.png",
+    restImageAlt:
+      "Motorcycle engine oil bottles and an oil filter with a golden oil splash",
+    hoverFit: "cover",
   },
 ]
 
@@ -112,6 +208,14 @@ const FALLBACK_CATEGORIES_SECTION = {
       image: "/images/product-categories/shoes.png",
       imageAlt: "Pair of black riding boots",
       buttonLink: "/collections/riding-gear",
+    },
+    {
+      name: "Oil",
+      slug: "oil",
+      image: "/images/product-categories/oil1.png",
+      imageAlt:
+        "Motorcycle engine oil bottles and an oil filter with a golden oil splash",
+      buttonLink: "/collections/motorcycle-oil",
     },
   ],
 } satisfies {
@@ -161,6 +265,13 @@ const resolveCategoryItems = (
       buttonLink: selected.buttonLink || fallback.buttonLink,
       hoverVideo: category.hoverVideo,
       hoverPoster: category.hoverPoster,
+      hoverFit: category.hoverFit,
+      hoverAspect: category.hoverAspect,
+      hoverBackdrop: category.hoverBackdrop,
+      hoverImage: category.hoverImage,
+      hoverImageAlt: category.hoverImageAlt,
+      restImage: category.restImage,
+      restImageAlt: category.restImageAlt,
     }
   })
 
@@ -213,8 +324,33 @@ function CategoryCard({ category }: CategoryCardProps) {
   const hoverVideoEnabled = useHoverVideoEnabled()
   const hoverVideo = category.hoverVideo
   const hoverPoster = category.hoverPoster
-  const hasHoverMedia = Boolean(hoverVideo && hoverPoster)
+  const hoverImage = category.hoverImage
+  const imageAlt = category.imageAlt || category.name
+  // Priority: hover image slide → rest image only → hover video → static image.
+  const hasCoverImage = Boolean(hoverImage || category.restImage)
+  const showSlide = Boolean(hoverImage) && hoverVideoEnabled
+  const hasHoverMedia = !hasCoverImage && Boolean(hoverVideo && hoverPoster)
   const showVideo = hasHoverMedia && hoverVideoEnabled
+  const hoverFit = category.hoverFit ?? "contain"
+  const hoverFitClass = HOVER_FIT_CLASSES[hoverFit]
+  const hoverBackdrop = category.hoverBackdrop
+  // Size the frame to the media's own aspect so "contain" never crops and the
+  // feather lands on the real media edges rather than the card edges.
+  const useSizedFrame = hoverFit === "contain" && Boolean(category.hoverAspect)
+  const hoverFrameClass = useSizedFrame
+    ? "pointer-events-none absolute inset-y-0 left-1/2 h-full max-w-full -translate-x-1/2"
+    : "pointer-events-none absolute inset-0"
+  const hoverFrameStyle: CSSProperties | undefined = useSizedFrame
+    ? {
+        aspectRatio: category.hoverAspect,
+        ...(hoverBackdrop
+          ? {
+              maskImage: HOVER_EDGE_FEATHER,
+              WebkitMaskImage: HOVER_EDGE_FEATHER,
+            }
+          : {}),
+      }
+    : undefined
 
   const handleMouseEnter = () => {
     videoRef.current?.play().catch(() => {})
@@ -228,7 +364,7 @@ function CategoryCard({ category }: CategoryCardProps) {
   return (
     <div
       data-category-slide
-      className="relative aspect-[2/3] w-[88vw] shrink-0 will-change-transform motion-reduce:transform-none motion-reduce:will-change-auto sm:w-[52vw] md:w-[37vw] lg:h-[630.5px] lg:w-[max(442.922px,25vw)] lg:aspect-auto"
+      className="relative aspect-[2/3] w-[88vw] shrink-0 will-change-transform motion-reduce:transform-none motion-reduce:will-change-auto sm:w-[52vw] md:w-[37vw] lg:w-[max(442.922px,25vw)]"
       role="listitem"
     >
       <LocalizedClientLink
@@ -239,30 +375,76 @@ function CategoryCard({ category }: CategoryCardProps) {
         onMouseEnter={showVideo ? handleMouseEnter : undefined}
         onMouseLeave={showVideo ? handleMouseLeave : undefined}
       >
-        {hasHoverMedia ? (
-          showVideo ? (
-            <video
-              ref={videoRef}
-              src={hoverVideo}
-              poster={hoverPoster}
-              muted
-              loop
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              draggable={false}
-              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
-            />
-          ) : (
-            // Plain <img>: static Cloudinary poster, no video download on touch devices.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={hoverPoster}
-              alt={category.imageAlt || category.name}
-              draggable={false}
-              className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
-            />
-          )
+        {hasCoverImage ? (
+          <>
+            <div
+              className={
+                showSlide
+                  ? `${HOVER_SLIDE_LAYER} group-hover:translate-x-full group-focus-visible:translate-x-full`
+                  : "pointer-events-none absolute inset-0"
+              }
+            >
+              <Image
+                src={category.restImage || cleanSanityString(category.image)}
+                alt={category.restImageAlt || imageAlt}
+                fill
+                draggable={false}
+                className={`select-none ${hoverFitClass}`}
+                sizes={CATEGORY_IMAGE_SIZES}
+              />
+            </div>
+            {/* Desktop only: mounted after hydration, eager so it is ready before the first hover. */}
+            {showSlide && hoverImage && (
+              <div
+                className={`${HOVER_SLIDE_LAYER} -translate-x-full group-hover:translate-x-0 group-focus-visible:translate-x-0`}
+              >
+                <Image
+                  src={hoverImage}
+                  alt={category.hoverImageAlt || imageAlt}
+                  fill
+                  loading="eager"
+                  draggable={false}
+                  className={`select-none ${hoverFitClass}`}
+                  sizes={CATEGORY_IMAGE_SIZES}
+                />
+              </div>
+            )}
+          </>
+        ) : hasHoverMedia ? (
+          <>
+            {hoverBackdrop && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{ background: hoverBackdrop }}
+              />
+            )}
+            <div className={hoverFrameClass} style={hoverFrameStyle}>
+              {showVideo ? (
+                <video
+                  ref={videoRef}
+                  src={hoverVideo}
+                  poster={hoverPoster}
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                  draggable={false}
+                  className={`h-full w-full select-none ${hoverFitClass}`}
+                />
+              ) : (
+                // Plain <img>: static Cloudinary poster, no video download on touch devices.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={hoverPoster}
+                  alt={category.imageAlt || category.name}
+                  draggable={false}
+                  className={`h-full w-full select-none ${hoverFitClass}`}
+                />
+              )}
+            </div>
+          </>
         ) : (
           <div
             data-category-parallax
@@ -274,7 +456,7 @@ function CategoryCard({ category }: CategoryCardProps) {
               fill
               draggable={false}
               className="select-none object-contain p-[7%] transition-transform duration-500 ease-out group-hover:scale-[1.025]"
-              sizes="(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, (min-width: 1772px) 25vw, 443px"
+              sizes={CATEGORY_IMAGE_SIZES}
             />
           </div>
         )}

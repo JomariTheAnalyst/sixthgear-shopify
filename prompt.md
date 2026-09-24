@@ -1,156 +1,59 @@
-````markdown
-# Task: Add Services Statement + Animated Stats Section
+Task: Roll out the hover image slide to all product category cards, remove the side fade, and add a new "Oil" category card. Nothing else on the site may break.
 
-## Objective
+BEFORE EDITING:
+- Read the category card component, its styles, the category data, and how the cards get their links (hardcoded data, or fetched from Shopify collections). Do not overwrite my existing edits.
+- Tell me which files you will change, and how the category links currently work, before changing anything.
 
-Add a new section **directly below the Services hero section**.
+1. REMOVE THE SIDE FADE
+- Find what creates the white/light fade on the edges of the category card images (e.g. mask-image, a linear-gradient overlay, or ::before / ::after pseudo-elements).
+- Remove it for all category cards so both the default and hover images show edge to edge with no fade.
+- Tell me exactly what you removed.
 
-Use the attached reference image as the layout/design inspiration:
-attached image
+2. CATEGORY IMAGES
+Set `image` (default) and `hoverImage` for each category, using these files in public/images/product-categories/:
+- Bags & Luggages: bags-and-luggages.jpeg → hover: bags-and-luggages2.jpeg (already set, keep it)
+- Helmets: helmets1.png → hover: helmets2.png
+- Communications / Intercoms: intercoms1.png → hover: intercoms2.png
+- Parts & Accessories: parts-and-accessories1.png → hover: parts-and-accessories2.png
+- Riding Gear: ridinggear1.png → hover: ridinggear2.png
+Use public-relative paths like /images/product-categories/helmets1.png, with forward slashes.
+If the category names in the data don't exactly match these (e.g. "Communications" vs "Intercoms"), match by meaning and tell me which name you used.
+Verify every file exists before referencing it. If any file is missing, stop and tell me; don't reference a missing file.
 
-Do **not** add the drone or any product image. This section should contain only:
+3. NEW CATEGORY: OIL
+- Add a new category card titled "OIL", following exactly the same data shape, component, and styling as the existing category cards.
+- Shopify collection handle: motorcycle-oil. Build its link using the SAME URL pattern the other category cards use (including the country code prefix if the others have one), e.g. /[countryCode]/collections/motorcycle-oil. Don't invent a new routing pattern.
+- If the category cards are fetched from Shopify collections instead of hardcoded data, add Oil the same way the others are wired, and tell me if the collection needs any Shopify setting to show up.
+- Default image: /images/product-categories/oil1.png
+- Hover image: use /images/product-categories/oil2.png ONLY if that file exists. If it doesn't, leave hoverImage empty so the Oil card shows the static image with no slide. The card must still work normally.
+- Place the Oil card at the END of the category list for now.
+- Check that the grid/carousel layout still looks correct with one more card on desktop, tablet, and mobile (no overflow, no broken rows, no squeezed cards). Tell me if the layout needed any change.
+- If categories are also listed anywhere else (header menu, footer, mobile menu, sitemap), do NOT change those. Just list where they are, and I'll decide.
 
-1. a large centered statement
-2. a 3-column stats block underneath
+4. FIT
+- Set hoverFit: "cover" (object-fit: cover, object-position: center center) for ALL category cards, including Oil, applied to BOTH the default and hover images so the slide stays aligned.
 
-Preserve all existing Services page functionality and sections.
+5. REMOVE THE OLD VIDEOS
+- Remove the hoverVideo / hoverPoster data from Riding Gear, Parts & Accessories, and Helmets, so these cards use the image slide.
+- Do NOT delete the hover video component or its code yet. If nothing uses it anymore, tell me and I'll decide whether to remove it.
 
----
+6. KEEP THE EXISTING SLIDE BEHAVIOR
+- The same slide as Bags & Luggages: the hover image pushes in from the left to the right, 600ms, cubic-bezier(0.22, 1, 0.36, 1), transform only, reverses smoothly on mouse leave, and also triggers on :focus-visible.
+- A card with no hoverImage shows its default image only, with no slide and no errors.
+- Mobile / touch devices and prefers-reduced-motion: default image only, and the hover image is not rendered.
+- The vertical category title stays above the images during and after the slide.
 
-## Statement
+7. IMAGE PERFORMANCE
+- The images are large PNGs. Make sure every category image is rendered with next/image (fill + a proper `sizes` value) so Next.js serves resized WebP/AVIF instead of the full PNG. Don't convert or edit the original files.
+- Give every image meaningful alt text (e.g. "Motorcycle engine oil bottles with a golden oil splash").
 
-Use Outfit Variable and create a bold editorial statement centered on the page:
+8. SAFETY CHECKS (required before you report done)
+- Only touch files related to the category cards and their data. Don't refactor or restyle anything else.
+- Run the project's lint and TypeScript type check, and fix only errors caused by this change.
+- Stop any running dev server first, then run `npm run build`. It must finish successfully. Do not run build while a dev server is running.
+- Confirm that every category card link opens the correct collection page, including /collections/motorcycle-oil.
 
-> **From routine maintenance to performance upgrades, Sixthgear keeps every ride ready for what’s next.**
-
-Highlight:
-
-> **ready for what’s next.**
-
-Use a tasteful Sixthgear accent treatment inspired by the highlighted phrase in the reference.
-
-Requirements:
-
-- heavy/bold Outfit
-- centered
-- large responsive typography
-- generous whitespace
-- black text
-- clean white/light background
-- max-width so the statement does not stretch too wide
-- scale appropriately on tablet/mobile
-
-Do not add extra illustrations or decorative clutter.
-
----
-
-## Stats Section
-
-Add **3 service-related stats** beneath the statement.
-
-Before hardcoding numbers, audit the existing Services data and derive verified counts where possible, such as:
-
-- number of Service Categories
-- number of Brands Serviced
-- number of individual Service Options / offerings
-
-Example layout:
-
-```text
-8+                     6+                     20+
-SERVICE CATEGORIES     BRANDS SERVICED        SERVICE OPTIONS
-```
-````
-
-Prefer deriving counts from existing project data rather than duplicating numbers.
-
-**Do not invent business metrics** such as jobs completed, customers served, years of experience, or percentages unless verified in the repository.
-
-Keep stat configuration centralized and easy to edit later.
-
----
-
-## GSAP Animation
-
-Use the project's existing GSAP + ScrollTrigger setup.
-
-When the section enters the viewport:
-
-- statement: subtle fade + upward reveal
-- numeric stats: count from `0` to final value
-- slightly stagger the three stats
-- animation runs once
-- final values remain visible
-
-Keep animation subtle and premium.
-
-Respect `prefers-reduced-motion`; show final values immediately when reduced motion is enabled.
-
-Do not add another animation dependency.
-
----
-
-## Responsive Layout
-
-### Desktop
-
-- centered statement
-- 3 stats in one horizontal row
-- generous spacing
-
-### Tablet
-
-- maintain 3 columns where readable or adapt gracefully
-
-### Mobile
-
-- stack stats vertically or use a responsive layout that keeps labels readable
-- no horizontal overflow
-- statement typography scales cleanly
-
-Use Outfit Variable throughout.
-
----
-
-## Scope
-
-Do not:
-
-- modify the Services hero
-- redesign existing service sections
-- change service URLs/content
-- change Sanity schemas
-- change Shopify logic
-- modify navbar/dropdowns
-- install new dependencies
-- deploy or push
-
----
-
-## Verification
-
-After implementation and diff inspection, run exactly once:
-
-```bash
-npx tsc --noEmit
-npm run lint
-npm run build
-```
-
-Then perform **one focused browser check** of this new section on desktop and mobile.
-
-Verify:
-
-- correct placement below hero
-- statement layout/highlight
-- responsive typography
-- 3 stats render correctly
-- count-up animation works
-- reduced-motion handling
-- no layout shift or horizontal overflow
-
-Report files changed, implementation summary, verification results, and browser findings. Stop after reporting.
-
-```
-
-```
+WHEN DONE:
+- List every file changed and what changed in each.
+- Report the lint, type check, and build results.
+- Tell me how to test: hover each card on desktop, check that there's no side fade, click every card to confirm its link, and check mobile in Chrome DevTools, where only default images load in the Network tab.

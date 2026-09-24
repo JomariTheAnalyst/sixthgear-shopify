@@ -1,3 +1,4 @@
+const { PHASE_DEVELOPMENT_SERVER } = require("next/constants")
 const checkEnvVariables = require("./check-env-variables")
 
 checkEnvVariables()
@@ -9,9 +10,12 @@ const S3_HOSTNAME = process.env.MEDUSA_CLOUD_S3_HOSTNAME
 const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
 
 /**
- * @type {import('next').NextConfig}
+ * @param {string} phase
+ * @returns {import('next').NextConfig}
  */
-const nextConfig = {
+const nextConfig = (phase) => ({
+  // Separate dev output so `next dev` and `next build` can run side by side.
+  distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
   reactStrictMode: true,
   logging: {
     fetches: {
@@ -100,6 +104,6 @@ const nextConfig = {
       },
     ]
   },
-}
+})
 
 module.exports = nextConfig
