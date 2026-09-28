@@ -16,7 +16,7 @@
  *   so everyone is asked, including visitors who saved settings before.
  */
 
-export const CONSENT_POLICY_VERSION = "2026-10-01"
+export const CONSENT_POLICY_VERSION = "2026-10-02"
 export const CONSENT_COOKIE_NAME = "sg_consent"
 export const CONSENT_MAX_AGE_DAYS = 365
 
@@ -44,6 +44,8 @@ export type ConsentCategory = {
   description: string
   /** How the settings panel shows a category without a switch. */
   status?: "Always on" | "Loads when you use it"
+  /** Consent categories: what the banner says this category is for. */
+  bannerText?: string
 }
 
 export const CONSENT_CATEGORIES: ConsentCategory[] = [
@@ -65,18 +67,22 @@ export const CONSENT_CATEGORIES: ConsentCategory[] = [
     id: "onUse",
     label: "Loads when you use it",
     description:
-      "Features from other companies that load only when you use them: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, which loads code from Meta).",
+      "Features from other companies that load only when you use them: chat (Tidio), online booking (cal.com), maps (Google), and product videos (YouTube, Vimeo).",
     status: "Loads when you use it",
   },
   {
     id: "analytics",
     label: "Analytics",
     description: "Counts visits to help us improve the website.",
+    bannerText: "analytics cookies to count visits",
   },
   {
     id: "marketing",
     label: "Marketing",
-    description: "Helps us show relevant ads and measure them.",
+    description:
+      "Shows our social media feed (Curator), which loads code from Meta (Facebook) that may set marketing cookies.",
+    bannerText:
+      "marketing cookies for our social media feed, which loads code from Meta (Facebook)",
   },
 ]
 
@@ -271,26 +277,28 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     loads: "When you play a video",
     policyUrl: "https://policies.google.com/privacy",
   },
+
+  // ── Marketing (needs consent) ───────────────────────────────────────────
   {
     id: "curator",
     name: "Social media feed",
     vendor: "Curator.io",
-    category: "onUse",
+    category: "marketing",
     type: "Third-party service",
-    purpose: "Shows our Instagram and Facebook posts on the homepage",
+    purpose: "Shows our Facebook and Instagram posts on the homepage",
     duration: "Set by Curator",
-    loads: "When you choose to show the feed",
+    loads: "With your consent",
     policyUrl: "https://curator.io/privacy-policy",
   },
   {
     id: "facebook-sdk",
     name: "Facebook cookies",
     vendor: "Meta",
-    category: "onUse",
+    category: "marketing",
     type: "Third-party service",
     purpose: "Loaded by the social media feed; may set marketing cookies",
     duration: "Set by Meta",
-    loads: "When you choose to show the feed",
+    loads: "With your consent",
     policyUrl: "https://www.facebook.com/privacy/policy/",
   },
 ]

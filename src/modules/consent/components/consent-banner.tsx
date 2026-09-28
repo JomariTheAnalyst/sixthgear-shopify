@@ -4,7 +4,11 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
-import { getVisibleOptionalCategories } from "@lib/consent/registry"
+import {
+  CONSENT_CATEGORIES,
+  getVisibleOptionalCategories,
+  type OptionalCategoryId,
+} from "@lib/consent/registry"
 import { useConsent } from "./consent-provider"
 
 export const CONSENT_BUTTON_CLASS =
@@ -12,6 +16,11 @@ export const CONSENT_BUTTON_CLASS =
 
 // Analytics / marketing categories that currently have registry entries.
 const CONSENT_CATEGORIES_IN_USE = getVisibleOptionalCategories()
+const CONSENT_PURPOSES = CONSENT_CATEGORIES.filter((category) =>
+  CONSENT_CATEGORIES_IN_USE.includes(category.id as OptionalCategoryId)
+)
+  .map((category) => category.bannerText ?? `${category.label.toLowerCase()} cookies`)
+  .join(" and ")
 
 /**
  * Non-blocking bottom bar, shown only while the registry has an analytics or
@@ -59,8 +68,8 @@ export default function ConsentBanner() {
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:gap-8 md:px-8 md:py-5">
         <p className="text-[13px] leading-relaxed text-black/75 md:flex-1 md:text-sm">
           We use necessary cookies to run this site. With your OK, we would
-          also use {CONSENT_CATEGORIES_IN_USE.join(" and ")} cookies. Chat,
-          booking, maps, and videos only load when you use them. See our{" "}
+          also use {CONSENT_PURPOSES}. Chat, booking, maps, and videos only
+          load when you use them. See our{" "}
           <Link
             href={`/${countryCode}/cookies`}
             className="font-semibold text-[#0A0B0A] underline underline-offset-2"
