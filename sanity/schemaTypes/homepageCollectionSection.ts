@@ -28,6 +28,15 @@ export default defineType({
         'Text shown on the button beside the heading. Leave blank to use the default button text.',
     }),
     defineField({
+      name: 'productLimit',
+      title: 'Number of products to show',
+      type: 'number',
+      description:
+        'How many products this row shows (4 to 24). Leave blank to show 12. A "View All" card is added when the collection has more.',
+      initialValue: 12,
+      validation: (Rule) => Rule.integer().min(4).max(24),
+    }),
+    defineField({
       name: 'enabled',
       title: 'Show this product row on the homepage',
       type: 'boolean',

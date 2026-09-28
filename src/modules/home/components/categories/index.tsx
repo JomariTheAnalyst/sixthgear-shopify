@@ -8,6 +8,7 @@ import gsap from "gsap"
 import type { SanityCategoriesSection } from "@lib/cms/types"
 import { cleanSanityString } from "@lib/cms/visual-editing"
 import { montserrat, nationalCompressed } from "@lib/fonts"
+import { HOVER_SLIDE_LAYER } from "@modules/common/components/hover-slide"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import {
   createHorizontalLoop,
@@ -86,11 +87,6 @@ const HOVER_EDGE_FEATHER =
 
 const CATEGORY_IMAGE_SIZES =
   "(max-width: 639px) 88vw, (max-width: 767px) 52vw, (max-width: 1023px) 37vw, (min-width: 1772px) 25vw, 443px"
-
-// Push-slide layer: transform-only CSS transition, so leaving mid-slide
-// reverses from the current position.
-const HOVER_SLIDE_LAYER =
-  "pointer-events-none absolute inset-0 transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
 
 const MARQUEE_SPEED = 0.55
 
@@ -371,7 +367,7 @@ function CategoryCard({ category }: CategoryCardProps) {
         href={href}
         draggable={false}
         aria-label={`Shop ${category.name}`}
-        className="group relative block h-full w-full overflow-hidden bg-[#f1f1ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#111111]"
+        className="group relative isolate block h-full w-full overflow-hidden bg-[#f1f1ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#111111]"
         onMouseEnter={showVideo ? handleMouseEnter : undefined}
         onMouseLeave={showVideo ? handleMouseLeave : undefined}
       >
@@ -462,7 +458,7 @@ function CategoryCard({ category }: CategoryCardProps) {
         )}
 
         <h3
-          className={`${nationalCompressed.className} pointer-events-none absolute bottom-5 left-3 z-10 text-[clamp(2rem,3.1vw,4rem)] uppercase leading-[0.82] tracking-[0.01em] text-[#111111] sm:bottom-6 sm:left-4`}
+          className={`${nationalCompressed.className} pointer-events-none absolute bottom-5 left-3 z-10 text-[clamp(2rem,3.1vw,4rem)] uppercase leading-[0.82] tracking-[0.01em] text-white mix-blend-difference sm:bottom-6 sm:left-4`}
           style={{
             writingMode: "vertical-rl",
             transform: "rotate(180deg)",

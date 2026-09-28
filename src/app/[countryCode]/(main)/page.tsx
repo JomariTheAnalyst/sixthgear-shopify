@@ -25,11 +25,10 @@ import type {
   SanityFeaturedCollectionItem,
   SanityPromoBanner,
 } from "@lib/cms/types"
-import { ProductSection } from "@modules/home/components/product-sections"
 import { getRegion } from "@lib/data/regions"
-import { getBrandCollections, getCollection, getProducts } from "@lib/shopify"
+import { getBrandCollections, getCollection } from "@lib/shopify"
 import { resolveShopifyImageMetafield } from "@lib/shopify/collection-images"
-import type { ShopifyProductCard } from "@lib/shopify/types"
+import { mapShopifyToStoreProduct } from "@lib/shopify/map-to-store-product"
 import { HttpTypes } from "@medusajs/types"
 import {
   selectFeaturedCollectionForPosition,
@@ -124,24 +123,6 @@ export async function generateMetadata({
   }
 }
 
-function ProductSectionSkeleton() {
-  return (
-    <div className="py-12 md:py-16 px-4 md:px-8 lg:px-16">
-      <div className="max-w-7xl mx-auto">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-48 mb-4" />
-          <div className="h-4 bg-gray-200 rounded w-64 mb-8" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-2xl aspect-square" />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 const BRAND_COLLECTION_PLACEHOLDER =
   "/images/placeholders/brand-collection.svg"
 
@@ -194,8 +175,6 @@ export default async function Home(props: {
     marketingData,
     homepageBlogPosts,
     collectionSections,
-    featuredProductsResp,
-    newArrivalsResp,
   ] = await Promise.all([
     getHomepageHero(),
     getHomepageVideoFeature(),
@@ -207,49 +186,7 @@ export default async function Home(props: {
     getMarketingData(),
     getHomepageBlogPosts(),
     getHomepageCollectionSections(),
-    getProducts({ first: 8, query: 'tag:featured' }),
-    getProducts({ first: 4, sortKey: 'CREATED_AT', reverse: true }),
   ])
-
-  const featuredProducts = featuredProductsResp.products
-  const newArrivals = newArrivalsResp.products
-
-  const mapShopifyToMedusa = (
-    p: ShopifyProductCard
-  ): HttpTypes.StoreProduct => {
-    const images =
-      p.images?.edges?.map((edge) => ({ url: edge.node.url })) || []
-
-    if (images.length === 0 && p.featuredImage) {
-      images.push({ url: p.featuredImage.url })
-    }
-
-    return {
-      id: p.id,
-      title: p.title,
-      handle: p.handle,
-      thumbnail: p.featuredImage?.url || images[0]?.url,
-      images,
-      collection: { title: p.vendor },
-      variants: [
-        {
-          id: p.id,
-          allow_backorder: false,
-          manage_inventory: true,
-          inventory_quantity: p.availableForSale ? 10 : 0,
-          calculated_price: {
-            calculated_amount: p.priceRange?.minVariantPrice
-              ? parseFloat(p.priceRange.minVariantPrice.amount)
-              : null,
-            original_amount: p.compareAtPriceRange?.minVariantPrice
-              ? parseFloat(p.compareAtPriceRange.minVariantPrice.amount)
-              : null,
-            currency_code: p.priceRange?.minVariantPrice?.currencyCode || "php",
-          },
-        },
-      ],
-    } as any
-  }
 
   type HomepageCollectionRailData = {
     section: HomepageCollectionSection
@@ -261,12 +198,13 @@ export default async function Home(props: {
   const collectionRailResults: Array<HomepageCollectionRailData | null> =
     await Promise.all(
       collectionSections.map(async (section) => {
+        // One extra product tells the rail whether to show the "View All" card.
         const collection = await getCollection(cleanSanityString(section.collectionHandle), {
-          first: 11,
+          first: section.productLimit + 1,
         })
 
         const products =
-          collection?.products?.edges?.map((edge) => mapShopifyToMedusa(edge.node)) ?? []
+          collection?.products?.edges?.map((edge) => mapShopifyToStoreProduct(edge.node)) ?? []
 
         if (!collection || products.length === 0) {
           return null
@@ -365,45 +303,11 @@ export default async function Home(props: {
           title={item.title}
           collectionHandle={item.section.collectionHandle}
           buttonLabel={item.buttonLabel}
+          productLimit={item.section.productLimit}
           products={item.products}
+          countryCode={countryCode}
         />
       ))}
-
-      <Suspense fallback={<ProductSectionSkeleton />}>
-        {featuredProducts.length > 0 && (
-          <ProductSection
-            title="Featured"
-            products={featuredProducts.map(mapShopifyToMedusa)}
-            region={region}
-            viewAllLink="/store?tag=featured"
-            maxItems={8}
-          />
-        )}
-      </Suspense>
-
-      <Suspense fallback={<ProductSectionSkeleton />}>
-        {featuredProducts.length > 0 && (
-          <ProductSection
-            title="Best Sellers"
-            products={featuredProducts.map(mapShopifyToMedusa)}
-            region={region}
-            viewAllLink="/store?tag=best-seller"
-            maxItems={4}
-          />
-        )}
-      </Suspense>
-
-      <Suspense fallback={<ProductSectionSkeleton />}>
-        {newArrivals.length > 0 && (
-          <ProductSection
-            title="New Arrivals"
-            products={newArrivals.map(mapShopifyToMedusa)}
-            region={region}
-            viewAllLink="/store?tag=new-arrival"
-            maxItems={4}
-          />
-        )}
-      </Suspense>
 
       {/* Coffee Showcase is temporarily hidden on the homepage. */}
       <FeaturedCollectionBanner data={getFeatured("after_coffee")} />
