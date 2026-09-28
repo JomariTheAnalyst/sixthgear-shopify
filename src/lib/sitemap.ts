@@ -76,6 +76,7 @@ function staticRoutes(): SitemapEntry[] {
     { path: "/first-gear", priority: 0.6 },
     { path: "/returns-warranty", priority: 0.4 },
     { path: "/privacy", priority: 0.3 },
+    { path: "/cookies", priority: 0.3 },
     { path: "/terms", priority: 0.3 },
   ]
 

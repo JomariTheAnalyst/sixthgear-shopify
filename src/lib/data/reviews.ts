@@ -1,7 +1,9 @@
-import type { JudgeMeReviewsResponse } from "@lib/shopify/types"
+import { cacheKey, getCached } from "@lib/cache/redis"
+import type { JudgeMeReview, JudgeMeReviewsResponse } from "@lib/shopify/types"
 
 const JUDGEME_API_BASE = "https://judge.me/api/v1"
 const REVIEWS_PER_PAGE = 10
+const REVIEWS_CACHE_TTL = 300 // 5 minutes, as before
 
 const PRIVATE_TOKEN = process.env.JUDGEME_PRIVATE_TOKEN || ""
 const SHOP_DOMAIN = process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN || ""
@@ -39,8 +41,38 @@ export async function getJudgeMeProductId(
 }
 
 /**
+ * Keeps only what the product page shows. Judge.me also sends the reviewer's
+ * email, phone and IP address; those never leave this function.
+ */
+function toPublicReviews(data: any): JudgeMeReviewsResponse {
+  const reviews: JudgeMeReview[] = (Array.isArray(data?.reviews) ? data.reviews : []).map(
+    (review: any) => ({
+      id: review.id,
+      title: review.title ?? "",
+      body: review.body ?? "",
+      rating: review.rating,
+      reviewer: { name: review.reviewer?.name ?? "" },
+      published: review.published === true,
+      hidden: review.hidden === true,
+      verified: review.verified ?? "",
+      created_at: review.created_at,
+      picture_urls: Array.isArray(review.picture_urls) ? review.picture_urls : [],
+    })
+  )
+
+  return {
+    reviews,
+    current_page: data?.current_page ?? 1,
+    total_pages: data?.total_pages ?? 1,
+    per_page: data?.per_page ?? REVIEWS_PER_PAGE,
+    total_count: data?.total_count ?? reviews.length,
+  }
+}
+
+/**
  * Fetch published reviews for a product from Judge.me.
- * Returns null on any error â€” never throws.
+ * Returns null on any error — never throws. The raw response is not cached
+ * (it contains reviewer contact data); only the trimmed result is, for 5 min.
  */
 export async function getProductReviews(
   handle: string,
@@ -52,24 +84,29 @@ export async function getProductReviews(
     const productId = await getJudgeMeProductId(handle)
     if (!productId) return null
 
-    const url = new URL(`${JUDGEME_API_BASE}/reviews`)
-    url.searchParams.set("api_token", PRIVATE_TOKEN)
-    url.searchParams.set("shop_domain", SHOP_DOMAIN)
-    url.searchParams.set("product_id", productId.toString())
-    url.searchParams.set("page", page.toString())
-    url.searchParams.set("per_page", REVIEWS_PER_PAGE.toString())
+    return await getCached(
+      cacheKey("reviews", String(productId), String(page)),
+      async () => {
+        const url = new URL(`${JUDGEME_API_BASE}/reviews`)
+        url.searchParams.set("api_token", PRIVATE_TOKEN)
+        url.searchParams.set("shop_domain", SHOP_DOMAIN)
+        url.searchParams.set("product_id", productId.toString())
+        url.searchParams.set("page", page.toString())
+        url.searchParams.set("per_page", REVIEWS_PER_PAGE.toString())
 
-    const res = await fetch(url.toString(), {
-      headers: { "Content-Type": "application/json" },
-      next: { revalidate: 300 }, // cache reviews for 5 minutes
-    })
+        const res = await fetch(url.toString(), {
+          headers: { "Content-Type": "application/json" },
+          cache: "no-store",
+        })
 
-    if (!res.ok) {
-      return null
-    }
+        if (!res.ok) {
+          throw new Error(`[reviews] Judge.me responded ${res.status}`)
+        }
 
-    const data = await res.json()
-    return data as JudgeMeReviewsResponse
+        return toPublicReviews(await res.json())
+      },
+      REVIEWS_CACHE_TTL
+    )
   } catch (error) {
     console.error(error)
     return null

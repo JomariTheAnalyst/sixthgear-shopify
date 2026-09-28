@@ -1,12 +1,31 @@
 import { Metadata } from "next"
+import { getLocalizedCanonicalPath } from "@lib/seo"
+import { getShopPolicies } from "@lib/shopify/policies"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import ShopifyPolicy from "@modules/legal/components/shopify-policy"
 
 export const metadata: Metadata = {
   title: "Terms and Conditions",
   description:
     "Terms and conditions for using Sixthgear Moto Supply & Cafe services and purchasing products online.",
+  alternates: {
+    canonical: getLocalizedCanonicalPath("ph", "/terms"),
+  },
 }
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  // Shopify's Terms of Service when filled in; the built-in text otherwise.
+  const { termsOfService } = await getShopPolicies()
+
+  if (termsOfService) {
+    return <ShopifyPolicy title="Terms and Conditions" html={termsOfService.body} />
+  }
+
+  return <FallbackTerms />
+}
+
+/** Built-in terms, shown while Shopify's Terms of Service is empty. */
+function FallbackTerms() {
   return (
     <div className="bg-white min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -118,12 +137,12 @@ export default function TermsPage() {
           <p className="text-gray-700 leading-relaxed mb-4">
             We want you to be completely satisfied with your purchase. Please
             review our detailed{" "}
-            <a
+            <LocalizedClientLink
               href="/returns-warranty"
               className="text-blue-600 hover:underline font-semibold"
             >
               Returns and Warranty Policy
-            </a>{" "}
+            </LocalizedClientLink>{" "}
             for complete information on:
           </p>
           <ul className="list-disc list-inside space-y-2 text-gray-700 mb-12 ml-4">

@@ -1,6 +1,6 @@
 import { nationalCompressed } from "@lib/fonts"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CuratorEmbed from "./curator-embed"
+import ConsentedCuratorEmbed from "./consented-curator-embed"
 
 export default function SocialFeed() {
   return (
@@ -16,7 +16,7 @@ export default function SocialFeed() {
       </h2>
 
       <div className="mt-8 w-full sm:mt-10">
-        <CuratorEmbed />
+        <ConsentedCuratorEmbed />
       </div>
 
       <div className="mt-6 flex justify-center px-4 sm:mt-8">

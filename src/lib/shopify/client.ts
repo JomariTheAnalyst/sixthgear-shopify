@@ -71,7 +71,8 @@ function getClientClient() {
 export async function shopifyGraphql<T>(
   query: string,
   variables: Record<string, any> = {},
-  isServer: boolean = true
+  isServer: boolean = true,
+  options: { noStore?: boolean } = {}
 ): Promise<{ data: T | null; errors?: any[] }> {
   try {
     const isAuthenticatedRequest =
@@ -79,7 +80,7 @@ export async function shopifyGraphql<T>(
       Object.prototype.hasOwnProperty.call(variables, "customerAccessToken")
 
     const client = isServer
-      ? getServerClient(isAuthenticatedRequest)
+      ? getServerClient(isAuthenticatedRequest || options.noStore === true)
       : getClientClient()
     const { data, errors } = await client.request<T>(query, { variables })
 

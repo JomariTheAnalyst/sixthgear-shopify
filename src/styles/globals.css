@@ -346,3 +346,32 @@
     bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+/* Cookie consent: the banner sits above fixed mobile bars (account nav, product
+   Add to Cart bar) and the page gets matching bottom space, so no cart or
+   checkout button is ever covered. --sg-consent-offset is the banner height. */
+body {
+  --sg-bottom-bar: 0px;
+  padding-bottom: var(--sg-consent-offset, 0px);
+}
+
+@media (max-width: 1023px) {
+  body[data-account-mobile-nav="true"] {
+    --sg-bottom-bar: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  body[data-pdp-mobile-actions="true"] {
+    --sg-bottom-bar: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.sg-consent-banner {
+  bottom: var(--sg-bottom-bar);
+}
+
+.sg-chat-launcher {
+  bottom: calc(
+    1rem + var(--sg-bottom-bar) + var(--sg-consent-offset, 0px) +
+      env(safe-area-inset-bottom, 0px)
+  );
+}

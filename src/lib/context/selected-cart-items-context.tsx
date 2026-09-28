@@ -33,21 +33,6 @@ export function SelectedItemsProvider({
   // Load from localStorage on mount
   useEffect(() => {
     try {
-      // First, check sessionStorage (set by cart drawer when going to checkout)
-      const sessionStored = sessionStorage.getItem("checkoutSelectedItems")
-      if (sessionStored) {
-        const parsed = JSON.parse(sessionStored)
-
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setSelectedItems(new Set(parsed))
-          // Also save to localStorage for persistence
-          localStorage.setItem("selectedCartItems", sessionStored)
-          setIsLoading(false)
-          return
-        }
-      }
-
-      // Fallback to localStorage
       const stored = localStorage.getItem("selectedCartItems")
 
       if (stored) {
@@ -105,7 +90,6 @@ export function SelectedItemsProvider({
 
   const clearAllSelections = () => {
     setSelectedItems(new Set())
-    sessionStorage.removeItem("checkoutSelectedItems")
     localStorage.removeItem("selectedCartItems")
   }
 
