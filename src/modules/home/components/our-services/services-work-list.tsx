@@ -3,9 +3,13 @@
 import { useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useGSAP } from "@gsap/react"
+import gsap from "gsap"
 import { ArrowUpRight, ChevronDown } from "lucide-react"
 
 import { outfit } from "@lib/fonts"
+
+gsap.registerPlugin(useGSAP)
 
 export type ServicesWorkListItem = {
   key: string
@@ -29,16 +33,24 @@ type ServicesWorkListProps = {
  * - SECTION_X_PADDING mirrors the About Us revamp: exact 233px sides at
  *   `large:` (1440px+), responsive reductions below, ~20px on mobile.
  * - Service titles target 32px / 32px / 900; descriptions 20px / 30px / 300.
- * - The floating preview is anchored between the title and description
- *   columns (PREVIEW_LEFT), vertically centered on the active row, and
- *   clamped so it never escapes the list.
+ * - The floating preview trails the mouse cursor (FOLLOW_DURATION lag) and
+ *   leans into horizontal movement (MAX_TILT_DEG). Keyboard focus parks it
+ *   between the columns (FOCUS_LEFT_RATIO) on the focused row.
  * - INACTIVE_OPACITY controls how far non-active rows fade on hover/focus.
  */
 const SECTION_X_PADDING =
   "px-5 xsmall:px-8 small:px-16 medium:px-24 large:px-[233px]"
-const PREVIEW_LEFT = "36%"
-const PREVIEW_CLAMP_PX = 190 // half preview height + breathing room
+const FOCUS_LEFT_RATIO = 0.36
+const FOLLOW_DURATION = 0.6
+const MAX_TILT_DEG = 8
 const INACTIVE_OPACITY = "opacity-35"
+
+type PreviewMotion = {
+  x: gsap.QuickToFunc
+  y: gsap.QuickToFunc
+  tilt: gsap.QuickToFunc | null
+  settle: gsap.core.Tween | null
+}
 
 export default function ServicesWorkList({
   title,
@@ -46,33 +58,100 @@ export default function ServicesWorkList({
   services,
   viewAllHref,
 }: ServicesWorkListProps) {
-  const listRef = useRef<HTMLOListElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<Array<HTMLLIElement | null>>([])
+  const motionRef = useRef<PreviewMotion | null>(null)
+  const hasPositionRef = useRef(false)
+  const lastPointerXRef = useRef<number | null>(null)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const [previewTop, setPreviewTop] = useState(0)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
-  const activateRow = (index: number) => {
-    const list = listRef.current
+  useGSAP(
+    () => {
+      const preview = previewRef.current
+      if (!preview) return
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+      const duration = reducedMotion ? 0 : FOLLOW_DURATION
+
+      gsap.set(preview, { xPercent: -50, yPercent: -50 })
+
+      const tilt = reducedMotion
+        ? null
+        : gsap.quickTo(preview, "rotation", { duration: 0.8, ease: "power3.out" })
+
+      motionRef.current = {
+        x: gsap.quickTo(preview, "x", { duration, ease: "power3.out" }),
+        y: gsap.quickTo(preview, "y", { duration, ease: "power3.out" }),
+        tilt,
+        // Straightens the card shortly after the cursor stops.
+        settle: tilt ? gsap.delayedCall(0.12, () => tilt(0)).pause() : null,
+      }
+
+      return () => {
+        motionRef.current?.settle?.kill()
+        motionRef.current = null
+      }
+    },
+    { scope: wrapperRef }
+  )
+
+  // Moves the preview to a point inside the wrapper; the first move snaps
+  // so the card never flies in from a stale position.
+  const movePreview = (x: number, y: number) => {
+    const motion = motionRef.current
+    if (!motion) return
+
+    if (hasPositionRef.current) {
+      motion.x(x)
+      motion.y(y)
+    } else {
+      motion.x(x, x)
+      motion.y(y, y)
+      hasPositionRef.current = true
+    }
+  }
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLOListElement>) => {
+    const wrapper = wrapperRef.current
+    const motion = motionRef.current
+    if (event.pointerType !== "mouse" || !wrapper || !motion) return
+
+    const rect = wrapper.getBoundingClientRect()
+    movePreview(event.clientX - rect.left, event.clientY - rect.top)
+
+    if (motion.tilt && lastPointerXRef.current !== null) {
+      const deltaX = event.clientX - lastPointerXRef.current
+      motion.tilt(gsap.utils.clamp(-MAX_TILT_DEG, MAX_TILT_DEG, deltaX * 0.5))
+      motion.settle?.restart(true)
+    }
+    lastPointerXRef.current = event.clientX
+  }
+
+  const focusRow = (index: number) => {
+    const wrapper = wrapperRef.current
     const row = rowRefs.current[index]
 
-    if (list && row) {
-      const listRect = list.getBoundingClientRect()
+    if (wrapper && row) {
+      const wrapperRect = wrapper.getBoundingClientRect()
       const rowRect = row.getBoundingClientRect()
-      const center = rowRect.top - listRect.top + rowRect.height / 2
-      const clamped = Math.min(
-        Math.max(center, PREVIEW_CLAMP_PX),
-        Math.max(listRect.height - PREVIEW_CLAMP_PX, PREVIEW_CLAMP_PX)
+      movePreview(
+        wrapperRect.width * FOCUS_LEFT_RATIO,
+        rowRect.top - wrapperRect.top + rowRect.height / 2
       )
-      setPreviewTop(clamped)
     }
 
     setActiveIndex(index)
   }
 
-  const clearActiveRow = () => setActiveIndex(null)
-
-  const activeService = activeIndex === null ? null : services[activeIndex]
+  const clearActiveRow = () => {
+    setActiveIndex(null)
+    hasPositionRef.current = false
+    lastPointerXRef.current = null
+  }
 
   return (
     <section
@@ -82,12 +161,9 @@ export default function ServicesWorkList({
       <div className="mx-auto max-w-[1454px]">
         <header className="flex flex-col items-start gap-6 small:flex-row small:items-end small:justify-between small:gap-10">
           <div className="flex flex-col items-start">
-            <span className="rounded-full bg-neutral-100 px-4 py-1.5 text-sm font-medium text-neutral-700">
-              Our Services
-            </span>
             <h2
               id="homepage-services-heading"
-              className="mt-6 text-[clamp(2.25rem,4.6vw,5.25rem)] font-black uppercase leading-[1] tracking-[-0.025em] text-black"
+              className="text-[clamp(2.25rem,4.6vw,5.25rem)] font-black uppercase leading-[1] tracking-[-0.025em] text-black"
             >
               {title}
             </h2>
@@ -109,10 +185,13 @@ export default function ServicesWorkList({
         </header>
 
         {/* Desktop: editorial rows with hover/focus preview. */}
-        <div className="relative mt-10 hidden small:block medium:mt-14">
+        <div
+          ref={wrapperRef}
+          className="relative mt-10 hidden small:block medium:mt-14"
+        >
           <ol
-            ref={listRef}
             className="relative border-b border-black/10"
+            onPointerMove={handlePointerMove}
             onMouseLeave={clearActiveRow}
             onBlur={(event) => {
               if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -135,8 +214,15 @@ export default function ServicesWorkList({
                 >
                   <Link
                     href={service.href}
-                    onMouseEnter={() => activateRow(index)}
-                    onFocus={() => activateRow(index)}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onFocus={(event) => {
+                      // Mouse clicks also focus the link; only keyboard focus parks the preview.
+                      if (event.currentTarget.matches(":focus-visible")) {
+                        focusRow(index)
+                      } else {
+                        setActiveIndex(index)
+                      }
+                    }}
                     className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-start gap-x-14 py-12 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f15a24] medium:gap-x-20 medium:py-14"
                   >
                     <h3 className="text-[32px] font-black uppercase leading-[32px] text-black">
@@ -151,26 +237,32 @@ export default function ServicesWorkList({
             })}
           </ol>
 
-          {/* Floating preview for the active service; never blocks clicks. */}
+          {/* Cursor-following preview; GSAP moves the outer layer, CSS handles
+              reveal and crossfade. Never blocks clicks. */}
           <div
+            ref={previewRef}
             aria-hidden="true"
-            style={{ top: previewTop, left: PREVIEW_LEFT }}
-            className={`pointer-events-none absolute z-10 hidden w-[clamp(220px,19vw,290px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[14px] bg-neutral-100 transition-[top,opacity,transform] duration-300 ease-out will-change-transform motion-reduce:transition-none small:block ${
-              activeService
-                ? "scale-100 opacity-100"
-                : "translate-y-[calc(-50%+10px)] scale-[0.98] opacity-0"
-            }`}
+            className="pointer-events-none absolute left-0 top-0 z-10 w-[clamp(220px,19vw,290px)] will-change-transform"
           >
-            <div className="relative aspect-[3/4] w-full">
-              {activeService ? (
+            <div
+              className={`relative aspect-[3/4] w-full overflow-hidden rounded-[14px] bg-neutral-100 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.45)] transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+                activeIndex !== null ? "scale-100 opacity-100" : "scale-75 opacity-0"
+              }`}
+            >
+              {services.map((service, index) => (
                 <Image
-                  src={activeService.image}
+                  key={service.key}
+                  src={service.image}
                   alt=""
                   fill
-                  className="object-cover"
+                  className={`object-cover transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
+                    index === activeIndex
+                      ? "scale-100 opacity-100"
+                      : "scale-110 opacity-0"
+                  }`}
                   sizes="290px"
                 />
-              ) : null}
+              ))}
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { createPortal } from "react-dom"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
 import { Loader2, Minus, Plus, X, ExternalLink, ShoppingBag, Check } from "lucide-react"
@@ -18,6 +19,25 @@ import { getProductPricing, formatPrice } from "@lib/util/get-product-pricing"
 import { useLenisScrollLock } from "@modules/common/components/lenis-provider"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import WishlistButton from "@modules/wishlist/components/wishlist-button"
+
+type StoreVariant = NonNullable<HttpTypes.StoreProduct["variants"]>[number]
+
+// Variants from the shared Shopify mapper carry { option: { title }, value }.
+function getVariantOptionValue(variant: StoreVariant, optionTitle: string) {
+  const options = ((variant as any).options ?? []) as any[]
+  return options.find(
+    (vo) => (vo.option?.title || vo.name) === optionTitle
+  )?.value as string | undefined
+}
+
+function isVariantAvailable(variant: StoreVariant) {
+  if (variant.allow_backorder) return true
+  if (variant.manage_inventory === false) return true
+  if (variant.inventory_quantity !== null && variant.inventory_quantity !== undefined) {
+    return variant.inventory_quantity > 0
+  }
+  return false
+}
 
 interface QuickShopModalProps {
   product: HttpTypes.StoreProduct
@@ -37,6 +57,7 @@ export default function QuickShopModal({
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
   const [added, setAdded] = useState(false)
+  const [lastValidVariant, setLastValidVariant] = useState<StoreVariant | null>(null)
 
   const setCart = useCartStore((state) => state.setCart)
   const setCartStoreId = useCartStore((state) => state.setCartId)
@@ -71,39 +92,63 @@ export default function QuickShopModal({
     }) || []
   }, [product.options])
 
-  // Initialize selected options with first value of each option
+  const variants = useMemo(() => product.variants ?? [], [product.variants])
+
+  // Variants that match every option in `selection`.
+  const findMatchingVariants = useCallback(
+    (selection: Record<string, string>) =>
+      variants.filter((variant) =>
+        productOptions.every((opt) => {
+          const optTitle = opt.title || opt.id
+          return getVariantOptionValue(variant, optTitle) === selection[optTitle]
+        })
+      ),
+    [variants, productOptions]
+  )
+
+  // Initialize with the first AVAILABLE variant's options (first variant if all sold out)
   useEffect(() => {
     if (isOpen) {
+      const initialVariant = variants.find(isVariantAvailable) ?? variants[0]
       const initial: Record<string, string> = {}
       productOptions.forEach((opt) => {
-        if (opt.values && opt.values.length > 0) {
-          initial[opt.title || opt.id] = opt.values[0].value
+        const optTitle = opt.title || opt.id
+        const value =
+          (initialVariant && getVariantOptionValue(initialVariant, optTitle)) ??
+          opt.values?.[0]?.value
+        if (value !== undefined) {
+          initial[optTitle] = value
         }
       })
       setSelectedOptions(initial)
+      setLastValidVariant(initialVariant ?? null)
       setQuantity(1)
       setAdded(false)
       setActiveImage(allImages[0] || null)
       setIsZoomed(false)
     }
-  }, [isOpen, productOptions, allImages])
+  }, [isOpen, productOptions, allImages, variants])
 
-  // Find the variant that matches selected options
+  // Exact match only: an option combination with no real variant selects nothing.
   const selectedVariant = useMemo(() => {
-    if (!product.variants || product.variants.length === 0) return null
-    if (product.variants.length === 1) return product.variants[0]
+    if (variants.length === 0) return null
+    if (variants.length === 1 || productOptions.length === 0) return variants[0]
 
-    return product.variants.find((variant: any) => {
-      if (!variant.options) return false
-      return productOptions.every((opt) => {
-        const optTitle = opt.title || opt.id
-        const selectedValue = selectedOptions[optTitle]
-        return variant.options.some(
-          (vo: any) => (vo.option?.title || vo.name) === optTitle && vo.value === selectedValue
-        )
-      })
-    }) || product.variants[0]
-  }, [product.variants, selectedOptions, productOptions])
+    return findMatchingVariants(selectedOptions)[0] ?? null
+  }, [variants, productOptions, selectedOptions, findMatchingVariants])
+
+  // Price and image stay on the last valid selection while the current one is invalid.
+  useEffect(() => {
+    if (selectedVariant) setLastValidVariant(selectedVariant)
+  }, [selectedVariant])
+  const displayVariant = selectedVariant ?? lastValidVariant
+
+  // Per option value: "available", "soldOut" (exists, not in stock), or "unavailable" (no such variant).
+  const getOptionValueState = (optionTitle: string, value: string) => {
+    const matches = findMatchingVariants({ ...selectedOptions, [optionTitle]: value })
+    if (matches.length === 0) return "unavailable" as const
+    return matches.some(isVariantAvailable) ? ("available" as const) : ("soldOut" as const)
+  }
 
   // Variant-image syncing
   useEffect(() => {
@@ -119,8 +164,8 @@ export default function QuickShopModal({
 
   // Variant-specific pricing
   const variantPricing = useMemo(() => {
-    if (!selectedVariant?.calculated_price) return pricing
-    const calc = selectedVariant.calculated_price
+    if (!displayVariant?.calculated_price) return pricing
+    const calc = displayVariant.calculated_price
     const calculated = calc.calculated_amount
     const original = calc.original_amount
     const isOnSale = calculated !== null && original !== null && calculated < original
@@ -137,17 +182,10 @@ export default function QuickShopModal({
       formattedCalculated: formatPrice(calculated, pricing.currencyCode),
       formattedOriginal: formatPrice(original, pricing.currencyCode),
     }
-  }, [selectedVariant, pricing])
+  }, [displayVariant, pricing])
 
-  const isInStock = useMemo(() => {
-    if (!selectedVariant) return false
-    if (selectedVariant.allow_backorder) return true
-    if (selectedVariant.manage_inventory === false) return true
-    if (selectedVariant.inventory_quantity !== null && selectedVariant.inventory_quantity !== undefined) {
-      return selectedVariant.inventory_quantity > 0
-    }
-    return false
-  }, [selectedVariant])
+  const isInStock = selectedVariant ? isVariantAvailable(selectedVariant) : false
+  const isSoldOut = Boolean(selectedVariant) && !isInStock
 
   const handleOptionChange = useCallback((optionTitle: string, value: string) => {
     setSelectedOptions((prev) => ({ ...prev, [optionTitle]: value }))
@@ -194,7 +232,9 @@ export default function QuickShopModal({
 
   if (!isOpen) return null
 
-  return (
+  // Portal to <body>: a transformed ancestor (e.g. the Embla rail track) would
+  // otherwise trap position:fixed, clipping the backdrop to the carousel.
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -256,12 +296,12 @@ export default function QuickShopModal({
                 )}
                 {/* Sale Badge */}
                 {variantPricing.isOnSale && (
-                  <span className="absolute top-3 left-3 bg-[#e62020] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm z-10">
+                  <span className="absolute top-3 left-3 bg-[#0A0B0A] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm z-10">
                     Sale
                   </span>
                 )}
                 {/* Sold out overlay */}
-                {!isInStock && (
+                {isSoldOut && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10 pointer-events-none">
                     <span className="bg-white border border-gray-200 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
                       Sold Out
@@ -282,7 +322,7 @@ export default function QuickShopModal({
                       currencyCode: product.variants?.[0]?.calculated_price?.currency_code || "PHP",
                       availableForSale: isInStock,
                       vendor: brandName,
-                      variantId: selectedVariant?.id || product.id,
+                      variantId: displayVariant?.id || product.id,
                     }}
                     className="w-10 h-10 flex items-center justify-center bg-transparent border-none p-0 shadow-none hover:bg-transparent [&_svg]:!w-6 [&_svg]:!h-6"
                   />
@@ -307,12 +347,12 @@ export default function QuickShopModal({
                 )}
                 {/* Sale Badge */}
                 {variantPricing.isOnSale && (
-                  <span className="absolute top-3 left-3 bg-[#e62020] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm z-10">
+                  <span className="absolute top-3 left-3 bg-[#0A0B0A] text-white text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-sm z-10">
                     Sale
                   </span>
                 )}
                 {/* Sold out overlay */}
-                {!isInStock && (
+                {isSoldOut && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
                     <span className="bg-white border border-gray-200 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
                       Sold Out
@@ -333,7 +373,7 @@ export default function QuickShopModal({
                       currencyCode: product.variants?.[0]?.calculated_price?.currency_code || "PHP",
                       availableForSale: isInStock,
                       vendor: brandName,
-                      variantId: selectedVariant?.id || product.id,
+                      variantId: displayVariant?.id || product.id,
                     }}
                     className="w-10 h-10 flex items-center justify-center bg-transparent border-none p-0 shadow-none hover:bg-transparent [&_svg]:!w-6 [&_svg]:!h-6"
                   />
@@ -386,14 +426,14 @@ export default function QuickShopModal({
                   <>
                     {variantPricing.isOnSale && variantPricing.formattedOriginal ? (
                       <>
-                        <span className="text-xl font-extrabold text-[#e62020]">
+                        <span className="text-xl font-extrabold text-[#0A0B0A]">
                           {variantPricing.formattedCalculated}
                         </span>
                         <span className="text-sm text-gray-400 line-through">
                           {variantPricing.formattedOriginal}
                         </span>
                         {variantPricing.discountPct && (
-                          <span className="text-xs font-bold text-[#e62020] bg-red-50 px-1.5 py-0.5 rounded">
+                          <span className="text-xs font-bold text-white bg-[#0A0B0A] px-1.5 py-0.5 rounded">
                             -{variantPricing.discountPct}%
                           </span>
                         )}
@@ -420,15 +460,30 @@ export default function QuickShopModal({
                         <div className="flex flex-wrap gap-2">
                           {option.values?.map((val) => {
                             const isSelected = selectedOptions[optTitle] === val.value
+                            const valueState = getOptionValueState(optTitle, val.value)
+                            const stateClass =
+                              valueState === "unavailable"
+                                ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
+                                : valueState === "soldOut"
+                                ? isSelected
+                                  ? "border-[#111] bg-gray-100 text-gray-500 line-through"
+                                  : "border-gray-200 bg-gray-50 text-gray-400 line-through hover:border-gray-400"
+                                : isSelected
+                                ? "border-[#111] bg-[#111] text-white"
+                                : "border-gray-200 bg-white text-[#111] hover:border-gray-400"
                             return (
                               <button
                                 key={val.id}
+                                type="button"
                                 onClick={() => handleOptionChange(optTitle, val.value)}
-                                className={`min-w-[48px] px-3 py-2.5 text-sm font-medium border rounded-lg transition-all duration-150 ${
-                                  isSelected
-                                    ? "border-[#111] bg-[#111] text-white"
-                                    : "border-gray-200 bg-white text-[#111] hover:border-gray-400"
-                                }`}
+                                disabled={valueState === "unavailable"}
+                                aria-pressed={isSelected}
+                                aria-label={
+                                  valueState === "available"
+                                    ? val.value
+                                    : `${val.value} (${valueState === "soldOut" ? "sold out" : "not available"})`
+                                }
+                                className={`min-w-[48px] px-3 py-2.5 text-sm font-medium border rounded-lg transition-all duration-150 ${stateClass}`}
                               >
                                 {val.value}
                               </button>
@@ -486,6 +541,8 @@ export default function QuickShopModal({
                     <Check className="w-4 h-4 stroke-[3]" />
                     Added to Cart
                   </>
+                ) : !selectedVariant ? (
+                  "Not available"
                 ) : !isInStock ? (
                   "Sold Out"
                 ) : (
@@ -509,6 +566,7 @@ export default function QuickShopModal({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   )
 }
