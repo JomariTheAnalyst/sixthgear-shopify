@@ -56,3 +56,6 @@ dump.rdb
 /blob-report/
 /playwright/.cache/
 /playwright/.auth
+
+# local review drafts (legal text exports, etc.)
+/scratchpad/

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
 import { openCalPopup } from "@modules/booking/lib/cal-embed"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import BookingSuccessModal from "../booking-success-modal"
 import {
   CONTACT_SUBJECT_OPTIONS,
@@ -395,6 +396,16 @@ export default function ContactForm({ services }: ContactFormProps) {
             )}
           </button>
         </div>
+        <p className="text-right text-xs leading-relaxed text-gray-500">
+          We use your details only to answer your request. See our{" "}
+          <LocalizedClientLink
+            href="/privacy"
+            className="font-semibold text-gray-700 underline underline-offset-2 hover:text-black"
+          >
+            Privacy Policy
+          </LocalizedClientLink>
+          .
+        </p>
       </form>
 
       <BookingSuccessModal

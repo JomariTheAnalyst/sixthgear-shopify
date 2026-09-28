@@ -1,9 +1,8 @@
 import { Metadata } from "next"
-import Script from "next/script"
 import { draftMode } from "next/headers"
 import { VisualEditing } from "next-sanity/visual-editing"
 
-import { clientEnv } from "@lib/env"
+import ConsentRoot from "@modules/consent"
 import {
   copy,
   hendrix,
@@ -82,14 +81,11 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <SanityVisualEditingProvider enabled={isDraftModeEnabled}>
           <ConsoleWarning />
           {isDraftModeEnabled && <PreviewIndicator />}
-          <main className="relative">{props.children}</main>
+          {/* Consent gates every non-essential script, including Tidio. */}
+          <ConsentRoot>
+            <main className="relative">{props.children}</main>
+          </ConsentRoot>
           <Toaster position="bottom-right" richColors />
-          {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
-            <Script
-              src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}
-              strategy="afterInteractive"
-            />
-          )}
           <SanityLive />
           {shouldRenderVisualEditing(isDraftModeEnabled) && <VisualEditing />}
         </SanityVisualEditingProvider>

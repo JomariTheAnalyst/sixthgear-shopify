@@ -2,7 +2,6 @@
 
 import { createContext, useContext, ReactNode } from "react"
 import { MarketingResponse, MarketingItem } from "../../../types/marketing"
-import PopupAds from "../components/popup-ads"
 
 interface MarketingContextValue {
   strip: MarketingItem | null
@@ -23,21 +22,15 @@ export function useMarketing() {
 interface MarketingProviderProps {
   children: ReactNode
   marketing: MarketingResponse
-  showPopups?: boolean // Only show popups on specific pages (e.g., homepage)
 }
 
 export function MarketingProvider({
   children,
   marketing,
-  showPopups = false,
 }: MarketingProviderProps) {
   return (
     <MarketingContext.Provider value={marketing}>
-      {/* Main Content */}
       {children}
-
-      {/* Popup Ads - Only on specified pages */}
-      {showPopups && <PopupAds popups={marketing.popups} />}
     </MarketingContext.Provider>
   )
 }

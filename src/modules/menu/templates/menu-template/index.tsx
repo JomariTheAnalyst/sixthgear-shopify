@@ -15,7 +15,6 @@ import ClientTestimonialsSection from "../../components/client-testimonials-sect
 import GallerySection from "../../components/gallery-section"
 import BlogsSection from "../../components/blogs-section"
 import FaqsSection from "../../components/faqs-section"
-import NewsletterSection from "../../components/newsletter-section"
 import FirstGearHero, {
   type FirstGearHeroData,
 } from "../../components/first-gear-hero"
@@ -409,9 +408,6 @@ export default function MenuTemplate({
 
       {/* FAQS Section */}
       <FaqsSection />
-
-      {/* Newsletter Section */}
-      <NewsletterSection />
 
     </div>
   )

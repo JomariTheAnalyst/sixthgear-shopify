@@ -6,7 +6,7 @@ import Modal from "@modules/common/components/modal"
 import { resolveSizeChart, type SizeChartResult } from "@lib/size-chart"
 import { resolveWhatsInBox, resolveSpecifications, resolveShipping, resolveProductVideoUrl } from "@lib/shopify/metafield-resolvers"
 import { extractShopifyRichTextRows } from "@lib/shopify/rich-text-renderer"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Play } from "lucide-react"
 
 const ACTIVATE_SIZE_GUIDE_EVENT = "product:activate-size-guide-tab"
 
@@ -510,30 +510,38 @@ type ProductVideoContentProps = {
   url: string
 }
 
+// Privacy-enhanced players: YouTube without tracking cookies, Vimeo with Do Not Track.
+const YOUTUBE_EMBED_BASE = "https://www.youtube-nocookie.com/embed/"
+
 function getEmbedUrl(url: string): string | null {
   try {
     const parsed = new URL(url)
 
     // YouTube standard: youtube.com/watch?v=ID
     if (parsed.hostname.includes("youtube.com") && parsed.searchParams.get("v")) {
-      return `https://www.youtube.com/embed/${parsed.searchParams.get("v")}`
+      return `${YOUTUBE_EMBED_BASE}${parsed.searchParams.get("v")}`
     }
 
     // YouTube short: youtu.be/ID
     if (parsed.hostname === "youtu.be") {
-      return `https://www.youtube.com/embed${parsed.pathname}`
+      return `${YOUTUBE_EMBED_BASE}${parsed.pathname.replace("/", "")}`
     }
 
     // YouTube Shorts: youtube.com/shorts/ID
     if (parsed.hostname.includes("youtube.com") && parsed.pathname.startsWith("/shorts/")) {
       const id = parsed.pathname.replace("/shorts/", "")
-      return `https://www.youtube.com/embed/${id}`
+      return `${YOUTUBE_EMBED_BASE}${id}`
     }
 
-    // Vimeo: vimeo.com/ID
+    // YouTube embed URL pasted directly: youtube.com/embed/ID
+    if (parsed.hostname.includes("youtube.com") && parsed.pathname.startsWith("/embed/")) {
+      return `${YOUTUBE_EMBED_BASE}${parsed.pathname.replace("/embed/", "")}`
+    }
+
+    // Vimeo: vimeo.com/ID or player.vimeo.com/video/ID
     if (parsed.hostname.includes("vimeo.com")) {
-      const id = parsed.pathname.replace("/", "")
-      return `https://player.vimeo.com/video/${id}`
+      const id = parsed.pathname.split("/").filter(Boolean).pop()
+      return id ? `https://player.vimeo.com/video/${id}?dnt=1` : null
     }
 
     // Already an embed URL or unknown — return as-is
@@ -543,8 +551,14 @@ function getEmbedUrl(url: string): string | null {
   }
 }
 
+function withAutoplay(embedUrl: string) {
+  return `${embedUrl}${embedUrl.includes("?") ? "&" : "?"}autoplay=1`
+}
+
 const ProductVideoContent = ({ url }: ProductVideoContentProps) => {
   const embedUrl = getEmbedUrl(url)
+  // The player (and its cookies) loads only after a click, on every screen size.
+  const [isPlaying, setIsPlaying] = useState(false)
 
   if (!embedUrl) {
     return (
@@ -557,13 +571,31 @@ const ProductVideoContent = ({ url }: ProductVideoContentProps) => {
   return (
     <div className="w-full overflow-hidden rounded-lg border border-gray-200">
       <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-        <iframe
-          src={embedUrl}
-          title="Product Video"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="absolute inset-0 h-full w-full"
-        />
+        {isPlaying ? (
+          <iframe
+            src={withAutoplay(embedUrl)}
+            title="Product Video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 h-full w-full"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsPlaying(true)}
+            data-testid="product-video-play"
+            className="group absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-3 bg-[#111111] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
+          >
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/15 transition-colors group-hover:bg-white/25">
+              <Play className="ml-1 h-7 w-7 fill-white" aria-hidden="true" />
+            </span>
+            <span className="text-sm font-semibold">Play product video</span>
+            <span className="px-6 text-center text-xs text-white/60">
+              Loads the video player from{" "}
+              {embedUrl.includes("vimeo.com") ? "Vimeo" : "YouTube"}
+            </span>
+          </button>
+        )}
       </div>
     </div>
   )
