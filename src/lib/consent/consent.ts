@@ -24,13 +24,11 @@ export type StoredConsent = {
 const MAX_AGE_MS = CONSENT_MAX_AGE_DAYS * 24 * 60 * 60 * 1000
 
 export const NO_OPTIONAL_CONSENT: ConsentChoices = {
-  functional: false,
   analytics: false,
   marketing: false,
 }
 
 export const ALL_OPTIONAL_CONSENT: ConsentChoices = {
-  functional: true,
   analytics: true,
   marketing: true,
 }
@@ -123,7 +121,8 @@ export function toShopifyVisitorConsent(
   return {
     analytics: categories.analytics,
     marketing: categories.marketing,
-    preferences: categories.functional,
+    // Features that load on use (chat, booking, maps) need no consent.
+    preferences: true,
     saleOfData: categories.marketing,
   }
 }

@@ -1,14 +1,19 @@
 /**
- * Cookie & tracking registry — the single source of truth for consent.
+ * Cookie & tracking registry — the single source of truth for privacy.
  *
  * The consent banner, the Cookie settings panel and the /cookies table all
- * read from here. To add a tool later (e.g. Google Analytics), add an entry
- * with its category; if it only needs a script tag, give it `script` and
- * ConsentScripts will load it once that category is allowed. Categories with
- * no entries are hidden automatically.
+ * read from here. Categories with no entries are hidden automatically.
  *
- * Bump CONSENT_POLICY_VERSION whenever this list or the Cookie Policy changes
- * in a way visitors must re-confirm; everyone is asked again on next visit.
+ * How things load:
+ * - "necessary" and "device": always on.
+ * - "onUse": third-party services that load only when the visitor uses them
+ *   (opening the chat, a booking, a map, a video). That action is the request,
+ *   so there is no prompt.
+ * - "analytics" and "marketing": need consent. The banner appears only while
+ *   at least one of these has an entry. To add e.g. Google Analytics, add an
+ *   entry here with category "analytics" (and `script` if it is a plain script
+ *   tag; ConsentScripts loads it once allowed) AND bump CONSENT_POLICY_VERSION
+ *   so everyone is asked, including visitors who saved settings before.
  */
 
 export const CONSENT_POLICY_VERSION = "2026-10-01"
@@ -18,18 +23,17 @@ export const CONSENT_MAX_AGE_DAYS = 365
 export type ConsentCategoryId =
   | "necessary"
   | "device"
-  | "functional"
-  | "marketing"
+  | "onUse"
   | "analytics"
+  | "marketing"
 
-/** Categories a visitor can switch on or off. */
+/** Categories that need the visitor's consent (banner + switches). */
 export type OptionalCategoryId = Extract<
   ConsentCategoryId,
-  "functional" | "marketing" | "analytics"
+  "analytics" | "marketing"
 >
 
 export const OPTIONAL_CATEGORIES: OptionalCategoryId[] = [
-  "functional",
   "analytics",
   "marketing",
 ]
@@ -38,7 +42,8 @@ export type ConsentCategory = {
   id: ConsentCategoryId
   label: string
   description: string
-  alwaysOn: boolean
+  /** How the settings panel shows a category without a switch. */
+  status?: "Always on" | "Loads when you use it"
 }
 
 export const CONSENT_CATEGORIES: ConsentCategory[] = [
@@ -46,35 +51,32 @@ export const CONSENT_CATEGORIES: ConsentCategory[] = [
     id: "necessary",
     label: "Necessary",
     description:
-      "Keeps the website working: your cart, your login, your cookie choices, and security. Always on.",
-    alwaysOn: true,
+      "Keeps the website working: your cart, your login, your cookie choices, and security.",
+    status: "Always on",
   },
   {
     id: "device",
     label: "Saved on your device only",
     description:
-      "Remembers your wishlist, recent searches, recently viewed products, and closed notices. It stays in your browser and is never sent to us. Always on.",
-    alwaysOn: true,
+      "Remembers your wishlist, recent searches, recently viewed products, and closed notices. It stays in your browser and is never sent to us.",
+    status: "Always on",
   },
   {
-    id: "functional",
-    label: "Functional",
+    id: "onUse",
+    label: "Loads when you use it",
     description:
-      "Extra features from other companies: website chat (Tidio) and online booking (cal.com). Maps and product videos load only when you open them.",
-    alwaysOn: false,
+      "Features from other companies that load only when you use them: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, which loads code from Meta).",
+    status: "Loads when you use it",
   },
   {
     id: "analytics",
     label: "Analytics",
     description: "Counts visits to help us improve the website.",
-    alwaysOn: false,
   },
   {
     id: "marketing",
     label: "Marketing",
-    description:
-      "Shows our social media feed, which loads code from Meta (Facebook).",
-    alwaysOn: false,
+    description: "Helps us show relevant ads and measure them.",
   },
 ]
 
@@ -92,17 +94,14 @@ export type RegistryEntry = {
     | "Server record"
   purpose: string
   duration: string
-  /** When a third-party service loads, if it is not always on. */
-  loads?: "With your consent" | "Only when you click to open it"
+  /** What makes a third-party service load. */
+  loads?: string
   policyUrl?: string
-  /** Storage keys/prefixes to clear when the visitor withdraws consent. */
-  clearStorage?: string[]
-  /** Plain script that ConsentScripts loads once the category is allowed. */
+  /** Plain script that ConsentScripts loads once its category is allowed. */
   script?: { id: string; src: string }
 }
 
 const OWN_POLICY = "/privacy"
-const tidioKey = process.env.NEXT_PUBLIC_TIDIO_PUBLIC_KEY
 
 export const CONSENT_REGISTRY: RegistryEntry[] = [
   // ── Necessary ───────────────────────────────────────────────────────────
@@ -112,7 +111,8 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "SixthGear",
     category: "necessary",
     type: "Cookie",
-    purpose: "Remembers your cookie choices",
+    purpose:
+      "Remembers your cookie choices (only set if you save choices in Cookie settings)",
     duration: "12 months",
     policyUrl: OWN_POLICY,
   },
@@ -162,8 +162,7 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "Upstash",
     category: "necessary",
     type: "Server record",
-    purpose:
-      "Blocks repeated login, sign-up, password and contact-form abuse",
+    purpose: "Blocks repeated login, sign-up, password and contact-form abuse",
     duration: "Up to 60 minutes",
     policyUrl: "https://upstash.com/trust/privacy.pdf",
   },
@@ -226,77 +225,72 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     duration: "Until you close the tab",
   },
 
-  // ── Functional ──────────────────────────────────────────────────────────
+  // ── Loads when you use it ───────────────────────────────────────────────
   {
     id: "tidio",
     name: "Tidio chat (tidio_state_*)",
     vendor: "Tidio",
-    category: "functional",
+    category: "onUse",
     type: "Third-party service",
-    purpose: "Website chat: visitor ID and conversation",
+    purpose:
+      "Website chat: visitor ID and conversation. After you first use the chat it loads on each visit so your conversation continues",
     duration: "Until cleared",
-    loads: "With your consent",
+    loads: "When you open the chat",
     policyUrl: "https://www.tidio.com/privacy-policy/",
-    clearStorage: ["tidio_state_"],
-    script: tidioKey
-      ? { id: "tidio-chat-script", src: `https://code.tidio.co/${tidioKey}.js` }
-      : undefined,
   },
   {
     id: "cal",
     name: "cal.com booking",
     vendor: "cal.com",
-    category: "functional",
+    category: "onUse",
     type: "Third-party service",
     purpose: "Online service booking",
     duration: "Set by cal.com",
-    loads: "Only when you click to open it",
+    loads: "When you open a booking",
     policyUrl: "https://cal.com/privacy",
   },
   {
     id: "google-maps",
     name: "Google Maps",
     vendor: "Google",
-    category: "functional",
+    category: "onUse",
     type: "Third-party service",
-    purpose: "Map display (for example the NID cookie)",
+    purpose: "Interactive store map (for example the NID cookie)",
     duration: "Set by Google",
-    loads: "Only when you click to open it",
+    loads: "When you open the map",
     policyUrl: "https://policies.google.com/privacy",
   },
   {
     id: "product-video",
     name: "Product videos (YouTube, Vimeo)",
     vendor: "Google (YouTube), Vimeo",
-    category: "functional",
+    category: "onUse",
     type: "Third-party service",
     purpose: "Plays product videos (YouTube in privacy-enhanced mode)",
     duration: "Set by YouTube or Vimeo",
-    loads: "Only when you click to open it",
+    loads: "When you play a video",
     policyUrl: "https://policies.google.com/privacy",
   },
-
-  // ── Marketing ───────────────────────────────────────────────────────────
   {
     id: "curator",
     name: "Social media feed",
     vendor: "Curator.io",
-    category: "marketing",
+    category: "onUse",
     type: "Third-party service",
     purpose: "Shows our Instagram and Facebook posts on the homepage",
     duration: "Set by Curator",
-    loads: "With your consent",
+    loads: "When you choose to show the feed",
     policyUrl: "https://curator.io/privacy-policy",
   },
   {
     id: "facebook-sdk",
     name: "Facebook cookies",
     vendor: "Meta",
-    category: "marketing",
+    category: "onUse",
     type: "Third-party service",
-    purpose: "Loaded by the social media feed",
+    purpose: "Loaded by the social media feed; may set marketing cookies",
     duration: "Set by Meta",
-    loads: "With your consent",
+    loads: "When you choose to show the feed",
     policyUrl: "https://www.facebook.com/privacy/policy/",
   },
 ]
@@ -312,6 +306,10 @@ export function getVisibleCategories() {
   )
 }
 
+/**
+ * Consent categories (analytics, marketing) that have entries. The banner is
+ * shown only when this is not empty.
+ */
 export function getVisibleOptionalCategories(): OptionalCategoryId[] {
   const visible = new Set(getVisibleCategories().map((category) => category.id))
   return OPTIONAL_CATEGORIES.filter((id) => visible.has(id))

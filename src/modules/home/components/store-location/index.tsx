@@ -77,14 +77,23 @@ export default function StoreLocation({
             className="absolute inset-0 h-full w-full"
           />
         ) : (
+          <>
+          {/* Self-hosted illustration; nothing is requested from Google until "Open map". */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/store-location/store-map-static.svg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
           <div
             data-testid="map-placeholder"
             className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-8 text-center md:pb-10"
           >
             <p
-              className={`${inter.className} max-w-sm text-sm leading-relaxed text-[#102229]/80`}
+              className={`${inter.className} max-w-sm bg-[#f7f2e9]/90 px-3 py-1 text-sm leading-relaxed text-[#102229]/80`}
             >
-              The map loads from Google, which may set cookies.
+              The interactive map loads from Google when you open it.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button
@@ -105,6 +114,7 @@ export default function StoreLocation({
               </a>
             </div>
           </div>
+          </>
         )}
 
         <div className="pointer-events-none absolute inset-0 bg-black/5" />

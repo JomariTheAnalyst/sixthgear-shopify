@@ -30,19 +30,19 @@ const CATEGORY_SUMMARY = [
     optOut: "You can clear it in your browser settings",
   },
   {
-    name: "Functional",
-    does: "Runs extra features from other companies: website chat (Tidio) and online booking (cal.com)",
-    optOut: "Yes. The feature asks before it starts",
-  },
-  {
-    name: "Marketing",
-    does: "Shows our social media feed, which loads code from Meta (Facebook)",
-    optOut: "Yes. Off unless you allow it",
+    name: "Loads when you use it",
+    does: "Features from other companies: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, which loads code from Meta)",
+    optOut: "Nothing loads until you use the feature. Chat keeps loading on later visits once you have used it, so your conversation continues",
   },
   {
     name: "Analytics",
     does: "Counts visits to help us improve the website",
     optOut: "We do not use any analytics right now. If we add it, we will ask you first",
+  },
+  {
+    name: "Marketing",
+    does: "Helps us show relevant ads and measure them",
+    optOut: "We do not use any marketing cookies right now. If we add them, we will ask you first",
   },
 ]
 
@@ -70,30 +70,17 @@ export default function CookiesPage() {
         </p>
 
         <h2 className={h2}>Your choices</h2>
-        <p className={p}>The first time you visit, we ask what you allow. You can choose:</p>
-        <ul className="list-disc space-y-2 pl-6 text-gray-700 mb-6">
-          <li>
-            <strong className="text-gray-900">Accept all:</strong> turns on
-            every category below.
-          </li>
-          <li>
-            <strong className="text-gray-900">Reject non-essential:</strong>{" "}
-            only necessary storage is used.
-          </li>
-          <li>
-            <strong className="text-gray-900">Customize:</strong> choose
-            category by category.
-          </li>
-        </ul>
         <p className={p}>
-          You can change your choice at any time with the{" "}
-          <strong className="text-gray-900">Cookie settings</strong> link at the
-          bottom of every page. We ask again after 12 months, or sooner if this
-          policy changes.
+          Right now we do not use analytics or marketing cookies, so there is
+          nothing to accept. Chat, booking, maps, and videos only load when you
+          use them. If we add analytics or marketing tools in the future, we
+          will ask you first.
         </p>
         <p className={p}>
-          If your browser sends a Global Privacy Control signal, we treat it as
-          a &quot;no&quot; to analytics and marketing.
+          You can see these categories at any time with the{" "}
+          <strong className="text-gray-900">Cookie settings</strong> link at the
+          bottom of every page. If your browser sends a Global Privacy Control
+          signal, we treat it as a &quot;no&quot; to analytics and marketing.
         </p>
         <CookieSettingsButton className="mb-6 inline-flex min-h-11 items-center justify-center bg-[#0A0B0A] px-6 text-sm font-semibold uppercase tracking-[0.06em] text-white hover:bg-[#0A0B0A]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2">
           Open cookie settings
@@ -120,9 +107,6 @@ export default function CookiesPage() {
             </tbody>
           </table>
         </div>
-        <p className={p}>
-          Google Maps and product videos only load when you click to open them.
-        </p>
 
         <h2 className={h2}>Cookies and storage we use</h2>
         <p className={p}>
@@ -165,7 +149,8 @@ export default function CookiesPage() {
                         {entry.purpose}
                         {entry.loads && (
                           <span className="block text-xs text-gray-500">
-                            Loads: {entry.loads.toLowerCase()}
+                            Loads {entry.loads.charAt(0).toLowerCase()}
+                            {entry.loads.slice(1)}
                           </span>
                         )}
                       </td>

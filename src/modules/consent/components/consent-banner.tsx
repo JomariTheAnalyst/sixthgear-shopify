@@ -4,15 +4,19 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
+import { getVisibleOptionalCategories } from "@lib/consent/registry"
 import { useConsent } from "./consent-provider"
 
 export const CONSENT_BUTTON_CLASS =
   "inline-flex min-h-11 w-full items-center justify-center border border-[#0A0B0A] bg-[#0A0B0A] px-3 py-2 text-center text-[12px] font-semibold uppercase leading-tight tracking-[0.06em] text-white transition-colors hover:bg-[#0A0B0A]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2 sm:text-[13px]"
 
+// Analytics / marketing categories that currently have registry entries.
+const CONSENT_CATEGORIES_IN_USE = getVisibleOptionalCategories()
+
 /**
- * Non-blocking bottom bar shown until the visitor makes a choice. Publishes
- * its height as --sg-consent-offset so page content, and the chat button,
- * are never hidden underneath it.
+ * Non-blocking bottom bar, shown only while the registry has an analytics or
+ * marketing entry and the visitor has not chosen yet. Publishes its height as
+ * --sg-consent-offset so page content and the chat button stay uncovered.
  */
 export default function ConsentBanner() {
   const { status, settingsOpen, acceptAll, rejectAll, openSettings } =
@@ -21,7 +25,8 @@ export default function ConsentBanner() {
   const countryCode =
     typeof params?.countryCode === "string" ? params.countryCode : "ph"
   const barRef = useRef<HTMLElement>(null)
-  const visible = status === "unset" && !settingsOpen
+  const visible =
+    CONSENT_CATEGORIES_IN_USE.length > 0 && status === "unset" && !settingsOpen
 
   useEffect(() => {
     const bar = barRef.current
@@ -53,9 +58,9 @@ export default function ConsentBanner() {
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:gap-8 md:px-8 md:py-5">
         <p className="text-[13px] leading-relaxed text-black/75 md:flex-1 md:text-sm">
-          We use necessary cookies to run this site. With your OK, we also use
-          chat, online booking, and our social media feed, which come from
-          other companies. See our{" "}
+          We use necessary cookies to run this site. With your OK, we would
+          also use {CONSENT_CATEGORIES_IN_USE.join(" and ")} cookies. Chat,
+          booking, maps, and videos only load when you use them. See our{" "}
           <Link
             href={`/${countryCode}/cookies`}
             className="font-semibold text-[#0A0B0A] underline underline-offset-2"
