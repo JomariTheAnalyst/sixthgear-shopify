@@ -41,6 +41,8 @@ type ConsentContextValue = {
   acceptAll: () => void
   rejectAll: () => void
   save: (categories: ConsentChoices) => void
+  /** Allow one category, keeping every other choice as it is. */
+  grant: (category: OptionalCategoryId) => void
   settingsOpen: boolean
   openSettings: () => void
   closeSettings: () => void
@@ -56,6 +58,7 @@ const ConsentContext = createContext<ConsentContextValue>({
   acceptAll: noop,
   rejectAll: noop,
   save: noop,
+  grant: noop,
   settingsOpen: false,
   openSettings: noop,
   closeSettings: noop,
@@ -149,6 +152,11 @@ export function ConsentProvider({
       acceptAll: () => save(ALL_OPTIONAL_CONSENT),
       rejectAll: () => save(NO_OPTIONAL_CONSENT),
       save,
+      grant: (category) =>
+        save({
+          ...(status === "set" ? categories : NO_OPTIONAL_CONSENT),
+          [category]: true,
+        }),
       settingsOpen,
       openSettings: () => setSettingsOpen(true),
       closeSettings: () => setSettingsOpen(false),
