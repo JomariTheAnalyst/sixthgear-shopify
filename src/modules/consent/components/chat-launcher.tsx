@@ -102,10 +102,12 @@ export default function ChatLauncher() {
         aria-expanded={asking}
         aria-controls={asking ? promptId : undefined}
         data-testid="chat-launcher"
-        className="inline-flex h-12 items-center gap-2 rounded-full bg-[#0A0B0A] px-5 text-[13px] font-semibold text-white shadow-[0_10px_28px_rgba(0,0,0,0.3)] transition-colors hover:bg-[#0A0B0A]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2"
+        aria-label="Chat with us"
+        className="inline-flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-[#0A0B0A] text-[13px] font-semibold text-white shadow-[0_10px_28px_rgba(0,0,0,0.3)] transition-colors hover:bg-[#0A0B0A]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2 sm:h-12 sm:w-auto sm:px-5"
       >
-        <MessageCircle className="h-5 w-5" strokeWidth={2} />
-        Chat with us
+        <MessageCircle className="h-6 w-6 sm:h-5 sm:w-5" strokeWidth={2} aria-hidden="true" />
+        {/* Phones get a round icon button, the size of Tidio's own bubble. */}
+        <span className="hidden sm:inline">Chat with us</span>
       </button>
     </div>
   )
