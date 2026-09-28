@@ -25,7 +25,6 @@ import {
   type ConsentChoices,
 } from "@lib/consent/consent"
 import {
-  CONSENT_REGISTRY,
   OPTIONAL_CATEGORIES,
   type OptionalCategoryId,
 } from "@lib/consent/registry"
@@ -42,8 +41,6 @@ type ConsentContextValue = {
   acceptAll: () => void
   rejectAll: () => void
   save: (categories: ConsentChoices) => void
-  /** Allow one category, keeping every other choice as it is. */
-  grant: (category: OptionalCategoryId) => void
   settingsOpen: boolean
   openSettings: () => void
   closeSettings: () => void
@@ -59,7 +56,6 @@ const ConsentContext = createContext<ConsentContextValue>({
   acceptAll: noop,
   rejectAll: noop,
   save: noop,
-  grant: noop,
   settingsOpen: false,
   openSettings: noop,
   closeSettings: noop,
@@ -82,23 +78,6 @@ function writeConsentCookie(value: string) {
   document.cookie = `${CONSENT_COOKIE_NAME}=${value}; Max-Age=${
     CONSENT_MAX_AGE_DAYS * 24 * 60 * 60
   }; Path=/; SameSite=Lax${secure}`
-}
-
-// Clears first-party storage left by services the visitor just switched off.
-function clearStorageFor(categories: OptionalCategoryId[]) {
-  const prefixes = CONSENT_REGISTRY.filter((entry) =>
-    categories.includes(entry.category as OptionalCategoryId)
-  ).flatMap((entry) => entry.clearStorage ?? [])
-
-  if (prefixes.length === 0) return
-
-  for (const storage of [window.localStorage, window.sessionStorage]) {
-    try {
-      Object.keys(storage)
-        .filter((key) => prefixes.some((prefix) => key.startsWith(prefix)))
-        .forEach((key) => storage.removeItem(key))
-    } catch {}
-  }
 }
 
 export function ConsentProvider({
@@ -155,7 +134,6 @@ export function ConsentProvider({
 
       // Loaded third-party scripts cannot be unloaded; start a clean page.
       if (withdrawn.length > 0) {
-        clearStorageFor(withdrawn)
         window.location.reload()
       }
     },
@@ -171,11 +149,6 @@ export function ConsentProvider({
       acceptAll: () => save(ALL_OPTIONAL_CONSENT),
       rejectAll: () => save(NO_OPTIONAL_CONSENT),
       save,
-      grant: (category) =>
-        save({
-          ...(status === "set" ? categories : NO_OPTIONAL_CONSENT),
-          [category]: true,
-        }),
       settingsOpen,
       openSettings: () => setSettingsOpen(true),
       closeSettings: () => setSettingsOpen(false),

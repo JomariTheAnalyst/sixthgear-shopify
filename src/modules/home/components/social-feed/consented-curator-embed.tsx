@@ -1,17 +1,21 @@
 "use client"
 
+import { useState } from "react"
+
 import { businessInfo } from "@lib/business"
 import { useConsent } from "@modules/consent"
 import CuratorEmbed from "./curator-embed"
 
 /**
- * The Curator feed loads code from Meta (Facebook), so it waits for
- * Marketing consent. Until then a same-height placeholder offers to load it.
+ * The Curator feed loads code from Meta (Facebook), so it waits until the
+ * visitor asks for it. Until then a same-height placeholder offers to load it.
+ * (Temporary: see the Curator options report for a Facebook-free feed.)
  */
 export default function ConsentedCuratorEmbed() {
-  const { status, gpc, hasConsent, grant } = useConsent()
+  const { status, gpc } = useConsent()
+  const [showFeed, setShowFeed] = useState(false)
 
-  if (hasConsent("marketing")) {
+  if (showFeed) {
     return <CuratorEmbed />
   }
 
@@ -33,7 +37,7 @@ export default function ConsentedCuratorEmbed() {
             {!gpc && (
               <button
                 type="button"
-                onClick={() => grant("marketing")}
+                onClick={() => setShowFeed(true)}
                 className="inline-flex min-h-11 items-center justify-center bg-[#111111] px-6 text-sm font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-[#111111]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] focus-visible:ring-offset-2"
               >
                 Show our social feed
