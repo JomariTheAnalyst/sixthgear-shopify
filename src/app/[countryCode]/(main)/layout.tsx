@@ -16,6 +16,7 @@ import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
 import JsonLd from "@modules/common/components/json-ld"
 import LenisProvider from "@modules/common/components/lenis-provider"
+import Preloader from "@modules/common/components/preloader"
 import RouteProgress from "@modules/common/components/route-progress"
 import {
   generateLocalBusinessSchema,
@@ -48,6 +49,7 @@ export default async function PageLayout(props: {
 
   return (
     <LenisProvider>
+      <Preloader />
       <Suspense fallback={null}>
         <RouteProgress />
       </Suspense>
