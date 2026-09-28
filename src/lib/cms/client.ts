@@ -277,8 +277,20 @@ type HomepageCollectionSectionQueryResult = {
   collectionHandle?: string | null
   sectionTitle?: string | null
   buttonLabel?: string | null
+  productLimit?: number | null
   enabled?: boolean | null
   displayOrder?: number | null
+}
+
+const DEFAULT_PRODUCT_LIMIT = 12
+
+// Rows saved before productLimit existed (or left blank) fall back to 12.
+function resolveProductLimit(value?: number | null) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return DEFAULT_PRODUCT_LIMIT
+  }
+
+  return Math.min(24, Math.max(4, Math.round(value)))
 }
 
 function isHomepageCollectionSectionResult(
@@ -287,6 +299,7 @@ function isHomepageCollectionSectionResult(
   collectionHandle: string
   sectionTitle?: string | null
   buttonLabel?: string | null
+  productLimit?: number | null
   enabled: true
   displayOrder: number
 } {
@@ -317,6 +330,7 @@ export async function getHomepageCollectionSections(): Promise<HomepageCollectio
         collectionHandle: cleanSanityString(item.collectionHandle).trim(),
         sectionTitle: item.sectionTitle || undefined,
         buttonLabel: item.buttonLabel || undefined,
+        productLimit: resolveProductLimit(item.productLimit),
         enabled: true,
         displayOrder: item.displayOrder,
       }))

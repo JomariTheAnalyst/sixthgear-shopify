@@ -9,10 +9,18 @@ import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
-import { ShoppingCart, Plus } from "lucide-react"
+import { Loader2, Plus, Share2, ShoppingCart } from "lucide-react"
+import { toast } from "sonner"
 
-import { getProductPricing } from "@lib/util/get-product-pricing"
+import { useCartStore } from "@lib/cart"
+import { addToCart } from "@lib/data/cart"
+import { formatPrice, getProductPricing } from "@lib/util/get-product-pricing"
+import {
+  HOVER_SLIDE_LAYER,
+  useHoverSlideEnabled,
+} from "@modules/common/components/hover-slide"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import WishlistButton from "@modules/wishlist/components/wishlist-button"
 
 const QuickShopModal = dynamic(
   () => import("@modules/common/components/quick-shop-modal"),
@@ -33,7 +41,14 @@ interface ProductCardProps {
   inventoryMap?: Record<string, number>
   rating?: { average_rating: number; count: number }
   preserveSource?: boolean
+  /** "rail": homepage collection rail design (black accents, main action button). */
+  variant?: "default" | "rail"
+  showWishlist?: boolean
+  showShare?: boolean
 }
+
+const ICON_BUTTON_CLASS =
+  "h-10 w-10 flex-shrink-0 !rounded-none border border-gray-200 text-[#0A0B0A] transition-colors hover:border-[#0A0B0A]"
 
 export function getBadgesFromTags(tags: string[] = []): BadgeMode[] {
   const normalized = tags.map((tag) => tag.toLowerCase().replace(/[\s-_]+/g, ""))
@@ -63,8 +78,16 @@ export default function ProductCard({
   countryCode,
   inventoryMap,
   preserveSource = false,
+  variant = "default",
+  showWishlist = false,
+  showShare = false,
 }: ProductCardProps) {
+  const isRail = variant === "rail"
   const [showQuickShop, setShowQuickShop] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const setCart = useCartStore((state) => state.setCart)
+  const setCartId = useCartStore((state) => state.setCartId)
+  const hoverSlideEnabled = useHoverSlideEnabled()
   const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(
     () => new Set()
   )
@@ -179,16 +202,146 @@ export default function ProductCard({
     setShowQuickShop(true)
   }
 
+  // Price, discount, and direct add use the variant a shopper would get:
+  // the first in-stock one, else the first.
+  const variants = product.variants ?? []
+  const shownVariant = variants.find(isVariantInStock) ?? variants[0]
+  const shownPrice = shownVariant?.calculated_price?.calculated_amount ?? null
+  const shownCompareAt = shownVariant?.calculated_price?.original_amount ?? null
+  const shownCurrency =
+    shownVariant?.calculated_price?.currency_code || pricing.currencyCode
+  const discountAmount =
+    shownPrice !== null && shownCompareAt !== null && shownCompareAt > shownPrice
+      ? shownCompareAt - shownPrice
+      : null
+
+  const choosableOptions = (product.options ?? []).filter(
+    (option) => (option.values?.length ?? 0) > 1
+  )
+  const needsOptionChoice = variants.length > 1
+  const onlySizeChoice =
+    choosableOptions.length > 0 &&
+    choosableOptions.every((option) => /size/i.test(option.title ?? ""))
+  const mainActionLabel = !isInStock
+    ? "Sold Out"
+    : needsOptionChoice
+      ? onlySizeChoice
+        ? "Choose Size"
+        : "Choose Options"
+      : "Add to Cart"
+
+  const handleMainAction = async (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (!isInStock || !shownVariant || isAdding) return
+
+    if (needsOptionChoice) {
+      setShowQuickShop(true)
+      return
+    }
+
+    setIsAdding(true)
+    try {
+      const updatedCart = await addToCart({
+        variantId: shownVariant.id,
+        quantity: 1,
+        countryCode: resolvedCountryCode,
+      })
+
+      if (updatedCart) {
+        setCart(updatedCart as any)
+        setCartId(updatedCart.id)
+        toast.success("Added to Cart", {
+          description: `${brandName} ${product.title}`,
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to add to cart")
+    } finally {
+      setIsAdding(false)
+    }
+  }
+
+  const handleShare = async (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const url = `${window.location.origin}/${resolvedCountryCode}/products/${product.handle}`
+    const title = product.title || "Sixthgear"
+
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title, url })
+        return
+      } catch (error) {
+        // Shopper closed the share sheet; nothing to do.
+        if ((error as DOMException)?.name === "AbortError") return
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success("Link copied")
+    } catch {
+      toast.error("Couldn't copy the link")
+    }
+  }
+
+  const extraActions = (
+    <>
+      {showWishlist && (
+        <WishlistButton
+          monochrome
+          productData={{
+            handle: product.handle,
+            id: product.id,
+            title: product.title || "",
+            imageUrl: imageUrl,
+            imageAlt: product.title || null,
+            price: shownPrice ?? 0,
+            compareAtPrice: shownCompareAt,
+            currencyCode: shownCurrency.toUpperCase(),
+            availableForSale: isInStock,
+            vendor: brandName,
+            variantId: shownVariant?.id || product.id,
+          }}
+          className={ICON_BUTTON_CLASS}
+        />
+      )}
+      {showShare && (
+        <button
+          type="button"
+          onClick={handleShare}
+          aria-label={`Share ${product.title}`}
+          className={`${ICON_BUTTON_CLASS} inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-1`}
+        >
+          <Share2 className="h-[18px] w-[18px]" strokeWidth={2} />
+        </button>
+      )}
+    </>
+  )
+
+  const showSlide = hoverSlideEnabled && Boolean(hoverImageUrl)
+
   return (
     <article className="group h-full flex flex-col bg-white">
       {/* ── Image Area ── */}
       <div className="relative group w-full aspect-square bg-white overflow-hidden">
 
-        {/* Dynamic "Save X%" badge — top-left with padding */}
-        {pricing.isOnSale && pricing.discountPct && (
-          <span className="absolute top-2 left-2 z-30 bg-[#e62020] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-1.5 leading-none tracking-wide rounded-sm">
-            Save {pricing.discountPct}%
-          </span>
+        {isRail ? (
+          discountAmount !== null && (
+            <span className="absolute top-2 left-2 z-30 bg-[#0A0B0A] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-1.5 leading-none tracking-wide">
+              {formatPrice(discountAmount, shownCurrency)?.replace(/\.00$/, "")} OFF
+            </span>
+          )
+        ) : (
+          /* Dynamic "Save X%" badge — top-left with padding */
+          pricing.isOnSale && pricing.discountPct && (
+            <span className="absolute top-2 left-2 z-30 bg-[#0A0B0A] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-1.5 leading-none tracking-wide rounded-sm">
+              Save {pricing.discountPct}%
+            </span>
+          )
         )}
 
         <LocalizedClientLink
@@ -198,28 +351,39 @@ export default function ProductCard({
         >
           {imageUrl ? (
             <>
-              <Image
-                src={imageUrl}
-                alt={product.title || "Product"}
-                fill
-                unoptimized={isShopifyImageUrl(imageUrl)}
-                onError={() => markImageFailed(imageUrl)}
-                className={`object-contain p-5 sm:p-6 transition-opacity duration-300 ease-in-out ${
-                  hoverImageUrl ? "group-hover:opacity-0" : ""
-                }`}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-
-              {hoverImageUrl && (
+              {/* Desktop hover: image 2 pushes image 1 out, same slide as category cards. */}
+              <div
+                className={
+                  showSlide
+                    ? `${HOVER_SLIDE_LAYER} group-hover:translate-x-full`
+                    : "pointer-events-none absolute inset-0"
+                }
+              >
                 <Image
-                  src={hoverImageUrl}
+                  src={imageUrl}
                   alt={product.title || "Product"}
                   fill
-                  unoptimized={isShopifyImageUrl(hoverImageUrl)}
-                  onError={() => markImageFailed(hoverImageUrl)}
-                  className="absolute inset-0 object-contain p-5 sm:p-6 opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
+                  unoptimized={isShopifyImageUrl(imageUrl)}
+                  onError={() => markImageFailed(imageUrl)}
+                  className="object-contain p-5 sm:p-6"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
+              </div>
+
+              {showSlide && hoverImageUrl && (
+                <div
+                  className={`${HOVER_SLIDE_LAYER} -translate-x-full group-hover:translate-x-0`}
+                >
+                  <Image
+                    src={hoverImageUrl}
+                    alt={product.title || "Product"}
+                    fill
+                    unoptimized={isShopifyImageUrl(hoverImageUrl)}
+                    onError={() => markImageFailed(hoverImageUrl)}
+                    className="object-contain p-5 sm:p-6"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                </div>
               )}
             </>
           ) : (
@@ -242,7 +406,11 @@ export default function ProductCard({
       </div>
 
       {/* ── Text Section ── */}
-      <div className="flex flex-col flex-1 pt-4 px-4 pb-4">
+      <div
+        className={`flex flex-col flex-1 pt-4 px-4 pb-4 ${
+          isRail ? "border-t border-black/10" : ""
+        }`}
+      >
         {/* Vendor */}
         <LocalizedClientLink
           href={`/products/${product.handle}`}
@@ -266,20 +434,58 @@ export default function ProductCard({
         </LocalizedClientLink>
 
         {/* VARIANT AVAILABILITY */}
-        {availabilityText && (
+        {!isRail && availabilityText && (
           <p className="text-[11px] text-gray-500 font-medium italic mt-1.5">
             {availabilityText}
           </p>
         )}
 
-        {/* Pricing & Cart Action Row */}
+        {isRail ? (
+          <div className="mt-auto flex flex-col gap-3 pt-3">
+            {shownPrice !== null ? (
+              <div className="flex flex-wrap items-baseline gap-2">
+                <span className="text-[14px] sm:text-[15px] font-bold text-[#0A0B0A]">
+                  {formatPrice(shownPrice, shownCurrency)}
+                </span>
+                {discountAmount !== null && (
+                  <span className="text-[12px] text-gray-400 line-through">
+                    {formatPrice(shownCompareAt, shownCurrency)}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <span className="text-[12px] text-gray-400">Price unavailable</span>
+            )}
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleMainAction}
+                disabled={!isInStock || !shownVariant || isAdding}
+                aria-busy={isAdding}
+                className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center whitespace-nowrap px-3 text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.06em] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2 ${
+                  isInStock && shownVariant
+                    ? "bg-[#0A0B0A] text-white hover:bg-[#0A0B0A]/85"
+                    : "cursor-not-allowed bg-gray-200 text-gray-500"
+                }`}
+              >
+                {isAdding ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-label="Adding to cart" />
+                ) : (
+                  mainActionLabel
+                )}
+              </button>
+              {extraActions}
+            </div>
+          </div>
+        ) : (
         <div className="mt-auto pt-2 flex w-full items-end justify-between gap-2">
           <div className="flex flex-col flex-1">
             {pricing.hasPrice ? (
               <div className="flex items-baseline gap-2 flex-wrap">
                 {pricing.isOnSale && pricing.formattedOriginal ? (
                   <>
-                    <span className="text-[13px] sm:text-[14px] font-bold text-[#e62020]">
+                    <span className="text-[13px] sm:text-[14px] font-bold text-[#0A0B0A]">
                       {pricing.formattedCalculated}
                     </span>
                     <span className="text-[11px] sm:text-[12px] text-gray-400 line-through font-normal">
@@ -316,7 +522,9 @@ export default function ProductCard({
               </span>
             </div>
           </button>
+          {extraActions}
         </div>
+        )}
       </div>
 
       {/* QuickShop Modal */}

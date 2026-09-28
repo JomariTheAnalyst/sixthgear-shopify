@@ -24,6 +24,8 @@ type WishlistButtonProps = {
   showLabel?: boolean
   activeLabel?: string
   inactiveLabel?: string
+  /** Black-only styling for sections without the orange accent. */
+  monochrome?: boolean
 }
 
 export default function WishlistButton({
@@ -32,6 +34,7 @@ export default function WishlistButton({
   showLabel = false,
   activeLabel = "Saved to Wishlist",
   inactiveLabel = "Add to Wishlist",
+  monochrome = false,
 }: WishlistButtonProps) {
   const hydrated = useWishlistStore((state) => state.hydrated)
   const hydrate = useWishlistStore((state) => state.hydrate)
@@ -81,13 +84,21 @@ export default function WishlistButton({
       onClick={handleClick}
       aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={active}
-      className={`relative inline-flex items-center justify-center rounded-full transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 ${
+      className={`relative inline-flex items-center justify-center rounded-full transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 ${
+        monochrome ? "focus:ring-[#0A0B0A]" : "focus:ring-orange-500"
+      } focus:ring-offset-1 ${
         showLabel ? "gap-2 px-4 py-2.5 rounded-lg" : "p-1.5 hover:scale-105"
       } ${className}`}
     >
       <Heart
         className={`w-5 h-5 ${
-          active ? "fill-[#FF6D1F] text-[#FF6D1F]" : "fill-[#a0a0a0] text-[#a0a0a0]"
+          monochrome
+            ? active
+              ? "fill-[#0A0B0A] text-[#0A0B0A]"
+              : "fill-transparent text-[#0A0B0A]"
+            : active
+              ? "fill-[#FF6D1F] text-[#FF6D1F]"
+              : "fill-[#a0a0a0] text-[#a0a0a0]"
         } ${isPopping ? "scale-125" : "scale-100"} transition-transform duration-200`}
       />
       {showLabel && (
@@ -104,7 +115,7 @@ export default function WishlistButton({
         className={`pointer-events-none absolute inset-0 ${
           showLabel ? "rounded-lg" : "rounded-full"
         } ${
-          isPopping ? "ring-2 ring-orange-200" : ""
+          isPopping ? `ring-2 ${monochrome ? "ring-black/20" : "ring-orange-200"}` : ""
         }`}
       />
     </button>
