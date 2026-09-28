@@ -68,8 +68,9 @@ export default function ConsentSettingsDialog() {
                 Cookie settings
               </DialogTitle>
               <p className="mt-1 text-[13px] leading-relaxed text-black/70">
-                Choose what you allow. You can change this any time with the
-                Cookie settings link at the bottom of every page.
+                {hasChoices
+                  ? "Choose what you allow. You can change this any time with the Cookie settings link at the bottom of every page."
+                  : "What this website stores and loads, and when."}
               </p>
             </div>
             <button
