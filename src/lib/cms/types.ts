@@ -258,6 +258,8 @@ export interface HomepageCollectionSection {
   collectionHandle: string
   sectionTitle?: string
   buttonLabel?: string
+  /** Products shown in the row; always resolved (default 12, clamped 4–24). */
+  productLimit: number
   enabled: boolean
   displayOrder: number
 }

@@ -161,6 +161,7 @@ export const homepageCollectionSectionsQuery = groq`
     collectionHandle,
     sectionTitle,
     buttonLabel,
+    productLimit,
     enabled,
     displayOrder
   }

@@ -332,4 +332,3 @@ export const listCollections = async (opts?: any) => {
 };
 
 export const getProductsByCollectionHandle = async (_handle?: string, _limit?: number, _regionId?: string) => [] as any[];
-export const getNewArrivals = async (_limit?: number, _regionId?: string) => [] as any[];

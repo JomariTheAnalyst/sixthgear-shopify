@@ -87,6 +87,15 @@ Treat the actual repository as the source of truth when implementation details d
 
 The application is an active production storefront. Preserve working commerce, SEO, authentication, CMS, checkout, analytics, and deployment behavior unless the approved task explicitly changes them.
 
+### Build output folders
+
+`next.config.js` exports a phase function that sets `distDir`:
+
+- `npm run dev` writes to `.next-dev/`;
+- `npm run build` / `npm start` (and Vercel) use `.next/`.
+
+This lets `npm run build` run while the dev server is running without corrupting either output. Both folders are git-ignored, and `tsconfig.json` includes both `types` folders. Do not remove this split, and do not delete `.next-dev/` while the dev server is running. When upgrading to Next.js 16+, dev output is isolated by default, so this override can be reviewed then.
+
 ---
 
 ## 4. Core Working Principle

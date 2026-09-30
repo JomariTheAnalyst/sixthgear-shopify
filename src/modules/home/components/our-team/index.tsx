@@ -157,16 +157,9 @@ export default function OurTeam({
     >
       <div className="mx-auto max-w-[1454px]">
         <header className="mx-auto flex max-w-[900px] flex-col items-center text-center">
-          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#d84b20] small:text-sm">
-            <span
-              aria-hidden="true"
-              className="h-2 w-2 rounded-full bg-[#f15a24]"
-            />
-            {cleanSanityString(content.sectionTitle)}
-          </p>
           <h2
             id="homepage-team-heading"
-            className="mt-5 text-[clamp(2.5rem,4.3vw,4.75rem)] font-black leading-[0.98] tracking-[-0.04em] text-[#241015] [text-wrap:balance]"
+            className="text-[clamp(2.5rem,4.3vw,4.75rem)] font-black leading-[0.98] tracking-[-0.04em] text-[#241015] [text-wrap:balance]"
           >
             {cleanSanityString(content.sectionDescription)}
           </h2>

@@ -1,6 +1,11 @@
+import { businessInfo } from "@lib/business"
 import { nationalCompressed } from "@lib/fonts"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CuratorEmbed from "./curator-embed"
+
+// The Instagram profile doubles as the social wall.
+const SOCIAL_WALL_URL =
+  process.env.NEXT_PUBLIC_BUSINESS_INSTAGRAM_URL?.trim() ||
+  businessInfo.socialProfiles[1]
 
 export default function SocialFeed() {
   return (
@@ -20,12 +25,14 @@ export default function SocialFeed() {
       </div>
 
       <div className="mt-6 flex justify-center px-4 sm:mt-8">
-        <LocalizedClientLink
-          href="/social-wall"
+        <a
+          href={SOCIAL_WALL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#111111] px-9 py-3 text-sm font-extrabold uppercase tracking-[0.12em] text-white transition-colors duration-300 hover:bg-[#ff4e00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#111111]"
         >
           View Social Wall
-        </LocalizedClientLink>
+        </a>
       </div>
     </section>
   )

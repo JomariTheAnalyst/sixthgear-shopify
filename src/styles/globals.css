@@ -346,3 +346,82 @@
     bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+/* Cookie consent: the banner sits above fixed mobile bars (account nav, product
+   Add to Cart bar) and the page gets matching bottom space, so no cart or
+   checkout button is ever covered. --sg-consent-offset is the banner height. */
+body {
+  --sg-bottom-bar: 0px;
+  padding-bottom: var(--sg-consent-offset, 0px);
+}
+
+@media (max-width: 1023px) {
+  body[data-account-mobile-nav="true"] {
+    --sg-bottom-bar: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  body[data-pdp-mobile-actions="true"] {
+    --sg-bottom-bar: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.sg-consent-banner {
+  bottom: var(--sg-bottom-bar);
+}
+
+/* First-load preloader (modules/common/components/preloader) */
+.sg-preloader {
+  --sg-preloader-paper: #f1f1ef;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647; /* above header, drawers, modals and the Tidio widget */
+  width: 100vw;
+  height: 100svh;
+  pointer-events: auto;
+}
+
+.sg-preloader-blocks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+/* 1px overlap between columns so no seams show while they collapse. */
+.sg-preloader-block {
+  flex: none;
+  width: calc(5% + 1px);
+  margin-right: -1px;
+  height: 100%;
+  background: var(--sg-preloader-paper);
+  transform: scaleX(1);
+  transform-origin: right center;
+}
+
+.sg-preloader-logo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sg-preloader-paper);
+  opacity: 1;
+}
+
+/* Hidden until GSAP applies the start state, so the finished logo never
+   flashes before hydration. */
+.sg-preloader-svg {
+  width: min(520px, 78vw);
+  height: auto;
+  overflow: visible;
+  visibility: hidden;
+}
+
+/* Locks page scroll from first paint until the preloader unmounts. */
+html:not(.sg-preloader-skip):has(.sg-preloader) {
+  overflow: hidden;
+}
+
+html.sg-preloader-skip .sg-preloader {
+  display: none;
+}
