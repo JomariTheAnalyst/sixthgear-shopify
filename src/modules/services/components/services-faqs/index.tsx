@@ -44,7 +44,7 @@ export default function ServicesFaqs() {
   return (
     <section
       aria-labelledby="services-faq-heading"
-      className={`${outfit.className} bg-[#f4f4f1] px-5 py-20 text-[#151515] sm:px-8 md:py-28 lg:px-12 lg:py-32`}
+      className={`${outfit.className} bg-white px-5 py-20 text-[#151515] sm:px-8 md:py-28 lg:px-12 lg:py-32`}
     >
       <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.28fr)] lg:gap-16 xl:gap-24">
         <div className="lg:sticky lg:top-28 lg:self-start">
@@ -65,7 +65,7 @@ export default function ServicesFaqs() {
             return (
               <article
                 key={faq.question}
-                className="overflow-hidden rounded-[16px] bg-white"
+                className="overflow-hidden rounded-[16px] bg-[#f4f4f1]"
               >
                 <h3>
                   <button
@@ -79,7 +79,7 @@ export default function ServicesFaqs() {
                     <span className="text-base font-medium leading-6 tracking-[-0.02em] sm:text-lg sm:leading-7 lg:text-xl">
                       {faq.question}
                     </span>
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f6f5f2] text-[#F16D34]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#F16D34]">
                       <Plus
                         aria-hidden="true"
                         size={18}

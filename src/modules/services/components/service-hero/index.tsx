@@ -24,7 +24,7 @@ export default function ServiceHero({ content }: ServiceHeroProps) {
             alt={content.imageAlt}
             fill
             quality={100}
-            className="object-cover object-center"
+            className="object-cover object-[38%_50%] lg:object-center"
             sizes="100vw"
             priority
           />
