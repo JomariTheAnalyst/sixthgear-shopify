@@ -22,20 +22,7 @@ export default function HomeAbout() {
     <AboutStage labelledBy={HEADING_ID} className={`${outfit.className} antialiased`}>
       <div className={`${styles.card} ${styles.blackCard}`}>
         <div className={styles.content}>
-          <p className={styles.label}>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.6 17.2a1.4 1.4 0 0 0 2 2l5.7-5.7a4 4 0 0 0 5.2-5.4l-2.5 2.5-2-.6-.6-2z" />
-            </svg>
-            {label}
-          </p>
+          <p className={styles.label}>{label}</p>
 
           {/* Words rise one by one on reveal. */}
           <h2 id={HEADING_ID} className={styles.title}>
@@ -59,7 +46,7 @@ export default function HomeAbout() {
               return (
                 <li key={item} style={{ transitionDelay: `${delay}s` }}>
                   <svg className={styles.check} viewBox="0 0 26 26" fill="none" aria-hidden="true">
-                    <circle cx="13" cy="13" r="12" strokeWidth="1.5" />
+                    <circle cx="13" cy="13" r="13" />
                     <path
                       d="M8 13.4l3.2 3.1L18 9.8"
                       stroke="#fff"

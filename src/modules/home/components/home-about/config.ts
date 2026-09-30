@@ -23,13 +23,9 @@ export const HOME_ABOUT = {
   /** Moving text rows behind the photos. */
   rowText: "SIXTHGEAR MOTORCYCLE.",
   images: {
-    /**
-     * "Axe" shape, top right (766:660 box). Manual crop in source pixels
-     * (3936x2648) instead of g_auto, so the mechanic's hands sit above the
-     * notch the bottom photo fits into.
-     */
+    /** "Axe" shape, top right (766:660 box). */
     top: {
-      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/c_crop,x_1010,y_620,w_2354,h_2028/w_1600,f_auto,q_auto/v1790752600/_LIZ7077_edited_e6t9ry.jpg",
+      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/c_fill,g_auto,ar_766:660,w_1600,f_auto,q_auto/v1790752600/_LIZ7077_edited_e6t9ry.jpg",
       alt: "A Sixth Gear mechanic crouches beside a Royal Enfield, working on it next to a blue sport bike in the workshop",
     },
     /** Trapezoid, bottom left (700:570 box). */
