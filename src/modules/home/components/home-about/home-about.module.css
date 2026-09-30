@@ -28,8 +28,9 @@
   overflow: hidden;
 }
 
-/* Gray card with moving text rows */
+/* Gray card with moving text rows. A size container: the rows scale with its height. */
 .grayCard {
+  container-type: size;
   background: #ececec;
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow:
@@ -68,8 +69,9 @@
   transition: opacity 1.2s var(--ease);
 }
 
+/* 7 rows fill the card top to bottom (line-height 1, 10px padding each end). */
 .row span {
-  font-size: clamp(52px, 5.6vw, 100px);
+  font-size: calc((100cqh - 20px) / 7);
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -80,9 +82,14 @@
   content: attr(data-text);
 }
 
+/* Outfit is a variable font with overlapping contours, so a plain stroke
+   draws lines inside the letters. Painting the card-colored fill over a
+   double-width stroke hides them and leaves a clean 1.4px outline
+   (#d2d2d2 = the preview's 11% black on #ececec, opaque so overlaps don't darken). */
 .rowOutline span {
-  color: transparent;
-  -webkit-text-stroke: 1.4px rgba(0, 0, 0, 0.11);
+  color: #ececec;
+  -webkit-text-stroke: 2.8px #d2d2d2;
+  paint-order: stroke fill;
 }
 
 .rowFill span {
@@ -138,11 +145,13 @@
     0 28px 56px -24px rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
-  padding: clamp(32px, 5vw, 72px);
+  padding: clamp(24px, 5vw, 72px);
 }
 
+/* Full card width; the heading sizes itself from this width (cqi). */
 .content {
-  max-width: 36rem;
+  width: 100%;
+  container-type: inline-size;
 }
 
 .label {
@@ -155,15 +164,11 @@
   margin: 0 0 18px;
 }
 
-.label svg {
-  width: 18px;
-  height: 18px;
-}
-
-/* Preview: clamp(36px, 3.6vw, 60px). The 10vw floor keeps the widest word
-   inside the card at 320px with the site's (wider) heading font. */
+/* Fills the card width in at most 3 lines. The longest line,
+   "DIAGNOSTICS FOR YOUR", is 11.78em wide in Outfit Black, so 12.2em fits it
+   with a small margin. Re-measure if the heading text changes. */
 .title {
-  font-size: clamp(min(36px, 10vw), 3.6vw, 60px);
+  font-size: min(100cqi / 12.2, 96px);
   font-weight: 900;
   line-height: 1.04;
   letter-spacing: -0.025em;
@@ -188,7 +193,6 @@
   line-height: 1.7;
   font-size: clamp(15px, 1.05vw, 17px);
   margin: 0 0 28px;
-  max-width: 34rem;
 }
 
 .list {
@@ -214,7 +218,7 @@
 }
 
 .check circle {
-  stroke: rgba(255, 255, 255, 0.28);
+  fill: #f16d34;
 }
 
 .btn {
@@ -386,6 +390,13 @@
   }
   .grayCard {
     aspect-ratio: 1 / 1;
+  }
+}
+
+/* Tablets: a wider card so the stacked section is not a full-screen square. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grayCard {
+    aspect-ratio: 4 / 3;
   }
 }
 
