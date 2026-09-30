@@ -423,6 +423,8 @@ For GSAP or other existing animation code:
 - avoid blocking content or navigation;
 - do not introduce another animation library without need and approval.
 
+Animations use GSAP with the useGSAP hook, cleaned up on unmount, transform and opacity only, reduced motion handled with gsap.matchMedia.
+
 ---
 
 ## 15. SEO Rules
