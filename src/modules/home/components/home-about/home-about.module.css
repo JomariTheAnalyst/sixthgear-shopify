@@ -1,0 +1,417 @@
+/*
+ * Homepage About section. Mirrors the approved design preview.
+ * Reveal: AboutStage sets data-motion="armed" on mount (start states), then
+ * "in" when the section scrolls into view (end states). Without JS, or with
+ * reduced motion, data-motion is never set and everything shows as is.
+ */
+
+.section {
+  --radius: clamp(20px, 2vw, 28px);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow-x: clip;
+  background: #ffffff;
+  color: #111111;
+  padding: clamp(64px, 8vw, 128px) 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  min-height: clamp(560px, 42vw, 700px);
+}
+
+.card {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Gray card with moving text rows. A size container: the rows scale with its height. */
+.grayCard {
+  container-type: size;
+  background: #ececec;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 16px 40px -16px rgba(0, 0, 0, 0.18);
+}
+
+/* A soft light in the middle of the card so the photos pop */
+.grayCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    55% 55% at 50% 52%,
+    rgba(236, 236, 236, 0.85),
+    rgba(236, 236, 236, 0) 75%
+  );
+}
+
+.rows {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.row {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+  transition: opacity 1.2s var(--ease);
+}
+
+/* 7 rows fill the card top to bottom (line-height 1, 10px padding each end). */
+.row span {
+  font-size: calc((100cqh - 20px) / 7);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  padding-right: 0.35em;
+}
+
+.row span::before {
+  content: attr(data-text);
+}
+
+/* Outfit is a variable font with overlapping contours, so a plain stroke
+   draws lines inside the letters. Painting the card-colored fill over a
+   double-width stroke hides them and leaves a clean 1.4px outline
+   (#d2d2d2 = the preview's 11% black on #ececec, opaque so overlaps don't darken). */
+.rowOutline span {
+  color: #ececec;
+  -webkit-text-stroke: 2.8px #d2d2d2;
+  paint-order: stroke fill;
+}
+
+.rowFill span {
+  color: #dfdfdf;
+}
+
+/* Photo composition: one scalable SVG so the slanted shapes stay exact at every size */
+.photos {
+  position: absolute;
+  inset: 7% 6%;
+  z-index: 1;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compo {
+  width: min(100cqw, 100cqh);
+}
+
+.compo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.shape {
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.16))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+}
+
+.shape image {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.6s ease;
+}
+
+.shape:hover image {
+  transform: scale(1.03);
+}
+
+/* Text card */
+.blackCard {
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(255, 255, 255, 0.07), transparent 55%),
+    #000000;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 28px 56px -24px rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  padding: clamp(24px, 5vw, 72px);
+}
+
+/* Full card width; the heading sizes itself from this width (cqi). */
+.content {
+  width: 100%;
+  container-type: inline-size;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #b9b9b9;
+  margin: 0 0 18px;
+}
+
+/* Fills the card width in at most 3 lines. The longest line,
+   "DIAGNOSTICS FOR YOUR", is 11.78em wide in Outfit Black, so 12.2em fits it
+   with a small margin. Re-measure if the heading text changes. */
+.title {
+  font-size: min(100cqi / 12.2, 96px);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  margin: 0 0 22px;
+}
+
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+
+.word > span {
+  display: inline-block;
+}
+
+.para {
+  color: #b9b9b9;
+  line-height: 1.7;
+  font-size: clamp(15px, 1.05vw, 17px);
+  margin: 0 0 28px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 36px;
+  display: grid;
+  gap: 14px;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 500;
+  font-size: clamp(15px, 1.05vw, 17px);
+}
+
+.check {
+  flex: none;
+  width: 26px;
+  height: 26px;
+}
+
+.check circle {
+  fill: #f16d34;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 30px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000000;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  box-shadow: 0 6px 18px -8px rgba(255, 255, 255, 0.25);
+  transition:
+    transform 0.35s var(--ease),
+    box-shadow 0.35s var(--ease);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -10px rgba(255, 255, 255, 0.35);
+}
+
+.btn:focus-visible {
+  outline: 2px solid #6aa5ff;
+  outline-offset: 3px;
+}
+
+/* Reveal: start states */
+.section[data-motion] .revealTop {
+  clip-path: inset(0 0 0 100%);
+  opacity: 0;
+}
+.section[data-motion] .revealBottom {
+  clip-path: inset(100% 0 0 0);
+  opacity: 0;
+}
+.section[data-motion] .shape image {
+  transform: scale(1.16);
+}
+.section[data-motion] .blackCard {
+  clip-path: inset(6% 0 6% 12% round var(--radius));
+  opacity: 0;
+  transform: translateX(24px);
+}
+.section[data-motion] .label,
+.section[data-motion] .para,
+.section[data-motion] .btn {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.section[data-motion] .word > span {
+  transform: translateY(110%);
+}
+.section[data-motion] .list li {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.section[data-motion] .check path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+.section[data-motion] .grayCard {
+  clip-path: inset(6% 12% 6% 0 round var(--radius));
+  opacity: 0;
+  transform: translateX(-24px);
+}
+.section[data-motion] .row {
+  opacity: 0;
+}
+
+.revealTop,
+.revealBottom,
+.shape image,
+.blackCard,
+.label,
+.para,
+.btn,
+.word > span,
+.list li,
+.check path,
+.grayCard {
+  transition-property: clip-path, opacity, transform, stroke-dashoffset;
+  transition-timing-function: var(--ease);
+}
+
+/* Reveal: end states */
+.section[data-motion="in"] .grayCard {
+  clip-path: inset(0 0 0 0 round var(--radius));
+  opacity: 1;
+  transform: none;
+  transition-duration: 1s;
+}
+.section[data-motion="in"] .row {
+  opacity: 1;
+}
+.section[data-motion="in"] .revealTop {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+  transition-duration: 1.2s;
+  transition-delay: 0.1s;
+}
+.section[data-motion="in"] .revealBottom {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+  transition-duration: 1.2s;
+  transition-delay: 0.3s;
+}
+.section[data-motion="in"] .shape image {
+  transform: scale(1);
+  transition-duration: 1.7s;
+  transition-delay: 0.1s;
+}
+.section[data-motion="in"] .shape:hover image {
+  transform: scale(1.03);
+  transition-duration: 0.6s;
+  transition-delay: 0s;
+}
+.section[data-motion="in"] .blackCard {
+  clip-path: inset(0 0 0 0 round var(--radius));
+  opacity: 1;
+  transform: none;
+  transition-duration: 1s;
+  transition-delay: 0.25s;
+}
+.section[data-motion="in"] .label {
+  opacity: 1;
+  transform: none;
+  transition-duration: 0.8s;
+  transition-delay: 0.5s;
+}
+.section[data-motion="in"] .word > span {
+  transform: none;
+  transition-duration: 0.9s;
+}
+.section[data-motion="in"] .para {
+  opacity: 1;
+  transform: none;
+  transition-duration: 0.9s;
+  transition-delay: 1s;
+}
+.section[data-motion="in"] .list li {
+  opacity: 1;
+  transform: none;
+  transition-duration: 0.7s;
+}
+.section[data-motion="in"] .check path {
+  stroke-dashoffset: 0;
+  transition-duration: 0.6s;
+}
+.section[data-motion="in"] .btn {
+  opacity: 1;
+  transform: none;
+  transition-duration: 0.8s;
+  transition-delay: 1.6s;
+}
+.section[data-motion="in"] .btn:hover {
+  transform: translateY(-2px);
+  transition-delay: 0s;
+  transition-duration: 0.35s;
+}
+
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .grayCard {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* Tablets: a wider card so the stacked section is not a full-screen square. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grayCard {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 767px) {
+  .section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* AboutStage never arms the reveal here; this also stops the hover movement. */
+@media (prefers-reduced-motion: reduce) {
+  .shape image,
+  .btn {
+    transform: none !important;
+    transition: none !important;
+  }
+}

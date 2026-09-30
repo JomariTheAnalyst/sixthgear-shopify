@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import MarqueeStrip from "components/marquee-strip"
 import VideoFeature from "@modules/home/components/video-feature"
 import Hero from "@modules/home/components/hero"
-import AboutSection from "@modules/home/components/about"
+import HomeAbout from "@modules/home/components/home-about"
 import SocialFeed from "@modules/home/components/social-feed"
 import ShopByCategories from "@modules/home/components/categories"
 import CTABanner from "@modules/home/components/cta-banner"
@@ -37,11 +37,9 @@ import {
 
 import {
   selectCtaBannerContent,
-  selectHomepageAboutContent,
   selectStoreLocationContent,
 } from "@lib/cms/homepage-editorial"
 import {
-  getHomepageAbout,
   getHomepageBlogPosts,
   getHomepageCategories,
   getHomepageHero,
@@ -168,7 +166,6 @@ export default async function Home(props: {
     homepageHero,
     homepageVideoFeature,
     shopifyBrandCards,
-    homepageAbout,
     homepageCategories,
     storeLocation,
     ctaBanner,
@@ -179,7 +176,6 @@ export default async function Home(props: {
     getHomepageHero(),
     getHomepageVideoFeature(),
     getShopifyBrandCards(),
-    getHomepageAbout(),
     getHomepageCategories(),
     getStoreLocation(),
     getCtaBanner(),
@@ -223,7 +219,6 @@ export default async function Home(props: {
     (item): item is HomepageCollectionRailData => item !== null
   )
 
-  const homepageAboutContent = selectHomepageAboutContent(homepageAbout)
   const videoFeatureContent = selectVideoFeatureContent(homepageVideoFeature)
   const storeLocationContent = selectStoreLocationContent(storeLocation)
   const ctaBannerContent = selectCtaBannerContent(ctaBanner)
@@ -273,21 +268,7 @@ export default async function Home(props: {
       <FeaturedCollectionBanner data={getFeatured("after_hero")} />
       <PromoBanner data={getPromo("after_hero")} />
 
-      <SanityEditTarget documentId="homepage" documentType="homepage" path={homepageAboutContent.source === "sanity" ? "about" : "about.useCustomAbout"}>
-      <AboutSection
-        data={{
-          useCustomAbout: true,
-          kicker: homepageAboutContent.kicker,
-          title: homepageAboutContent.title,
-          description: homepageAboutContent.description,
-          highlights: homepageAboutContent.highlights,
-          primaryCta: homepageAboutContent.primaryCta,
-          imageTop: homepageAboutContent.imageTop,
-          imageBottom: homepageAboutContent.imageBottom,
-          videoUrl: homepageAboutContent.videoUrl,
-        }}
-      />
-      </SanityEditTarget>
+      <HomeAbout />
       <FeaturedCollectionBanner data={getFeatured("after_about")} />
       <PromoBanner data={getPromo("after_about")} />
 
