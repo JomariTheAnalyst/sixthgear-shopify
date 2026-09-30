@@ -1,6 +1,5 @@
 "use client"
 
-import ChatLauncher from "./components/chat-launcher"
 import ConsentBanner from "./components/consent-banner"
 import { ConsentProvider } from "./components/consent-provider"
 import ConsentScripts from "./components/consent-scripts"
@@ -15,7 +14,6 @@ export default function ConsentRoot({ children }: { children: React.ReactNode })
       ui={
         <>
           <ConsentScripts />
-          <ChatLauncher />
           <ConsentBanner />
           <ConsentSettingsDialog />
         </>

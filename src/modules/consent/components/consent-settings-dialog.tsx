@@ -86,8 +86,10 @@ export default function ConsentSettingsDialog() {
           <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6">
             {!hasChoices && (
               <p className="mb-2 text-[13px] leading-relaxed text-black/70">
-                Right now we do not use analytics or marketing cookies, so there
-                is nothing to switch on or off.
+                Right now we do not use analytics or marketing cookies of our
+                own, so there is nothing to switch on or off. The services below
+                load with the page and may set their own cookies; you can block
+                third-party cookies in your browser settings.
               </p>
             )}
 

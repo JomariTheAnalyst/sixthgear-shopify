@@ -25,7 +25,7 @@ const CONSENT_PURPOSES = CONSENT_CATEGORIES.filter((category) =>
 /**
  * Non-blocking bottom bar, shown only while the registry has an analytics or
  * marketing entry and the visitor has not chosen yet. Publishes its height as
- * --sg-consent-offset so page content and the chat button stay uncovered.
+ * --sg-consent-offset so page content stays uncovered.
  */
 export default function ConsentBanner() {
   const { status, settingsOpen, acceptAll, rejectAll, openSettings } =
@@ -68,8 +68,8 @@ export default function ConsentBanner() {
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:gap-8 md:px-8 md:py-5">
         <p className="text-[13px] leading-relaxed text-black/75 md:flex-1 md:text-sm">
           We use necessary cookies to run this site. With your OK, we would
-          also use {CONSENT_PURPOSES}. Chat, booking, maps, and videos only
-          load when you use them. See our{" "}
+          also use {CONSENT_PURPOSES}. Chat, booking, maps, videos, and our
+          social media feed load with the page. See our{" "}
           <Link
             href={`/${countryCode}/cookies`}
             className="font-semibold text-[#0A0B0A] underline underline-offset-2"

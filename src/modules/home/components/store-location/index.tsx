@@ -7,7 +7,6 @@
  */
 
 import { useState } from "react"
-import { MapPin } from "lucide-react"
 import { inter, montserrat } from "@lib/fonts"
 import { storeDirectionsUrl, storeInfo, storeMapEmbedUrl } from "@lib/store-info"
 import { cleanSanityString } from "@lib/cms/visual-editing"
@@ -28,7 +27,6 @@ export default function StoreLocation({
   googleMapsUrl,
 }: StoreLocationProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(true)
-  const [isMapOpen, setIsMapOpen] = useState(false)
   const activeName = storeName || storeInfo.name
   const activeAddress = address || storeInfo.address
   const activePhone = phone || storeInfo.phone
@@ -64,58 +62,17 @@ export default function StoreLocation({
       </div>
 
       <div className="relative overflow-hidden border-y border-black/10 shadow-2xl min-h-[520px] md:min-h-[620px] lg:min-h-[720px] bg-[#e8efe6]">
-        {/* Google Maps loads only when the visitor opens it (sets Google cookies). */}
-        {isMapOpen ? (
-          <iframe
-            src={storeMapEmbedUrl}
-            width="100%"
-            height="100%"
-            style={{ border: 0, minHeight: "520px" }}
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            title="Sixthgear Store Location"
-            className="absolute inset-0 h-full w-full"
-          />
-        ) : (
-          <>
-          {/* Self-hosted illustration; nothing is requested from Google until "Open map". */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/store-location/store-map-static.svg"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div
-            data-testid="map-placeholder"
-            className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 px-4 pb-8 text-center md:pb-10"
-          >
-            <p
-              className={`${inter.className} max-w-sm bg-[#f7f2e9]/90 px-3 py-1 text-sm leading-relaxed text-[#102229]/80`}
-            >
-              The interactive map loads from Google when you open it.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setIsMapOpen(true)}
-                className={`${montserrat.className} inline-flex min-h-12 items-center gap-2 bg-[#142224] px-6 text-sm font-semibold uppercase tracking-[0.04em] text-white shadow-[0_18px_36px_rgba(0,0,0,0.16)] transition-colors hover:bg-[#142224]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#142224] focus-visible:ring-offset-2`}
-              >
-                <MapPin className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
-                Open map
-              </button>
-              <a
-                href={activeGoogleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${montserrat.className} inline-flex min-h-12 items-center border border-[#142224]/30 bg-[#f7f2e9]/95 px-6 text-sm font-semibold uppercase tracking-[0.04em] text-[#142224] transition-colors hover:border-[#142224]`}
-              >
-                View on Google Maps
-              </a>
-            </div>
-          </div>
-          </>
-        )}
+        <iframe
+          src={storeMapEmbedUrl}
+          width="100%"
+          height="100%"
+          style={{ border: 0, minHeight: "520px" }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          title="Sixthgear Store Location"
+          className="absolute inset-0 h-full w-full"
+        />
 
         <div className="pointer-events-none absolute inset-0 bg-black/5" />
 
