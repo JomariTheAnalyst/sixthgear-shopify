@@ -30,19 +30,14 @@ const CATEGORY_SUMMARY = [
     optOut: "You can clear it in your browser settings",
   },
   {
-    name: "Loads when you use it",
-    does: "Features from other companies: chat (Tidio), online booking (cal.com), maps (Google), and product videos (YouTube, Vimeo)",
-    optOut: "Nothing loads until you use the feature. Chat keeps loading on later visits once you have used it, so your conversation continues",
+    name: "Loads with the page",
+    does: "Services from other companies: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, with code from Meta). They may set their own cookies",
+    optOut: "Not on our website. You can block third-party cookies in your browser settings",
   },
   {
     name: "Analytics",
     does: "Counts visits to help us improve the website",
     optOut: "We do not use any analytics right now. If we add it, we will ask you first",
-  },
-  {
-    name: "Marketing",
-    does: "Shows our social media feed (Curator), which loads code from Meta (Facebook) that may set marketing cookies",
-    optOut: "Yes. Off unless you allow it",
   },
 ]
 
@@ -71,34 +66,19 @@ export default function CookiesPage() {
 
         <h2 className={h2}>Your choices</h2>
         <p className={p}>
-          The first time you visit, we ask whether you allow marketing cookies.
-          They are only used by our social media feed, which loads code from
-          Meta (Facebook). You can choose:
-        </p>
-        <ul className="list-disc space-y-2 pl-6 text-gray-700 mb-6">
-          <li>
-            <strong className="text-gray-900">Accept all:</strong> the social
-            media feed loads.
-          </li>
-          <li>
-            <strong className="text-gray-900">Reject non-essential:</strong>{" "}
-            only necessary storage is used, and the feed stays off.
-          </li>
-          <li>
-            <strong className="text-gray-900">Customize:</strong> choose
-            category by category.
-          </li>
-        </ul>
-        <p className={p}>
-          Chat, booking, maps, and videos only load when you use them. We do
-          not use analytics right now; if we add it, we will ask you first.
+          Some features come from other companies and load with the page:
+          chat (Tidio), online booking (cal.com), maps (Google), product videos
+          (YouTube, Vimeo), and our social media feed (Curator, which includes
+          code from Meta). These services may set their own cookies. To avoid
+          them, you can block third-party cookies in your browser settings.
         </p>
         <p className={p}>
-          You can change your choice at any time with the{" "}
+          We do not use analytics or marketing cookies of our own right now, so
+          there is nothing to choose. If we add them, we will ask you first, and
+          if your browser sends a Global Privacy Control signal, we will treat it
+          as a &quot;no&quot;. The{" "}
           <strong className="text-gray-900">Cookie settings</strong> link at the
-          bottom of every page. We ask again after 12 months, or sooner if this
-          policy changes. If your browser sends a Global Privacy Control signal,
-          we treat it as a &quot;no&quot; to analytics and marketing.
+          bottom of every page shows the same list as below.
         </p>
         <CookieSettingsButton className="mb-6 inline-flex min-h-11 items-center justify-center bg-[#0A0B0A] px-6 text-sm font-semibold uppercase tracking-[0.06em] text-white hover:bg-[#0A0B0A]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2">
           Open cookie settings

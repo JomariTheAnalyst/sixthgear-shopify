@@ -369,14 +369,6 @@ body {
   bottom: var(--sg-bottom-bar);
 }
 
-/* Same corner as Tidio's own bubble, lifted above mobile bars and the banner. */
-.sg-chat-launcher {
-  bottom: calc(
-    20px + var(--sg-bottom-bar) + var(--sg-consent-offset, 0px) +
-      env(safe-area-inset-bottom, 0px)
-  );
-}
-
 /* First-load preloader (modules/common/components/preloader) */
 .sg-preloader {
   --sg-preloader-paper: #f1f1ef;

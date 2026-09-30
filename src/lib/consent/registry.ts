@@ -6,9 +6,9 @@
  *
  * How things load:
  * - "necessary" and "device": always on.
- * - "onUse": third-party services that load only when the visitor uses them
- *   (opening the chat, a booking, a map, a video). That action is the request,
- *   so there is no prompt.
+ * - "withPage": third-party services that load with the page (chat, booking,
+ *   maps, product videos, the homepage social feed). Listed for transparency;
+ *   no prompt.
  * - "analytics" and "marketing": need consent. The banner appears only while
  *   at least one of these has an entry. To add e.g. Google Analytics, add an
  *   entry here with category "analytics" (and `script` if it is a plain script
@@ -23,7 +23,7 @@ export const CONSENT_MAX_AGE_DAYS = 365
 export type ConsentCategoryId =
   | "necessary"
   | "device"
-  | "onUse"
+  | "withPage"
   | "analytics"
   | "marketing"
 
@@ -43,7 +43,7 @@ export type ConsentCategory = {
   label: string
   description: string
   /** How the settings panel shows a category without a switch. */
-  status?: "Always on" | "Loads when you use it"
+  status?: "Always on" | "Loads with the page"
   /** Consent categories: what the banner says this category is for. */
   bannerText?: string
 }
@@ -64,11 +64,11 @@ export const CONSENT_CATEGORIES: ConsentCategory[] = [
     status: "Always on",
   },
   {
-    id: "onUse",
-    label: "Loads when you use it",
+    id: "withPage",
+    label: "Loads with the page",
     description:
-      "Features from other companies that load only when you use them: chat (Tidio), online booking (cal.com), maps (Google), and product videos (YouTube, Vimeo).",
-    status: "Loads when you use it",
+      "Services from other companies that load with the page: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, with code from Meta). They may set their own cookies. You can block third-party cookies in your browser settings.",
+    status: "Loads with the page",
   },
   {
     id: "analytics",
@@ -231,74 +231,71 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     duration: "Until you close the tab",
   },
 
-  // ── Loads when you use it ───────────────────────────────────────────────
+  // ── Loads with the page ─────────────────────────────────────────────────
   {
     id: "tidio",
     name: "Tidio chat (tidio_state_*)",
     vendor: "Tidio",
-    category: "onUse",
+    category: "withPage",
     type: "Third-party service",
-    purpose:
-      "Website chat: visitor ID and conversation. After you first use the chat it loads on each visit so your conversation continues",
+    purpose: "Website chat: visitor ID and conversation",
     duration: "Until cleared",
-    loads: "When you open the chat",
+    loads: "On every page",
     policyUrl: "https://www.tidio.com/privacy-policy/",
   },
   {
     id: "cal",
     name: "cal.com booking",
     vendor: "cal.com",
-    category: "onUse",
+    category: "withPage",
     type: "Third-party service",
     purpose: "Online service booking",
     duration: "Set by cal.com",
-    loads: "When you open a booking",
+    loads: "On every page",
     policyUrl: "https://cal.com/privacy",
   },
   {
     id: "google-maps",
     name: "Google Maps",
     vendor: "Google",
-    category: "onUse",
+    category: "withPage",
     type: "Third-party service",
     purpose: "Interactive store map (for example the NID cookie)",
     duration: "Set by Google",
-    loads: "When you open the map",
+    loads: "On the homepage and Contact page",
     policyUrl: "https://policies.google.com/privacy",
   },
   {
     id: "product-video",
     name: "Product videos (YouTube, Vimeo)",
     vendor: "Google (YouTube), Vimeo",
-    category: "onUse",
+    category: "withPage",
     type: "Third-party service",
     purpose: "Plays product videos (YouTube in privacy-enhanced mode)",
     duration: "Set by YouTube or Vimeo",
-    loads: "When you play a video",
+    loads: "On product pages with a video",
     policyUrl: "https://policies.google.com/privacy",
   },
-
-  // ── Marketing (needs consent) ───────────────────────────────────────────
   {
     id: "curator",
     name: "Social media feed",
     vendor: "Curator.io",
-    category: "marketing",
+    category: "withPage",
     type: "Third-party service",
     purpose: "Shows our Facebook and Instagram posts on the homepage",
     duration: "Set by Curator",
-    loads: "With your consent",
+    loads: "On the homepage",
     policyUrl: "https://curator.io/privacy-policy",
   },
   {
     id: "facebook-sdk",
     name: "Facebook cookies",
     vendor: "Meta",
-    category: "marketing",
+    category: "withPage",
     type: "Third-party service",
     purpose: "Loaded by the social media feed; may set marketing cookies",
     duration: "Set by Meta",
-    loads: "With your consent",
+    loads: "On the homepage",
     policyUrl: "https://www.facebook.com/privacy/policy/",
   },
 ]

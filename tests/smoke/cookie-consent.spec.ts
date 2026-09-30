@@ -2,22 +2,27 @@ import { expect, test, type Page } from "@playwright/test"
 
 /**
  * Privacy / consent behaviour:
- * - The social media feed (Curator, loads Meta's code) is Marketing, so the
- *   banner asks on the first visit; the feed loads only with consent.
- * - Tidio, cal.com and Google Maps load only when the visitor uses them.
- * - Cookie settings (footer) reopens the panel; the choice persists.
+ * - Nothing needs consent right now (no analytics or marketing of our own), so
+ *   there is no banner.
+ * - Every third-party service loads with the page, with no clicks, including
+ *   for Global Privacy Control visitors: Tidio and cal.com on every page, the
+ *   Google map on Home and Contact, and the Curator feed on Home.
+ * - Cookie settings (footer) opens the panel, which lists what loads.
  */
 
 const THIRD_PARTIES = {
-  tidio: /code\.tidio\.co|widget-v4\.tidiochat\.com/,
+  tidio: /code\.tidio\.co/,
   cal: /app\.cal\.com|cal\.com\/embed/,
-  curator: /curator\.io/,
-  facebook: /connect\.facebook\.net|facebook\.com\/(plugins|tr)/,
   googleMaps: /maps\.google\.|google\.com\/maps/,
+  curator: /curator\.io/,
 }
 
-// Settle time for afterInteractive scripts and lazy iframes on a dev server.
-const SETTLE_MS = 5_000
+type ThirdParty = keyof typeof THIRD_PARTIES
+
+const EXPECTED_BY_PAGE: Record<string, ThirdParty[]> = {
+  "/ph": ["tidio", "cal", "googleMaps", "curator"],
+  "/ph/contact": ["tidio", "cal", "googleMaps"],
+}
 
 function recordRequests(page: Page) {
   const urls: string[] = []
@@ -28,15 +33,32 @@ function recordRequests(page: Page) {
 const requested = (urls: string[], pattern: RegExp) =>
   urls.some((url) => pattern.test(url))
 
-async function settle(page: Page) {
-  // Scroll through the page so lazy content gets its chance to load.
+// Scroll through the page (no clicks) so lazy iframes reach the viewport.
+async function scrollThrough(page: Page) {
   await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 800) {
+    for (let y = 0; y < document.body.scrollHeight; y += 600) {
       window.scrollTo(0, y)
-      await new Promise((resolve) => setTimeout(resolve, 60))
+      await new Promise((resolve) => setTimeout(resolve, 80))
     }
   })
-  await page.waitForTimeout(SETTLE_MS)
+}
+
+async function expectAllLoadWithoutClicks(page: Page) {
+  const urls = recordRequests(page)
+
+  for (const [path, services] of Object.entries(EXPECTED_BY_PAGE)) {
+    await page.goto(path)
+    await scrollThrough(page)
+
+    for (const name of services) {
+      await expect
+        .poll(() => requested(urls, THIRD_PARTIES[name]), {
+          message: `${name} should load on ${path} without a click`,
+          timeout: 30_000,
+        })
+        .toBe(true)
+    }
+  }
 }
 
 const banner = (page: Page) => page.getByTestId("consent-banner")
@@ -55,158 +77,64 @@ test.describe("Privacy and cookie consent", () => {
     })
   })
 
-  test("first visit shows the banner with three equal choices", async ({ page }) => {
+  test("first visit shows no banner", async ({ page }) => {
     await page.goto("/ph")
-    const bar = banner(page)
-    await expect(bar).toBeVisible()
-    await expect(bar).toContainText("social media feed")
-    await expect(bar.getByRole("button", { name: "Accept all" })).toBeVisible()
-    await expect(bar.getByRole("button", { name: "Reject non-essential" })).toBeVisible()
-    await expect(bar.getByRole("button", { name: "Customize" })).toBeVisible()
-  })
-
-  test("before any choice, nothing third-party loads", async ({ page }) => {
-    const urls = recordRequests(page)
-
-    await page.goto("/ph")
-    await expect(banner(page)).toBeVisible()
-    await expect(page.getByTestId("chat-launcher")).toBeVisible()
-    await expect(page.getByTestId("social-feed-placeholder")).toBeVisible()
-    await settle(page)
-
-    await page.goto("/ph/contact")
-    await expect(page.getByTestId("map-placeholder")).toBeVisible()
-    await settle(page)
-
-    for (const [name, pattern] of Object.entries(THIRD_PARTIES)) {
-      expect(requested(urls, pattern), `${name} loaded before a choice`).toBe(false)
-    }
-  })
-
-  test("Reject keeps the social feed and Facebook off", async ({ page }) => {
-    const urls = recordRequests(page)
-    await page.goto("/ph")
-    await banner(page).getByRole("button", { name: "Reject non-essential" }).click()
-    await expect(banner(page)).toBeHidden()
-    await settle(page)
-
-    for (const [name, pattern] of Object.entries(THIRD_PARTIES)) {
-      expect(requested(urls, pattern), `${name} loaded after Reject`).toBe(false)
-    }
-    await expect(page.getByTestId("social-feed-placeholder")).toBeVisible()
-  })
-
-  test("Accept all loads the social feed (Curator and Facebook)", async ({ page }) => {
-    await page.goto("/ph")
-    const curator = page.waitForRequest(THIRD_PARTIES.curator)
-    const facebook = page.waitForRequest(THIRD_PARTIES.facebook)
-    await banner(page).getByRole("button", { name: "Accept all" }).click()
-    await Promise.all([curator, facebook])
-    await expect(page.getByTestId("social-feed-placeholder")).toHaveCount(0)
-  })
-
-  test("the feed's own button accepts marketing and loads it", async ({ page }) => {
-    await page.goto("/ph")
-    const curator = page.waitForRequest(THIRD_PARTIES.curator)
-    await page.getByRole("button", { name: "Show our social feed" }).click()
-    await curator
-    await expect(banner(page)).toBeHidden()
-  })
-
-  test("the choice persists after reload", async ({ page, context }) => {
-    await page.goto("/ph")
-    await banner(page).getByRole("button", { name: "Reject non-essential" }).click()
-
-    const consentCookie = (await context.cookies()).find(
-      (cookie) => cookie.name === "sg_consent"
-    )
-    expect(consentCookie).toBeDefined()
-    expect(consentCookie!.expires).toBeGreaterThan(Date.now() / 1000 + 360 * 24 * 3600)
-
-    await page.reload()
     await page.waitForTimeout(1_500)
-    await expect(banner(page)).toBeHidden()
+    await expect(banner(page)).toHaveCount(0)
   })
 
-  test("Customize starts with nothing ticked", async ({ page }) => {
-    await page.goto("/ph")
-    await banner(page).getByRole("button", { name: "Customize" }).click()
-    const panel = settingsPanel(page)
-    await expect(panel).toBeVisible()
-    await expect(panel.getByRole("switch", { name: "Marketing" })).not.toBeChecked()
-    await expect(panel.getByRole("switch", { name: "Analytics" })).toHaveCount(0)
-    await expect(panel.getByText("Loads when you use it", { exact: true }).last()).toBeVisible()
+  test("map, chat, booking and feed load with no clicks", async ({ page }) => {
+    await expectAllLoadWithoutClicks(page)
   })
 
-  test("Cookie settings in the footer reopens the panel", async ({ page }) => {
-    await page.goto("/ph")
-    await banner(page).getByRole("button", { name: "Accept all" }).click()
-
-    await page.getByTestId("footer-cookie-settings").click()
-    const panel = settingsPanel(page)
-    await expect(panel).toBeVisible()
-    await expect(panel.getByRole("switch", { name: "Marketing" })).toBeChecked()
-
-    await page.keyboard.press("Escape")
-    await expect(panel).toBeHidden()
-  })
-
-  test("Global Privacy Control keeps the feed off even after Accept all", async ({ page }) => {
+  test("they also load with Global Privacy Control on", async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(Navigator.prototype, "globalPrivacyControl", {
         get: () => true,
       })
     })
-    const urls = recordRequests(page)
+    await expectAllLoadWithoutClicks(page)
+  })
+
+  test("the map iframe renders on Contact without a click", async ({ page }) => {
+    await page.goto("/ph/contact")
+    const map = page.locator('iframe[title="Sixthgear Store Location"]')
+    await map.scrollIntoViewIfNeeded()
+    await expect(map).toBeVisible()
+    await expect(map).toHaveAttribute("loading", "lazy")
+  })
+
+  test("View Social Wall opens Instagram in a new tab", async ({ page }) => {
     await page.goto("/ph")
-    await banner(page).getByRole("button", { name: "Accept all" }).click()
-    await settle(page)
-
-    expect(requested(urls, THIRD_PARTIES.curator)).toBe(false)
-    expect(requested(urls, THIRD_PARTIES.facebook)).toBe(false)
+    const link = page.getByRole("link", { name: "View Social Wall" })
+    await expect(link).toHaveAttribute("href", /instagram\.com/)
+    await expect(link).toHaveAttribute("target", "_blank")
   })
 
-  test("tapping the chat button loads Tidio", async ({ page }) => {
-    await page.goto("/ph/contact")
-    const launcher = page.getByTestId("chat-launcher")
-    await expect(launcher).toBeVisible()
+  test("Cookie settings in the footer opens the panel", async ({ page }) => {
+    await page.goto("/ph")
 
-    const tidio = page.waitForRequest(THIRD_PARTIES.tidio)
-    await launcher.click()
-    await tidio
-  })
+    await page.getByTestId("footer-cookie-settings").click()
+    const panel = settingsPanel(page)
+    await expect(panel).toBeVisible()
+    await expect(panel.getByRole("switch")).toHaveCount(0)
+    await expect(panel.getByText("Loads with the page", { exact: true }).last()).toBeVisible()
+    await expect(panel).not.toContainText("Loads when you use it")
 
-  test("returning chat visitors get Tidio on page load", async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.setItem("tidio_state_test", "{}")
-    })
-
-    const tidio = page.waitForRequest(THIRD_PARTIES.tidio)
-    await page.goto("/ph/contact")
-    await tidio
-  })
-
-  test("booking and map load when opened", async ({ page }) => {
-    await page.goto("/ph/contact")
-    await banner(page).getByRole("button", { name: "Reject non-essential" }).click()
-
-    const cal = page.waitForRequest(THIRD_PARTIES.cal)
-    await page.getByRole("link", { name: /Book Service Online/ }).click()
-    await cal
-
-    await page.goto("/ph/contact")
-    const maps = page.waitForRequest(THIRD_PARTIES.googleMaps)
-    await page.getByRole("button", { name: "Open map" }).click()
-    await maps
-    await expect(page.locator('iframe[title="Sixthgear Store Location"]')).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(panel).toBeHidden()
   })
 
   test("the /cookies page lists the registry", async ({ page }) => {
     await page.goto("/ph/cookies")
     await expect(page.getByRole("heading", { name: "Cookie Policy", level: 1 })).toBeVisible()
     await expect(page.getByTestId("cookie-table-necessary")).toContainText("shopify_cart_id")
-    await expect(page.getByTestId("cookie-table-onUse")).toContainText("Tidio")
-    await expect(page.getByTestId("cookie-table-marketing")).toContainText("Curator")
+    const withPage = page.getByTestId("cookie-table-withPage")
+    for (const vendor of ["Tidio", "cal.com", "Google Maps", "YouTube", "Curator", "Meta"]) {
+      await expect(withPage).toContainText(vendor)
+    }
+    await expect(page.getByTestId("cookie-table-onUse")).toHaveCount(0)
+    await expect(page.getByTestId("cookie-table-marketing")).toHaveCount(0)
     await expect(page.getByTestId("cookie-table-analytics")).toHaveCount(0)
   })
 })
