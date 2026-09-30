@@ -137,7 +137,7 @@ export default function ProcessOfWork({
       <div className="mx-auto w-full max-w-[1400px] px-5 text-center sm:px-8 lg:px-12">
         <h2
           id="services-process-heading"
-          className="mx-auto max-w-[22ch] text-balance text-[40px] font-semibold leading-[48px] tracking-[-2px] sm:text-[56px] sm:leading-[67.2px] sm:tracking-[-2.8px]"
+          className="mx-auto max-w-[22ch] text-balance uppercase text-[40px] font-semibold leading-[48px] tracking-[-2px] sm:text-[56px] sm:leading-[67.2px] sm:tracking-[-2.8px]"
         >
           {sectionHeading}
         </h2>

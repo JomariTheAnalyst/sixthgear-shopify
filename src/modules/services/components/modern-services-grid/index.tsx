@@ -91,7 +91,7 @@ export default function ModernServicesGrid({
       <header className="mx-auto grid max-w-[1400px] gap-7 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-end lg:gap-16 lg:px-12">
         <h2
           id="services-carousel-heading"
-          className="max-w-[21ch] text-balance text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[0.98] tracking-[-0.045em]"
+          className="max-w-[21ch] text-balance uppercase text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[0.98] tracking-[-0.045em]"
         >
           {sectionHeading}
         </h2>
