@@ -2,7 +2,10 @@
 
 /**
  * Service Hero Section
- * Hero banner for main services page
+ * Hero banner for main services page. The photo is shown whole (its own
+ * aspect ratio, no crop, no overlay). From lg the text sits on the photo,
+ * bottom left as before; below lg the photo is too short for it, so the text
+ * goes in a black block underneath.
  */
 
 import Image from "next/image"
@@ -16,43 +19,42 @@ interface ServiceHeroProps {
 
 export default function ServiceHero({ content }: ServiceHeroProps) {
   return (
-    <div className="relative w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[640px]">
-      <div className="absolute inset-0 z-0 bg-black">
-        <div className="absolute inset-0 opacity-100 z-10">
-          <Image
-            src={content.heroImage}
-            alt={content.imageAlt}
-            fill
-            quality={100}
-            className="object-cover object-center"
-            sizes="100vw"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        </div>
-      </div>
+    <div className="w-full bg-black">
+      {/* Never wider than the photo itself (2134px), so it is not enlarged. */}
+      <div className="relative mx-auto w-full max-w-[2134px]">
+      <Image
+        src={content.heroImage}
+        alt={content.imageAlt}
+        width={2134}
+        height={737}
+        quality={100}
+        sizes="100vw"
+        priority
+        className="block h-auto w-full"
+      />
 
-      <div className="absolute inset-0 z-20 w-full h-full flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20 lg:pb-24 items-start">
+      <div className="flex w-full flex-col items-start px-6 py-10 sm:px-12 lg:absolute lg:inset-0 lg:justify-end lg:px-20 lg:pb-14 lg:pt-0 xl:pb-20">
         <div className="w-full max-w-4xl text-left">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4 text-white uppercase tracking-tight line-clamp-1">
+          <h1 className="mb-4 text-3xl font-bold uppercase leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl lg:[text-shadow:0_2px_16px_rgba(0,0,0,0.55)]">
             {content.title}
           </h1>
 
           {content.description && (
-            <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-6 max-w-xl">
+            <p className="mb-6 max-w-xl text-sm leading-relaxed text-gray-200 sm:text-base lg:[text-shadow:0_1px_10px_rgba(0,0,0,0.6)]">
               {content.description}
             </p>
           )}
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 items-start justify-start">
+          <div className="flex flex-col items-start justify-start gap-3 sm:flex-row sm:items-center sm:gap-4">
             <LocalizedClientLink
               href="/contact"
-              className="w-full sm:w-auto px-6 py-3 bg-transparent border-2 border-white text-white font-bold text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-wide text-xs sm:text-sm"
+              className="w-full rounded-md border-2 border-white bg-transparent px-6 py-3 text-center text-xs font-bold uppercase tracking-wide text-white transition-all hover:bg-white hover:text-black sm:w-auto sm:text-sm"
             >
               Contact Us
             </LocalizedClientLink>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
