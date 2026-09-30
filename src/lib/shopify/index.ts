@@ -1,6 +1,6 @@
 import { shopifyGraphql } from "./client";
 import { getProductQuery, getProductsQuery, getProductsByIdsQuery, getProductRecommendationsQuery } from "./queries/product";
-import { getBrandCollectionsPageQuery, getCollectionQuery, getCollectionsQuery } from "./queries/collection";
+import { getBrandCollectionsPageQuery, getCollectionProductIdsQuery, getCollectionQuery, getCollectionsQuery } from "./queries/collection";
 import { predictiveSearchQuery, searchProductsQuery } from "./queries/search";
 import { cacheKey, getCached, TTL } from "@lib/cache/redis";
 import {
@@ -195,6 +195,38 @@ export async function getCollectionProductsByHandle(
   }
   
   return collection.products.edges.map(edge => edge.node);
+}
+
+/**
+ * Product count label for a collection ("48", or "250+" past one page).
+ * Returns null when the collection is missing, empty, or the request fails.
+ */
+export async function getCollectionProductCount(handle: string): Promise<string | null> {
+  try {
+    return await getCached(
+      cacheKey("collection-count", handle),
+      async () => {
+        const { data, errors } = await shopifyGraphql<{
+          collection: {
+            products: { nodes: { id: string }[]; pageInfo: { hasNextPage: boolean } };
+          } | null;
+        }>(getCollectionProductIdsQuery, { handle });
+
+        if (errors && errors.length > 0) {
+          throw new Error(`Shopify API Error (getCollectionProductCount): ${JSON.stringify(errors)}`);
+        }
+
+        const products = data?.collection?.products;
+        if (!products || products.nodes.length === 0) return null;
+
+        return products.pageInfo.hasNextPage ? "250+" : String(products.nodes.length);
+      },
+      TTL.COLLECTION
+    );
+  } catch (error) {
+    console.error(`[shopify] Unable to count products for collection "${handle}".`, error);
+    return null;
+  }
 }
 
 export async function getCollections(first: number = 20): Promise<ShopifyCollection[]> {

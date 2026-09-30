@@ -259,3 +259,19 @@ export const getBrandCollectionsPageQuery = `
   ${IMAGE_FRAGMENT}
   ${IMAGE_METAFIELD_FRAGMENT}
 `;
+
+// IDs only: the storefront has no product-count field, so count one page.
+export const getCollectionProductIdsQuery = `
+  query GetCollectionProductIds($handle: String!) {
+    collection(handle: $handle) {
+      products(first: 250) {
+        nodes {
+          id
+        }
+        pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+`;
