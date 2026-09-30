@@ -82,9 +82,6 @@ export default async function CheckoutSuccessPage(props: Props) {
       }
     }
 
-    const { removeCartId } = await import("@lib/data/cookies")
-    await removeCartId()
-
     const { revalidateTag } = await import("next/cache")
     revalidateTag("carts")
 

@@ -97,6 +97,40 @@ const CART_FRAGMENT = `
   }
 `;
 
+/**
+ * Checkout URL with the visitor's cookie choice encoded in it (Storefront API
+ * 2025-10+ `@inContext(visitorConsent:)`), so Shopify's checkout respects it
+ * even though checkout runs on a different domain. Returns null on any error.
+ */
+export async function getCartCheckoutUrlWithConsent(
+  cartId: string,
+  visitorConsent: {
+    analytics: boolean
+    marketing: boolean
+    preferences: boolean
+    saleOfData: boolean
+  }
+): Promise<string | null> {
+  const query = `
+    query cartCheckoutUrlWithConsent($cartId: ID!, $visitorConsent: VisitorConsent)
+    @inContext(visitorConsent: $visitorConsent) {
+      cart(id: $cartId) {
+        checkoutUrl
+      }
+    }
+  `;
+
+  const { data, errors } = await shopifyGraphql<{
+    cart: { checkoutUrl: string } | null
+  }>(query, { cartId, visitorConsent }, true, { noStore: true });
+
+  if (errors?.length) {
+    return null;
+  }
+
+  return data?.cart?.checkoutUrl ?? null;
+}
+
 export async function getCart(cartId: string): Promise<ShopifyCart | null> {
   const query = `
     query getCart($cartId: ID!) {

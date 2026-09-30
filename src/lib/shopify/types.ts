@@ -447,14 +447,11 @@ export type ProductFilter = {
 
 // ─── Judge.me Review Types ───────────────────────────
 
+// Only the fields the product page shows. The Judge.me API also returns the
+// reviewer's email, phone and IP address; those are dropped on fetch and never
+// cached (see src/lib/data/reviews.ts).
 export type JudgeMeReviewer = {
-  id: number
-  email: string
   name: string
-  phone: string | null
-  accepts_marketing: boolean
-  unsubscribed_at: string | null
-  tags: string[]
 }
 
 export type JudgeMeReview = {
@@ -463,22 +460,11 @@ export type JudgeMeReview = {
   body: string
   rating: number
   reviewer: JudgeMeReviewer
-  source: string
-  featured: boolean
   published: boolean
   hidden: boolean
   verified: string
   created_at: string
-  updated_at: string
-  product_handle: string
-  product_title: string
   picture_urls: string[]
-  curated: string
-  sentiment: string
-  moderated: boolean
-  ip_address: string
-  has_published_pictures: boolean
-  has_published_videos: boolean
 }
 
 export type JudgeMeReviewsResponse = {

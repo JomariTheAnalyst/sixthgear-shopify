@@ -1,5 +1,10 @@
 import { Metadata } from "next"
 import { getLocalizedCanonicalPath } from "@lib/seo"
+import {
+  getShopPolicies,
+  USE_SHOPIFY_PRIVACY_POLICY,
+} from "@lib/shopify/policies"
+import ShopifyPolicy from "@modules/legal/components/shopify-policy"
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -10,7 +15,21 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  // Off until the new policy is in Shopify; see USE_SHOPIFY_PRIVACY_POLICY.
+  const policy = USE_SHOPIFY_PRIVACY_POLICY
+    ? (await getShopPolicies()).privacyPolicy
+    : null
+
+  if (policy) {
+    return <ShopifyPolicy title="Privacy Policy" html={policy.body} />
+  }
+
+  return <FallbackPrivacyPolicy />
+}
+
+/** Built-in policy text, shown while the Shopify policy is switched off or empty. */
+function FallbackPrivacyPolicy() {
   return (
     <div className="bg-white min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">

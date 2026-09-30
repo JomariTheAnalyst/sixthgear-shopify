@@ -17,8 +17,9 @@ export interface CartStore {
 /**
  * Zustand cart store â€” IN-MEMORY ONLY, no persistence.
  *
- * The cart ID is owned by the server-side HttpOnly cookie
- * managed by src/lib/data/cart.ts (Server Actions).
+ * The cart ID is owned by the `shopify_cart_id` cookie, set server-side by
+ * src/lib/data/cart.ts (Server Actions). It is not HttpOnly (readable by
+ * page scripts) and is Secure in production.
  * This store holds the ShopifyCart object for UI rendering only.
  * On page refresh, the cart is re-fetched from Shopify via retrieveCart().
  */

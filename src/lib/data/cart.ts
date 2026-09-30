@@ -1,7 +1,12 @@
 ﻿"use server"
 
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { revalidatePath } from "next/cache"
+import {
+  CONSENT_COOKIE_NAME,
+  parseConsent,
+  toShopifyVisitorConsent,
+} from "@lib/consent/consent"
 import {
   cartCreate as shopifyCartCreate,
   cartLinesAdd as shopifyCartLinesAdd,
@@ -10,7 +15,10 @@ import {
   cartDiscountCodesUpdate as shopifyCartDiscountCodesUpdate,
   cartBuyerIdentityUpdateResult as shopifyCartBuyerIdentityUpdateResult,
 } from "@lib/shopify/mutations/cart"
-import { getCart as shopifyGetCart } from "@lib/shopify/queries/cart"
+import {
+  getCart as shopifyGetCart,
+  getCartCheckoutUrlWithConsent,
+} from "@lib/shopify/queries/cart"
 import { ShopifyCart } from "@lib/shopify/types"
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Cookie helpers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -21,6 +29,8 @@ const COOKIE_OPTIONS = {
   sameSite: "lax" as const,
   path: "/",
   maxAge: 60 * 60 * 24 * 7, // 7 days
+  // HTTPS-only in production; plain http://localhost keeps working in dev.
+  secure: process.env.NODE_ENV === "production",
 }
 
 async function getCartId(): Promise<string | undefined> {
@@ -258,11 +268,32 @@ export async function getCheckoutUrl(): Promise<string> {
 
   const fallbackCheckoutUrl = cart.checkoutUrl
   const associatedCart = await associateBuyerIdentity(cart.id)
-  if (associatedCart?.checkoutUrl) {
-    return associatedCart.checkoutUrl
-  }
+  const checkoutUrl = associatedCart?.checkoutUrl || fallbackCheckoutUrl
 
-  return fallbackCheckoutUrl
+  return (await withVisitorConsent(cart.id)) || checkoutUrl
+}
+
+/**
+ * Re-reads the checkout URL with the visitor's cookie choice (sg_consent and
+ * the Global Privacy Control header) encoded by Shopify. Null when there is
+ * no choice to pass or the request fails, so checkout always still works.
+ */
+async function withVisitorConsent(cartId: string): Promise<string | null> {
+  const cookieStore = await cookies()
+  const headerList = await headers()
+  const visitorConsent = toShopifyVisitorConsent(
+    parseConsent(cookieStore.get(CONSENT_COOKIE_NAME)?.value),
+    headerList.get("sec-gpc") === "1"
+  )
+
+  if (!visitorConsent) return null
+
+  try {
+    return await getCartCheckoutUrlWithConsent(cartId, visitorConsent)
+  } catch (error) {
+    console.error(error)
+    return null
+  }
 }
 
 /**

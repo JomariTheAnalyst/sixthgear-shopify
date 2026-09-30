@@ -19,9 +19,8 @@ export default function CartRefresh() {
     if (hasRun.current) return
     hasRun.current = true
 
-    // Clear selected items from localStorage and sessionStorage
+    // Clear selected items from localStorage
     clearAllSelections()
-    sessionStorage.removeItem("checkoutSelectedItems")
 
     // Single refresh to update client-side cache
     // Cart cookie is already cleared server-side in success page

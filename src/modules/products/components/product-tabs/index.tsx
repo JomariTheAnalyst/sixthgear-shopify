@@ -510,30 +510,38 @@ type ProductVideoContentProps = {
   url: string
 }
 
+// Privacy-enhanced players: YouTube without tracking cookies, Vimeo with Do Not Track.
+const YOUTUBE_EMBED_BASE = "https://www.youtube-nocookie.com/embed/"
+
 function getEmbedUrl(url: string): string | null {
   try {
     const parsed = new URL(url)
 
     // YouTube standard: youtube.com/watch?v=ID
     if (parsed.hostname.includes("youtube.com") && parsed.searchParams.get("v")) {
-      return `https://www.youtube.com/embed/${parsed.searchParams.get("v")}`
+      return `${YOUTUBE_EMBED_BASE}${parsed.searchParams.get("v")}`
     }
 
     // YouTube short: youtu.be/ID
     if (parsed.hostname === "youtu.be") {
-      return `https://www.youtube.com/embed${parsed.pathname}`
+      return `${YOUTUBE_EMBED_BASE}${parsed.pathname.replace("/", "")}`
     }
 
     // YouTube Shorts: youtube.com/shorts/ID
     if (parsed.hostname.includes("youtube.com") && parsed.pathname.startsWith("/shorts/")) {
       const id = parsed.pathname.replace("/shorts/", "")
-      return `https://www.youtube.com/embed/${id}`
+      return `${YOUTUBE_EMBED_BASE}${id}`
     }
 
-    // Vimeo: vimeo.com/ID
+    // YouTube embed URL pasted directly: youtube.com/embed/ID
+    if (parsed.hostname.includes("youtube.com") && parsed.pathname.startsWith("/embed/")) {
+      return `${YOUTUBE_EMBED_BASE}${parsed.pathname.replace("/embed/", "")}`
+    }
+
+    // Vimeo: vimeo.com/ID or player.vimeo.com/video/ID
     if (parsed.hostname.includes("vimeo.com")) {
-      const id = parsed.pathname.replace("/", "")
-      return `https://player.vimeo.com/video/${id}`
+      const id = parsed.pathname.split("/").filter(Boolean).pop()
+      return id ? `https://player.vimeo.com/video/${id}?dnt=1` : null
     }
 
     // Already an embed URL or unknown — return as-is
@@ -560,6 +568,7 @@ const ProductVideoContent = ({ url }: ProductVideoContentProps) => {
         <iframe
           src={embedUrl}
           title="Product Video"
+          loading="lazy"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           className="absolute inset-0 h-full w-full"

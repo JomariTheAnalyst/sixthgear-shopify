@@ -9,6 +9,7 @@
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Logo from "@modules/layout/components/brand-logo"
 import { businessInfo } from "@lib/business"
+import CookieSettingsButton from "@modules/consent/components/cookie-settings-button"
 
 const menuLinks = [
   { name: "Home", href: "/" },
@@ -19,10 +20,9 @@ const menuLinks = [
   { name: "About Us", href: "/about" },
 ]
 
+// FAQs (/faqs) and Shipping Info (/shipping) are hidden until those pages exist.
 const supportLinks = [
   { name: "Contact Us", href: "/contact" },
-  { name: "FAQs", href: "/faqs" },
-  { name: "Shipping Info", href: "/shipping" },
   { name: "Returns & Warranty", href: "/returns-warranty" },
 ]
 
@@ -77,6 +77,7 @@ const socialLinks = [
 const legalLinks = [
   { name: "Terms & Conditions", href: "/terms" },
   { name: "Privacy Policy", href: "/privacy" },
+  { name: "Cookie Policy", href: "/cookies" },
   { name: "Returns & Warranty", href: "/returns-warranty" },
 ]
 
@@ -301,6 +302,11 @@ export default function Footer() {
                     {link.name}
                   </LocalizedClientLink>
                 ))}
+                <CookieSettingsButton
+                  data-testid="footer-cookie-settings"
+                  className="text-white/30 text-[10px] uppercase tracking-wider hover:text-white/50 transition-colors focus:outline-none focus-visible:text-white/70 focus-visible:underline"
+                  style={{ fontFamily: "Inter Display, sans-serif" }}
+                />
               </div>
 
               {/* Copyright & Logo */}

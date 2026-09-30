@@ -1,6 +1,9 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useState } from "react"
+import useEmblaCarousel, {
+  type UseEmblaCarouselType,
+} from "embla-carousel-react"
 import { HttpTypes } from "@medusajs/types"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -8,22 +11,35 @@ import { montserrat } from "@lib/fonts"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ProductCard from "../product-card"
 
+type EmblaApi = NonNullable<UseEmblaCarouselType[1]>
+
 interface HomepageCollectionRailProps {
   title?: string
   collectionHandle: string
   buttonLabel?: string
+  /** Products to show; the page fetches one extra to decide on "View All". */
+  productLimit: number
   products: HttpTypes.StoreProduct[]
+  countryCode?: string
 }
 
-const MAX_SLOTS = 10
+// Flex-basis per breakpoint, so widths are right before Embla hydrates:
+// 1.5 cards < 640px, 2.5 up to 1023px, 4 up to 1439px, 5 from 1440px.
+const SLIDE_CLASS =
+  "min-w-0 shrink-0 grow-0 basis-2/3 pl-3 sm:basis-2/5 md:pl-4 lg:basis-1/4 large:basis-1/5"
 
-function ViewAllCard({ collectionHandle }: { collectionHandle: string }) {
-  const collectionHref = `/store?collection=${encodeURIComponent(collectionHandle)}`
+// Outlined card: hairline at rest, full black outline on hover/focus-within.
+const CARD_FRAME_CLASS =
+  "h-full border border-black/10 bg-white transition-colors duration-300 hover:border-[#0A0B0A] focus-within:border-[#0A0B0A]"
 
+const ARROW_CLASS =
+  "flex h-10 w-10 items-center justify-center border border-[#0A0B0A] text-[#0A0B0A] transition-colors hover:bg-[#0A0B0A] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-300 disabled:hover:bg-transparent"
+
+function ViewAllCard({ href }: { href: string }) {
   return (
     <LocalizedClientLink
-      href={collectionHref}
-      className="flex h-full min-h-[420px] w-[260px] flex-shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-xl bg-[#1a1a1a] px-6 text-white transition-colors duration-300 hover:bg-[#F16D34] lg:w-[280px]"
+      href={href}
+      className="flex h-full min-h-[320px] w-full flex-col items-center justify-center gap-3 bg-[#0A0B0A] px-6 text-white transition-colors duration-300 hover:bg-[#0A0B0A]/85"
     >
       <span
         className="text-3xl uppercase leading-none"
@@ -40,154 +56,166 @@ export default function HomepageCollectionRail({
   title,
   collectionHandle,
   buttonLabel,
+  productLimit,
   products,
+  countryCode,
 }: HomepageCollectionRailProps) {
-  const railRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
-
-  const showViewAll = products.length > MAX_SLOTS
-  const visibleProducts = useMemo(
-    () => (showViewAll ? products.slice(0, MAX_SLOTS - 1) : products),
-    [products, showViewAll]
-  )
-  const showControls = showViewAll
-  const useDesktopGrid = !showViewAll && visibleProducts.length <= 4
+  const headingId = useId()
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    containScroll: "trimSnaps",
+    slidesToScroll: "auto",
+    dragFree: false,
+  })
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
+  const [snapCount, setSnapCount] = useState(0)
+  const [selectedSnap, setSelectedSnap] = useState(0)
 
   useEffect(() => {
-    const rail = railRef.current
+    if (!emblaApi) return
 
-    if (!rail) {
-      return
+    const sync = (api: EmblaApi) => {
+      setCanScrollPrev(api.canScrollPrev())
+      setCanScrollNext(api.canScrollNext())
+      setSnapCount(api.scrollSnapList().length)
+      setSelectedSnap(api.selectedScrollSnap())
     }
 
-    const updateScrollState = () => {
-      const { scrollLeft, clientWidth, scrollWidth } = rail
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1)
-    }
-
-    updateScrollState()
-    rail.addEventListener("scroll", updateScrollState, { passive: true })
-    window.addEventListener("resize", updateScrollState)
+    sync(emblaApi)
+    emblaApi.on("select", sync).on("reInit", sync)
 
     return () => {
-      rail.removeEventListener("scroll", updateScrollState)
-      window.removeEventListener("resize", updateScrollState)
+      emblaApi.off("select", sync).off("reInit", sync)
     }
-  }, [showControls, visibleProducts.length])
+  }, [emblaApi])
 
   if (!products.length) {
     return null
   }
 
+  const heading = title || collectionHandle
+  const hasMore = products.length > productLimit
+  const visibleProducts = hasMore ? products.slice(0, productLimit) : products
+  const slideCount = visibleProducts.length + (hasMore ? 1 : 0)
   const collectionHref = `/store?collection=${encodeURIComponent(collectionHandle)}`
-  const activeButtonLabel = buttonLabel || "Shop the Collection"
-
-  const scrollRail = (direction: "left" | "right") => {
-    const rail = railRef.current
-
-    if (!rail) {
-      return
-    }
-
-    rail.scrollBy({
-      left: direction === "left" ? -400 : 400,
-      behavior: "smooth",
-    })
-  }
 
   return (
-    <section className="bg-white py-10 md:py-12 lg:py-16">
-      <div className="max-w-[1400px] mx-auto">
-        <div className="mb-6 flex items-end justify-between gap-4 px-4 md:mb-8 md:px-8 lg:px-12">
-          <h2
-            className={`${montserrat.className} text-2xl font-black uppercase tracking-[0.025em] text-gray-900 md:text-3xl lg:text-5xl`}
+    <section
+      aria-labelledby={headingId}
+      className="bg-white py-10 md:py-12 lg:py-16"
+    >
+      <div className="mb-6 flex items-end justify-between gap-4 px-[2.5vw] md:mb-8">
+        <h2
+          id={headingId}
+          className={`${montserrat.className} text-2xl font-black uppercase tracking-[0.025em] text-[#0A0B0A] md:text-3xl lg:text-5xl`}
+        >
+          {heading}
+        </h2>
+
+        <div className="flex shrink-0 items-center gap-2 md:gap-3">
+          <LocalizedClientLink
+            href={collectionHref}
+            className={`${montserrat.className} inline-flex h-10 items-center gap-1 bg-[#0A0B0A] px-3 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors duration-300 hover:bg-[#0A0B0A]/85 md:gap-2 md:px-6 md:text-sm`}
           >
-            {title || collectionHandle}
-          </h2>
+            <span className="hidden sm:inline">{buttonLabel || "View all"}</span>
+            <span className="sm:hidden">View all</span>
+            <ArrowRight className="h-3 w-3 md:h-4 md:w-4" strokeWidth={2.5} />
+          </LocalizedClientLink>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            <LocalizedClientLink
-              href={collectionHref}
-              className={`${montserrat.className} inline-flex items-center gap-1 bg-gray-900 px-3 py-2 text-xs font-semibold uppercase tracking-[0.06em] text-white transition-colors duration-300 hover:bg-[#F16D34] md:gap-2 md:px-6 md:py-3 md:text-sm`}
+          <div className="hidden items-center gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => emblaApi?.scrollPrev()}
+              disabled={!canScrollPrev}
+              className={ARROW_CLASS}
+              aria-label={`Previous ${heading} products`}
             >
-              <span className="hidden sm:inline">{activeButtonLabel}</span>
-              <span className="sm:hidden">Shop</span>
-              <ArrowRight className="h-3 w-3 md:h-4 md:w-4" strokeWidth={2.5} />
-            </LocalizedClientLink>
-
-            {showControls && (
-              <div className="hidden lg:flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => scrollRail("left")}
-                  disabled={!canScrollLeft}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 p-2 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollRail("right")}
-                  disabled={!canScrollRight}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 p-2 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
-            )}
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => emblaApi?.scrollNext()}
+              disabled={!canScrollNext}
+              className={ARROW_CLASS}
+              aria-label={`Next ${heading} products`}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
+      </div>
 
-        <div className="lg:hidden">
-          <div
-            ref={railRef}
-            className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:px-8"
-          >
-            {visibleProducts.map((product) => (
+      <div className="px-[2.5vw]">
+        {/* Embla only captures horizontal drags; pan-y keeps vertical page scroll on touch. */}
+        <div
+          ref={emblaRef}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label={heading}
+          className="cursor-grab overflow-hidden active:cursor-grabbing"
+        >
+          <div className="-ml-3 flex [touch-action:pan-y_pinch-zoom] md:-ml-4">
+            {visibleProducts.map((product, index) => (
               <div
                 key={product.id}
-                className="w-[70vw] flex-shrink-0 snap-start sm:w-[45vw] md:w-[40vw]"
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${index + 1} of ${slideCount}`}
+                className={SLIDE_CLASS}
               >
-                <ProductCard product={product} />
+                <div className={CARD_FRAME_CLASS}>
+                  <ProductCard
+                    product={product}
+                    countryCode={countryCode}
+                    variant="rail"
+                    showWishlist
+                    showShare
+                  />
+                </div>
               </div>
             ))}
 
-            {showViewAll && (
-              <div className="w-[70vw] flex-shrink-0 snap-start sm:w-[45vw] md:w-[40vw]">
-                <ViewAllCard collectionHandle={collectionHandle} />
+            {hasMore && (
+              <div
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${slideCount} of ${slideCount}`}
+                className={SLIDE_CLASS}
+              >
+                <ViewAllCard href={collectionHref} />
               </div>
             )}
           </div>
         </div>
-
-        <div
-          ref={useDesktopGrid ? undefined : railRef}
-          className={
-            useDesktopGrid
-              ? "hidden px-4 md:px-8 lg:grid lg:grid-cols-4 lg:gap-6 lg:px-12"
-              : "hidden lg:flex lg:flex-row lg:gap-6 lg:overflow-x-auto lg:px-12 lg:pb-4 lg:scroll-smooth lg:snap-x lg:snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-          }
-        >
-          {visibleProducts.map((product) => (
-            <div
-              key={product.id}
-              className={useDesktopGrid ? undefined : "w-[280px] flex-shrink-0 snap-start"}
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
-
-          {showViewAll && (
-            <div className="w-[280px] flex-shrink-0 snap-start">
-              <ViewAllCard collectionHandle={collectionHandle} />
-            </div>
-          )}
-        </div>
       </div>
+
+      {snapCount > 1 && (
+        <div className="mt-6 flex flex-wrap justify-center gap-1 px-[2.5vw]">
+          {Array.from({ length: snapCount }, (_, index) => {
+            const active = index === selectedSnap
+
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => emblaApi?.scrollTo(index)}
+                aria-label={`Go to page ${index + 1}`}
+                aria-current={active ? "true" : undefined}
+                className="group/dot flex h-6 w-6 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A]"
+              >
+                <span
+                  className={`block h-2 w-2 rounded-full transition-colors ${
+                    active
+                      ? "bg-[#0A0B0A]"
+                      : "bg-gray-300 group-hover/dot:bg-gray-500"
+                  }`}
+                />
+              </button>
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }

@@ -1,8 +1,9 @@
 import { Metadata } from "next"
-import Script from "next/script"
 import { draftMode } from "next/headers"
+import Script from "next/script"
 import { VisualEditing } from "next-sanity/visual-editing"
 
+import ConsentRoot from "@modules/consent"
 import { clientEnv } from "@lib/env"
 import {
   copy,
@@ -13,6 +14,7 @@ import {
   nationalCondensed,
   poppins,
 } from "@lib/fonts"
+import { PRELOADER_HEAD_SCRIPT } from "@lib/preloader-config"
 import { getDefaultTwitterMetadata, getSeoMetadataBase } from "@lib/seo"
 import { getBaseURL } from "@lib/util/env"
 import { Toaster } from "sonner"
@@ -75,14 +77,25 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { isEnabled: isDraftModeEnabled } = await draftMode()
 
   return (
-    <html lang="en" data-mode="light">
+    // suppressHydrationWarning: the preloader script below may add a class before React loads.
+    <html lang="en" data-mode="light" suppressHydrationWarning>
+      <head>
+        {/* Runs before paint so a repeat load in the same tab never flashes the preloader. */}
+        <script dangerouslySetInnerHTML={{ __html: PRELOADER_HEAD_SCRIPT }} />
+        <noscript>
+          <style>{`.sg-preloader{display:none}html{overflow:auto!important}`}</style>
+        </noscript>
+      </head>
       <body
         className={`${copy.variable} ${nationalCompressed.variable} ${nationalCondensed.variable} ${hendrix.variable} ${inter.variable} ${montserrat.variable} ${poppins.variable} font-sans`}
       >
         <SanityVisualEditingProvider enabled={isDraftModeEnabled}>
           <ConsoleWarning />
           {isDraftModeEnabled && <PreviewIndicator />}
-          <main className="relative">{props.children}</main>
+          {/* Consent state, settings panel, and the banner for future analytics or marketing. */}
+          <ConsentRoot>
+            <main className="relative">{props.children}</main>
+          </ConsentRoot>
           <Toaster position="bottom-right" richColors />
           {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
             <Script
