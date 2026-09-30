@@ -1,13 +1,13 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState, type RefObject } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ArrowUpRight, ChevronDown } from "lucide-react"
 
-import { outfit } from "@lib/fonts"
+import { instrumentSerifItalic, outfit } from "@lib/fonts"
 
 gsap.registerPlugin(useGSAP)
 
@@ -37,6 +37,9 @@ type ServicesWorkListProps = {
  *   leans into horizontal movement (MAX_TILT_DEG). Keyboard focus parks it
  *   between the columns (FOCUS_LEFT_RATIO) on the focused row.
  * - INACTIVE_OPACITY controls how far non-active rows fade on hover/focus.
+ * - Active row (hover, keyboard focus, open accordion item): an orange fill
+ *   wipes up, the title crossfades to a cursive twin (TITLE_SHIFT px rise)
+ *   and the text turns white. See createRowMotion.
  */
 const SECTION_X_PADDING =
   "px-5 xsmall:px-8 small:px-16 medium:px-24 large:px-[233px]"
@@ -44,6 +47,73 @@ const FOCUS_LEFT_RATIO = 0.36
 const FOLLOW_DURATION = 0.6
 const MAX_TILT_DEG = 8
 const INACTIVE_OPACITY = "opacity-35"
+const TITLE_SHIFT = 7
+const INK = "#000000"
+
+/** Full-bleed orange fill: reaches both screen edges; the section's
+    overflow-hidden clips the part under the scrollbar. */
+const FILL_CLASS =
+  "pointer-events-none absolute inset-y-0 left-[calc(50%-50vw)] -z-10 w-screen origin-bottom scale-y-0 bg-[#FB5A1F] will-change-transform"
+const CURSIVE_CLASS = `${instrumentSerifItalic.className} [grid-area:1/1] font-normal normal-case tracking-normal text-white opacity-0`
+
+type RowMotion = { on: () => void; off: () => void }
+
+/**
+ * Builds a row's orange state once: in and out timelines that are only
+ * played, never recreated. invalidate() lets each start from wherever the
+ * other stopped, so quick hovers never jump. `instant` (reduced motion)
+ * swaps the state with no wipe.
+ */
+function createRowMotion(row: HTMLElement, instant: boolean): RowMotion {
+  const fill = row.querySelector("[data-fill]")
+  const title = row.querySelector("[data-title]")
+  const cursive = row.querySelector("[data-title-cursive]")
+  const ink = row.querySelectorAll("[data-ink]")
+  const d = instant ? 0 : 1
+
+  gsap.set(fill, { scaleY: 0, transformOrigin: "50% 100%" })
+  gsap.set(cursive, { opacity: 0, y: TITLE_SHIFT })
+
+  const enter = gsap
+    .timeline({ paused: true, defaults: { ease: "power3.out" } })
+    .to(fill, { scaleY: 1, duration: 0.45 * d }, 0)
+    .to(title, { opacity: 0, y: -TITLE_SHIFT, duration: 0.3 * d }, 0)
+    .to(cursive, { opacity: 1, y: 0, duration: 0.4 * d }, 0.05 * d)
+    .to(ink, { color: "#ffffff", duration: 0.3 * d }, 0)
+  const leave = gsap
+    .timeline({ paused: true, defaults: { ease: "power3.out" } })
+    .to(fill, { scaleY: 0, duration: 0.35 * d }, 0)
+    .to(cursive, { opacity: 0, y: TITLE_SHIFT, duration: 0.25 * d }, 0)
+    .to(title, { opacity: 1, y: 0, duration: 0.3 * d }, 0.05 * d)
+    .to(ink, { color: INK, duration: 0.3 * d }, 0)
+
+  return {
+    on: () => {
+      leave.pause()
+      enter.invalidate().restart()
+    },
+    off: () => {
+      enter.pause()
+      leave.invalidate().restart()
+    },
+  }
+}
+
+/** Turns the previous row's orange state off and the new one's on. */
+function useRowMotionFollow(
+  motions: RefObject<Array<RowMotion | undefined>>,
+  index: number | null
+) {
+  const previousRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const previous = previousRef.current
+    if (previous === index) return
+    if (previous !== null) motions.current[previous]?.off()
+    if (index !== null) motions.current[index]?.on()
+    previousRef.current = index
+  }, [motions, index])
+}
 
 type PreviewMotion = {
   x: gsap.QuickToFunc
@@ -58,46 +128,19 @@ export default function ServicesWorkList({
   services,
   viewAllHref,
 }: ServicesWorkListProps) {
+  const sectionRef = useRef<HTMLElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLOListElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const rowRefs = useRef<Array<HTMLLIElement | null>>([])
+  const accordionRowRefs = useRef<Array<HTMLLIElement | null>>([])
+  const rowMotionsRef = useRef<Array<RowMotion | undefined>>([])
+  const accordionMotionsRef = useRef<Array<RowMotion | undefined>>([])
   const motionRef = useRef<PreviewMotion | null>(null)
   const hasPositionRef = useRef(false)
   const lastPointerXRef = useRef<number | null>(null)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
-
-  useGSAP(
-    () => {
-      const preview = previewRef.current
-      if (!preview) return
-
-      const reducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches
-      const duration = reducedMotion ? 0 : FOLLOW_DURATION
-
-      gsap.set(preview, { xPercent: -50, yPercent: -50 })
-
-      const tilt = reducedMotion
-        ? null
-        : gsap.quickTo(preview, "rotation", { duration: 0.8, ease: "power3.out" })
-
-      motionRef.current = {
-        x: gsap.quickTo(preview, "x", { duration, ease: "power3.out" }),
-        y: gsap.quickTo(preview, "y", { duration, ease: "power3.out" }),
-        tilt,
-        // Straightens the card shortly after the cursor stops.
-        settle: tilt ? gsap.delayedCall(0.12, () => tilt(0)).pause() : null,
-      }
-
-      return () => {
-        motionRef.current?.settle?.kill()
-        motionRef.current = null
-      }
-    },
-    { scope: wrapperRef }
-  )
 
   // Moves the preview to a point inside the wrapper; the first move snaps
   // so the card never flies in from a stale position.
@@ -115,21 +158,97 @@ export default function ServicesWorkList({
     }
   }
 
-  const handlePointerMove = (event: React.PointerEvent<HTMLOListElement>) => {
-    const wrapper = wrapperRef.current
-    const motion = motionRef.current
-    if (event.pointerType !== "mouse" || !wrapper || !motion) return
+  useGSAP(
+    () => {
+      const wrapper = wrapperRef.current
+      const list = listRef.current
+      const preview = previewRef.current
+      if (!wrapper || !list || !preview) return
 
-    const rect = wrapper.getBoundingClientRect()
-    movePreview(event.clientX - rect.left, event.clientY - rect.top)
+      const mm = gsap.matchMedia()
+      mm.add(
+        {
+          reduce: "(prefers-reduced-motion: reduce)",
+          motion: "(prefers-reduced-motion: no-preference)",
+        },
+        (context) => {
+          const reducedMotion = Boolean(context.conditions?.reduce)
+          const duration = reducedMotion ? 0 : FOLLOW_DURATION
 
-    if (motion.tilt && lastPointerXRef.current !== null) {
-      const deltaX = event.clientX - lastPointerXRef.current
-      motion.tilt(gsap.utils.clamp(-MAX_TILT_DEG, MAX_TILT_DEG, deltaX * 0.5))
-      motion.settle?.restart(true)
-    }
-    lastPointerXRef.current = event.clientX
-  }
+          gsap.set(preview, { xPercent: -50, yPercent: -50 })
+
+          const tilt = reducedMotion
+            ? null
+            : gsap.quickTo(preview, "rotation", { duration: 0.8, ease: "power3.out" })
+
+          motionRef.current = {
+            x: gsap.quickTo(preview, "x", { duration, ease: "power3.out" }),
+            y: gsap.quickTo(preview, "y", { duration, ease: "power3.out" }),
+            tilt,
+            // Straightens the card shortly after the cursor stops.
+            settle: tilt ? gsap.delayedCall(0.12, () => tilt(0)).pause() : null,
+          }
+
+          const build = (row: HTMLLIElement | null) =>
+            row ? createRowMotion(row, reducedMotion) : undefined
+          rowMotionsRef.current = rowRefs.current.map(build)
+          accordionMotionsRef.current = accordionRowRefs.current.map(build)
+
+          return () => {
+            motionRef.current?.settle?.kill()
+            motionRef.current = null
+            rowMotionsRef.current = []
+            accordionMotionsRef.current = []
+          }
+        }
+      )
+
+      // The wrapper's position is read on enter, scroll and resize, never in
+      // pointermove, so following the cursor causes no layout work.
+      let wrapperRect: DOMRect | null = null
+      const measure = () => {
+        wrapperRect = wrapper.getBoundingClientRect()
+      }
+      const onPointerLeave = () => {
+        wrapperRect = null
+      }
+      const onScrollOrResize = () => {
+        if (wrapperRect) measure()
+      }
+      const onPointerMove = (event: PointerEvent) => {
+        const motion = motionRef.current
+        if (event.pointerType !== "mouse" || !wrapperRect || !motion) return
+
+        movePreview(event.clientX - wrapperRect.left, event.clientY - wrapperRect.top)
+
+        if (motion.tilt && lastPointerXRef.current !== null) {
+          const deltaX = event.clientX - lastPointerXRef.current
+          motion.tilt(gsap.utils.clamp(-MAX_TILT_DEG, MAX_TILT_DEG, deltaX * 0.5))
+          motion.settle?.restart(true)
+        }
+        lastPointerXRef.current = event.clientX
+      }
+
+      list.addEventListener("pointerenter", measure, { passive: true })
+      list.addEventListener("pointerleave", onPointerLeave, { passive: true })
+      list.addEventListener("pointermove", onPointerMove, { passive: true })
+      window.addEventListener("scroll", onScrollOrResize, { passive: true })
+      window.addEventListener("resize", onScrollOrResize, { passive: true })
+
+      return () => {
+        list.removeEventListener("pointerenter", measure)
+        list.removeEventListener("pointerleave", onPointerLeave)
+        list.removeEventListener("pointermove", onPointerMove)
+        window.removeEventListener("scroll", onScrollOrResize)
+        window.removeEventListener("resize", onScrollOrResize)
+        mm.revert()
+      }
+    },
+    { scope: sectionRef }
+  )
+
+  useRowMotionFollow(rowMotionsRef, activeIndex)
+  useRowMotionFollow(accordionMotionsRef, openIndex)
 
   const focusRow = (index: number) => {
     const wrapper = wrapperRef.current
@@ -155,6 +274,7 @@ export default function ServicesWorkList({
 
   return (
     <section
+      ref={sectionRef}
       aria-labelledby="homepage-services-heading"
       className={`${outfit.className} overflow-hidden bg-white py-14 text-black antialiased small:py-20 medium:py-24 ${SECTION_X_PADDING}`}
     >
@@ -190,8 +310,8 @@ export default function ServicesWorkList({
           className="relative mt-10 hidden small:block medium:mt-14"
         >
           <ol
+            ref={listRef}
             className="relative border-b border-black/10"
-            onPointerMove={handlePointerMove}
             onMouseLeave={clearActiveRow}
             onBlur={(event) => {
               if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -208,10 +328,11 @@ export default function ServicesWorkList({
                   ref={(node) => {
                     rowRefs.current[index] = node
                   }}
-                  className={`border-t border-black/10 transition-opacity duration-300 motion-reduce:transition-none ${
+                  className={`relative isolate border-t border-black/10 transition-opacity duration-300 motion-reduce:transition-none ${
                     isFaded ? INACTIVE_OPACITY : "opacity-100"
                   }`}
                 >
+                  <span data-fill aria-hidden="true" className={FILL_CLASS} />
                   <Link
                     href={service.href}
                     onMouseEnter={() => setActiveIndex(index)}
@@ -223,12 +344,28 @@ export default function ServicesWorkList({
                         setActiveIndex(index)
                       }
                     }}
-                    className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-start gap-x-14 py-12 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f15a24] medium:gap-x-20 medium:py-14"
+                    className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-start gap-x-14 py-12 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white medium:gap-x-20 medium:py-14"
                   >
-                    <h3 className="text-[32px] font-black uppercase leading-[32px] text-black">
-                      {service.title}
+                    {/* Both title styles share one grid cell, so the row keeps
+                        the taller one's height and nothing jumps. */}
+                    <h3 className="grid">
+                      <span
+                        data-title
+                        className="[grid-area:1/1] text-[32px] font-black uppercase leading-[32px] text-black"
+                      >
+                        {service.title}
+                      </span>
+                      <span
+                        data-title-cursive
+                        aria-hidden="true"
+                        className={`${CURSIVE_CLASS} text-[42px] leading-[0.95]`}
+                      >
+                        {service.title}
+                      </span>
                     </h3>
-                    <p className="max-w-[58ch] justify-self-end text-xl font-light leading-[1.5] text-black">
+                    <p
+                      data-ink
+                      className="max-w-[58ch] justify-self-end text-xl font-light leading-[1.5] text-black">
                       {service.description}
                     </p>
                   </Link>
@@ -274,18 +411,38 @@ export default function ServicesWorkList({
             const panelId = `homepage-service-panel-${service.key}`
 
             return (
-              <li key={service.key} className="border-t border-black/10">
+              <li
+                key={service.key}
+                ref={(node) => {
+                  accordionRowRefs.current[index] = node
+                }}
+                className="relative isolate border-t border-black/10"
+              >
+                <span data-fill aria-hidden="true" className={FILL_CLASS} />
                 <button
                   type="button"
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex min-h-14 w-full items-center justify-between gap-4 py-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#f15a24]"
+                  className="flex min-h-14 w-full items-center justify-between gap-4 py-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#111111]"
                 >
-                  <span className="text-2xl font-black uppercase leading-[1.05] text-black">
-                    {service.title}
+                  <span className="grid">
+                    <span
+                      data-title
+                      className="[grid-area:1/1] text-2xl font-black uppercase leading-[1.05] text-black"
+                    >
+                      {service.title}
+                    </span>
+                    <span
+                      data-title-cursive
+                      aria-hidden="true"
+                      className={`${CURSIVE_CLASS} text-[32px] leading-[0.95]`}
+                    >
+                      {service.title}
+                    </span>
                   </span>
                   <ChevronDown
+                    data-ink
                     size={22}
                     strokeWidth={2}
                     aria-hidden="true"
@@ -302,14 +459,14 @@ export default function ServicesWorkList({
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="pb-5 text-lg font-light leading-[1.5] text-black">
+                    <p data-ink className="pb-5 text-lg font-light leading-[1.5] text-black">
                       {service.description}
                     </p>
                     <Link
                       href={service.href}
                       tabIndex={isOpen ? 0 : -1}
                       aria-label={`View ${service.title}`}
-                      className="relative mb-7 block aspect-[4/3] w-full overflow-hidden rounded-[14px] bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-[#f15a24]"
+                      className="relative mb-7 block aspect-[4/3] w-full overflow-hidden rounded-[14px] bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-[#111111]"
                     >
                       <Image
                         src={service.image}

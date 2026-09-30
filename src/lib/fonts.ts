@@ -1,5 +1,5 @@
 import localFont from "next/font/local"
-import { Inter, Montserrat, Poppins } from "next/font/google"
+import { Instrument_Serif, Inter, Montserrat, Poppins } from "next/font/google"
 
 export const inter = Inter({
   subsets: ["latin"],
@@ -20,6 +20,20 @@ export const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
   display: "swap",
+})
+
+/**
+ * Cursive title on the homepage services rows (hover state). Not preloaded:
+ * this module is shared by every page, and the hidden hover titles start the
+ * download when the services section renders.
+ */
+export const instrumentSerifItalic = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
+  variable: "--font-instrument-serif",
+  display: "swap",
+  preload: false,
 })
 
 export const hendrix = localFont({
