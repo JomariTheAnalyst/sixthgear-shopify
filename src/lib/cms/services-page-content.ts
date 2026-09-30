@@ -111,8 +111,8 @@ export const FALLBACK_SERVICES_HERO: ServicesHeroContent = {
   shortTitle: 'Services',
   description:
     'Complete motorcycle care from routine maintenance to performance upgrades. Expert technicians, quality parts, and attention to detail.',
-  heroImage: '/images/homepage/services/hero3.png',
-  imageAlt: 'SixthGear motorcycle service workshop',
+  heroImage: '/images/services/new-services-section.png',
+  imageAlt: 'A SixthGear mechanic tightening a bolt on a Royal Enfield in the workshop',
 }
 
 export const FALLBACK_SERVICES_EXPERTISE: ServicesExpertiseContent = {

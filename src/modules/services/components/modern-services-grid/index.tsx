@@ -88,10 +88,10 @@ export default function ModernServicesGrid({
       aria-labelledby="services-carousel-heading"
       className={`${outfit.className} w-full overflow-hidden bg-white py-20 text-[#151515] md:py-28`}
     >
-      <header className="mx-auto grid max-w-[1400px] gap-7 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-end lg:gap-16 lg:px-12">
+      <header className="mx-auto grid max-w-[1400px] gap-7 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)] lg:items-end lg:gap-16 lg:px-12">
         <h2
           id="services-carousel-heading"
-          className="max-w-[21ch] text-balance text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[0.98] tracking-[-0.045em]"
+          className="text-balance uppercase text-[clamp(1.75rem,3vw,3rem)] font-extrabold leading-[1.02] tracking-[-0.03em]"
         >
           {sectionHeading}
         </h2>
