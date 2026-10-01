@@ -68,13 +68,13 @@ export default async function ContactPage() {
           <div className="flex flex-col gap-5">
             <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-2xl bg-black text-white lg:h-[340px]">
               <Image
-                src="https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779693482/contact-us-banner-image_gfuev1.jpg"
+                src="/images/sixthgear-storefront-16x9.jpg"
                 alt="Expert Support"
                 fill
                 className="object-cover opacity-60"
                 priority
               />
-              <div className="absolute inset-0 flex flex-col justify-start p-8">
+              <div className="absolute pt-[15rem] inset-0 flex flex-col justify-start p-8">
                 <div className="flex items-center gap-3" />
                 <h3 className="max-w-[320px] text-3xl font-semibold leading-[1.1] tracking-tight lg:text-[40px]">
                   Our experts will always help you
