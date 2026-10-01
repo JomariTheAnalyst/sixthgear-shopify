@@ -40,7 +40,7 @@ export const EDITORIAL_CARDS: EditorialCard[] = [
     title: "Helmets",
     tag: "New",
     image:
-      "https://res.cloudinary.com/djn9ubf6a/image/upload/v1790732051/flor-model_jih0cr.png",
+      "https://res.cloudinary.com/djn9ubf6a/image/upload/v1790758739/flor_model_evtmk9.png",
     imageAlt:
       "Rider in a black riding jacket holding a blue Airoh Commander 2 adventure helmet",
     cornerText:
