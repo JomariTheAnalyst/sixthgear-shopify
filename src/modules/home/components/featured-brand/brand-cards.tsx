@@ -33,7 +33,11 @@ export type BrandCardItem = {
 
 const DRAG_THRESHOLD_PX = 8
 const TOUCH_DRAG_THRESHOLD_PX = 2
-const TOUCH_THROW_RESISTANCE = 650
+// Touch: lower resistance = longer glide after a flick; the multiplier makes
+// the track move further than the finger, so a short swipe reveals more brands.
+const TOUCH_THROW_RESISTANCE = 250
+const TOUCH_DRAG_MULTIPLIER = 2
+const DEFAULT_DRAG_MULTIPLIER = 1
 const DEFAULT_THROW_RESISTANCE = 1000
 const PARALLAX_MAX_PERCENT = 7
 
@@ -200,6 +204,9 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
       let dragOriginX = 0
       let dragStartProgress = 0
       const coarsePointer = window.matchMedia("(pointer: coarse)").matches
+      const dragMultiplier = coarsePointer
+        ? TOUCH_DRAG_MULTIPLIER
+        : DEFAULT_DRAG_MULTIPLIER
       const dragThreshold = coarsePointer
         ? TOUCH_DRAG_THRESHOLD_PX
         : DRAG_THRESHOLD_PX
@@ -267,7 +274,9 @@ export default function BrandCards({ brands }: { brands: BrandCardItem[] }) {
           draggedRef.current = true
         }
 
-        setLoopProgress(dragStartProgress - dragDistance / loop.totalWidth)
+        setLoopProgress(
+          dragStartProgress - (dragDistance * dragMultiplier) / loop.totalWidth
+        )
       }
 
       loop = createHorizontalLoop(slides, {
