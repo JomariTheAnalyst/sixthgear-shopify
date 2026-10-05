@@ -1,15 +1,17 @@
 "use client"
 
-import { useEffect, useRef, useState, type RefObject } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { ArrowUpRight, ChevronDown } from "lucide-react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { ChevronsRight } from "lucide-react"
 
-import { instrumentSerifItalic, outfit } from "@lib/fonts"
+import { nationalCompressed, outfit } from "@lib/fonts"
+import { useLenis } from "@modules/common/components/lenis-provider"
 
-gsap.registerPlugin(useGSAP)
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 export type ServicesWorkListItem = {
   key: string
@@ -24,466 +26,358 @@ type ServicesWorkListProps = {
   title: string
   description: string
   services: ServicesWorkListItem[]
-  viewAllHref: string
 }
 
 /**
  * Tunable design values for this section.
  *
- * - SECTION_X_PADDING mirrors the About Us revamp: exact 233px sides at
- *   `large:` (1440px+), responsive reductions below, ~20px on mobile.
- * - Service titles target 32px / 32px / 900; descriptions 20px / 30px / 300.
- * - The floating preview trails the mouse cursor (FOLLOW_DURATION lag) and
- *   leans into horizontal movement (MAX_TILT_DEG). Keyboard focus parks it
- *   between the columns (FOCUS_LEFT_RATIO) on the focused row.
- * - INACTIVE_OPACITY controls how far non-active rows fade on hover/focus.
- * - Active row (hover, keyboard focus, open accordion item): an orange fill
- *   wipes up, the title crossfades to a cursive twin (TITLE_SHIFT px rise)
- *   and the text turns white. See createRowMotion.
+ * - Tablet/desktop with motion (768px+): the section slides over the block
+ *   above it while that block drifts up at PARALLAX_SPEED, then pins (below
+ *   the sticky site header) while the services step through a vertical image
+ *   carousel. Each step is one viewport of scroll and snaps to a service.
+ * - Phones and reduced motion: a stacked list, rolled up (phones) or faded
+ *   (reduced motion) into view.
+ * - PEEK_OPACITY dims the previous and next images peeking in above/below.
  */
-const SECTION_X_PADDING =
-  "px-5 xsmall:px-8 small:px-16 medium:px-24 large:px-[233px]"
-const FOCUS_LEFT_RATIO = 0.36
-const FOLLOW_DURATION = 0.6
-const MAX_TILT_DEG = 8
-const INACTIVE_OPACITY = "opacity-35"
-const TITLE_SHIFT = 7
-const INK = "#000000"
+const SECTION_X_PADDING = "px-5 xsmall:px-8 small:px-16 medium:px-24"
+const ACCENT = "#f15a24"
+const PEEK_OPACITY = 0.35
+/** Share of normal scroll speed the covered block keeps (0 = frozen, 1 = no parallax). */
+const PARALLAX_SPEED = 0.5
+const STEP_EASE = "power2.inOut"
 
-/** Full-bleed orange fill: reaches both screen edges; the section's
-    overflow-hidden clips the part under the scrollbar. */
-const FILL_CLASS =
-  "pointer-events-none absolute inset-y-0 left-[calc(50%-50vw)] -z-10 w-screen origin-bottom scale-y-0 bg-[#FB5A1F] will-change-transform"
-const CURSIVE_CLASS = `${instrumentSerifItalic.className} [grid-area:1/1] font-normal normal-case tracking-normal text-white opacity-0`
+const TITLE_CLASS = `${nationalCompressed.className} uppercase leading-[0.86] tracking-[0.01em] text-white`
+const LEARN_MORE_CLASS =
+  "inline-flex min-h-11 items-center gap-1.5 rounded-[3px] bg-[#f15a24] px-4 text-sm font-bold uppercase tracking-[0.08em] text-black outline-none transition-colors duration-300 hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
 
-type RowMotion = { on: () => void; off: () => void }
+/** Two diagonal squares: a small chequered-flag mark. */
+function FlagMark() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6" fill={ACCENT}>
+      <rect x="0" y="0" width="12" height="12" />
+      <rect x="12" y="12" width="12" height="12" />
+    </svg>
+  )
+}
 
-/**
- * Builds a row's orange state once: in and out timelines that are only
- * played, never recreated. invalidate() lets each start from wherever the
- * other stopped, so quick hovers never jump. `instant` (reduced motion)
- * swaps the state with no wipe.
- */
-function createRowMotion(row: HTMLElement, instant: boolean): RowMotion {
-  const fill = row.querySelector("[data-fill]")
-  const title = row.querySelector("[data-title]")
-  const cursive = row.querySelector("[data-title-cursive]")
-  const ink = row.querySelectorAll("[data-ink]")
-  const d = instant ? 0 : 1
+/** Bottom edge of the sticky site header, so the pinned stage starts below it. */
+function headerOffset() {
+  return document.querySelector("header")?.getBoundingClientRect().bottom ?? 0
+}
 
-  gsap.set(fill, { scaleY: 0, transformOrigin: "50% 100%" })
-  gsap.set(cursive, { opacity: 0, y: TITLE_SHIFT })
-
-  const enter = gsap
-    .timeline({ paused: true, defaults: { ease: "power3.out" } })
-    .to(fill, { scaleY: 1, duration: 0.45 * d }, 0)
-    .to(title, { opacity: 0, y: -TITLE_SHIFT, duration: 0.3 * d }, 0)
-    .to(cursive, { opacity: 1, y: 0, duration: 0.4 * d }, 0.05 * d)
-    .to(ink, { color: "#ffffff", duration: 0.3 * d }, 0)
-  const leave = gsap
-    .timeline({ paused: true, defaults: { ease: "power3.out" } })
-    .to(fill, { scaleY: 0, duration: 0.35 * d }, 0)
-    .to(cursive, { opacity: 0, y: TITLE_SHIFT, duration: 0.25 * d }, 0)
-    .to(title, { opacity: 1, y: 0, duration: 0.3 * d }, 0.05 * d)
-    .to(ink, { color: INK, duration: 0.3 * d }, 0)
-
-  return {
-    on: () => {
-      leave.pause()
-      enter.invalidate().restart()
-    },
-    off: () => {
-      enter.pause()
-      leave.invalidate().restart()
-    },
+/** The nearest rendered element above the section, skipping wrappers it is
+    the first child of (e.g. SanityEditTarget) and empty slots. */
+function findElementAbove(section: HTMLElement) {
+  for (let node: HTMLElement | null = section; node && node.tagName !== "MAIN"; node = node.parentElement) {
+    for (let el = node.previousElementSibling; el; el = el.previousElementSibling) {
+      if (el instanceof HTMLElement && el.offsetHeight > 0 && !["SCRIPT", "TEMPLATE"].includes(el.tagName)) {
+        return el
+      }
+    }
   }
-}
-
-/** Turns the previous row's orange state off and the new one's on. */
-function useRowMotionFollow(
-  motions: RefObject<Array<RowMotion | undefined>>,
-  index: number | null
-) {
-  const previousRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    const previous = previousRef.current
-    if (previous === index) return
-    if (previous !== null) motions.current[previous]?.off()
-    if (index !== null) motions.current[index]?.on()
-    previousRef.current = index
-  }, [motions, index])
-}
-
-type PreviewMotion = {
-  x: gsap.QuickToFunc
-  y: gsap.QuickToFunc
-  tilt: gsap.QuickToFunc | null
-  settle: gsap.core.Tween | null
+  return null
 }
 
 export default function ServicesWorkList({
   title,
   description,
   services,
-  viewAllHref,
 }: ServicesWorkListProps) {
   const sectionRef = useRef<HTMLElement>(null)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const listRef = useRef<HTMLOListElement>(null)
-  const previewRef = useRef<HTMLDivElement>(null)
-  const rowRefs = useRef<Array<HTMLLIElement | null>>([])
-  const accordionRowRefs = useRef<Array<HTMLLIElement | null>>([])
-  const rowMotionsRef = useRef<Array<RowMotion | undefined>>([])
-  const accordionMotionsRef = useRef<Array<RowMotion | undefined>>([])
-  const motionRef = useRef<PreviewMotion | null>(null)
-  const hasPositionRef = useRef(false)
-  const lastPointerXRef = useRef<number | null>(null)
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const stageTriggerRef = useRef<ScrollTrigger | null>(null)
+  const activeRef = useRef(0)
+  const refreshTimerRef = useRef<number | undefined>(undefined)
+  const [active, setActive] = useState(0)
+  const lenis = useLenis()
+  const count = services.length
 
-  // Moves the preview to a point inside the wrapper; the first move snaps
-  // so the card never flies in from a stale position.
-  const movePreview = (x: number, y: number) => {
-    const motion = motionRef.current
-    if (!motion) return
-
-    if (hasPositionRef.current) {
-      motion.x(x)
-      motion.y(y)
-    } else {
-      motion.x(x, x)
-      motion.y(y, y)
-      hasPositionRef.current = true
-    }
+  // Pin positions depend on final heights; images and fonts can change them.
+  const refresh = () => {
+    window.clearTimeout(refreshTimerRef.current)
+    refreshTimerRef.current = window.setTimeout(() => ScrollTrigger.refresh(), 150)
   }
+
+  useEffect(() => {
+    let mounted = true
+    document.fonts?.ready.then(() => mounted && ScrollTrigger.refresh())
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   useGSAP(
     () => {
-      const wrapper = wrapperRef.current
-      const list = listRef.current
-      const preview = previewRef.current
-      if (!wrapper || !list || !preview) return
+      const section = sectionRef.current
+      const stage = stageRef.current
+      if (!section || !stage) return
 
       const mm = gsap.matchMedia()
-      mm.add(
-        {
-          reduce: "(prefers-reduced-motion: reduce)",
-          motion: "(prefers-reduced-motion: no-preference)",
-        },
-        (context) => {
-          const reducedMotion = Boolean(context.conditions?.reduce)
-          const duration = reducedMotion ? 0 : FOLLOW_DURATION
 
-          gsap.set(preview, { xPercent: -50, yPercent: -50 })
-
-          const tilt = reducedMotion
-            ? null
-            : gsap.quickTo(preview, "rotation", { duration: 0.8, ease: "power3.out" })
-
-          motionRef.current = {
-            x: gsap.quickTo(preview, "x", { duration, ease: "power3.out" }),
-            y: gsap.quickTo(preview, "y", { duration, ease: "power3.out" }),
-            tilt,
-            // Straightens the card shortly after the cursor stops.
-            settle: tilt ? gsap.delayedCall(0.12, () => tilt(0)).pause() : null,
-          }
-
-          const build = (row: HTMLLIElement | null) =>
-            row ? createRowMotion(row, reducedMotion) : undefined
-          rowMotionsRef.current = rowRefs.current.map(build)
-          accordionMotionsRef.current = accordionRowRefs.current.map(build)
-
-          return () => {
-            motionRef.current?.settle?.kill()
-            motionRef.current = null
-            rowMotionsRef.current = []
-            accordionMotionsRef.current = []
-          }
+      mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+        // Parallax slide-over: while this section rises over the block above,
+        // that block is pushed down by part of the scrolled distance, so it
+        // drifts up slower than the page. Transform only: pinning it would wrap
+        // an element owned by another component in a pin-spacer, and React then
+        // fails to remove it ("removeChild").
+        const above = findElementAbove(section)
+        if (above) {
+          gsap.fromTo(
+            above,
+            { y: 0 },
+            {
+              y: () => window.innerHeight * (1 - PARALLAX_SPEED),
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "top top",
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            }
+          )
         }
-      )
 
-      // The wrapper's position is read on enter, scroll and resize, never in
-      // pointermove, so following the cursor causes no layout work.
-      let wrapperRect: DOMRect | null = null
-      const measure = () => {
-        wrapperRect = wrapper.getBoundingClientRect()
-      }
-      const onPointerLeave = () => {
-        wrapperRect = null
-      }
-      const onScrollOrResize = () => {
-        if (wrapperRect) measure()
-      }
-      const onPointerMove = (event: PointerEvent) => {
-        const motion = motionRef.current
-        if (event.pointerType !== "mouse" || !wrapperRect || !motion) return
+        // Stage height and pin start follow the sticky header's height.
+        const fitStage = () => stage.style.setProperty("--header-offset", `${headerOffset()}px`)
+        fitStage()
+        ScrollTrigger.addEventListener("refreshInit", fitStage)
+        const stopFitting = () => ScrollTrigger.removeEventListener("refreshInit", fitStage)
 
-        movePreview(event.clientX - wrapperRect.left, event.clientY - wrapperRect.top)
+        if (count < 2) return stopFitting
 
-        if (motion.tilt && lastPointerXRef.current !== null) {
-          const deltaX = event.clientX - lastPointerXRef.current
-          motion.tilt(gsap.utils.clamp(-MAX_TILT_DEG, MAX_TILT_DEG, deltaX * 0.5))
-          motion.settle?.restart(true)
+        const titles = gsap.utils.toArray<HTMLElement>("[data-stage-title]", stage)
+        const copies = gsap.utils.toArray<HTMLElement>("[data-stage-copy]", stage)
+        const slides = gsap.utils.toArray<HTMLElement>("[data-stage-slide]", stage)
+        const track = stage.querySelector("[data-stage-track]")
+        const step = () => slides[1].offsetTop - slides[0].offsetTop
+
+        // Server markup hides all but the first text (opacity-0); GSAP takes over.
+        gsap.set([...titles.slice(1), ...copies.slice(1)], { yPercent: 100, opacity: 1 })
+        gsap.set(slides.slice(1), { opacity: PEEK_OPACITY })
+
+        const tl = gsap.timeline({
+          defaults: { duration: 1, ease: STEP_EASE },
+          scrollTrigger: {
+            trigger: stage,
+            start: () => `top ${headerOffset()}`,
+            end: () => `+=${window.innerHeight * (count - 1)}`,
+            pin: true,
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+            snap: {
+              snapTo: "labelsDirectional",
+              duration: { min: 0.25, max: 0.7 },
+              delay: 0.05,
+              ease: STEP_EASE,
+            },
+            onUpdate: (self) => {
+              const index = Math.round(self.progress * (count - 1))
+              if (index !== activeRef.current) {
+                activeRef.current = index
+                setActive(index)
+              }
+            },
+          },
+        })
+
+        for (let i = 0; i < count - 1; i++) {
+          tl.addLabel(`service-${i}`, i)
+            .to(track, { y: () => -(i + 1) * step() }, i)
+            .to(slides[i], { opacity: PEEK_OPACITY }, i)
+            .to(slides[i + 1], { opacity: 1 }, i)
+            .to([titles[i], copies[i]], { yPercent: -100 }, i)
+            .to([titles[i + 1], copies[i + 1]], { yPercent: 0 }, i)
         }
-        lastPointerXRef.current = event.clientX
-      }
+        tl.addLabel(`service-${count - 1}`, count - 1)
+        stageTriggerRef.current = tl.scrollTrigger ?? null
 
-      list.addEventListener("pointerenter", measure, { passive: true })
-      list.addEventListener("pointerleave", onPointerLeave, { passive: true })
-      list.addEventListener("pointermove", onPointerMove, { passive: true })
-      window.addEventListener("scroll", onScrollOrResize, { passive: true })
-      window.addEventListener("resize", onScrollOrResize, { passive: true })
+        return () => {
+          stopFitting()
+          stageTriggerRef.current = null
+          activeRef.current = 0
+          setActive(0)
+        }
+      })
 
-      return () => {
-        list.removeEventListener("pointerenter", measure)
-        list.removeEventListener("pointerleave", onPointerLeave)
-        list.removeEventListener("pointermove", onPointerMove)
-        window.removeEventListener("scroll", onScrollOrResize)
-        window.removeEventListener("resize", onScrollOrResize)
-        mm.revert()
-      }
+      mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => {
+        gsap.utils.toArray<HTMLElement>("[data-block]", section).forEach((block) => {
+          gsap
+            .timeline({
+              defaults: { ease: "power3.out" },
+              scrollTrigger: { trigger: block, start: "top 85%", once: true },
+            })
+            .from(block.querySelector("[data-roll]"), { yPercent: 100, duration: 0.8 })
+            .from(block.querySelectorAll("[data-rise]"), { y: 40, opacity: 0, duration: 0.7, stagger: 0.08 }, 0.15)
+        })
+      })
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.utils.toArray<HTMLElement>("[data-block]", section).forEach((block) => {
+          gsap.from(block, {
+            opacity: 0,
+            duration: 0.6,
+            ease: "none",
+            scrollTrigger: { trigger: block, start: "top 90%", once: true },
+          })
+        })
+      })
+
+      return () => mm.revert()
     },
-    { scope: sectionRef }
+    { scope: sectionRef, dependencies: [count] }
   )
 
-  useRowMotionFollow(rowMotionsRef, activeIndex)
-  useRowMotionFollow(accordionMotionsRef, openIndex)
+  // Keyboard: tabbing to a hidden service's link scrolls the carousel to it.
+  const scrollToService = (index: number) => {
+    const trigger = stageTriggerRef.current
+    if (!trigger || index === activeRef.current) return
 
-  const focusRow = (index: number) => {
-    const wrapper = wrapperRef.current
-    const row = rowRefs.current[index]
-
-    if (wrapper && row) {
-      const wrapperRect = wrapper.getBoundingClientRect()
-      const rowRect = row.getBoundingClientRect()
-      movePreview(
-        wrapperRect.width * FOCUS_LEFT_RATIO,
-        rowRect.top - wrapperRect.top + rowRect.height / 2
-      )
-    }
-
-    setActiveIndex(index)
-  }
-
-  const clearActiveRow = () => {
-    setActiveIndex(null)
-    hasPositionRef.current = false
-    lastPointerXRef.current = null
+    const top = trigger.start + (trigger.end - trigger.start) * (index / (count - 1))
+    if (lenis) lenis.scrollTo(top)
+    else window.scrollTo({ top })
   }
 
   return (
     <section
       ref={sectionRef}
       aria-labelledby="homepage-services-heading"
-      className={`${outfit.className} overflow-hidden bg-white py-14 text-black antialiased small:py-20 medium:py-24 ${SECTION_X_PADDING}`}
+      className={`${outfit.className} relative z-10 bg-black text-white antialiased`}
     >
-      <div className="mx-auto max-w-[1454px]">
-        <header className="flex flex-col items-start gap-6 small:flex-row small:items-end small:justify-between small:gap-10">
-          <div className="flex flex-col items-start">
-            <h2
-              id="homepage-services-heading"
-              className="text-[clamp(2.25rem,4.6vw,5.25rem)] font-black uppercase leading-[1] tracking-[-0.025em] text-black"
-            >
-              {title}
-            </h2>
-            <p className="sr-only">{description}</p>
+      <header className={`pb-10 pt-14 text-center small:pt-20 ${SECTION_X_PADDING}`}>
+        <h2
+          id="homepage-services-heading"
+          className={`${TITLE_CLASS} text-[clamp(2.75rem,5.4vw,6rem)]`}
+        >
+          {title}
+        </h2>
+        <p className="sr-only">{description}</p>
+      </header>
+
+      {/* Tablet/desktop with motion: pinned carousel. The wrapper keeps the
+          pin-spacer GSAP inserts out of React's child list for <section>. */}
+      <div>
+        <div
+          ref={stageRef}
+          className={`relative hidden h-[calc(100svh-var(--header-offset,0px))] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-[clamp(2rem,4vw,5rem)] overflow-hidden md:motion-safe:grid ${SECTION_X_PADDING}`}
+        >
+          <div className="grid overflow-hidden">
+            {services.map((service, index) => (
+              <h3
+                key={service.key}
+                data-stage-title
+                className={`${TITLE_CLASS} flex flex-col items-center justify-center text-center text-[clamp(2.5rem,4.6vw,5.5rem)] [grid-area:1/1] ${index ? "opacity-0" : ""}`}
+              >
+                {service.title}
+              </h3>
+            ))}
           </div>
 
-          <Link
-            href={viewAllHref}
-            className="group inline-flex min-h-12 shrink-0 items-center gap-3 rounded-full bg-[#111111] py-1.5 pl-7 pr-1.5 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-colors duration-300 hover:bg-[#f15a24] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#111111]"
-          >
-            View all services
-            <span
-              aria-hidden="true"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#111111] transition-transform duration-300 group-hover:rotate-45"
-            >
-              <ArrowUpRight size={18} strokeWidth={2} />
-            </span>
-          </Link>
-        </header>
-
-        {/* Desktop: editorial rows with hover/focus preview. */}
-        <div
-          ref={wrapperRef}
-          className="relative mt-10 hidden small:block medium:mt-14"
-        >
-          <ol
-            ref={listRef}
-            className="relative border-b border-black/10"
-            onMouseLeave={clearActiveRow}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) {
-                clearActiveRow()
-              }
-            }}
-          >
-            {services.map((service, index) => {
-              const isFaded = activeIndex !== null && activeIndex !== index
-
-              return (
-                <li
+          {/* Every slide is the same fixed square; the previous and next ones
+              peek in above and below, dimmed. */}
+          <div className="relative aspect-square w-[min(28vw,42svh)]">
+            <div data-stage-track className="absolute inset-x-0 top-0 flex flex-col gap-[7svh]">
+              {services.map((service) => (
+                <div
                   key={service.key}
-                  ref={(node) => {
-                    rowRefs.current[index] = node
-                  }}
-                  className={`relative isolate border-t border-black/10 transition-opacity duration-300 motion-reduce:transition-none ${
-                    isFaded ? INACTIVE_OPACITY : "opacity-100"
-                  }`}
+                  data-stage-slide
+                  className="relative aspect-square w-full overflow-hidden rounded-[4px] bg-neutral-900"
                 >
-                  <span data-fill aria-hidden="true" className={FILL_CLASS} />
-                  <Link
-                    href={service.href}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onFocus={(event) => {
-                      // Mouse clicks also focus the link; only keyboard focus parks the preview.
-                      if (event.currentTarget.matches(":focus-visible")) {
-                        focusRow(index)
-                      } else {
-                        setActiveIndex(index)
-                      }
-                    }}
-                    className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-start gap-x-14 py-12 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white medium:gap-x-20 medium:py-14"
-                  >
-                    {/* Both title styles share one grid cell, so the row keeps
-                        the taller one's height and nothing jumps. */}
-                    <h3 className="grid">
-                      <span
-                        data-title
-                        className="[grid-area:1/1] text-[32px] font-black uppercase leading-[32px] text-black"
-                      >
-                        {service.title}
-                      </span>
-                      <span
-                        data-title-cursive
-                        aria-hidden="true"
-                        className={`${CURSIVE_CLASS} text-[42px] leading-[0.95]`}
-                      >
-                        {service.title}
-                      </span>
-                    </h3>
-                    <p
-                      data-ink
-                      className="max-w-[58ch] justify-self-end text-xl font-light leading-[1.5] text-black">
-                      {service.description}
-                    </p>
-                  </Link>
-                </li>
-              )
-            })}
-          </ol>
-
-          {/* Cursor-following preview; GSAP moves the outer layer, CSS handles
-              reveal and crossfade. Never blocks clicks. */}
-          <div
-            ref={previewRef}
-            aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 z-10 w-[clamp(220px,19vw,290px)] will-change-transform"
-          >
-            <div
-              className={`relative aspect-[3/4] w-full overflow-hidden rounded-[14px] bg-neutral-100 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.45)] transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
-                activeIndex !== null ? "scale-100 opacity-100" : "scale-75 opacity-0"
-              }`}
-            >
-              {services.map((service, index) => (
-                <Image
-                  key={service.key}
-                  src={service.image}
-                  alt=""
-                  fill
-                  className={`object-cover transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
-                    index === activeIndex
-                      ? "scale-100 opacity-100"
-                      : "scale-110 opacity-0"
-                  }`}
-                  sizes="290px"
-                />
+                  <Image
+                    src={service.image}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 28vw, 100vw"
+                    onLoad={refresh}
+                  />
+                </div>
               ))}
             </div>
+
           </div>
-        </div>
 
-        {/* Mobile / touch: single-open accordion. */}
-        <ul className="mt-8 border-b border-black/10 small:hidden">
-          {services.map((service, index) => {
-            const isOpen = openIndex === index
-            const panelId = `homepage-service-panel-${service.key}`
-
-            return (
-              <li
+          <div className="grid overflow-hidden">
+            {services.map((service, index) => (
+              <div
                 key={service.key}
-                ref={(node) => {
-                  accordionRowRefs.current[index] = node
-                }}
-                className="relative isolate border-t border-black/10"
+                data-stage-copy
+                className={`flex flex-col items-center justify-center gap-6 text-center [grid-area:1/1] ${index ? "opacity-0" : ""}`}
               >
-                <span data-fill aria-hidden="true" className={FILL_CLASS} />
-                <button
-                  type="button"
-                  aria-expanded={isOpen}
-                  aria-controls={panelId}
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex min-h-14 w-full items-center justify-between gap-4 py-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#111111]"
+                <p className="max-w-[40ch] text-base font-light leading-[1.6] text-white/75 medium:text-lg">
+                  {service.description}
+                </p>
+                {/* Other services' copies sit outside the mask; tabbing to one scrolls to it. */}
+                <Link
+                  href={service.href}
+                  aria-label={`Learn more about ${service.title}`}
+                  onFocus={() => scrollToService(index)}
+                  className={LEARN_MORE_CLASS}
                 >
-                  <span className="grid">
-                    <span
-                      data-title
-                      className="[grid-area:1/1] text-2xl font-black uppercase leading-[1.05] text-black"
-                    >
-                      {service.title}
-                    </span>
-                    <span
-                      data-title-cursive
-                      aria-hidden="true"
-                      className={`${CURSIVE_CLASS} text-[32px] leading-[0.95]`}
-                    >
-                      {service.title}
-                    </span>
-                  </span>
-                  <ChevronDown
-                    data-ink
-                    size={22}
-                    strokeWidth={2}
-                    aria-hidden="true"
-                    className={`shrink-0 text-black transition-transform duration-300 motion-reduce:transition-none ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
+                  Learn more
+                  <ChevronsRight size={18} strokeWidth={2.5} aria-hidden="true" />
+                </Link>
+              </div>
+            ))}
+          </div>
 
-                <div
-                  id={panelId}
-                  className={`grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
-                    isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <p data-ink className="pb-5 text-lg font-light leading-[1.5] text-black">
-                      {service.description}
-                    </p>
-                    <Link
-                      href={service.href}
-                      tabIndex={isOpen ? 0 : -1}
-                      aria-label={`View ${service.title}`}
-                      className="relative mb-7 block aspect-[4/3] w-full overflow-hidden rounded-[14px] bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-[#111111]"
-                    >
-                      <Image
-                        src={service.image}
-                        alt=""
-                        fill
-                        loading="lazy"
-                        className="object-cover"
-                        sizes="(max-width: 1023px) 92vw, 400px"
-                      />
-                    </Link>
-                  </div>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+          <p
+            aria-hidden="true"
+            className={`${nationalCompressed.className} absolute bottom-8 right-5 flex items-center gap-3 text-[2.5rem] leading-none text-white xsmall:right-8 small:right-16 medium:right-24`}
+          >
+            <FlagMark />
+            <span>
+              {active + 1}/{count}
+            </span>
+          </p>
+        </div>
       </div>
+
+      {/* Phones and reduced motion: stacked services. */}
+      <ol
+        className={`mx-auto flex max-w-3xl flex-col gap-16 pb-16 md:motion-safe:hidden ${SECTION_X_PADDING}`}
+      >
+        {services.map((service) => (
+          <li key={service.key} data-block>
+            <div className="overflow-hidden">
+              <h3
+                data-roll
+                className={`${TITLE_CLASS} text-[clamp(2.75rem,12vw,4.5rem)]`}
+              >
+                {service.title}
+              </h3>
+            </div>
+            <div
+              data-rise
+              className="relative mt-5 aspect-square w-full overflow-hidden rounded-[4px] bg-neutral-900"
+            >
+              <Image
+                src={service.image}
+                alt=""
+                fill
+                loading="lazy"
+                className="object-cover"
+                sizes="(max-width: 767px) 92vw, 768px"
+                onLoad={refresh}
+              />
+            </div>
+            <p data-rise className="mt-5 text-base font-light leading-[1.6] text-white/75">
+              {service.description}
+            </p>
+            <div data-rise className="mt-6">
+              <Link
+                href={service.href}
+                aria-label={`Learn more about ${service.title}`}
+                className={LEARN_MORE_CLASS}
+              >
+                Learn more
+                <ChevronsRight size={18} strokeWidth={2.5} aria-hidden="true" />
+              </Link>
+            </div>
+          </li>
+        ))}
+      </ol>
     </section>
   )
 }
