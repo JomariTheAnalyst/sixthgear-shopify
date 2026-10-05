@@ -587,10 +587,28 @@ export interface SanityFeaturedCollectionItem {
   position: string | null
   startDate: string | null
   endDate: string | null
-  layout: 'image_left' | 'image_right' | null
+  layout: 'image_left' | 'image_right' | 'full_width' | null
   contentPosition: 'bottom-left' | 'bottom-center' | 'bottom-right' | null
   bannerImageUrl: string | null
+  bannerImageRef?: string | null
+  bannerImageCrop?: {
+    top: number
+    bottom: number
+    left: number
+    right: number
+  } | null
+  bannerImageHotspot?: {
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null
   bannerImageAlt: string | null
+  mediaType?: 'image' | 'video' | null
+  videoSource?: 'url' | 'upload' | null
+  videoUrl?: string | null
+  videoUploadUrl?: string | null
+  darkOverlay?: boolean | null
   collectionHandle: string | null
   heading: string | null
   subtext: string | null

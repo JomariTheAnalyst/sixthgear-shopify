@@ -1,5 +1,8 @@
 import { defineField, defineType } from 'sanity'
 
+// Mirrored by MAX_RENDERED_FEATURED_COLLECTIONS in src/lib/cms/featured-collection.ts.
+const MAX_ACTIVE_FEATURED_COLLECTIONS = 3
+
 // Central hub for all promotional content.
 // Announcement bar, popup, featured collection banners,
 // and promo wide banners — all managed here.
@@ -34,6 +37,16 @@ export default defineType({
       type: 'array',
       description: 'Image + product grid banners. Each item has a position field — boss picks where it appears. Drag to reorder. Toggle each on/off. If two items share a position only the first active one renders.',
       of: [{ type: 'featuredCollection' }],
+      validation: (Rule) =>
+        Rule.custom((items) => {
+          const activeCount = ((items ?? []) as { isActive?: boolean }[]).filter(
+            (item) => item?.isActive === true
+          ).length
+          return (
+            activeCount <= MAX_ACTIVE_FEATURED_COLLECTIONS ||
+            'Only 3 campaigns can be active at once. Turn one off before turning on another.'
+          )
+        }),
     }),
 
     // ─── Promo Wide Banners ───

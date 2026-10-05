@@ -1,6 +1,7 @@
 import type { SanityFeaturedCollectionItem } from './types'
 import type { ShopifyProductCard } from '@lib/shopify/types'
 import { stegaClean } from 'next-sanity'
+import { isCloudinaryUrl } from './video-feature'
 
 const cleanSanityString = stegaClean
 const cleanOptionalSanityString = (value: string | null | undefined) =>
@@ -21,6 +22,9 @@ export const SUPPORTED_FEATURED_COLLECTION_POSITIONS = [
 
 export type FeaturedCollectionPosition =
   (typeof SUPPORTED_FEATURED_COLLECTION_POSITIONS)[number]
+
+// Backup for the Studio rule on marketing.featuredCollections (max 3 active).
+export const MAX_RENDERED_FEATURED_COLLECTIONS = 3
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && cleanSanityString(value).trim().length > 0
@@ -115,13 +119,42 @@ export function selectFeaturedCollectionForPosition(
   now: Date = new Date()
 ) {
   return (
-    campaigns.find(
-      (campaign) =>
-        cleanOptionalSanityString(campaign.position) === position &&
-        isFeaturedCollectionScheduleActive(campaign, now) &&
-        isCompleteFeaturedCollectionCampaign(campaign)
-    ) ?? null
+    campaigns
+      .filter(
+        (campaign) =>
+          isFeaturedCollectionScheduleActive(campaign, now) &&
+          isCompleteFeaturedCollectionCampaign(campaign)
+      )
+      .slice(0, MAX_RENDERED_FEATURED_COLLECTIONS)
+      .find(
+        (campaign) => cleanOptionalSanityString(campaign.position) === position
+      ) ?? null
   )
+}
+
+export function isFullWidthFeaturedCollection(
+  campaign: Pick<SanityFeaturedCollectionItem, 'layout'>
+) {
+  return cleanOptionalSanityString(campaign.layout) === 'full_width'
+}
+
+/** Video URL for a full-width video campaign, or null to show the image. */
+export function getFeaturedCollectionVideoUrl(
+  campaign: SanityFeaturedCollectionItem
+) {
+  if (
+    !isFullWidthFeaturedCollection(campaign) ||
+    cleanOptionalSanityString(campaign.mediaType) !== 'video'
+  ) {
+    return null
+  }
+
+  if (cleanOptionalSanityString(campaign.videoSource) === 'upload') {
+    return cleanOptionalSanityString(campaign.videoUploadUrl)?.trim() || null
+  }
+
+  const url = cleanOptionalSanityString(campaign.videoUrl)?.trim()
+  return url && isCloudinaryUrl(url) ? url : null
 }
 
 export async function resolveFeaturedCollectionProducts(
