@@ -109,17 +109,27 @@ export default function ServicesWorkList({
       const mm = gsap.matchMedia()
 
       mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
-        // Slide-over: the block above holds still while this section rises over it.
+        // Slide-over: the block above holds still while this section rises over
+        // it. It is moved down by exactly the scrolled distance instead of being
+        // pinned: a pin would wrap that element (owned by another component) in
+        // a pin-spacer, and React then fails to remove it ("removeChild").
         const above = findElementAbove(section)
         if (above) {
-          ScrollTrigger.create({
-            trigger: above,
-            start: "bottom bottom",
-            endTrigger: section,
-            end: "top top",
-            pin: true,
-            pinSpacing: false,
-          })
+          gsap.fromTo(
+            above,
+            { y: 0 },
+            {
+              y: () => window.innerHeight,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "top top",
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            }
+          )
         }
 
         if (count < 2) return
@@ -248,82 +258,85 @@ export default function ServicesWorkList({
         </Link>
       </header>
 
-      {/* Tablet/desktop with motion: pinned carousel. */}
-      <div
-        ref={stageRef}
-        className={`relative hidden h-[100svh] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-[clamp(2rem,5vw,6rem)] overflow-hidden md:motion-safe:grid ${SECTION_X_PADDING}`}
-      >
-        <div className="grid overflow-hidden">
-          {services.map((service, index) => (
-            <h3
-              key={service.key}
-              data-stage-title
-              className={`${TITLE_CLASS} flex flex-col justify-center text-[clamp(2.75rem,5.2vw,6.25rem)] [grid-area:1/1] ${index ? "opacity-0" : ""}`}
-            >
-              {service.title}
-            </h3>
-          ))}
-        </div>
-
-        <div className="relative aspect-square w-[min(30vw,56svh)]">
-          <div data-stage-track className="absolute inset-x-0 top-0 flex flex-col gap-12">
-            {services.map((service) => (
-              <div
-                key={service.key}
-                data-stage-slide
-                className="relative aspect-square w-full overflow-hidden rounded-[4px] bg-neutral-900"
-              >
-                <Image
-                  src={service.image}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(min-width: 768px) 30vw, 100vw"
-                  onLoad={refresh}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="absolute bottom-6 left-1/2 z-10 grid -translate-x-1/2">
-            {services.map((service, index) => (
-              <Link
-                key={service.key}
-                href={service.href}
-                aria-label={`Learn more about ${service.title}`}
-                onFocus={() => scrollToService(index)}
-                className={`${LEARN_MORE_CLASS} whitespace-nowrap [grid-area:1/1] ${
-                  index === active ? "opacity-100" : "pointer-events-none opacity-0"
-                }`}
-              >
-                Learn more
-                <ChevronsRight size={18} strokeWidth={2.5} aria-hidden="true" />
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid overflow-hidden">
-          {services.map((service, index) => (
-            <p
-              key={service.key}
-              data-stage-copy
-              className={`flex max-w-[44ch] flex-col justify-center text-base font-light leading-[1.6] text-white/75 [grid-area:1/1] medium:text-lg ${index ? "opacity-0" : ""}`}
-            >
-              {service.description}
-            </p>
-          ))}
-        </div>
-
-        <p
-          aria-hidden="true"
-          className={`${nationalCompressed.className} absolute bottom-8 right-5 flex items-center gap-3 text-[2.5rem] leading-none text-white xsmall:right-8 small:right-16 medium:right-24`}
+      {/* Tablet/desktop with motion: pinned carousel. The wrapper keeps the
+          pin-spacer GSAP inserts out of React's child list for <section>. */}
+      <div>
+        <div
+          ref={stageRef}
+          className={`relative hidden h-[100svh] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-[clamp(2rem,5vw,6rem)] overflow-hidden md:motion-safe:grid ${SECTION_X_PADDING}`}
         >
-          <FlagMark />
-          <span>
-            {active + 1}/{count}
-          </span>
-        </p>
+          <div className="grid overflow-hidden">
+            {services.map((service, index) => (
+              <h3
+                key={service.key}
+                data-stage-title
+                className={`${TITLE_CLASS} flex flex-col justify-center text-[clamp(2.75rem,5.2vw,6.25rem)] [grid-area:1/1] ${index ? "opacity-0" : ""}`}
+              >
+                {service.title}
+              </h3>
+            ))}
+          </div>
+
+          <div className="relative aspect-square w-[min(30vw,56svh)]">
+            <div data-stage-track className="absolute inset-x-0 top-0 flex flex-col gap-12">
+              {services.map((service) => (
+                <div
+                  key={service.key}
+                  data-stage-slide
+                  className="relative aspect-square w-full overflow-hidden rounded-[4px] bg-neutral-900"
+                >
+                  <Image
+                    src={service.image}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 768px) 30vw, 100vw"
+                    onLoad={refresh}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="absolute bottom-6 left-1/2 z-10 grid -translate-x-1/2">
+              {services.map((service, index) => (
+                <Link
+                  key={service.key}
+                  href={service.href}
+                  aria-label={`Learn more about ${service.title}`}
+                  onFocus={() => scrollToService(index)}
+                  className={`${LEARN_MORE_CLASS} whitespace-nowrap [grid-area:1/1] ${
+                    index === active ? "opacity-100" : "pointer-events-none opacity-0"
+                  }`}
+                >
+                  Learn more
+                  <ChevronsRight size={18} strokeWidth={2.5} aria-hidden="true" />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid overflow-hidden">
+            {services.map((service, index) => (
+              <p
+                key={service.key}
+                data-stage-copy
+                className={`flex max-w-[44ch] flex-col justify-center text-base font-light leading-[1.6] text-white/75 [grid-area:1/1] medium:text-lg ${index ? "opacity-0" : ""}`}
+              >
+                {service.description}
+              </p>
+            ))}
+          </div>
+
+          <p
+            aria-hidden="true"
+            className={`${nationalCompressed.className} absolute bottom-8 right-5 flex items-center gap-3 text-[2.5rem] leading-none text-white xsmall:right-8 small:right-16 medium:right-24`}
+          >
+            <FlagMark />
+            <span>
+              {active + 1}/{count}
+            </span>
+          </p>
+        </div>
       </div>
 
       {/* Phones and reduced motion: stacked services. */}
