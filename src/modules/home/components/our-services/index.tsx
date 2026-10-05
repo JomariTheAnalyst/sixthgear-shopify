@@ -253,7 +253,6 @@ export default function OurServices({
       title={content.title}
       description={content.description}
       services={workListServices}
-      viewAllHref={servicesIndexHref}
     />
   )
 }
