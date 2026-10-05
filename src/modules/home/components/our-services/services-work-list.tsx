@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { ArrowUpRight, ChevronsRight } from "lucide-react"
+import { ChevronsRight } from "lucide-react"
 
 import { nationalCompressed, outfit } from "@lib/fonts"
 import { useLenis } from "@modules/common/components/lenis-provider"
@@ -26,22 +26,24 @@ type ServicesWorkListProps = {
   title: string
   description: string
   services: ServicesWorkListItem[]
-  viewAllHref: string
 }
 
 /**
  * Tunable design values for this section.
  *
  * - Tablet/desktop with motion (768px+): the section slides over the block
- *   above it, then pins while the services step through a vertical image
+ *   above it while that block drifts up at PARALLAX_SPEED, then pins (below
+ *   the sticky site header) while the services step through a vertical image
  *   carousel. Each step is one viewport of scroll and snaps to a service.
  * - Phones and reduced motion: a stacked list, rolled up (phones) or faded
  *   (reduced motion) into view.
- * - PEEK_OPACITY dims the next image peeking in below the active one.
+ * - PEEK_OPACITY dims the previous and next images peeking in above/below.
  */
 const SECTION_X_PADDING = "px-5 xsmall:px-8 small:px-16 medium:px-24"
 const ACCENT = "#f15a24"
 const PEEK_OPACITY = 0.35
+/** Share of normal scroll speed the covered block keeps (0 = frozen, 1 = no parallax). */
+const PARALLAX_SPEED = 0.5
 const STEP_EASE = "power2.inOut"
 
 const TITLE_CLASS = `${nationalCompressed.className} uppercase leading-[0.86] tracking-[0.01em] text-white`
@@ -56,6 +58,11 @@ function FlagMark() {
       <rect x="12" y="12" width="12" height="12" />
     </svg>
   )
+}
+
+/** Bottom edge of the sticky site header, so the pinned stage starts below it. */
+function headerOffset() {
+  return document.querySelector("header")?.getBoundingClientRect().bottom ?? 0
 }
 
 /** The nearest rendered element above the section, skipping wrappers it is
@@ -75,7 +82,6 @@ export default function ServicesWorkList({
   title,
   description,
   services,
-  viewAllHref,
 }: ServicesWorkListProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -109,17 +115,18 @@ export default function ServicesWorkList({
       const mm = gsap.matchMedia()
 
       mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
-        // Slide-over: the block above holds still while this section rises over
-        // it. It is moved down by exactly the scrolled distance instead of being
-        // pinned: a pin would wrap that element (owned by another component) in
-        // a pin-spacer, and React then fails to remove it ("removeChild").
+        // Parallax slide-over: while this section rises over the block above,
+        // that block is pushed down by part of the scrolled distance, so it
+        // drifts up slower than the page. Transform only: pinning it would wrap
+        // an element owned by another component in a pin-spacer, and React then
+        // fails to remove it ("removeChild").
         const above = findElementAbove(section)
         if (above) {
           gsap.fromTo(
             above,
             { y: 0 },
             {
-              y: () => window.innerHeight,
+              y: () => window.innerHeight * (1 - PARALLAX_SPEED),
               ease: "none",
               scrollTrigger: {
                 trigger: section,
@@ -132,7 +139,13 @@ export default function ServicesWorkList({
           )
         }
 
-        if (count < 2) return
+        // Stage height and pin start follow the sticky header's height.
+        const fitStage = () => stage.style.setProperty("--header-offset", `${headerOffset()}px`)
+        fitStage()
+        ScrollTrigger.addEventListener("refreshInit", fitStage)
+        const stopFitting = () => ScrollTrigger.removeEventListener("refreshInit", fitStage)
+
+        if (count < 2) return stopFitting
 
         const titles = gsap.utils.toArray<HTMLElement>("[data-stage-title]", stage)
         const copies = gsap.utils.toArray<HTMLElement>("[data-stage-copy]", stage)
@@ -148,7 +161,7 @@ export default function ServicesWorkList({
           defaults: { duration: 1, ease: STEP_EASE },
           scrollTrigger: {
             trigger: stage,
-            start: "top top",
+            start: () => `top ${headerOffset()}`,
             end: () => `+=${window.innerHeight * (count - 1)}`,
             pin: true,
             scrub: 0.6,
@@ -172,7 +185,7 @@ export default function ServicesWorkList({
         for (let i = 0; i < count - 1; i++) {
           tl.addLabel(`service-${i}`, i)
             .to(track, { y: () => -(i + 1) * step() }, i)
-            .to(slides[i], { opacity: 0 }, i)
+            .to(slides[i], { opacity: PEEK_OPACITY }, i)
             .to(slides[i + 1], { opacity: 1 }, i)
             .to([titles[i], copies[i]], { yPercent: -100 }, i)
             .to([titles[i + 1], copies[i + 1]], { yPercent: 0 }, i)
@@ -181,6 +194,7 @@ export default function ServicesWorkList({
         stageTriggerRef.current = tl.scrollTrigger ?? null
 
         return () => {
+          stopFitting()
           stageTriggerRef.current = null
           activeRef.current = 0
           setActive(0)
@@ -231,31 +245,14 @@ export default function ServicesWorkList({
       aria-labelledby="homepage-services-heading"
       className={`${outfit.className} relative z-10 bg-black text-white antialiased`}
     >
-      <header
-        className={`flex flex-col items-start gap-6 pb-10 pt-14 small:flex-row small:items-end small:justify-between small:gap-10 small:pt-20 ${SECTION_X_PADDING}`}
-      >
-        <div className="flex flex-col items-start">
-          <h2
-            id="homepage-services-heading"
-            className={`${TITLE_CLASS} text-[clamp(2.75rem,5.4vw,6rem)]`}
-          >
-            {title}
-          </h2>
-          <p className="sr-only">{description}</p>
-        </div>
-
-        <Link
-          href={viewAllHref}
-          className="group inline-flex min-h-12 shrink-0 items-center gap-3 rounded-full bg-white py-1.5 pl-7 pr-1.5 text-sm font-semibold uppercase tracking-[0.12em] text-black transition-colors duration-300 hover:bg-[#f15a24] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+      <header className={`pb-10 pt-14 text-center small:pt-20 ${SECTION_X_PADDING}`}>
+        <h2
+          id="homepage-services-heading"
+          className={`${TITLE_CLASS} text-[clamp(2.75rem,5.4vw,6rem)]`}
         >
-          View all services
-          <span
-            aria-hidden="true"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-300 group-hover:rotate-45"
-          >
-            <ArrowUpRight size={18} strokeWidth={2} />
-          </span>
-        </Link>
+          {title}
+        </h2>
+        <p className="sr-only">{description}</p>
       </header>
 
       {/* Tablet/desktop with motion: pinned carousel. The wrapper keeps the
@@ -263,22 +260,24 @@ export default function ServicesWorkList({
       <div>
         <div
           ref={stageRef}
-          className={`relative hidden h-[100svh] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-[clamp(2rem,5vw,6rem)] overflow-hidden md:motion-safe:grid ${SECTION_X_PADDING}`}
+          className={`relative hidden h-[calc(100svh-var(--header-offset,0px))] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-[clamp(2rem,4vw,5rem)] overflow-hidden md:motion-safe:grid ${SECTION_X_PADDING}`}
         >
           <div className="grid overflow-hidden">
             {services.map((service, index) => (
               <h3
                 key={service.key}
                 data-stage-title
-                className={`${TITLE_CLASS} flex flex-col justify-center text-[clamp(2.75rem,5.2vw,6.25rem)] [grid-area:1/1] ${index ? "opacity-0" : ""}`}
+                className={`${TITLE_CLASS} flex flex-col items-center justify-center text-center text-[clamp(2.5rem,4.6vw,5.5rem)] [grid-area:1/1] ${index ? "opacity-0" : ""}`}
               >
                 {service.title}
               </h3>
             ))}
           </div>
 
-          <div className="relative aspect-square w-[min(30vw,56svh)]">
-            <div data-stage-track className="absolute inset-x-0 top-0 flex flex-col gap-12">
+          {/* Every slide is the same fixed square; the previous and next ones
+              peek in above and below, dimmed. */}
+          <div className="relative aspect-square w-[min(28vw,42svh)]">
+            <div data-stage-track className="absolute inset-x-0 top-0 flex flex-col gap-[7svh]">
               {services.map((service) => (
                 <div
                   key={service.key}
@@ -290,40 +289,36 @@ export default function ServicesWorkList({
                     alt=""
                     fill
                     className="object-cover"
-                    sizes="(min-width: 768px) 30vw, 100vw"
+                    sizes="(min-width: 768px) 28vw, 100vw"
                     onLoad={refresh}
                   />
                 </div>
               ))}
             </div>
 
-            <div className="absolute bottom-6 left-1/2 z-10 grid -translate-x-1/2">
-              {services.map((service, index) => (
-                <Link
-                  key={service.key}
-                  href={service.href}
-                  aria-label={`Learn more about ${service.title}`}
-                  onFocus={() => scrollToService(index)}
-                  className={`${LEARN_MORE_CLASS} whitespace-nowrap [grid-area:1/1] ${
-                    index === active ? "opacity-100" : "pointer-events-none opacity-0"
-                  }`}
-                >
-                  Learn more
-                  <ChevronsRight size={18} strokeWidth={2.5} aria-hidden="true" />
-                </Link>
-              ))}
-            </div>
           </div>
 
           <div className="grid overflow-hidden">
             {services.map((service, index) => (
-              <p
+              <div
                 key={service.key}
                 data-stage-copy
-                className={`flex max-w-[44ch] flex-col justify-center text-base font-light leading-[1.6] text-white/75 [grid-area:1/1] medium:text-lg ${index ? "opacity-0" : ""}`}
+                className={`flex flex-col items-center justify-center gap-6 text-center [grid-area:1/1] ${index ? "opacity-0" : ""}`}
               >
-                {service.description}
-              </p>
+                <p className="max-w-[40ch] text-base font-light leading-[1.6] text-white/75 medium:text-lg">
+                  {service.description}
+                </p>
+                {/* Other services' copies sit outside the mask; tabbing to one scrolls to it. */}
+                <Link
+                  href={service.href}
+                  aria-label={`Learn more about ${service.title}`}
+                  onFocus={() => scrollToService(index)}
+                  className={LEARN_MORE_CLASS}
+                >
+                  Learn more
+                  <ChevronsRight size={18} strokeWidth={2.5} aria-hidden="true" />
+                </Link>
+              </div>
             ))}
           </div>
 
