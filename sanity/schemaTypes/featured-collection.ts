@@ -3,10 +3,37 @@ import { defineField, defineType } from 'sanity'
 type FeaturedCollectionParent = {
   isActive?: boolean
   startDate?: string
+  layout?: string
+  mediaType?: string
+  videoSource?: string
+}
+
+// Uploaded banner videos autoplay on loop, so keep them small.
+const MAX_VIDEO_UPLOAD_MB = 10
+
+function getParent(parent: unknown): FeaturedCollectionParent {
+  return (parent as FeaturedCollectionParent | undefined) ?? {}
 }
 
 function campaignIsActive(parent: unknown) {
-  return (parent as FeaturedCollectionParent | undefined)?.isActive === true
+  return getParent(parent).isActive === true
+}
+
+function isFullWidth(parent: unknown) {
+  return getParent(parent).layout === 'full_width'
+}
+
+function usesVideo(parent: unknown) {
+  return isFullWidth(parent) && getParent(parent).mediaType === 'video'
+}
+
+function isCloudinaryUrl(value: string) {
+  try {
+    const url = new URL(value.trim())
+    return url.protocol === 'https:' && url.hostname.toLowerCase() === 'res.cloudinary.com'
+  } catch {
+    return false
+  }
 }
 
 function requiredWhenActive(value: unknown, parent: unknown, label: string) {
@@ -37,7 +64,8 @@ export default defineType({
       title: 'Active',
       type: 'boolean',
       initialValue: false,
-      description: 'Turn on to make this campaign eligible for its configured schedule.',
+      description:
+        'Only 3 campaigns can be active at once. Turn one off before turning on another.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -99,6 +127,7 @@ export default defineType({
         list: [
           { title: 'Image Left — Products Right', value: 'image_left' },
           { title: 'Image Right — Products Left', value: 'image_right' },
+          { title: 'Full width — banner with product row below', value: 'full_width' },
         ],
       },
       initialValue: 'image_left',
@@ -120,10 +149,96 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'mediaType',
+      title: 'Banner media',
+      type: 'string',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Image', value: 'image' },
+          { title: 'Video', value: 'video' },
+        ],
+      },
+      initialValue: 'image',
+      description: 'Full width only. Phones and reduced-motion visitors always see the banner image.',
+      hidden: ({ parent }) => !isFullWidth(parent),
+    }),
+    defineField({
+      name: 'videoSource',
+      title: 'Video source',
+      type: 'string',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Cloudinary URL (recommended)', value: 'url' },
+          { title: 'Upload to Sanity', value: 'upload' },
+        ],
+      },
+      initialValue: 'url',
+      hidden: ({ parent }) => !usesVideo(parent),
+    }),
+    defineField({
+      name: 'videoUrl',
+      title: 'Cloudinary video URL',
+      type: 'url',
+      description: 'Paste a res.cloudinary.com video link. The video plays muted on loop.',
+      hidden: ({ parent }) => !usesVideo(parent) || getParent(parent).videoSource === 'upload',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const parent = context.parent
+          if (!usesVideo(parent) || getParent(parent).videoSource === 'upload') return true
+          if (typeof value !== 'string' || !value.trim()) {
+            return campaignIsActive(parent)
+              ? 'Cloudinary video URL is required while the campaign is active.'
+              : true
+          }
+          return isCloudinaryUrl(value) || 'Only https://res.cloudinary.com video URLs are supported.'
+        }),
+    }),
+    defineField({
+      name: 'videoUpload',
+      title: 'Video upload',
+      type: 'file',
+      options: { accept: 'video/mp4,video/webm' },
+      description: `MP4 or WebM, ${MAX_VIDEO_UPLOAD_MB} MB or smaller. The video plays muted on loop.`,
+      hidden: ({ parent }) => !usesVideo(parent) || getParent(parent).videoSource !== 'upload',
+      validation: (Rule) =>
+        Rule.custom(async (value, context) => {
+          const parent = context.parent
+          if (!usesVideo(parent) || getParent(parent).videoSource !== 'upload') return true
+
+          const ref = (value as { asset?: { _ref?: string } } | undefined)?.asset?._ref
+          if (!ref) {
+            return campaignIsActive(parent)
+              ? 'Upload a video while the campaign is active.'
+              : true
+          }
+
+          const size = await context
+            .getClient({ apiVersion: '2024-01-01' })
+            .fetch<number | null>('*[_id == $ref][0].size', { ref })
+          return (
+            typeof size !== 'number' ||
+            size <= MAX_VIDEO_UPLOAD_MB * 1024 * 1024 ||
+            `Video must be ${MAX_VIDEO_UPLOAD_MB} MB or smaller. Compress it or use a Cloudinary URL.`
+          )
+        }),
+    }),
+    defineField({
+      name: 'darkOverlay',
+      title: 'Dark overlay',
+      type: 'boolean',
+      initialValue: true,
+      description: 'Darkens the banner so the text stays readable. Full width only.',
+      hidden: ({ parent }) => !isFullWidth(parent),
+    }),
+    defineField({
       name: 'bannerImage',
       title: 'Banner image',
       type: 'image',
       options: { hotspot: true },
+      description:
+        'Use the hotspot to set the focal point. For a video banner this is the poster, shown before the video plays and on phones.',
       validation: (Rule) =>
         Rule.custom((value, context) =>
           !campaignIsActive(context.parent) ||
@@ -202,7 +317,12 @@ export default defineType({
       layout: 'layout',
     },
     prepare({ title, active, position, layout }) {
-      const direction = layout === 'image_right' ? 'Image right' : 'Image left'
+      const direction =
+        layout === 'full_width'
+          ? 'Full width'
+          : layout === 'image_right'
+            ? 'Image right'
+            : 'Image left'
       return {
         title: title || 'Untitled campaign',
         subtitle: `${active ? 'Active' : 'Inactive'} · ${position ?? 'No position'} · ${direction}`,
