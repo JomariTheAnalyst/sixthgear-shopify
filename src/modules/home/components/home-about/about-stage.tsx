@@ -25,8 +25,8 @@ type AboutStageProps = {
 }
 
 /**
- * Section shell plus the animated parts: the moving text rows, the reveal
- * (via data-motion, see home-about.module.css) and the photo parallax.
+ * Section shell plus the animated parts: the moving text rows and the photo
+ * parallax.
  */
 export default function AboutStage({
   className = "",
@@ -69,19 +69,6 @@ export default function AboutStage({
         window.removeEventListener("resize", measure)
       }
     }
-
-    // Reveal once, when 20% of the section is in view.
-    section.dataset.motion = "armed"
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          section.dataset.motion = "in"
-          revealObserver.disconnect()
-        }
-      },
-      { threshold: 0.2 }
-    )
-    revealObserver.observe(section)
 
     // Rows drift at BASE_SPEED and speed up with scroll speed (even rows up to
     // 7x, odd rows up to 2x), easing back to idle. Paused off screen.
@@ -143,11 +130,9 @@ export default function AboutStage({
       disposed = true
       window.removeEventListener("resize", measure)
       window.removeEventListener("scroll", onScroll)
-      revealObserver.disconnect()
       rowsObserver.disconnect()
       cancelAnimationFrame(rowsFrame)
       cancelAnimationFrame(parallaxFrame)
-      delete section.dataset.motion
     }
   }, [])
 
@@ -168,7 +153,6 @@ export default function AboutStage({
               <div
                 key={i}
                 className={`${styles.row} ${i % 2 ? styles.rowFill : styles.rowOutline}`}
-                style={{ transitionDelay: `${0.2 + i * 0.06}s` }}
               >
                 {Array.from({ length: COPIES }, (_, k) => (
                   <span key={k} data-text={rowText} />
@@ -189,38 +173,34 @@ export default function AboutStage({
                   </clipPath>
                 </defs>
                 <g data-speed="-0.03">
-                  <g className={styles.revealTop}>
-                    <g className={styles.shape}>
-                      <g clipPath="url(#home-about-clip-top)">
-                        <image
-                          href={images.top.src}
-                          x="234"
-                          y="0"
-                          width="766"
-                          height="660"
-                          preserveAspectRatio="xMinYMid slice"
-                          role="img"
-                          aria-label={images.top.alt}
-                        />
-                      </g>
+                  <g className={styles.shape}>
+                    <g clipPath="url(#home-about-clip-top)">
+                      <image
+                        href={images.top.src}
+                        x="234"
+                        y="0"
+                        width="766"
+                        height="660"
+                        preserveAspectRatio="xMinYMid slice"
+                        role="img"
+                        aria-label={images.top.alt}
+                      />
                     </g>
                   </g>
                 </g>
                 <g data-speed="0.04">
-                  <g className={styles.revealBottom}>
-                    <g className={styles.shape}>
-                      <g clipPath="url(#home-about-clip-bottom)">
-                        <image
-                          href={images.bottom.src}
-                          x="0"
-                          y="430"
-                          width="700"
-                          height="570"
-                          preserveAspectRatio="xMinYMid slice"
-                          role="img"
-                          aria-label={images.bottom.alt}
-                        />
-                      </g>
+                  <g className={styles.shape}>
+                    <g clipPath="url(#home-about-clip-bottom)">
+                      <image
+                        href={images.bottom.src}
+                        x="0"
+                        y="430"
+                        width="700"
+                        height="570"
+                        preserveAspectRatio="xMinYMid slice"
+                        role="img"
+                        aria-label={images.bottom.alt}
+                      />
                     </g>
                   </g>
                 </g>
