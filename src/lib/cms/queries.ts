@@ -372,7 +372,15 @@ export const marketingQuery = groq`
       ctaLabel,
       ctaLink,
       bannerImageAlt,
-      "bannerImageUrl": bannerImage.asset->url
+      "bannerImageUrl": bannerImage.asset->url,
+      "bannerImageRef": bannerImage.asset._ref,
+      "bannerImageCrop": bannerImage.crop,
+      "bannerImageHotspot": bannerImage.hotspot,
+      mediaType,
+      videoSource,
+      videoUrl,
+      "videoUploadUrl": videoUpload.asset->url,
+      darkOverlay
     }, []),
     "promoBanners": coalesce(promoBanners[] {
       _key,
