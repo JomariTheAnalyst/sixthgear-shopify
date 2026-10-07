@@ -100,7 +100,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           {clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY && (
             <Script
               src={`https://code.tidio.co/${clientEnv.NEXT_PUBLIC_TIDIO_PUBLIC_KEY}.js`}
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
           )}
           <SanityLive />

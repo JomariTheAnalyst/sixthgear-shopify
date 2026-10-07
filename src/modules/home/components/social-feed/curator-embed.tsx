@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Script from "next/script"
 
 import { clientEnv } from "@lib/env"
@@ -82,9 +82,28 @@ function enableMouseDragging(scroller: HTMLElement) {
 }
 
 export default function CuratorEmbed() {
+  const embedRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [isNearScreen, setIsNearScreen] = useState(false)
   const containerId = clientEnv.NEXT_PUBLIC_CURATOR_CONTAINER_ID
   const scriptUrl = clientEnv.NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL
+
+  // The feed sits near the footer: load Curator only within about one screen.
+  useEffect(() => {
+    const embed = embedRef.current
+    if (!embed) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setIsNearScreen(true)
+        observer.disconnect()
+      },
+      { rootMargin: "100% 0px" }
+    )
+    observer.observe(embed)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const container = containerRef.current
@@ -127,19 +146,21 @@ export default function CuratorEmbed() {
   }, [])
 
   return (
-    <div className={styles.embed}>
+    <div ref={embedRef} className={styles.embed}>
       <div
         ref={containerRef}
         id={containerId}
         className={styles.container}
         aria-label="Sixth Gear social media carousel"
       />
-      <Script
-        id={CURATOR_SCRIPT_ELEMENT_ID}
-        src={scriptUrl}
-        strategy="afterInteractive"
-        async
-      />
+      {isNearScreen && (
+        <Script
+          id={CURATOR_SCRIPT_ELEMENT_ID}
+          src={scriptUrl}
+          strategy="afterInteractive"
+          async
+        />
+      )}
     </div>
   )
 }
