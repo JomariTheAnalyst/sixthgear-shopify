@@ -22,15 +22,20 @@ export const HOME_ABOUT = {
   },
   /** Moving text rows behind the photos. */
   rowText: "SIXTHGEAR MOTORCYCLE.",
+  /**
+   * Widths fit the largest rendered size at 2x: the photo box tops out near
+   * 632 CSS px (stacked layout at ~767px wide), so the top photo is at most
+   * ~484 px and the bottom ~440 px wide (968 / 880 device px on retina).
+   */
   images: {
     /** "Axe" shape, top right (766:660 box). */
     top: {
-      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/c_fill,g_auto,ar_766:660,w_1600,f_auto,q_auto/v1790752600/_LIZ7077_edited_e6t9ry.jpg",
+      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/c_fill,g_auto,ar_766:660,w_1000,f_auto,q_auto/v1790752600/_LIZ7077_edited_e6t9ry.jpg",
       alt: "A Sixth Gear mechanic crouches beside a Royal Enfield, working on it next to a blue sport bike in the workshop",
     },
     /** Trapezoid, bottom left (700:570 box). */
     bottom: {
-      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/c_fill,g_auto,ar_700:570,w_1500,f_auto,q_auto/v1790752587/_LIZ7064_edited_w5w05h.jpg",
+      src: "https://res.cloudinary.com/djn9ubf6a/image/upload/c_fill,g_auto,ar_700:570,w_920,f_auto,q_auto/v1790752587/_LIZ7064_edited_w5w05h.jpg",
       alt: "A Sixth Gear mechanic kneels behind a Royal Enfield, working at its rear wheel under the Sixth Gear Motorcycle sign",
     },
   },

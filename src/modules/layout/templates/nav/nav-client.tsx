@@ -47,6 +47,9 @@ const NavClient = ({
   const [isScrolled, setIsScrolled] = useState(false)
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isServicesOpen, setIsServicesOpen] = useState(false)
+  // The dropdown stays mounted while closed; load its story images on first open.
+  const [hasServicesOpened, setHasServicesOpened] = useState(false)
+  if (isServicesOpen && !hasServicesOpened) setHasServicesOpened(true)
   const [dropdownTop, setDropdownTop] = useState(0)
   const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -445,6 +448,7 @@ const NavClient = ({
         <ServicesDropdown
           servicesData={servicesData}
           clientStories={clientStories}
+          showImages={hasServicesOpened}
         />
       </div>
     </>

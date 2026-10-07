@@ -24,6 +24,7 @@ type CalPopupRuntime = {
   apiPromise?: Promise<CalApi>
   openPromise?: Promise<void>
   backdropObserver?: MutationObserver
+  idleScheduled?: boolean
 }
 
 type CalWindow = Window & {
@@ -97,6 +98,37 @@ export function initializePopupCal() {
   }
 
   return runtime.apiPromise
+}
+
+/**
+ * Warms the embed once the browser is idle after page load, so it never
+ * competes with first paint. Triggers also warm it on hover/focus/touch, and
+ * openCalPopup() initializes it on demand, so the first click always opens.
+ */
+export function scheduleIdleCalInit() {
+  if (typeof window === "undefined") return
+
+  const runtime = getRuntime()
+  if (runtime.idleScheduled) return
+  runtime.idleScheduled = true
+
+  const init = () => {
+    initializePopupCal().catch(() => undefined)
+  }
+  const whenIdle = () => {
+    // Safari has no requestIdleCallback: fall back to a short delay.
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(init, { timeout: 5000 })
+    } else {
+      setTimeout(init, 2000)
+    }
+  }
+
+  if (document.readyState === "complete") {
+    whenIdle()
+  } else {
+    window.addEventListener("load", whenIdle, { once: true })
+  }
 }
 
 export function openCalPopup() {

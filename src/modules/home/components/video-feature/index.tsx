@@ -270,7 +270,7 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
               ref={videoRef}
               src={data.media.url}
               poster={data.media.posterUrl ?? undefined}
-              preload="metadata"
+              preload="none"
               playsInline
               muted={data.startMuted}
               loop={data.loop}
