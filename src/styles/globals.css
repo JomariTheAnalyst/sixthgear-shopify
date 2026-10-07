@@ -378,6 +378,28 @@ body {
   width: 100vw;
   height: 100svh;
   pointer-events: auto;
+  /* CSS-only fallback: hides the overlay 7s after first paint even if JS is
+     slow or fails (animation 4.96s + ~2s). Only opacity, visibility and
+     pointer-events, on this element only; GSAP never animates it (it works
+     inside .sg-preloader-stage). Keep in sync with FALLBACK_MS. */
+  animation: sg-preloader-fallback 0.3s ease-out 7s forwards;
+}
+
+@keyframes sg-preloader-fallback {
+  from {
+    opacity: 1;
+    pointer-events: none;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.sg-preloader-stage {
+  position: absolute;
+  inset: 0;
 }
 
 .sg-preloader-blocks {
@@ -417,9 +439,26 @@ body {
   visibility: hidden;
 }
 
-/* Locks page scroll from first paint until the preloader unmounts. */
-html:not(.sg-preloader-skip):has(.sg-preloader) {
-  overflow: hidden;
+/* Locks page scroll from first paint until the preloader unmounts, and never
+   past the CSS fallback (7s), so a failed script cannot leave it locked. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.sg-preloader-skip):has(.sg-preloader) {
+    overflow: hidden;
+    animation: sg-preloader-unlock 0s 7s forwards;
+  }
+}
+
+@keyframes sg-preloader-unlock {
+  to {
+    overflow: visible;
+  }
+}
+
+/* Reduced motion: no splash at all. */
+@media (prefers-reduced-motion: reduce) {
+  .sg-preloader {
+    display: none;
+  }
 }
 
 html.sg-preloader-skip .sg-preloader {
