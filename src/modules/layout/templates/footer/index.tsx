@@ -63,6 +63,7 @@ const legalLinks = [
   { name: "Privacy Policy", href: "/privacy" },
   { name: "Cookie Policy", href: "/cookies" },
   { name: "Returns & Warranty", href: "/returns-warranty" },
+  { name: "Government Compliance", href: "/government-compliance" },
 ]
 
 export default function Footer() {
