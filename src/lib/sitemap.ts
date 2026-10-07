@@ -78,6 +78,7 @@ function staticRoutes(): SitemapEntry[] {
     { path: "/privacy", priority: 0.3 },
     { path: "/cookies", priority: 0.3 },
     { path: "/terms", priority: 0.3 },
+    { path: "/government-compliance", priority: 0.3 },
   ]
 
   return routes.map((route) => ({

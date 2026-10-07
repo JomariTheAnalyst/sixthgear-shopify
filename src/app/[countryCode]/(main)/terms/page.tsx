@@ -18,10 +18,31 @@ export default async function TermsPage() {
   const { termsOfService } = await getShopPolicies()
 
   if (termsOfService) {
-    return <ShopifyPolicy title="Terms and Conditions" html={termsOfService.body} />
+    return (
+      <ShopifyPolicy title="Terms and Conditions" html={termsOfService.body}>
+        <BirRegistrationNote />
+      </ShopifyPolicy>
+    )
   }
 
   return <FallbackTerms />
+}
+
+/** BIR registration line (BIR RMC 38-2026), shown on both versions of the terms. */
+function BirRegistrationNote() {
+  return (
+    <p className="text-gray-700 leading-relaxed mb-4">
+      Sixthgear Moto Supply & Cafe is registered with the Bureau of Internal
+      Revenue (BIR). You can verify our registration on our{" "}
+      <LocalizedClientLink
+        href="/government-compliance"
+        className="text-blue-600 hover:underline font-semibold"
+      >
+        Government Compliance
+      </LocalizedClientLink>{" "}
+      page.
+    </p>
+  )
 }
 
 /** Built-in terms, shown while Shopify's Terms of Service is empty. */
@@ -251,6 +272,8 @@ function FallbackTerms() {
           <p className="text-gray-700 leading-relaxed mb-12">
             <strong>Location:</strong> Philippines
           </p>
+
+          <BirRegistrationNote />
 
           <p className="text-gray-700 leading-relaxed mb-4">
             We aim to respond to all inquiries within 1-2 business days.
