@@ -7,6 +7,7 @@ import type {
   SanityAboutPageOurValues,
   SanityAboutPageStory,
   SanityAboutPageWhyChooseUs,
+  SanityImageSource,
 } from './types'
 import {
   selectPageCtaContent,
@@ -17,19 +18,51 @@ type Source = 'sanity' | 'fallback'
 
 export type AboutHeroSectionContent = {
   source: Source
+  eyebrow: string
   title: string
   subtitle: string
   backgroundImage: string
+  /** Raw Sanity image for hotspot handling; absent for fallback content. */
+  backgroundImageSource?: SanityImageSource | null
   backgroundImageAlt: string
+}
+
+export type AboutStatementSectionContent = {
+  source: Source
+  text: string
+  stats: Array<{
+    key: string
+    value: number
+    suffix: string
+    label: string
+  }>
+}
+
+export type AboutWhoWeAreSectionContent = {
+  source: Source
+  /** Rendered as heading + accent-coloured headingAccent ("WHO WE ARE"). */
+  heading: string
+  headingAccent: string
+  paragraphs: string[]
+  imageUrl: string
+  imageSource?: SanityImageSource | null
+  imageAlt: string
 }
 
 export type AboutStorySectionContent = {
   source: Source
+  eyebrow: string
+  heading: string
+  lede: string
   items: Array<{
     key: string
     heading: string
+    /** Shown when an item has no points (e.g. Sanity items today). */
     body: string
+    lead?: string
+    points?: string[]
     imageUrl: string
+    imageSource?: SanityImageSource | null
     imageAlt: string
   }>
 }
@@ -46,8 +79,10 @@ export type AboutWhyChooseUsSectionContent = {
     icon: string
   }>
   topImageUrl: string
+  topImageSource?: SanityImageSource | null
   topImageAlt: string
   bottomImageUrl: string
+  bottomImageSource?: SanityImageSource | null
   bottomImageAlt: string
 }
 
@@ -70,24 +105,68 @@ export type AboutCeoQuoteSectionContent = {
   ceoName: string
   ceoTitle: string
   ceoPhotoUrl: string
+  ceoPhotoSource?: SanityImageSource | null
   ceoPhotoDescription: string
 }
 
+const ABOUT_HERO_EYEBROW = 'About Sixth Gear · Makati City'
+
 export const FALLBACK_ABOUT_HERO_SECTION: AboutHeroSectionContent = {
   source: 'fallback',
-  title: 'About Us',
-  subtitle: 'We Offer Complete Diagnostics and Care for Your Motorcycle',
+  eyebrow: ABOUT_HERO_EYEBROW,
+  // The line break puts the H1 on two lines.
+  title: 'Built by riders,\nfor riders.',
+  subtitle:
+    'Complete diagnostics and care for your motorcycle, the gear we trust on our own rides, and a place to refuel and hang out. All under one roof.',
   backgroundImage: '/images/sixthgearleftsideimg.jpg',
   backgroundImageAlt: 'SixthGear Moto workshop and rider space',
 }
 
+export const FALLBACK_ABOUT_STATEMENT: AboutStatementSectionContent = {
+  source: 'fallback',
+  text: 'At Sixth Gear, we are riders building a home for every rider. We bring expert service, gear we trust on our own rides, and a place to refuel and connect, all under one roof in Makati City.',
+  stats: [
+    { key: 'products', value: 580, suffix: '+', label: 'Products in store' },
+    { key: 'categories', value: 35, suffix: '', label: 'Product categories' },
+    { key: 'services', value: 8, suffix: '', label: 'Workshop services' },
+    { key: 'departments', value: 5, suffix: '', label: 'Departments, one roof' },
+  ],
+}
+
+/** The image is the Why Choose Us top image (see selectAboutPageContent). */
+export const FALLBACK_ABOUT_WHO_WE_ARE: Omit<
+  AboutWhoWeAreSectionContent,
+  'imageUrl' | 'imageSource' | 'imageAlt'
+> = {
+  source: 'fallback',
+  heading: 'Who',
+  headingAccent: 'We Are',
+  paragraphs: [
+    'Sixth Gear Moto Supply is a premium motorcycle supply shop and motorcycle service center based in Makati City. Under one roof we run five departments: retail, service, carwash and detailing, our café, and bike hauling and towing.',
+    "We didn't build Sixth Gear to be just another service shop. We built it to be the place every rider can count on, with honest work, gear we trust on our own rides, and a crew that is always riding alongside you.",
+  ],
+}
+
+const ABOUT_STORY_HEADER = {
+  eyebrow: 'Our story',
+  heading: 'More than a shop',
+  lede: "Sixth Gear is a rider's space. A place to wrench, ride, refuel, and connect.",
+}
+
 export const FALLBACK_ABOUT_STORY_SECTION: AboutStorySectionContent = {
   source: 'fallback',
+  ...ABOUT_STORY_HEADER,
   items: [
     {
       key: 'fallback-story-riders',
       heading: 'At Our Core, We Are Riders',
       body: "When we built Sixth Gear, we didn't just want to open another shop. We wanted a place we'd actually want to hang out in ourselves. A true hub where serious riders could get professional, no-compromise servicing for their big bikes—whether it's routine PMS, tough repairs, or dialing in that perfect performance upgrade. We treat every machine rolling into our bays with the exact same precision and respect we give our own bikes.",
+      lead: 'The people working on your bike ride it the same way you do.',
+      points: [
+        'Mechanics who ride the same roads you do',
+        'We find the cause before we replace parts',
+        'Every bike in the bay gets the same care',
+      ],
       imageUrl: '/images/sixthgear-workshop.jpg',
       imageAlt: 'Sixthgear Workshop',
     },
@@ -95,8 +174,14 @@ export const FALLBACK_ABOUT_STORY_SECTION: AboutStorySectionContent = {
       key: 'fallback-story-quality',
       heading: 'No Shortcuts On Quality',
       body: "Riding isn't just transport; it's a lifestyle. That's why we stock only the gear, parts, and accessories that we personally trust and use on the open road. If we won't bet our own safety on a helmet or throw a specific brand of luggage on our own touring rigs, you won't find it on our shelves. We're committed to bringing you the absolute highest standard of rider apparel because we know exactly what is at stake when you twist the throttle.",
+      lead: 'Our shelves only carry what we would use ourselves.',
+      points: [
+        'Original parts and trusted brands only',
+        'Gear we wear on our own rides',
+        'If it does not hold up, we do not stock it',
+      ],
       imageUrl:
-        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779091975/sixthgear-shop_gxf8bi.png',
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/v1779091975/sixthgear-shop_gxf8bi.png',
       imageAlt:
         'Sixthgear Moto shop interior with riding gear and accessories',
     },
@@ -104,8 +189,14 @@ export const FALLBACK_ABOUT_STORY_SECTION: AboutStorySectionContent = {
       key: 'fallback-story-community',
       heading: 'Fueling The Community',
       body: "A great ride always starts or ends with great coffee. That's the reason we integrated First Gear Coffee right into our space. It's more than just an espresso machine in a waiting area—it's a sanctuary for the riding community. We organize events, foster real friendships, and provide a place where you can grab a solid cup of coffee, talk shop, and swap stories with people who share the exact same passion for two wheels.",
+      lead: 'Riders come in for service and stay for the people.',
+      points: [
+        'First Gear Coffee right inside the shop',
+        'A lounge to wait in while we work',
+        'Group rides and meetups at the shop',
+      ],
       imageUrl:
-        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090174/sixthgear-event_ossb2m.jpg',
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/v1779090174/sixthgear-event_ossb2m.jpg',
       imageAlt: 'Sixthgear Moto rider community event',
     },
   ],
@@ -115,8 +206,7 @@ export const FALLBACK_ABOUT_WHY_CHOOSE_US: AboutWhyChooseUsSectionContent = {
   source: 'fallback',
   sectionLabel: 'Why Sixth Gear',
   heading: 'Why Choose Us?',
-  subtitle:
-    "We didn't build Sixth Gear to be just another service shop. We built it to be the destination every Filipino rider deserves—professional, passionate, and always riding alongside you.",
+  subtitle: 'Four reasons riders keep coming back.',
   items: [
     {
       key: 'fallback-why-workshop',
@@ -148,10 +238,10 @@ export const FALLBACK_ABOUT_WHY_CHOOSE_US: AboutWhyChooseUsSectionContent = {
     },
   ],
   topImageUrl:
-    'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090209/sixthgear-bikebeingserviced_nxzbdw.jpg',
+    'https://res.cloudinary.com/djn9ubf6a/image/upload/v1779090209/sixthgear-bikebeingserviced_nxzbdw.jpg',
   topImageAlt: 'Sixthgear technician servicing a motorcycle',
   bottomImageUrl:
-    'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779090175/rider-story_nhopsn.jpg',
+    'https://res.cloudinary.com/djn9ubf6a/image/upload/v1779090175/rider-story_nhopsn.jpg',
   bottomImageAlt: 'Rider story moment at Sixth Gear',
 }
 
@@ -253,9 +343,11 @@ export function selectAboutHeroContent(
   }
   return {
     source: 'sanity',
+    eyebrow: ABOUT_HERO_EYEBROW,
     title: value!.title!,
     subtitle: value!.description!,
     backgroundImage: value!.backgroundImageUrl!,
+    backgroundImageSource: value!.backgroundImageSource ?? null,
     backgroundImageAlt: value!.backgroundImageAlt!,
   }
 }
@@ -288,11 +380,13 @@ export function selectAboutStoryContent(
   }
   return {
     source: 'sanity',
+    ...ABOUT_STORY_HEADER,
     items: value!.items!.map((item) => ({
       key: item!._key!,
       heading: item!.heading!,
       body: item!.body!,
       imageUrl: item!.imageUrl!,
+      imageSource: item!.imageSource ?? null,
       imageAlt: item!.imageAlt!,
     })),
   }
@@ -341,8 +435,10 @@ export function selectAboutWhyChooseUsContent(
       icon: item.icon!,
     })),
     topImageUrl: value!.topImageUrl!,
+    topImageSource: value!.topImageSource ?? null,
     topImageAlt: value!.topImageAlt!,
     bottomImageUrl: value!.bottomImageUrl!,
+    bottomImageSource: value!.bottomImageSource ?? null,
     bottomImageAlt: value!.bottomImageAlt!,
   }
 }
@@ -417,12 +513,15 @@ export function selectAboutCeoQuoteContent(
     ceoName: value!.ceoName!,
     ceoTitle: value!.ceoTitle!,
     ceoPhotoUrl: value!.ceoPhotoUrl!,
+    ceoPhotoSource: value!.ceoPhotoSource ?? null,
     ceoPhotoDescription: value!.ceoPhotoDescription!,
   }
 }
 
 export type AboutPageContent = {
   hero: AboutHeroSectionContent
+  statement: AboutStatementSectionContent
+  whoWeAre: AboutWhoWeAreSectionContent
   story: AboutStorySectionContent
   whyChooseUs: AboutWhyChooseUsSectionContent
   ourValues: AboutValuesSectionContent
@@ -433,9 +532,18 @@ export type AboutPageContent = {
 export function selectAboutPageContent(
   value: SanityAboutPage | null | undefined
 ): AboutPageContent {
+  const whyChooseUs = selectAboutWhyChooseUsContent(value?.whyChooseUs)
+
   return {
     hero: selectAboutHeroContent(value?.hero),
-    whyChooseUs: selectAboutWhyChooseUsContent(value?.whyChooseUs),
+    statement: FALLBACK_ABOUT_STATEMENT,
+    whoWeAre: {
+      ...FALLBACK_ABOUT_WHO_WE_ARE,
+      imageUrl: whyChooseUs.topImageUrl,
+      imageSource: whyChooseUs.topImageSource,
+      imageAlt: whyChooseUs.topImageAlt,
+    },
+    whyChooseUs,
     story: selectAboutStoryContent(value?.ourStory),
     ourValues: selectAboutValuesContent(value?.ourValues),
     ceoQuote: selectAboutCeoQuoteContent(value?.ceoQuote),

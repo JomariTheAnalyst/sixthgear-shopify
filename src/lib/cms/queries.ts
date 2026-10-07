@@ -504,6 +504,7 @@ export const aboutPageQuery = groq`
       title,
       description,
       "backgroundImageUrl": backgroundImage.asset->url,
+      "backgroundImageSource": backgroundImage{asset, crop, hotspot},
       backgroundImageAlt
     },
     ourStory {
@@ -513,6 +514,7 @@ export const aboutPageQuery = groq`
         heading,
         body,
         "imageUrl": image.asset->url,
+        "imageSource": image{asset, crop, hotspot},
         imageAlt
       }
     },
@@ -525,6 +527,7 @@ export const aboutPageQuery = groq`
         title,
         description,
         "imageUrl": image.asset->url,
+        "imageSource": image{asset, crop, hotspot},
         imageAlt
       }
     },
@@ -551,8 +554,10 @@ export const aboutPageQuery = groq`
         icon
       },
       "topImageUrl": topImage.asset->url,
+      "topImageSource": topImage{asset, crop, hotspot},
       topImageAlt,
       "bottomImageUrl": bottomImage.asset->url,
+      "bottomImageSource": bottomImage{asset, crop, hotspot},
       bottomImageAlt
     },
     ceoQuote {
@@ -562,6 +567,7 @@ export const aboutPageQuery = groq`
       ceoName,
       ceoTitle,
       "ceoPhotoUrl": ceoPhoto.asset->url,
+      "ceoPhotoSource": ceoPhoto{asset, crop, hotspot},
       ceoPhotoDescription
     },
     ctaBanner {

@@ -1,66 +1,67 @@
-"use client"
-
 /**
- * About Us Hero Section
- * Premium hero with background image and overlay, matching the homepage/services layout
- * Displays main tagline and introduction
+ * About hero: rounded photo frame inside the page container, copy over a dark
+ * bottom gradient. The frame grows with its content, so the H1 never clips.
  */
 
 import Image from "next/image"
 
-interface AboutHeroProps {
-  title: string
-  subtitle: string
-  backgroundImage: string | null
-  backgroundImageAlt: string
-}
+import type { AboutHeroSectionContent } from "@lib/cms/about-page-main"
+import { inter, nationalCompressed } from "@lib/fonts"
+import { resolveSanityImage } from "@lib/util/sanity-image"
+import { ABOUT_CONTAINER } from "@modules/about/constants"
+
+const FALLBACK_IMAGE = "/images/sixthgearleftsideimg.jpg"
 
 export default function AboutHero({
-  title,
-  subtitle,
-  backgroundImage,
-  backgroundImageAlt,
-}: AboutHeroProps) {
-  // Use requested fallback image if backgroundImage isn't available
-  const imageSrc = backgroundImage || "/images/sixthgearleftsideimg.jpg"
+  content,
+}: {
+  content: AboutHeroSectionContent
+}) {
+  const image = resolveSanityImage(
+    content.backgroundImageSource,
+    content.backgroundImage || FALLBACK_IMAGE
+  )
 
   return (
-    <div className="relative w-full overflow-hidden min-h-[300px] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[640px]">
-      {/* Background Image Container */}
-      <div className="absolute inset-0 z-0 bg-black">
-        <div className="absolute inset-0 opacity-100 z-10">
+    <section aria-labelledby="about-hero-heading" className="bg-white pt-3 md:pt-5">
+      <div className={ABOUT_CONTAINER}>
+        <div className="relative isolate flex min-h-[540px] flex-col justify-end overflow-hidden rounded-[20px] bg-[#0A0A0A] md:min-h-[620px] lg:min-h-[min(80vh,820px)]">
           <Image
-            src={imageSrc}
-            alt={backgroundImageAlt}
+            src={image.url}
+            alt={content.backgroundImageAlt}
             fill
-            quality={100}
-            className="object-cover object-center"
-            sizes="100vw"
             priority
+            sizes="(max-width: 1760px) 100vw, 1632px"
+            className="-z-10 object-cover"
+            style={{ objectPosition: image.objectPosition }}
           />
-          {/* Subtle gradient overlay to ensure text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        </div>
-      </div>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/35 to-transparent"
+          />
 
-      {/* Content Container (Matches Homepage/Services Hero padding and layout) */}
-      <div className="absolute inset-0 z-20 w-full h-full flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20 lg:pb-24 items-start">
-        <div className="w-full max-w-4xl text-left">
-          {/* Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4 text-white uppercase tracking-tight line-clamp-1">
-            {title}
-          </h1>
-
-          {/* Description */}
-          {subtitle && (
-            <p className="text-gray-200 text-sm sm:text-base leading-relaxed max-w-xl">
-              {subtitle}
+          <div className="px-5 pb-8 pt-32 sm:px-8 sm:pb-10 lg:px-14 lg:pb-14">
+            <p
+              className={`${inter.className} text-xs font-semibold uppercase tracking-[0.18em] text-white/80 md:text-sm`}
+            >
+              {content.eyebrow}
             </p>
-          )}
-
+            <h1
+              id="about-hero-heading"
+              className={`${nationalCompressed.className} mt-4 whitespace-pre-line break-words uppercase leading-[0.86] text-white text-[clamp(2.75rem,10vw,9.5rem)]`}
+            >
+              {content.title}
+            </h1>
+            {content.subtitle ? (
+              <p
+                className={`${inter.className} mt-5 max-w-[60ch] text-base leading-relaxed text-white/80 md:mt-6 md:text-lg`}
+              >
+                {content.subtitle}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
-
