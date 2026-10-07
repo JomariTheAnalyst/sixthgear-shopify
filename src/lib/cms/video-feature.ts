@@ -85,7 +85,7 @@ export function getYouTubeVideoId(value: string): string | null {
   }
 }
 
-function isCloudinaryUrl(value: string) {
+export function isCloudinaryUrl(value: string) {
   try {
     return new URL(value).hostname.toLowerCase() === 'res.cloudinary.com'
   } catch {
