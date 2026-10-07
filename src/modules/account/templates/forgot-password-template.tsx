@@ -5,6 +5,8 @@ import { useActionState } from "react"
 import { useState, useEffect, useRef } from "react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { SubmitButton } from "@modules/common/components/submit-button"
+import Turnstile, { TurnstileHandle } from "@modules/common/components/turnstile"
+import { TURNSTILE_ERROR_MESSAGE } from "@lib/util/turnstile"
 import { Mail } from "lucide-react"
 
 export default function ForgotPasswordTemplate() {
@@ -14,6 +16,8 @@ export default function ForgotPasswordTemplate() {
   )
   const [showSuccess, setShowSuccess] = useState(false)
   const hasSubmitted = useRef(false)
+  const turnstileRef = useRef<TurnstileHandle>(null)
+  const [tokenMissing, setTokenMissing] = useState(false)
 
   useEffect(() => {
     if (isPending) {
@@ -25,7 +29,24 @@ export default function ForgotPasswordTemplate() {
     if (hasSubmitted.current && !isPending && message === "success") {
       setShowSuccess(true)
     }
+    // A failed submit spent the token; get a fresh one for the retry.
+    if (hasSubmitted.current && !isPending && message && message !== "success") {
+      turnstileRef.current?.reset()
+    }
   }, [isPending, message])
+
+  // Preventing the submit event also stops the form action.
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const ready = Boolean(turnstileRef.current?.getToken())
+    setTokenMissing(!ready)
+    if (!ready) event.preventDefault()
+  }
+
+  const errorMessage = tokenMissing
+    ? TURNSTILE_ERROR_MESSAGE
+    : message !== "success"
+      ? message
+      : null
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
@@ -72,10 +93,10 @@ export default function ForgotPasswordTemplate() {
             </LocalizedClientLink>
           </div>
         ) : (
-          <form action={formAction} className="space-y-6">
-            {message && message !== "success" && (
+          <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
+            {errorMessage && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <p className="text-sm text-red-600">{message}</p>
+                <p className="text-sm text-red-600">{errorMessage}</p>
               </div>
             )}
 
@@ -93,6 +114,8 @@ export default function ForgotPasswordTemplate() {
                 data-testid="email-input"
               />
             </div>
+
+            <Turnstile ref={turnstileRef} />
 
             <SubmitButton
               className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"

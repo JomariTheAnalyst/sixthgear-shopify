@@ -8,6 +8,8 @@ import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/common/components/submit-button"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Turnstile, { TurnstileHandle } from "@modules/common/components/turnstile"
+import { TURNSTILE_ERROR_MESSAGE } from "@lib/util/turnstile"
 
 
 type Props = {
@@ -20,6 +22,8 @@ const Register = ({ setCurrentView }: Props) => {
   const router = useRouter()
   const { countryCode } = useParams() as { countryCode: string }
   const hasSubmitted = useRef(false)
+  const turnstileRef = useRef<TurnstileHandle>(null)
+  const [tokenMissing, setTokenMissing] = useState(false)
 
   useEffect(() => {
     if (isPending) {
@@ -32,7 +36,18 @@ const Register = ({ setCurrentView }: Props) => {
       router.push(`/${countryCode}/account`)
       router.refresh()
     }
+    // A failed submit spent the token; get a fresh one for the retry.
+    if (hasSubmitted.current && !isPending && message) {
+      turnstileRef.current?.reset()
+    }
   }, [isPending, message, router, countryCode])
+
+  // Preventing the submit event also stops the form action.
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const ready = Boolean(turnstileRef.current?.getToken())
+    setTokenMissing(!ready)
+    if (!ready) event.preventDefault()
+  }
 
   return (
     <div data-testid="register-page">
@@ -51,7 +66,7 @@ const Register = ({ setCurrentView }: Props) => {
         </p>
       </div>
 
-      <form className="space-y-5" action={formAction}>
+      <form className="space-y-5" action={formAction} onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -178,7 +193,12 @@ const Register = ({ setCurrentView }: Props) => {
           .
         </p>
 
-        <ErrorMessage error={message} data-testid="register-error" />
+        <ErrorMessage
+          error={tokenMissing ? TURNSTILE_ERROR_MESSAGE : message}
+          data-testid="register-error"
+        />
+
+        <Turnstile ref={turnstileRef} />
 
         <SubmitButton
           className="w-full bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors"

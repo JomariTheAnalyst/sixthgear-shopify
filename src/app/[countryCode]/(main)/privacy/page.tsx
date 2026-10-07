@@ -219,7 +219,12 @@ function FallbackPrivacyPolicy() {
             </li>
             <li>
               we will collect your Data automatically via cookies, in line with
-              the cookie settings on your browser.
+              the cookie settings on your browser;
+            </li>
+            <li>
+              our contact, sign-up and password reset forms use Cloudflare
+              Turnstile to block spam bots, which checks information about your
+              browser when you use those forms.
             </li>
           </ul>
 
