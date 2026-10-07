@@ -24,14 +24,12 @@ export default function HomeAbout() {
         <div className={styles.content}>
           <p className={styles.label}>{label}</p>
 
-          {/* Words rise one by one on reveal. */}
+          {/* Each word is an inline-block (styles.word); this sets the heading's line breaks. */}
           <h2 id={HEADING_ID} className={styles.title}>
             {words.map((word, i) => (
               <span key={i}>
                 <span className={styles.word}>
-                  <span style={{ transitionDelay: `${0.55 + i * 0.05}s` }}>
-                    {word}
-                  </span>
+                  <span>{word}</span>
                 </span>
                 {i < words.length - 1 && " "}
               </span>
@@ -41,25 +39,21 @@ export default function HomeAbout() {
           <p className={styles.para}>{paragraph}</p>
 
           <ul className={styles.list}>
-            {checklist.map((item, i) => {
-              const delay = 1.15 + i * 0.1
-              return (
-                <li key={item} style={{ transitionDelay: `${delay}s` }}>
-                  <svg className={styles.check} viewBox="0 0 26 26" fill="none" aria-hidden="true">
-                    <circle cx="13" cy="13" r="13" />
-                    <path
-                      d="M8 13.4l3.2 3.1L18 9.8"
-                      stroke="#fff"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      style={{ transitionDelay: `${delay + 0.2}s` }}
-                    />
-                  </svg>
-                  {item}
-                </li>
-              )
-            })}
+            {checklist.map((item) => (
+              <li key={item}>
+                <svg className={styles.check} viewBox="0 0 26 26" fill="none" aria-hidden="true">
+                  <circle cx="13" cy="13" r="13" />
+                  <path
+                    d="M8 13.4l3.2 3.1L18 9.8"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {item}
+              </li>
+            ))}
           </ul>
 
           <LocalizedClientLink href={button.href} className={styles.btn}>
