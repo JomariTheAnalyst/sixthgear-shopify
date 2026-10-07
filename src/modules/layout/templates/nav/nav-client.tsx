@@ -47,6 +47,9 @@ const NavClient = ({
   const [isScrolled, setIsScrolled] = useState(false)
   const [isShopOpen, setIsShopOpen] = useState(false)
   const [isServicesOpen, setIsServicesOpen] = useState(false)
+  // The dropdown stays mounted while closed. Its story images load on the first
+  // hover, focus or touchstart of the Services button, never on page load.
+  const [loadServicesImages, setLoadServicesImages] = useState(false)
   const [dropdownTop, setDropdownTop] = useState(0)
   const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -164,6 +167,7 @@ const NavClient = ({
   }
 
   const handleServicesEnter = () => {
+    setLoadServicesImages(true)
     if (servicesTimeoutRef.current) clearTimeout(servicesTimeoutRef.current)
     if (shopTimeoutRef.current) clearTimeout(shopTimeoutRef.current)
     setIsShopOpen(false)
@@ -280,6 +284,11 @@ const NavClient = ({
                             setIsServicesOpen(false)
                           }
                         }}
+                        onTouchStart={
+                          link.hasDropdown
+                            ? () => setLoadServicesImages(true)
+                            : undefined
+                        }
                         onKeyDown={(event) => {
                           if (!link.hasShopMenu || event.key !== "ArrowDown") {
                             return
@@ -445,6 +454,7 @@ const NavClient = ({
         <ServicesDropdown
           servicesData={servicesData}
           clientStories={clientStories}
+          showImages={loadServicesImages}
         />
       </div>
     </>
