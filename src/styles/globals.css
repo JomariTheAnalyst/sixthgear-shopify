@@ -14,8 +14,8 @@
 
 @font-face {
   font-family: "Inter Display";
-  src: url("/fonts/6915c833d7582e107aa019fa_InterDisplay-Regular.woff")
-    format("woff");
+  src: url("/fonts/6915c833d7582e107aa019fa_InterDisplay-Regular.woff2")
+    format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -23,8 +23,8 @@
 
 @font-face {
   font-family: "Inter Display";
-  src: url("/fonts/6915c8332ea6e8104f5a63fd_InterDisplay-Medium.woff")
-    format("woff");
+  src: url("/fonts/6915c8332ea6e8104f5a63fd_InterDisplay-Medium.woff2")
+    format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
