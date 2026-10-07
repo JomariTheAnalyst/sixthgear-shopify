@@ -16,6 +16,7 @@ import {
   getProductDescription,
   getProductStructuredData,
 } from "@lib/seo"
+import { rootRelativeHtmlHrefs } from "@lib/util/href"
 
 export const dynamic = "force-dynamic"
 
@@ -138,7 +139,9 @@ export default async function ProductPage(props: Props) {
     id: shopifyProduct.id,
     title: shopifyProduct.title,
     handle: shopifyProduct.handle,
-    description: shopifyProduct.descriptionHtml || shopifyProduct.description,
+    description: shopifyProduct.descriptionHtml
+      ? rootRelativeHtmlHrefs(shopifyProduct.descriptionHtml)
+      : shopifyProduct.description,
     thumbnail: mappedImages[0]?.url || shopifyProduct.featuredImage?.url,
     collection: { title: shopifyProduct.vendor },
     options: shopifyProduct.options.map((opt) => ({
