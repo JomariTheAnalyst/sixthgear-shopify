@@ -30,9 +30,10 @@ const LEGACY_PATHS: Record<string, string> = {
 }
 
 // Top-level pages reached through an old relative link, e.g. "returns-warranty"
-// clicked on /services/x became /services/returns-warranty.
+// clicked on /services/x became /services/returns-warranty. Any depth, since
+// /categories/a/b and /about/ceo-story nest further.
 const NESTED_TOP_LEVEL_PAGE =
-  /^\/(?:services|products|collections|rider-stories|about|categories|store)\/(returns-warranty|privacy|terms|cookies|contact|about|store|services|first-gear|rider-stories|track-order|wishlist|cart|login)$/i
+  /^\/(?:services|products|collections|rider-stories|about|categories|store)(?:\/[^/]+)*\/(returns-warranty|privacy|terms|cookies|contact|about|store|services|first-gear|rider-stories|track-order|wishlist|cart|login|government-compliance)$/i
 
 function getPublicPath(pathname: string) {
   let path = pathname.length > 1 ? pathname.replace(/\/+$/, "") || "/" : pathname

@@ -1,5 +1,7 @@
 import React from "react"
 
+import { toRootRelativeHref } from "@lib/util/href"
+
 type ShopifyRichTextNode = {
   type: string
   children?: ShopifyRichTextNode[]
@@ -93,7 +95,7 @@ function renderNode(node: ShopifyRichTextNode, key: string): React.ReactNode {
       return renderTextNode(node, key)
 
     case "link": {
-      const href = typeof node.url === "string" ? node.url : "#"
+      const href = typeof node.url === "string" ? toRootRelativeHref(node.url) : "#"
       const isExternal = /^https?:\/\//i.test(href)
 
       return (

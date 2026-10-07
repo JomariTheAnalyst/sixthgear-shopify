@@ -20,3 +20,15 @@ export function toRootRelativeHref(href: string): string {
 
   return path.replace(/^\/ph(?=\/|$|\?|#)/i, "") || "/"
 }
+
+/**
+ * Applies toRootRelativeHref to every <a href> in store-owner HTML (Shopify
+ * product descriptions and policies), which is rendered as-is.
+ */
+export function rootRelativeHtmlHrefs(html: string): string {
+  return html.replace(
+    /(<a\b[^>]*?\shref\s*=\s*)(["'])(.*?)\2/gi,
+    (_, start: string, quote: string, href: string) =>
+      `${start}${quote}${toRootRelativeHref(href)}${quote}`
+  )
+}
