@@ -127,6 +127,7 @@ const Hero = ({ data }: HeroProps) => {
                   style={{ objectPosition: desktopObjectPosition }}
                   sizes="(max-width: 767px) 0px, 100vw"
                   priority={idx === 0}
+                  fetchPriority={idx === 0 ? "high" : undefined}
                 />
 
                 <Image
@@ -138,6 +139,7 @@ const Hero = ({ data }: HeroProps) => {
                   style={{ objectPosition: mobileObjectPosition }}
                   sizes="(max-width: 767px) 100vw, 0px"
                   priority={idx === 0}
+                  fetchPriority={idx === 0 ? "high" : undefined}
                 />
 
                 {/* Mobile Gradient Overlay for text readability */}
