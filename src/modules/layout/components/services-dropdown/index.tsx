@@ -11,11 +11,14 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 interface ServicesDropdownProps {
   servicesData: ServiceCategory[]
   clientStories: SanityBlogPostListItem[]
+  /** False until the dropdown first opens, so its images don't load while hidden. */
+  showImages: boolean
 }
 
 const ServicesDropdown = ({
   servicesData,
   clientStories,
+  showImages,
 }: ServicesDropdownProps) => {
   const categories = servicesData
 
@@ -73,7 +76,7 @@ const ServicesDropdown = ({
                           aria-label={`Read ${title}`}
                           className="relative block aspect-video overflow-hidden rounded-md bg-[#1a1a1a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F16D34]"
                         >
-                          {story.featuredImageUrl ? (
+                          {showImages && story.featuredImageUrl ? (
                             <Image
                               src={cleanSanityString(story.featuredImageUrl)}
                               alt={cleanSanityString(

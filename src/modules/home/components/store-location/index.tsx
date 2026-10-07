@@ -6,7 +6,7 @@
  * Allows zoom/pan with marker staying at coordinates
  */
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { inter, montserrat } from "@lib/fonts"
 import { storeDirectionsUrl, storeInfo, storeMapEmbedUrl } from "@lib/store-info"
 import { cleanSanityString } from "@lib/cms/visual-editing"
@@ -27,11 +27,31 @@ export default function StoreLocation({
   googleMapsUrl,
 }: StoreLocationProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(true)
+  const mapRef = useRef<HTMLDivElement>(null)
+  // The Google embed pulls in the Maps JS API from inside its iframe, so the
+  // iframe is only mounted once the map is within about one screen.
+  const [isMapNear, setIsMapNear] = useState(false)
   const activeName = storeName || storeInfo.name
   const activeAddress = address || storeInfo.address
   const activePhone = phone || storeInfo.phone
   const activeHours = hours || storeInfo.hours
   const activeGoogleMapsUrl = cleanSanityString(googleMapsUrl || storeInfo.googleMapsUrl)
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setIsMapNear(true)
+        observer.disconnect()
+      },
+      { rootMargin: "100% 0px" }
+    )
+    observer.observe(map)
+    return () => observer.disconnect()
+  }, [])
 
   const handleGetDirections = () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -61,18 +81,23 @@ export default function StoreLocation({
         </div>
       </div>
 
-      <div className="relative overflow-hidden border-y border-black/10 shadow-2xl min-h-[520px] md:min-h-[620px] lg:min-h-[720px] bg-[#e8efe6]">
-        <iframe
-          src={storeMapEmbedUrl}
-          width="100%"
-          height="100%"
-          style={{ border: 0, minHeight: "520px" }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="strict-origin-when-cross-origin"
-          title="Sixthgear Store Location"
-          className="absolute inset-0 h-full w-full"
-        />
+      <div
+        ref={mapRef}
+        className="relative overflow-hidden border-y border-black/10 shadow-2xl min-h-[520px] md:min-h-[620px] lg:min-h-[720px] bg-[#e8efe6]"
+      >
+        {isMapNear && (
+          <iframe
+            src={storeMapEmbedUrl}
+            width="100%"
+            height="100%"
+            style={{ border: 0, minHeight: "520px" }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            title="Sixthgear Store Location"
+            className="absolute inset-0 h-full w-full"
+          />
+        )}
 
         <div className="pointer-events-none absolute inset-0 bg-black/5" />
 

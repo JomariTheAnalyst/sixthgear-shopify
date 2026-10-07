@@ -4,7 +4,7 @@ import { cleanOptionalSanityString } from './visual-editing'
 const FALLBACK_VIDEO_URL =
   'https://res.cloudinary.com/djn9ubf6a/video/upload/v1785828228/sixthgear-trailer_aqziuc.mp4'
 const FALLBACK_POSTER_URL =
-  'https://res.cloudinary.com/djn9ubf6a/video/upload/so_0,q_auto,f_auto/v1785828228/sixthgear-trailer_aqziuc.jpg'
+  'https://res.cloudinary.com/djn9ubf6a/video/upload/so_0,w_960,q_auto,f_auto/v1785828228/sixthgear-trailer_aqziuc.jpg'
 
 type NativeVideoMedia = {
   kind: 'native'

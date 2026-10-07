@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { HOME_ABOUT } from "./config"
 import styles from "./home-about.module.css"
@@ -35,6 +35,24 @@ export default function AboutStage({
 }: AboutStageProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const rowsRef = useRef<HTMLDivElement>(null)
+  // SVG <image> has no loading="lazy": set the photo hrefs within ~1 screen.
+  const [loadPhotos, setLoadPhotos] = useState(false)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setLoadPhotos(true)
+        observer.disconnect()
+      },
+      { rootMargin: "100% 0px" }
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -176,7 +194,7 @@ export default function AboutStage({
                   <g className={styles.shape}>
                     <g clipPath="url(#home-about-clip-top)">
                       <image
-                        href={images.top.src}
+                        href={loadPhotos ? images.top.src : undefined}
                         x="234"
                         y="0"
                         width="766"
@@ -192,7 +210,7 @@ export default function AboutStage({
                   <g className={styles.shape}>
                     <g clipPath="url(#home-about-clip-bottom)">
                       <image
-                        href={images.bottom.src}
+                        href={loadPhotos ? images.bottom.src : undefined}
                         x="0"
                         y="430"
                         width="700"
