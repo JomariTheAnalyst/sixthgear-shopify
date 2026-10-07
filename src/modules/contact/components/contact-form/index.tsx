@@ -8,6 +8,8 @@ import { toast } from "sonner"
 
 import { openCalPopup } from "@modules/booking/lib/cal-embed"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Turnstile, { TurnstileHandle } from "@modules/common/components/turnstile"
+import { TURNSTILE_ERROR_MESSAGE } from "@lib/util/turnstile"
 import BookingSuccessModal from "../booking-success-modal"
 import {
   CONTACT_SUBJECT_OPTIONS,
@@ -43,6 +45,7 @@ export default function ContactForm({ services }: ContactFormProps) {
   const searchParams = useSearchParams()
   const hasPrefilledSubject = useRef(false)
   const [successData, setSuccessData] = useState<SuccessData | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
   const {
     register,
@@ -99,13 +102,21 @@ export default function ContactForm({ services }: ContactFormProps) {
   }, [selectedSubject, setValue])
 
   const onSubmit = handleSubmit(async (values) => {
+    const turnstileToken = turnstileRef.current?.getToken()
+    if (!turnstileToken) {
+      toast.error("Message not sent", {
+        description: TURNSTILE_ERROR_MESSAGE,
+      })
+      return
+    }
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, turnstileToken }),
       })
 
       const data = (await response.json()) as ContactApiResponse
@@ -148,6 +159,9 @@ export default function ContactForm({ services }: ContactFormProps) {
       toast.error("Message not sent", {
         description: "Please try again later.",
       })
+    } finally {
+      // The token is spent either way; get a fresh one for the next submit.
+      turnstileRef.current?.reset()
     }
   })
 
@@ -372,7 +386,9 @@ export default function ContactForm({ services }: ContactFormProps) {
           )}
         </div>
 
-        <div className="flex justify-end pt-2">
+        <Turnstile ref={turnstileRef} />
+
+        <div className="flex justify-end">
           <button
             type="submit"
             disabled={isSubmitting}
