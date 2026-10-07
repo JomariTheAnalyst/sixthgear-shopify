@@ -2,12 +2,8 @@ import type { Metadata } from "next"
 import Image from "next/image"
 
 import { inter, montserrat } from "@lib/fonts"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import { getCanonicalPath, getOpenGraph } from "@lib/seo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-
-type Props = {
-  params: Promise<{ countryCode: string }>
-}
 
 const paragraphs = [
   "Sixth Gear Moto Supply Cafe + Lounge was built by riders, for riders. It brings together a professional motorcycle workshop, a comfortable rider lounge, and First Gear Coffee in one place where riders can take care of their bikes and enjoy the stop along the way.",
@@ -16,16 +12,18 @@ const paragraphs = [
   "More than a shop, Sixth Gear is a rider's space. It is a place to wrench, ride, refuel, and connect. Whether you are here for service, upgrades, coffee, or a good conversation with people who understand the ride, you are always welcome at Sixth Gear.",
 ]
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const { countryCode } = await props.params
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "The Sixth Gear Story"
+  const description =
+    "Read the story behind Sixth Gear Moto Supply Cafe + Lounge, a rider-built space for motorcycle care, gear, coffee, and community."
 
   return {
-    title: "The Sixth Gear Story",
-    description:
-      "Read the story behind Sixth Gear Moto Supply Cafe + Lounge, a rider-built space for motorcycle care, gear, coffee, and community.",
+    title,
+    description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode, "/about/ceo-story"),
+      canonical: getCanonicalPath("/about/ceo-story"),
     },
+    openGraph: getOpenGraph({ title, description, path: "/about/ceo-story" }),
   }
 }
 

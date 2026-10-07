@@ -2,7 +2,7 @@ import { stegaClean } from 'next-sanity'
 
 function getSafeInternalPath(
   value: string | null | undefined,
-  fallback = '/ph'
+  fallback = '/'
 ): string {
   if (typeof value !== 'string') return fallback
   const cleaned = stegaClean(value).trim()
@@ -42,9 +42,9 @@ export function hasUnsafeDraftModeRedirect(requestUrl: string): boolean {
 export function getDraftModeReturnPath(requestUrl: string): string {
   try {
     const url = new URL(requestUrl)
-    return getSafeInternalPath(url.searchParams.get('redirect'), '/ph')
+    return getSafeInternalPath(url.searchParams.get('redirect'), '/')
   } catch {
-    return '/ph'
+    return '/'
   }
 }
 

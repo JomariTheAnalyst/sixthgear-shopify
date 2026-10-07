@@ -29,7 +29,7 @@ export default defineConfig({
       name: 'visual-editor',
       title: 'Visual Editor',
       previewUrl: {
-        initial: '/ph',
+        initial: '/',
         previewMode: {
           enable: '/api/draft-mode/enable',
           disable: '/api/draft-mode/disable',

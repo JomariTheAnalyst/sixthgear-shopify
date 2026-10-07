@@ -1,55 +1,51 @@
  "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import { useParams, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useEffect, useState } from "react"
+import LocalizedClientLink, {
+  PRODUCT_SOURCE_STORAGE_KEY,
+  type ProductSource,
+} from "@modules/common/components/localized-client-link"
 
 type BreadcrumbProps = {
   product: HttpTypes.StoreProduct
 }
 
-export default function Breadcrumb({ product }: BreadcrumbProps) {
-  const { countryCode } = useParams<{ countryCode: string }>()
-  const searchParams = useSearchParams()
+const isInternalPath = (href: unknown): href is string =>
+  typeof href === "string" && href.startsWith("/") && !href.startsWith("//")
 
-  const sourceHref = searchParams.get("from")
-  const sourceLabel = searchParams.get("fromLabel")?.trim()
-  const safeSourceHref =
-    sourceHref &&
-    countryCode &&
-    (sourceHref === `/${countryCode}` || sourceHref.startsWith(`/${countryCode}/`))
-      ? sourceHref
+function readProductSource(productPath: string): ProductSource | null {
+  try {
+    const raw = sessionStorage.getItem(PRODUCT_SOURCE_STORAGE_KEY)
+    const source = raw ? (JSON.parse(raw) as Partial<ProductSource>) : null
+
+    return source &&
+      typeof source.productPath === "string" &&
+      decodeURI(source.productPath) === decodeURI(productPath) &&
+      isInternalPath(source.href) &&
+      typeof source.label === "string"
+      ? (source as ProductSource)
       : null
+  } catch {
+    return null
+  }
+}
 
-  const derivedSourceLabel = (() => {
-    if (sourceLabel) {
-      return sourceLabel
-    }
+export default function Breadcrumb({ product }: BreadcrumbProps) {
+  const pathname = usePathname()
+  // Read after mount so server and first client render match (Store fallback).
+  const [source, setSource] = useState<ProductSource | null>(null)
 
-    if (!safeSourceHref) {
-      return "Store"
-    }
-
-    if (safeSourceHref.includes("/store")) {
-      return "Store"
-    }
-
-    if (safeSourceHref.includes("/collections/")) {
-      return "Collection"
-    }
-
-    if (safeSourceHref.includes("/search")) {
-      return "Search"
-    }
-
-    return "Store"
-  })()
+  useEffect(() => {
+    setSource(readProductSource(pathname))
+  }, [pathname])
 
   const items = [
     { label: "Home", href: "/" },
-    ...(safeSourceHref && derivedSourceLabel !== "Home"
-      ? [{ label: derivedSourceLabel, href: safeSourceHref, localized: false }]
+    ...(source
+      ? [{ label: source.label, href: source.href, localized: false }]
       : [{ label: "Store", href: "/store", localized: true }]),
     { label: product.title || "Product" },
   ]

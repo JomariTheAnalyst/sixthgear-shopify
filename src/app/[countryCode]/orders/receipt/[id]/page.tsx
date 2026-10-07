@@ -2,9 +2,11 @@ import { Metadata } from "next"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { getReceiptOrderById } from "@lib/shopify/queries/orders"
+import { getNoindexFollowRobots } from "@lib/seo"
 
 export const metadata: Metadata = {
   title: "Order Receipt",
+  robots: getNoindexFollowRobots(),
 }
 
 type Props = {

@@ -2,14 +2,20 @@ import type { MetadataRoute } from "next"
 
 import { getBaseURL } from "@lib/util/env"
 
+// No trailing slashes: robots rules are prefix matches, so "/cart" covers
+// /cart and /cart/*. Utility pages (login, wishlist, track-order) stay
+// crawlable so Google can see their noindex.
 const disallowedPaths = [
   "/api/",
-  "/studio/",
-  "/ph/account/",
-  "/ph/cart/",
-  "/ph/checkout/",
-  "/ph/maintenance/",
-  "/ph/preview/",
+  "/studio",
+  "/account",
+  "/cart",
+  "/checkout",
+  "/payment-status",
+  "/order/",
+  "/orders/",
+  "/maintenance",
+  "/preview",
 ]
 
 export default function robots(): MetadataRoute.Robots {
@@ -24,7 +30,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: "adsbot-google",
-        disallow: ["/cart", "/ph/account"],
+        disallow: ["/cart", "/checkout", "/account"],
       },
       {
         userAgent: "AhrefsBot",

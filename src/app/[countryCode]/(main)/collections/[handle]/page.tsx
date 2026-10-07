@@ -12,15 +12,16 @@ import { resolveShopifyImageMetafield } from "@lib/shopify/collection-images";
 import { parseSearchParams } from "@lib/util/filterParams";
 import JsonLd from "@modules/common/components/json-ld";
 import {
-  getAbsoluteSiteUrl,
+  decodeRouteParam,
   getBreadcrumbStructuredData,
+  getCanonicalPath,
   getCollectionItemListStructuredData,
   getFaqStructuredData,
-  getLocalizedCanonicalPath,
   getMetadataImageUrl,
   getNoindexFollowRobots,
-  getSiteName,
-  hasNonCanonicalSearchParams,
+  getOpenGraph,
+  getPageTitle,
+  hasFilterSearchParams,
 } from "@lib/seo";
 import CollectionHero from "@modules/collections/components/CollectionHero";
 import CollectionSeoContent from "@modules/collections/components/CollectionSeoContent";
@@ -33,43 +34,59 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+// Main shop sections (sitelink targets): fixed title and description that
+// take precedence over the Shopify collection SEO fields.
+const SECTION_SEO: Record<string, { title: string; description: string }> = {
+  helmet: {
+    title: "Helmets",
+    description:
+      "Shop Arai, Shoei, KLIM and more motorcycle helmets at SixthGear Moto in Makati.",
+  },
+  "riding-gear": {
+    title: "Riding Gear",
+    description:
+      "Motorcycle jackets, pants, gloves and boots from KLIM, SEC, Shima and more.",
+  },
+  "parts-and-accessories": {
+    title: "Parts & Accessories",
+    description:
+      "Exhausts, crash bars, lighting, mounts and big-bike accessories, with installation in Makati.",
+  },
+};
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
-    allowPaginationParams: true,
-  });
+  const handle = decodeRouteParam(params.handle);
+  const shouldNoindex = hasFilterSearchParams(searchParams);
 
-  const collection = await getCollection(params.handle, { first: 0 });
+  const collection = await getCollection(handle, { first: 0 });
 
   if (!collection) notFound();
 
+  const sectionSeo = SECTION_SEO[handle];
   const title =
-    params.handle === "helmet"
-      ? "Helmets"
-      : collection.seo?.title?.trim() || collection.title;
+    sectionSeo?.title || collection.seo?.title?.trim() || collection.title;
   const description =
+    sectionSeo?.description ||
     collection.seo?.description?.trim() ||
     collection.description ||
     `${collection.title} collection`;
-  const canonicalPath = `/collections/${params.handle}`;
-  const canonicalUrl = getAbsoluteSiteUrl(params.countryCode, canonicalPath);
+  const canonicalPath = `/collections/${handle}`;
   const imageUrl = getMetadataImageUrl(collection.image?.url);
 
   return {
-    title: params.handle === "helmet" ? { absolute: title } : title,
+    title: getPageTitle(title),
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(params.countryCode, canonicalPath),
+      canonical: getCanonicalPath(canonicalPath),
     },
-    openGraph: {
-      type: "website",
+    openGraph: getOpenGraph({
       title,
       description,
-      url: canonicalUrl,
-      siteName: getSiteName(),
-      ...(imageUrl ? { images: [imageUrl] } : {}),
-    },
+      path: canonicalPath,
+      image: imageUrl,
+    }),
     twitter: {
       card: imageUrl ? "summary_large_image" : "summary",
       title,
@@ -113,18 +130,14 @@ export default async function CollectionPage(props: Props) {
   ]);
 
   if (!result) notFound();
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(
-    params.countryCode,
-    [
-      { name: "Home", path: "/" },
-      { name: "Shop", path: "/store" },
-      {
-        name:
-          params.handle === "helmet" ? "Helmets" : result.collection.title,
-        path: `/collections/${params.handle}`,
-      },
-    ]
-  );
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/store" },
+    {
+      name: SECTION_SEO[params.handle]?.title || result.collection.title,
+      path: `/collections/${params.handle}`,
+    },
+  ]);
 
   const collectionsMenu = collections.map((c: any) => ({
     handle: c.handle,
@@ -144,14 +157,13 @@ export default async function CollectionPage(props: Props) {
             href: "/services/accessories-installation",
             label: "Akrapovic exhaust installation Makati",
             description:
-              "Confirm fitment and installation support at the SixthGearMoto Makati service center.",
+              "Confirm fitment and installation support at the SixthGear Moto Makati service center.",
           },
         ]
       : [];
   const itemListStructuredData =
     result.products.length > 0
       ? getCollectionItemListStructuredData(
-          params.countryCode,
           `/collections/${params.handle}`,
           result.products
         )

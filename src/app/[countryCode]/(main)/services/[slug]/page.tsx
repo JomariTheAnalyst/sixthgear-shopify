@@ -11,10 +11,9 @@ import {
   getDefaultOpenGraphImageUrl,
   getFaqStructuredData,
   getMetadataImageUrl,
-  getLocalizedCanonicalPath,
-  getNoindexFollowRobots,
-  getSiteName,
-  hasNonCanonicalSearchParams,
+  getCanonicalPath,
+  getOpenGraph,
+  getPageTitle,
 } from "@lib/seo"
 
 interface ServicePageProps {
@@ -41,14 +40,9 @@ export async function generateStaticParams() {
       .filter((slug): slug is string => Boolean(slug))
 
     const uniqueSlugs = Array.from(new Set([...localSlugs, ...cmsSlugs]))
-    const countryCodes = ["ph", "us", "sg", "my"]
 
-    return countryCodes.flatMap((countryCode) =>
-      uniqueSlugs.map((slug) => ({
-        countryCode,
-        slug,
-      }))
-    )
+    // "ph" is the internal route segment behind every public URL (see middleware).
+    return uniqueSlugs.map((slug) => ({ countryCode: "ph", slug }))
   } catch (error) {
     console.error(error)
     return []
@@ -85,11 +79,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   try {
     const { params } = props
-    const { slug, countryCode } = await params
-    const searchParams = (await props.searchParams) ?? {}
-    const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
-      allowPaginationParams: true,
-    })
+    const { slug } = await params
     const data = await getServiceDetailData(slug)
 
     if (!data) {
@@ -104,38 +94,32 @@ export async function generateMetadata(
       `${service.shortTitle || service.title} in Makati Philippines`
     const description =
       service.seoDescription ||
-      `${service.description} Book ${service.shortTitle || service.title} with SixthGearMoto in Makati City, serving riders across Metro Manila and the Philippines.`
+      `${service.description} Book ${service.shortTitle || service.title} with SixthGear Moto in Makati City, serving riders across Metro Manila and the Philippines.`
     const imageUrl =
       getMetadataImageUrl(service.socialImageUrl) ||
       getMetadataImageUrl(service.heroImage || service.image) ||
       getDefaultOpenGraphImageUrl()
+    const path = `/services/${slug}`
 
     return {
-      title,
+      title: getPageTitle(title),
       description,
       alternates: {
-        canonical: getLocalizedCanonicalPath(countryCode, `/services/${slug}`),
+        canonical: getCanonicalPath(path),
       },
-      openGraph: {
-        type: "website",
-        title,
-        description,
-        siteName: getSiteName(),
-        images: [{ url: imageUrl }],
-      },
+      openGraph: getOpenGraph({ title, description, path, image: imageUrl }),
       twitter: {
         card: "summary_large_image",
         title,
         description,
         images: [imageUrl],
       },
-      ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
     }
   } catch (error) {
     console.error(error)
     return {
       title: "Service",
-      description: "SixthGearMoto Services",
+      description: "SixthGear Moto Services",
     }
   }
 }
@@ -143,22 +127,19 @@ export async function generateMetadata(
 
 export default async function ServicePage({ params }: ServicePageProps) {
   try {
-    const { slug, countryCode } = await params
+    const { slug } = await params
 
     const data = await getServiceDetailData(slug)
 
     if (!data) {
       notFound()
     }
-    const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
+    const breadcrumbStructuredData = getBreadcrumbStructuredData([
       { name: "Home", path: "/" },
       { name: "Services", path: "/services" },
       { name: data.service.title, path: `/services/${slug}` },
     ])
-    const serviceStructuredData = generateServiceSchema(
-      data.service,
-      countryCode
-    )
+    const serviceStructuredData = generateServiceSchema(data.service)
     const faqStructuredData =
       data.service.faqItems && data.service.faqItems.length > 0
         ? getFaqStructuredData(data.service.faqItems)

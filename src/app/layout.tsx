@@ -15,8 +15,12 @@ import {
   poppins,
 } from "@lib/fonts"
 import { PRELOADER_HEAD_SCRIPT } from "@lib/preloader-config"
-import { getDefaultTwitterMetadata, getSeoMetadataBase } from "@lib/seo"
-import { getBaseURL } from "@lib/util/env"
+import {
+  getDefaultTwitterMetadata,
+  getOpenGraph,
+  getSeoMetadataBase,
+  getSiteName,
+} from "@lib/seo"
 import { Toaster } from "sonner"
 
 import { ConsoleWarning } from "../components/common/console-warning"
@@ -26,23 +30,22 @@ import { SanityLive } from "../../sanity/lib/live"
 import { shouldRenderVisualEditing } from "@lib/cms/visual-editing"
 import "styles/globals.css"
 
+const DEFAULT_DESCRIPTION =
+  "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthGear Moto in the Philippines."
+
 export const metadata: Metadata = {
   metadataBase: getSeoMetadataBase(),
   title: {
-    default: "SixthGearMoto",
-    template: "%s | SixthGearMoto",
+    default: getSiteName(),
+    template: `%s | ${getSiteName()}`,
   },
-  description:
-    "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthGearMoto in the Philippines.",
-  applicationName: "SixthGearMoto",
-  openGraph: {
-    type: "website",
-    url: getBaseURL(),
-    siteName: "SixthGearMoto",
-    title: "SixthGearMoto",
-    description:
-      "Shop motorcycle gear and parts, book workshop services, and discover the rider hub experience of SixthGearMoto in the Philippines.",
-  },
+  description: DEFAULT_DESCRIPTION,
+  applicationName: getSiteName(),
+  openGraph: getOpenGraph({
+    title: getSiteName(),
+    description: DEFAULT_DESCRIPTION,
+    path: "/",
+  }),
   twitter: getDefaultTwitterMetadata(),
   icons: {
     icon: [
@@ -78,7 +81,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     // suppressHydrationWarning: the preloader script below may add a class before React loads.
-    <html lang="en" data-mode="light" suppressHydrationWarning>
+    <html lang="en-PH" data-mode="light" suppressHydrationWarning>
       <head>
         {/* Runs before paint so a repeat load in the same tab never flashes the preloader. */}
         <script dangerouslySetInnerHTML={{ __html: PRELOADER_HEAD_SCRIPT }} />

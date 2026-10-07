@@ -1,5 +1,7 @@
 import { createDataAttribute, stegaClean } from 'next-sanity'
 
+import { toRootRelativeHref } from '@lib/util/href'
+
 export const SANITY_STUDIO_PATH = '/studio'
 
 export type SanityEditTarget = {
@@ -14,6 +16,11 @@ export function shouldRenderVisualEditing(isDraftModeEnabled: boolean): boolean 
 
 export function cleanSanityString(value: string): string {
   return stegaClean(value)
+}
+
+/** A CMS link value, cleaned and made root-relative (see toRootRelativeHref). */
+export function cleanSanityHref(value: string): string {
+  return toRootRelativeHref(stegaClean(value))
 }
 
 export function cleanOptionalSanityString(
@@ -43,7 +50,7 @@ export function createSanityDataAttribute(
 
 export function getSafeInternalPath(
   value: string | null | undefined,
-  fallback = '/ph'
+  fallback = '/'
 ): string {
   if (typeof value !== 'string') return fallback
   const cleaned = stegaClean(value).trim()

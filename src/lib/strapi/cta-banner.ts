@@ -4,6 +4,7 @@
  * Fetches CTA banner content from Strapi CMS for the homepage.
  */
 
+import { SOCIAL_LINKS } from "@lib/business"
 import { StrapiImage } from "./home"
 import { pickText, pickMediaUrl, pickBool } from "../cms/fallback"
 
@@ -41,11 +42,7 @@ const CTA_BANNER_FALLBACKS: CTABannerContent = {
     "Your one-stop destination for premium motorcycle gear, parts, and great coffee",
   backgroundImage: "/images/cta-placeholder.jpg",
   openingHours: "Open Monday - Friday | 9:00 AM - 8:00 PM",
-  socialLinks: {
-    facebook: "https://www.facebook.com/camille.sixthgear",
-    instagram: "https://www.instagram.com/sixthgear_moto_supply/",
-    tiktok: "https://www.tiktok.com/@sixthgear.moto.su",
-  },
+  socialLinks: { ...SOCIAL_LINKS },
   isEnabled: true,
 }
 

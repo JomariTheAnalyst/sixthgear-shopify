@@ -7,11 +7,14 @@ import JsonLd from "@modules/common/components/json-ld"
 import ProductTemplate from "@modules/products/templates"
 import SkeletonProductDetail from "@modules/skeletons/templates/skeleton-product-detail"
 import {
+  decodeRouteParam,
   getBreadcrumbStructuredData,
-  getLocalizedCanonicalPath,
-  getNoindexFollowRobots,
+  getCanonicalPath,
+  getOpenGraph,
+  getPageTitle,
+  getProductBrand,
+  getProductDescription,
   getProductStructuredData,
-  hasNonCanonicalSearchParams,
 } from "@lib/seo"
 
 export const dynamic = "force-dynamic"
@@ -21,13 +24,11 @@ type Props = {
   searchParams: Promise<{ v_id?: string }>
 }
 
+// Query params (?v_id= variant, tracking) never change the indexable page:
+// they canonicalise to the clean product URL.
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const searchParams = await props.searchParams
-  const { handle } = params
-  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
-    allowPaginationParams: true,
-  })
+  const handle = decodeRouteParam(params.handle)
 
   const product = await getProduct(handle)
 
@@ -36,16 +37,18 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   const title = product.seo?.title?.trim() || product.title
-  const description = product.seo?.description?.trim() || product.description
+  const description = getProductDescription(product)
+  const path = `/products/${product.handle}`
 
   return {
-    title,
+    title: getPageTitle(title),
     description,
-    openGraph: {
+    openGraph: getOpenGraph({
       title,
       description,
-      images: product.featuredImage ? [product.featuredImage.url] : [],
-    },
+      path,
+      image: product.featuredImage?.url,
+    }),
     twitter: {
       card: product.featuredImage ? "summary_large_image" : "summary",
       title,
@@ -53,12 +56,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       images: product.featuredImage ? [product.featuredImage.url] : [],
     },
     alternates: {
-      canonical: getLocalizedCanonicalPath(
-        params.countryCode,
-        `/products/${handle}`
-      ),
+      canonical: getCanonicalPath(path),
     },
-    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 
@@ -71,27 +70,23 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  const shopifyProduct = await getProduct(params.handle)
+  const shopifyProduct = await getProduct(decodeRouteParam(params.handle))
 
   if (!shopifyProduct) {
     notFound()
   }
   const selectedVariantId = searchParams.v_id
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(
-    params.countryCode,
-    [
-      { name: "Home", path: "/" },
-      { name: "Shop", path: "/store" },
-      { name: shopifyProduct.title, path: `/products/${params.handle}` },
-    ]
-  )
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/store" },
+    { name: shopifyProduct.title, path: `/products/${shopifyProduct.handle}` },
+  ])
   const productStructuredData = getProductStructuredData(
     shopifyProduct,
-    params.countryCode,
     selectedVariantId
   )
 
-  const productVendor = shopifyProduct.vendor?.trim()
+  const productVendor = getProductBrand(shopifyProduct)
   const productTitle = shopifyProduct.title?.trim()
   const titleIncludesVendor =
     productVendor &&

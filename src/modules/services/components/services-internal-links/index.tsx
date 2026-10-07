@@ -35,7 +35,7 @@ export default function ServicesInternalLinks({
             {links.map((link) => (
               <Link
                 key={link.href}
-                href={`/${countryCode}${link.href}`}
+                href={link.href}
                 className="border border-gray-200 bg-gray-50 p-5 transition-colors hover:border-gray-900 hover:bg-white"
               >
                 <h3 className="text-base font-bold text-gray-950">

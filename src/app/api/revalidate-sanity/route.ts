@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
 
     revalidateTag("sanity")
     revalidatePath("/")
+    // Internal route paths: middleware rewrites public URLs (/, /rider-stories)
+    // to /ph/*, and the page cache is keyed by the rewritten path.
     revalidatePath("/ph")
     revalidatePath("/ph/rider-stories")
 

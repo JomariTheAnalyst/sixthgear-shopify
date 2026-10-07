@@ -1,12 +1,11 @@
 "use client"
 
-import { useParams } from "next/navigation"
 
 import type {
   SanityServiceItem,
   SanityServicesSection,
 } from "@lib/cms/types"
-import { cleanSanityString } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString } from "@lib/cms/visual-editing"
 import { getServiceImageBySlug } from "@lib/services-data"
 import ServicesWorkList from "./services-work-list"
 
@@ -161,10 +160,6 @@ export default function OurServices({
   sectionDescription,
   services,
 }: OurServicesProps) {
-  const params = useParams()
-  const countryCode =
-    typeof params?.countryCode === "string" ? params.countryCode : null
-
   const isCMSDisabled = data?.useCustomServices === false
   const fallbackCards = FALLBACK_SERVICES_SECTION.services || []
   const legacyCards = services || []
@@ -220,18 +215,14 @@ export default function OurServices({
     return null
   }
 
-  const servicesIndexHref = countryCode
-    ? `/${countryCode}/services`
-    : "/services"
+  const servicesIndexHref = "/services"
   const workListServices = content.cards.map((service, index) => {
     const fallbackService = fallbackCards[index]
     const cleanSlug = service.slug ? cleanSanityString(service.slug) : null
     const href =
-      (service.link ? cleanSanityString(service.link) : null) ||
+      (service.link ? cleanSanityHref(service.link) : null) ||
       (cleanSlug
-        ? countryCode
-          ? `/${countryCode}/services/${encodeURIComponent(cleanSlug)}`
-          : `/services/${encodeURIComponent(cleanSlug)}`
+        ? `/services/${encodeURIComponent(cleanSlug)}`
         : servicesIndexHref)
 
     return {

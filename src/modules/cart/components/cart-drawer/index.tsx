@@ -185,7 +185,7 @@ export default function CartDrawer({ cart }: CartDrawerProps) {
 
   const handleContinueShopping = () => {
     closeCart()
-    router.push(`/${countryCode}/store`)
+    router.push("/store")
   }
 
   // Parse variant options from subtitle or variant title

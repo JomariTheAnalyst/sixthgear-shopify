@@ -5,22 +5,19 @@ import LoginTemplate from "@modules/account/templates/login-template"
 
 export const metadata: Metadata = {
   title: "Login",
-  description: "Sign in to your SixthgearMoto account.",
+  description: "Sign in to your SixthGear Moto account.",
 }
 
 export default async function LoginPage({
-  params,
   searchParams,
 }: {
-  params: Promise<{ countryCode: string }>
   searchParams: Promise<{ redirect?: string }>
 }) {
-  const { countryCode } = await params
   const { redirect: redirectTo } = await searchParams
   const customer = await retrieveCustomer().catch(() => null)
 
   if (customer) {
-    redirect(redirectTo || `/${countryCode}/account`)
+    redirect(redirectTo || "/account")
   }
 
   return <LoginTemplate />

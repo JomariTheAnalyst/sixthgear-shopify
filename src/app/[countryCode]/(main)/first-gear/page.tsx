@@ -1,15 +1,25 @@
 import { Metadata } from "next"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import {
+  getBreadcrumbStructuredData,
+  getCanonicalPath,
+  getOpenGraph,
+} from "@lib/seo"
+import JsonLd from "@modules/common/components/json-ld"
 import MenuTemplate from "@modules/menu/templates/menu-template"
 import { getCoffeeMenuHero, getMenuCategories } from "@lib/strapi/coffee-menu"
 
 // ISR revalidation - same as other pages
 export const revalidate = 60
 
+const breadcrumbStructuredData = getBreadcrumbStructuredData([
+  { name: "Home", path: "/" },
+  { name: "First Gear Coffee", path: "/first-gear" },
+])
+
 export const metadata: Metadata = {
-  title: { absolute: "First Gear Coffee" },
+  title: "First Gear Coffee",
   description:
-    "First Gear Coffee menu - Handcrafted espresso drinks, iced coffee, non-coffee beverages, and delicious food. Fuel your ride with great coffee at Sixthgear.",
+    "First Gear Coffee menu - Handcrafted espresso drinks, iced coffee, non-coffee beverages, and delicious food. Fuel your ride with great coffee at SixthGear Moto.",
   keywords: [
     "coffee menu",
     "espresso",
@@ -21,12 +31,12 @@ export const metadata: Metadata = {
     "Sixthgear",
     "motorcycle cafe",
   ],
-  openGraph: {
+  openGraph: getOpenGraph({
     title: "First Gear Coffee",
     description:
       "Handcrafted brews served with passion. Explore our full menu of hot coffee, iced coffee, non-coffee drinks, and food.",
-    type: "website",
-  },
+    path: "/first-gear",
+  }),
   twitter: {
     card: "summary",
     title: "First Gear Coffee",
@@ -34,7 +44,7 @@ export const metadata: Metadata = {
       "Handcrafted brews served with passion. Explore our full menu of hot coffee, iced coffee, non-coffee drinks, and food.",
   },
   alternates: {
-    canonical: getLocalizedCanonicalPath("ph", "/first-gear"),
+    canonical: getCanonicalPath("/first-gear"),
   },
 }
 
@@ -50,10 +60,13 @@ export default async function MenuPage() {
   }
 
   return (
-    <MenuTemplate
-      heroData={heroData}
-      categories={categories}
-      showFeaturedMenu={false}
-    />
+    <>
+      <JsonLd id="first-gear-breadcrumbs" data={breadcrumbStructuredData} />
+      <MenuTemplate
+        heroData={heroData}
+        categories={categories}
+        showFeaturedMenu={false}
+      />
+    </>
   )
 }

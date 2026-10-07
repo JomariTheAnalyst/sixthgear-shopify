@@ -3,6 +3,7 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react"
 
 import { inter, montserrat } from "@lib/fonts"
 import type { SanityPortableTextBlock } from "@lib/cms/types"
+import { toRootRelativeHref } from "@lib/util/href"
 
 type RiderStoryPortableTextProps = {
   value: SanityPortableTextBlock[] | null
@@ -63,7 +64,7 @@ const components: PortableTextComponents = {
     link: ({ children, value }) => {
       const href =
         typeof value?.href === "string" && value.href.length > 0
-          ? value.href
+          ? toRootRelativeHref(value.href)
           : "#"
       const isExternal = /^https?:\/\//i.test(href)
 

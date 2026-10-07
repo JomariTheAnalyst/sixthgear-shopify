@@ -1,11 +1,9 @@
-import { businessInfo } from "@lib/business"
+import { SOCIAL_LINKS } from "@lib/business"
 import { nationalCompressed } from "@lib/fonts"
 import CuratorEmbed from "./curator-embed"
 
 // The Instagram profile doubles as the social wall.
-const SOCIAL_WALL_URL =
-  process.env.NEXT_PUBLIC_BUSINESS_INSTAGRAM_URL?.trim() ||
-  businessInfo.socialProfiles[1]
+const SOCIAL_WALL_URL = SOCIAL_LINKS.instagram
 
 export default function SocialFeed() {
   return (

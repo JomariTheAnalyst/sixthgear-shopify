@@ -142,8 +142,8 @@ export default async function OrderDetailPage(props: Props) {
   const protocol =
     headersList.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https")
   const receiptUrl = host
-    ? `${protocol}://${host}/${params.countryCode}/orders/receipt/${encodeURIComponent(order.id)}`
-    : `/${params.countryCode}/orders/receipt/${encodeURIComponent(order.id)}`
+    ? `${protocol}://${host}/orders/receipt/${encodeURIComponent(order.id)}`
+    : `/orders/receipt/${encodeURIComponent(order.id)}`
 
   return (
     <>

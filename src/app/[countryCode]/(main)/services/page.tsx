@@ -5,59 +5,38 @@ import { getAllServicesCMS, getServicesPage } from "@lib/cms/client"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
-  getLocalizedCanonicalPath,
-  getNoindexFollowRobots,
-  hasNonCanonicalSearchParams,
+  getCanonicalPath,
+  getOpenGraph,
 } from "@lib/seo"
 import { selectServicesPageContent } from "@lib/cms/services-page-content"
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ countryCode: string }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}): Promise<Metadata> {
-  const { countryCode } = await params
-  const rawSearchParams = await searchParams
-  const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
-    allowPaginationParams: true,
-  })
-  const title = "Services"
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Motorcycle Services"
   const description =
-    "Book motorcycle PMS, diagnostics, repairs, oil change, detailing, accessories installation, performance upgrades, towing, and rider support with SixthgearMoto in Makati."
+    "Motorcycle PMS, repairs, detailing, upgrades and towing at our Makati workshop."
 
   return {
-    title: { absolute: title },
+    title,
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode, "/services"),
+      canonical: getCanonicalPath("/services"),
     },
-    openGraph: {
-      title,
-      description,
-    },
+    openGraph: getOpenGraph({ title, description, path: "/services" }),
     twitter: {
       card: "summary",
       title,
       description,
     },
-    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 
-export default async function ServicesPage({
-  params,
-}: {
-  params: Promise<{ countryCode: string }>
-}) {
-  const { countryCode } = await params
+export default async function ServicesPage() {
   const [services, servicesPage, cmsServices] = await Promise.all([
     getAllServices(),
     getServicesPage(),
     getAllServicesCMS(),
   ])
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
   ])

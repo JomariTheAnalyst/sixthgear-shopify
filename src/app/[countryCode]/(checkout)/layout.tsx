@@ -3,6 +3,12 @@ import ChevronDown from "@modules/common/icons/chevron-down"
 
 import { SelectedItemsProvider } from "@lib/context/selected-cart-items-context"
 import { CartLimitModalProvider } from "@lib/context/cart-limit-modal-context"
+import { getNoindexFollowRobots } from "@lib/seo"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  robots: getNoindexFollowRobots(),
+}
 
 export default function CheckoutLayout({
   children,

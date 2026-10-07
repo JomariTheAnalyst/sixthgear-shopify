@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
 import {
   Dialog,
   DialogBackdrop,
@@ -36,9 +35,6 @@ export default function ConsentSettingsDialog() {
     acceptAll,
     rejectAll,
   } = useConsent()
-  const params = useParams()
-  const countryCode =
-    typeof params?.countryCode === "string" ? params.countryCode : "ph"
   const [draft, setDraft] = useState<ConsentChoices>(NO_OPTIONAL_CONSENT)
 
   // Start from the saved choice; nothing is pre-ticked before a first choice.
@@ -150,7 +146,7 @@ export default function ConsentSettingsDialog() {
             <p className="mt-2 text-[13px] text-black/65">
               Full list of cookies and services:{" "}
               <Link
-                href={`/${countryCode}/cookies`}
+                href="/cookies"
                 onClick={closeSettings}
                 className="font-semibold text-[#0A0B0A] underline underline-offset-2"
               >

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
 
 import {
   CONSENT_CATEGORIES,
@@ -30,9 +29,6 @@ const CONSENT_PURPOSES = CONSENT_CATEGORIES.filter((category) =>
 export default function ConsentBanner() {
   const { status, settingsOpen, acceptAll, rejectAll, openSettings } =
     useConsent()
-  const params = useParams()
-  const countryCode =
-    typeof params?.countryCode === "string" ? params.countryCode : "ph"
   const barRef = useRef<HTMLElement>(null)
   const visible =
     CONSENT_CATEGORIES_IN_USE.length > 0 && status === "unset" && !settingsOpen
@@ -71,7 +67,7 @@ export default function ConsentBanner() {
           also use {CONSENT_PURPOSES}. Chat, booking, maps, videos, and our
           social media feed load with the page. See our{" "}
           <Link
-            href={`/${countryCode}/cookies`}
+            href="/cookies"
             className="font-semibold text-[#0A0B0A] underline underline-offset-2"
           >
             Cookie Policy

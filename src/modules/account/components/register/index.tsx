@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useActionState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { signup } from "@lib/data/customer"
 import { LOGIN_VIEW } from "@modules/account/templates/login-template"
 import ErrorMessage from "@modules/checkout/components/error-message"
@@ -20,7 +20,6 @@ const Register = ({ setCurrentView }: Props) => {
   const [message, formAction, isPending] = useActionState(signup, null)
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
-  const { countryCode } = useParams() as { countryCode: string }
   const hasSubmitted = useRef(false)
   const turnstileRef = useRef<TurnstileHandle>(null)
   const [tokenMissing, setTokenMissing] = useState(false)
@@ -33,14 +32,14 @@ const Register = ({ setCurrentView }: Props) => {
 
   useEffect(() => {
     if (hasSubmitted.current && !isPending && message === null) {
-      router.push(`/${countryCode}/account`)
+      router.push("/account")
       router.refresh()
     }
     // A failed submit spent the token; get a fresh one for the retry.
     if (hasSubmitted.current && !isPending && message) {
       turnstileRef.current?.reset()
     }
-  }, [isPending, message, router, countryCode])
+  }, [isPending, message, router])
 
   // Preventing the submit event also stops the form action.
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

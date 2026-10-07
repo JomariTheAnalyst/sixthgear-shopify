@@ -1,17 +1,18 @@
 import { Metadata } from "next"
 
 import { getRegistryEntries, getVisibleCategories } from "@lib/consent/registry"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import { getCanonicalPath, getNoindexFollowRobots } from "@lib/seo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CookieSettingsButton from "@modules/consent/components/cookie-settings-button"
 
 export const metadata: Metadata = {
   title: "Cookie Policy",
   description:
-    "The cookies and similar storage the Sixthgear Moto Supply website uses, and how you can control them.",
+    "The cookies and similar storage the SixthGear Moto website uses, and how you can control them.",
   alternates: {
-    canonical: getLocalizedCanonicalPath("ph", "/cookies"),
+    canonical: getCanonicalPath("/cookies"),
   },
+  robots: getNoindexFollowRobots(),
 }
 
 const h2 = "text-2xl font-bold text-gray-900 mt-12 mb-6"

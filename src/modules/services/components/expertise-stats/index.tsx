@@ -25,11 +25,9 @@ export default function ExpertiseStats({
   const normalizedButtonLink = content.assistance.buttonLink.trim()
   const buttonHref = /^https?:\/\//i.test(normalizedButtonLink)
     ? normalizedButtonLink
-    : `/${countryCode}${
-        normalizedButtonLink.startsWith("/")
-          ? normalizedButtonLink
-          : `/${normalizedButtonLink}`
-      }`
+    : normalizedButtonLink.startsWith("/")
+      ? normalizedButtonLink
+      : `/${normalizedButtonLink}`
 
   return (
     <section className="w-full bg-white py-16 md:py-24 lg:py-28">

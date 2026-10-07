@@ -5,7 +5,6 @@
  * Shows related/other services for navigation
  */
 
-import { useParams } from "next/navigation"
 import { ServiceCategory, getServiceImageBySlug } from "@lib/services-data"
 import { inter, montserrat } from "@lib/fonts"
 import ServiceCard from "@modules/services/components/service-card"
@@ -19,9 +18,6 @@ export default function OtherServices({
   services,
   currentSlug,
 }: OtherServicesProps) {
-  const params = useParams()
-  const countryCode = params?.countryCode as string
-
   const otherServices = services
     .filter((s) => s.slug !== currentSlug)
     .slice(0, 4)
@@ -51,7 +47,7 @@ export default function OtherServices({
               title={service.title}
               description={service.description}
               image={getServiceImageBySlug(service.slug, service.image)}
-              href={`/${countryCode}/services/${service.slug}`}
+              href={`/services/${service.slug}`}
             />
           ))}
         </div>

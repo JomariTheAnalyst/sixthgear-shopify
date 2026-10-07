@@ -7,7 +7,7 @@ import Link from "next/link"
 import { inter, lato, montserrat } from "@lib/fonts"
 import type { SanityServiceBrandsSectionQueryResult } from "@lib/cms/types"
 import { selectServiceBrandsContent } from "@lib/cms/service-brands"
-import { cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
 import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface BrandsSectionProps {
@@ -128,7 +128,7 @@ export default function Brands({ data }: BrandsSectionProps) {
                         </ul>
                         {brand.link && brand.linkLabel ? (
                           <Link
-                          href={cleanSanityString(brand.link)}
+                          href={cleanSanityHref(brand.link)}
                             className={`${montserrat.className} inline-flex items-center mt-4 text-xs md:text-sm font-semibold uppercase tracking-[0.06em] text-black border-b border-black pb-1 hover:opacity-70 transition-opacity`}
                           >
                             {brand.linkLabel}

@@ -20,12 +20,11 @@ export const metadata: Metadata = {
  * @see https://stripe.com/docs/payments/checkout/how-checkout-works
  */
 export default async function CheckoutSuccessPage(props: Props) {
-  const params = await props.params
   const searchParams = await props.searchParams
   const { session_id } = searchParams
 
   if (!session_id) {
-    redirect(`/${params.countryCode}/checkout`)
+    redirect(`/checkout`)
   }
 
   try {
@@ -46,7 +45,7 @@ export default async function CheckoutSuccessPage(props: Props) {
     const cartId = session.metadata?.cart_id
 
     if (!cartId) {
-      redirect(`/${params.countryCode}/order/confirmed?session_id=${session_id}`)
+      redirect(`/order/confirmed?session_id=${session_id}`)
     }
 
     let order_id = null
@@ -87,15 +86,15 @@ export default async function CheckoutSuccessPage(props: Props) {
 
     if (order_id) {
       redirect(
-        `/${params.countryCode}/order/confirmed?session_id=${session_id}&order_id=${order_id}`
+        `/order/confirmed?session_id=${session_id}&order_id=${order_id}`
       )
     } else {
       redirect(
-        `/${params.countryCode}/order/confirmed?session_id=${session_id}&cart_id=${cartId}`
+        `/order/confirmed?session_id=${session_id}&cart_id=${cartId}`
       )
     }
   } catch (error) {
     console.error(error)
-    redirect(`/${params.countryCode}/order/confirmed?session_id=${session_id}`)
+    redirect(`/order/confirmed?session_id=${session_id}`)
   }
 }

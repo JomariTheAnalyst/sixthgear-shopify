@@ -84,7 +84,7 @@ function RelatedCollections({
         {collections.map((collection) => (
           <a
             key={collection.handle}
-            href={`/${countryCode}/collections/${collection.handle}`}
+            href={`/collections/${collection.handle}`}
             className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-800 transition-colors hover:border-gray-900 hover:text-gray-950"
           >
             {collection.title}
@@ -115,7 +115,7 @@ function RelatedServices({
         {services.map((service) => (
           <a
             key={service.href}
-            href={`/${countryCode}${service.href}`}
+            href={service.href}
             className="border border-gray-200 bg-gray-50 p-4 transition-colors hover:border-gray-900 hover:bg-white"
           >
             <span className="text-sm font-bold text-gray-950">

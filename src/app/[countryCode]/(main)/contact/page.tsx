@@ -4,29 +4,22 @@ import StoreLocation from "@modules/home/components/store-location"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
-  getLocalizedCanonicalPath,
+  getCanonicalPath,
+  getOpenGraph,
 } from "@lib/seo"
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ countryCode: string }>
-}): Promise<Metadata> {
-  const { countryCode } = await params
+export async function generateMetadata(): Promise<Metadata> {
   const title = "Contact Us"
   const description =
-    "Contact SixthGearMoto for motorcycle parts, workshop bookings, carwash, coffee, and rider support from Makati for Metro Manila."
+    "Visit 3610 Bautista St, Makati, or call and message SixthGear Moto. Open daily 10 AM–7 PM."
 
   return {
-    title: { absolute: title },
+    title,
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode, "/contact"),
+      canonical: getCanonicalPath("/contact"),
     },
-    openGraph: {
-      title,
-      description,
-    },
+    openGraph: getOpenGraph({ title, description, path: "/contact" }),
     twitter: {
       card: "summary",
       title,
@@ -35,13 +28,8 @@ export async function generateMetadata({
   }
 }
 
-export default async function Contact({
-  params,
-}: {
-  params: Promise<{ countryCode: string }>
-}) {
-  const { countryCode } = await params
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
+export default async function Contact() {
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
     { name: "Home", path: "/" },
     { name: "Contact Us", path: "/contact" },
   ])

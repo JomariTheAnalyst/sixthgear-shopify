@@ -2,7 +2,7 @@
 
 import type { ChangeEvent, FormEvent } from "react"
 import { useEffect, useRef, useState } from "react"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { resetPassword } from "@lib/data/customer"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import PasswordField from "@modules/account/components/password-field"
@@ -24,15 +24,14 @@ export default function ResetPasswordTemplate() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { countryCode } = useParams() as { countryCode: string }
   const formRef = useRef<HTMLFormElement>(null)
   const resetUrl = searchParams.get("url")
 
   useEffect(() => {
     if (!resetUrl) {
-      router.push(`/${countryCode}/forgot-password`)
+      router.push("/forgot-password")
     }
-  }, [resetUrl, router, countryCode])
+  }, [resetUrl, router])
 
   useEffect(() => {
     if (!showSuccess) {
@@ -40,11 +39,11 @@ export default function ResetPasswordTemplate() {
     }
 
     const timer = setTimeout(() => {
-      router.push(`/${countryCode}/account`)
+      router.push("/account")
     }, 3000)
 
     return () => clearTimeout(timer)
-  }, [showSuccess, router, countryCode])
+  }, [showSuccess, router])
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name } = event.target

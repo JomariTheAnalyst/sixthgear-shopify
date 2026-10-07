@@ -10,7 +10,7 @@ import {
   selectWhatWeOfferContent,
   type WhatWeOfferContent,
 } from "@lib/cms/what-we-offer"
-import { cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString, createSanityDataAttribute, keyedSanityPath } from "@lib/cms/visual-editing"
 import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface AboutServicesProps {
@@ -52,7 +52,7 @@ export default function WhatWeOffer({ data }: AboutServicesProps) {
     return (
       <Link
         key={service.key}
-        href={cleanSanityString(service.linkUrl)}
+        href={cleanSanityHref(service.linkUrl)}
         data-sanity={itemTarget}
         className="group relative flex-none w-[85vw] sm:w-[400px] lg:w-[450px] xl:w-[480px] min-h-[500px] lg:min-h-[650px] snap-center overflow-hidden bg-black"
       >
