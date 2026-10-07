@@ -13,6 +13,7 @@ import {
   renderContactCustomerEmail,
 } from "@lib/contact/email"
 import { serverEnv } from "@lib/env"
+import { TURNSTILE_ERROR_MESSAGE, verifyTurnstile } from "@lib/util/turnstile"
 import { Resend } from "resend"
 
 const CONTACT_RATE_LIMIT = 5
@@ -211,6 +212,13 @@ export async function POST(request: NextRequest) {
       },
       400
     )
+  }
+
+  // The schema strips unknown keys, so the token is read from the raw body.
+  const turnstileToken = (rawBody as { turnstileToken?: unknown } | null)
+    ?.turnstileToken
+  if (!(await verifyTurnstile(turnstileToken, ip))) {
+    return json({ success: false, message: TURNSTILE_ERROR_MESSAGE }, 403)
   }
 
   try {

@@ -25,6 +25,7 @@ const serverSchema = z.object({
   RESEND_API_KEY: z.string().min(1).optional(),
   CONTACT_EMAIL_TO: z.string().email().optional(),
   CONTACT_EMAIL_FROM: z.string().email().optional(),
+  TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
@@ -39,6 +40,7 @@ const clientSchema = z.object({
   NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: z.string().min(1).optional(),
   NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: z.string().min(1).optional(),
   NEXT_PUBLIC_TIDIO_PUBLIC_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_CURATOR_CONTAINER_ID: z
     .string()
     .trim()
@@ -91,6 +93,7 @@ function createServerEnv(): ServerEnv {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     CONTACT_EMAIL_TO: process.env.CONTACT_EMAIL_TO,
     CONTACT_EMAIL_FROM: process.env.CONTACT_EMAIL_FROM,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
     NODE_ENV: process.env.NODE_ENV,
   })
 
@@ -111,6 +114,7 @@ function createClientEnv(): ClientEnv {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
     NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     NEXT_PUBLIC_CURATOR_CONTAINER_ID:
       process.env.NEXT_PUBLIC_CURATOR_CONTAINER_ID,
     NEXT_PUBLIC_CURATOR_EMBED_SCRIPT_URL:
@@ -149,6 +153,7 @@ export const clientEnv: ClientEnv =
         NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN: process.env.NEXT_PUBLIC_JUDGEME_PUBLIC_TOKEN,
         NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN: process.env.NEXT_PUBLIC_JUDGEME_SHOP_DOMAIN,
         NEXT_PUBLIC_TIDIO_PUBLIC_KEY: process.env.NEXT_PUBLIC_TIDIO_PUBLIC_KEY,
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
         NEXT_PUBLIC_CURATOR_CONTAINER_ID:
           process.env.NEXT_PUBLIC_CURATOR_CONTAINER_ID ||
           "curator-feed-default-feed-layout",

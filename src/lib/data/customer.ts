@@ -1,6 +1,6 @@
 "use server"
 
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { randomBytes } from "crypto"
@@ -28,6 +28,19 @@ import {
   updateRateLimit,
   passwordChangeRateLimit,
 } from "@lib/util/rate-limit"
+import {
+  TURNSTILE_ERROR_MESSAGE,
+  TURNSTILE_FIELD,
+  verifyTurnstile,
+} from "@lib/util/turnstile"
+
+/** Visitor IP, read the same way as the rate limiter in @lib/util/rate-limit. */
+async function getRequestIp(): Promise<string> {
+  const headersList = await headers()
+  const forwarded = headersList.get("x-forwarded-for")
+  const realIp = headersList.get("x-real-ip")
+  return forwarded?.split(",")[0].trim() ?? realIp ?? "anonymous"
+}
 
 // â”€â”€â”€ Cookie Helpers â€” Customer Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -212,6 +225,10 @@ export async function signup(
     return "Too many requests. Please try again later."
   }
 
+  if (!(await verifyTurnstile(formData.get(TURNSTILE_FIELD), await getRequestIp()))) {
+    return TURNSTILE_ERROR_MESSAGE
+  }
+
   try {
     // 1. Create the customer WITH password (auto-activates)
     const result = await shopifyCustomerCreate({
@@ -377,6 +394,10 @@ export async function requestPasswordReset(
   const allowed = await recoverRateLimit.check(5)
   if (!allowed) {
     return "Too many requests. Please try again later."
+  }
+
+  if (!(await verifyTurnstile(formData.get(TURNSTILE_FIELD), await getRequestIp()))) {
+    return TURNSTILE_ERROR_MESSAGE
   }
 
   try {
