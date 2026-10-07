@@ -1,6 +1,12 @@
 import localFont from "next/font/local"
 import { Instrument_Serif, Inter, Montserrat, Poppins } from "next/font/google"
 
+/**
+ * Only the fonts the hero and nav use above the fold (Inter, Montserrat,
+ * Outfit) are preloaded. The rest set preload: false; they still load, with
+ * display: swap, as soon as a rendered section uses them.
+ */
+
 export const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -20,6 +26,7 @@ export const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
   display: "swap",
+  preload: false,
 })
 
 /**
@@ -56,6 +63,7 @@ export const hendrix = localFont({
   ],
   variable: "--font-hendrix",
   display: "swap",
+  preload: false,
 })
 
 export const copy = localFont({
@@ -73,6 +81,7 @@ export const copy = localFont({
   ],
   variable: "--font-copy",
   display: "swap",
+  preload: false,
 })
 
 export const nationalCompressed = localFont({
@@ -81,6 +90,7 @@ export const nationalCompressed = localFont({
   style: "normal",
   variable: "--font-national-compressed",
   display: "swap",
+  preload: false,
 })
 
 export const nationalCondensed = localFont({
@@ -89,6 +99,7 @@ export const nationalCondensed = localFont({
   style: "normal",
   variable: "--font-national-condensed",
   display: "swap",
+  preload: false,
 })
 
 export const lato = localFont({
@@ -101,6 +112,7 @@ export const lato = localFont({
   ],
   variable: "--font-lato",
   display: "swap",
+  preload: false,
 })
 
 export const interDisplay = localFont({
@@ -113,18 +125,7 @@ export const interDisplay = localFont({
   ],
   variable: "--font-inter-display",
   display: "swap",
-})
-
-export const interDisplayMedium = localFont({
-  src: [
-    {
-      path: "../../public/fonts/6915c8332ea6e8104f5a63fd_InterDisplay-Medium.woff",
-      weight: "500",
-      style: "normal",
-    },
-  ],
-  variable: "--font-inter-display-medium",
-  display: "swap",
+  preload: false,
 })
 
 export const handwritten = localFont({
@@ -137,6 +138,7 @@ export const handwritten = localFont({
   ],
   variable: "--font-handwritten",
   display: "swap",
+  preload: false,
 })
 
 export const silka = localFont({
@@ -149,6 +151,7 @@ export const silka = localFont({
   ],
   variable: "--font-silka",
   display: "swap",
+  preload: false,
 })
 
 export const outfit = localFont({
