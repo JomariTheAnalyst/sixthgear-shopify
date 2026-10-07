@@ -22,7 +22,6 @@ import {
   generateLocalBusinessSchema,
   getOrganizationStructuredData,
   getSeoMetadataBase,
-  getWebsiteStructuredData,
 } from "@lib/seo"
 import "lenis/dist/lenis.css"
 
@@ -35,13 +34,11 @@ export default async function PageLayout(props: {
   overlay: React.ReactNode
   params: Promise<{ countryCode: string }>
 }) {
-  const { countryCode } = await props.params
   const customer = await retrieveCustomer()
   const shopifyCart = await retrieveCart()
   const cart = mapShopifyCartToStoreCart(shopifyCart)
-  const organizationStructuredData = getOrganizationStructuredData(countryCode)
-  const localBusinessStructuredData = generateLocalBusinessSchema(countryCode)
-  const websiteStructuredData = getWebsiteStructuredData(countryCode)
+  const organizationStructuredData = getOrganizationStructuredData()
+  const localBusinessStructuredData = generateLocalBusinessSchema()
 
   // Fetch marketing content for the layout (strip only at this level)
   const marketing = await getMarketingForPath("/")
@@ -64,7 +61,6 @@ export default async function PageLayout(props: {
             id="local-business-structured-data"
             data={localBusinessStructuredData}
           />
-          <JsonLd id="website-structured-data" data={websiteStructuredData} />
           {/* Cart cleanup component - removes shipping methods when leaving checkout */}
           <CartCleanup cartId={cart?.id} />
 

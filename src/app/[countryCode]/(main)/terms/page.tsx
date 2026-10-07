@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import { getCanonicalPath } from "@lib/seo"
 import { getShopPolicies } from "@lib/shopify/policies"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ShopifyPolicy from "@modules/legal/components/shopify-policy"
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Terms and conditions for using Sixthgear Moto Supply & Cafe services and purchasing products online.",
   alternates: {
-    canonical: getLocalizedCanonicalPath("ph", "/terms"),
+    canonical: getCanonicalPath("/terms"),
   },
 }
 

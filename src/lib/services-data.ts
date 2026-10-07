@@ -74,44 +74,44 @@ export const SERVICE_SEO_BY_SLUG: Record<
   { title: string; description: string }
 > = {
   "preventive-maintenance": {
-    title: "Motorcycle PMS & Preventive Maintenance Makati | SixthGearMoto",
+    title: "Motorcycle PMS & Preventive Maintenance Makati",
     description:
-      "Motorcycle PMS, oil change, and preventive maintenance in Makati. Keep your big bike in top condition at SixthGearMoto service center, Metro Manila.",
+      "Motorcycle PMS, oil change, and preventive maintenance in Makati. Keep your big bike in top condition at SixthGear Moto service center, Metro Manila.",
   },
   "repairs-diagnostics": {
-    title: "Motorcycle Repair & Diagnostics Makati | SixthGearMoto",
+    title: "Motorcycle Repair & Diagnostics Makati",
     description:
-      "Motorcycle repair and diagnostics in Makati for engine, electrical, and general bike issues. Visit SixthGearMoto service center in Metro Manila.",
+      "Motorcycle repair and diagnostics in Makati for engine, electrical, and general bike issues. Visit SixthGear Moto service center in Metro Manila.",
   },
   "accessories-installation": {
-    title: "Accessories & Exhaust Installation Makati | SixthGearMoto",
+    title: "Accessories & Exhaust Installation Makati",
     description:
-      "Motorcycle accessories and exhaust installation in Makati, including Akrapovic, SC Project, Yoshimura, slip-on, and full system support at SixthGearMoto.",
+      "Motorcycle accessories and exhaust installation in Makati, including Akrapovic, SC Project, Yoshimura, slip-on, and full system support at SixthGear Moto.",
   },
   "wheels-drivetrain": {
-    title: "Motorcycle Wheels, Tires & Drivetrain Service Makati | SixthGearMoto",
+    title: "Motorcycle Wheels, Tires & Drivetrain Service Makati",
     description:
-      "Motorcycle tire, wheel, chain, drivetrain, and handling service in Makati. Visit SixthGearMoto service center in Metro Manila.",
+      "Motorcycle tire, wheel, chain, drivetrain, and handling service in Makati. Visit SixthGear Moto service center in Metro Manila.",
   },
   "detailing-protection": {
-    title: "Motorcycle Detailing & Ceramic Coating Makati | SixthGearMoto",
+    title: "Motorcycle Detailing & Ceramic Coating Makati",
     description:
-      "Motorcycle detailing, care, and ceramic coating in Makati. Protect and maintain your bike at SixthGearMoto in Metro Manila.",
+      "Motorcycle detailing, care, and ceramic coating in Makati. Protect and maintain your bike at SixthGear Moto in Metro Manila.",
   },
   "performance-upgrades": {
-    title: "Motorcycle Performance Upgrades Makati | SixthGearMoto",
+    title: "Motorcycle Performance Upgrades Makati",
     description:
-      "Motorcycle performance upgrades, exhaust support, and big bike improvement services in Makati at SixthGearMoto, Metro Manila.",
+      "Motorcycle performance upgrades, exhaust support, and big bike improvement services in Makati at SixthGear Moto, Metro Manila.",
   },
   "roadside-assistance": {
-    title: "Motorcycle Towing & Roadside Assistance Metro Manila | SixthGearMoto",
+    title: "Motorcycle Towing & Roadside Assistance Metro Manila",
     description:
-      "Motorcycle towing, roadside assistance, and recovery support in Metro Manila. Contact SixthGearMoto for rider support from Makati.",
+      "Motorcycle towing, roadside assistance, and recovery support in Metro Manila. Contact SixthGear Moto for rider support from Makati.",
   },
   "rider-support": {
-    title: "Rider Support Services Makati | SixthGearMoto",
+    title: "Rider Support Services Makati",
     description:
-      "Rider support and convenience services at SixthGearMoto Makati, including gear guidance, service coordination, carwash, and coffee for riders.",
+      "Rider support and convenience services at SixthGear Moto Makati, including gear guidance, service coordination, carwash, and coffee for riders.",
   },
 }
 

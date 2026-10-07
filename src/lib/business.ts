@@ -2,13 +2,22 @@ import { getBaseURL } from "@lib/util/env"
 
 const logoPath = "/images/logo/sixthgear-removebg-preview.png"
 
+// The only official social profiles. Every link on the site and the JSON-LD
+// sameAs read from here.
+export const SOCIAL_LINKS = {
+  facebook: "https://www.facebook.com/sixthgear.moto.makati",
+  instagram: "https://www.instagram.com/sixthgear.moto/",
+  tiktok: "https://www.tiktok.com/@sixthgear.moto.su",
+} as const
+
 export const BUSINESS_NAP = {
-  brandName: "SixthGearMoto",
+  brandName: "SixthGear Moto",
+  alternateNames: ["SixthGearMoto", "Sixth Gear Moto Supply", "Sixthgear"],
   legalName: "Sixthgear Motosupply",
   name: "Sixth Gear Moto Supply Cafe + Lounge",
   shortName: "Sixth Gear Moto Supply",
   description:
-    "SixthGearMoto is a rider-focused motorcycle parts shop, motorcycle service center, carwash, cafe, and lounge in Makati City, Metro Manila.",
+    "SixthGear Moto is a rider-focused motorcycle parts shop, motorcycle service center, carwash, cafe, and lounge in Makati City, Metro Manila.",
   websiteUrl: getBaseURL(),
   logoPath,
   imagePath: logoPath,
@@ -46,14 +55,7 @@ export const BUSINESS_NAP = {
   },
   googleMapsUrl: "https://maps.app.goo.gl/qbVoZTzCk7sBENrN7",
   googleBusinessProfileUrl: null,
-  socialProfiles: [
-    "https://www.facebook.com/camille.sixthgear",
-    "https://www.instagram.com/sixthgear.moto/",
-    "https://www.tiktok.com/@sixthgear.moto.su",
-    "https://twitter.com/sixthgear",
-    "https://linkedin.com/company/sixthgear",
-  ],
-  socialProfilesOfficialForSchema: false,
+  socialProfiles: Object.values(SOCIAL_LINKS),
   paymentAccepted: null,
 } as const
 

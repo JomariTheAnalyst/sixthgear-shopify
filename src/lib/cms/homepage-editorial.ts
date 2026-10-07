@@ -7,6 +7,7 @@ import type {
   SanityStoreLocation,
 } from './types'
 import { stegaClean } from 'next-sanity'
+import { SOCIAL_LINKS } from '@lib/business'
 
 const cleanSanityString = stegaClean
 
@@ -364,11 +365,7 @@ export const FALLBACK_CTA_BANNER: CtaBannerContent = {
   buttonLink: '/store',
   footerTagline:
     'Sixth Gear Moto Supply is a premium motorcycle supply shop and motorcycle service center based in Makati City.',
-  socialLinks: {
-    instagram: 'https://www.instagram.com/sixthgear_moto_supply/',
-    facebook: 'https://www.facebook.com/camille.sixthgear',
-    tiktok: 'https://www.tiktok.com/@sixthgear.moto.su',
-  },
+  socialLinks: { ...SOCIAL_LINKS },
 }
 
 export function isCompleteCtaBanner(value: SanityCtaBanner) {

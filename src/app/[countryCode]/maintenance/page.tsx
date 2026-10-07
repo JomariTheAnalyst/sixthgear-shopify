@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { SOCIAL_LINKS } from "@lib/business"
 
 export const metadata: Metadata = {
   title: "Scheduled Maintenance",
@@ -47,7 +48,7 @@ export default function MaintenancePage() {
           <p className="text-sm text-gray-500">Need immediate assistance?</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="https://www.facebook.com/camille.sixthgear"
+              href={SOCIAL_LINKS.facebook}
               className="text-sm text-gray-700 hover:text-[#F16D34] underline underline-offset-4 transition-colors"
             >
               message us

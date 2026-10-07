@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { inter, montserrat } from "@lib/fonts"
 import { TextRoll } from "components/ui/text-roll"
-import { cleanSanityString } from "@lib/cms/visual-editing"
+import { cleanSanityHref } from "@lib/cms/visual-editing"
+import { SOCIAL_LINKS } from "@lib/business"
 
 interface CTABannerProps {
   preTitle?: string | null
@@ -24,21 +25,17 @@ export default function CTABanner({
   buttonLabel,
   buttonLink,
   footerTagline,
-  socialLinks,
 }: CTABannerProps) {
   const activePreTitle = preTitle || "Ready to upgrade your ride?"
   const activeHeadline = headline || "We've got\nthe gear\nwaiting for you."
   const activeHighlight = headlineHighlight || "for you."
   const activeButtonLabel = buttonLabel || "Shop Now"
-  const activeButtonLink = cleanSanityString(buttonLink || "/store")
+  const activeButtonLink = cleanSanityHref(buttonLink || "/store")
 
   const activeFooterTagline = footerTagline || "Sixth Gear Moto Supply  is a premium motorcycle supply shop and motorcycle service center. Based in Makati City."
 
-  const activeSocialLinks = {
-    instagram: cleanSanityString(socialLinks?.instagram || "https://www.instagram.com/sixthgear_moto_supply/"),
-    facebook: cleanSanityString(socialLinks?.facebook || "https://www.facebook.com/camille.sixthgear"),
-    tiktok: cleanSanityString(socialLinks?.tiktok || "https://www.tiktok.com/@sixthgear.moto.su"),
-  }
+  // Official profiles only (lib/business.ts); CMS social links are not used.
+  const activeSocialLinks = SOCIAL_LINKS
 
   const activeSocials = [
     activeSocialLinks.instagram && { name: "Instagram", url: activeSocialLinks.instagram },

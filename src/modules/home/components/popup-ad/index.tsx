@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { SanityPopupAd } from "@lib/cms/types"
 import { interDisplay, lato } from "@lib/fonts"
-import { cleanSanityString, createSanityDataAttribute } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString, createSanityDataAttribute } from "@lib/cms/visual-editing"
 import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
 
 interface PopupAdProps {
@@ -56,7 +56,7 @@ export default function PopupAd({ data }: PopupAdProps) {
 
   const ImageWrapper = data.imageLink ? Link : "div"
   const imageWrapperProps = data.imageLink
-    ? { href: cleanSanityString(data.imageLink), onClick: dismiss }
+    ? { href: cleanSanityHref(data.imageLink), onClick: dismiss }
     : {}
   const imageWidth = data.imageDimensions?.width || 1200
   const imageHeight = data.imageDimensions?.height || 1500
@@ -129,7 +129,7 @@ export default function PopupAd({ data }: PopupAdProps) {
         {data.buttonLabel && (
           <div className="px-0">
             <Link
-              href={cleanSanityString(data.buttonLink || data.imageLink || "#")}
+              href={cleanSanityHref(data.buttonLink || data.imageLink || "#")}
               onClick={dismiss}
               className={`${interDisplay.className} w-full block bg-white text-gray-900 font-bold text-sm uppercase tracking-widest py-4 px-6 text-center border-t border-gray-200 hover:bg-gray-50 transition-colors`}
             >

@@ -51,14 +51,13 @@ import {
 } from "@lib/cms/client"
 import { selectVideoFeatureContent } from "@lib/cms/video-feature"
 import {
-  getAbsoluteSiteUrl,
+  getCanonicalPath,
   getDefaultOpenGraphImageUrl,
-  getLocalizedCanonicalPath,
   getMetadataImageUrl,
-  getNoindexFollowRobots,
-  getSiteName,
-  hasNonCanonicalSearchParams,
+  getOpenGraph,
+  getWebsiteStructuredData,
 } from "@lib/seo"
+import JsonLd from "@modules/common/components/json-ld"
 import {
   DeferredClientTestimonialsSection,
   DeferredOurServicesSection,
@@ -74,26 +73,14 @@ import { cleanSanityString } from "@lib/cms/visual-editing"
 
 export const revalidate = 60
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ countryCode: string }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}): Promise<Metadata> {
-  const { countryCode } = await params
-  const rawSearchParams = await searchParams
+export async function generateMetadata(): Promise<Metadata> {
   const homepageHero = await getHomepageHero()
   const heroImageUrl =
     homepageHero?.slides?.find((slide) => slide.imageUrl)?.imageUrl ?? null
   const imageUrl = getMetadataImageUrl(heroImageUrl ? cleanSanityString(heroImageUrl) : null) || getDefaultOpenGraphImageUrl()
-  const title = "SixthGearMoto"
+  const title = "SixthGear Moto | Motorcycle Parts, Riding Gear & Service in Makati"
   const description =
-    "Shop premium motorcycle parts, riding gear, Akrapovic exhausts, and big bike accessories at SixthGearMoto. Visit our motorcycle shop, service center, carwash, and coffee spot in Makati, Philippines."
-  const canonicalUrl = getAbsoluteSiteUrl(countryCode)
-  const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
-    allowPaginationParams: true,
-  })
+    "Motorcycle parts, riding gear, helmets and workshop services at SixthGear Moto in Makati, with a rider café on site."
 
   return {
     title: {
@@ -101,23 +88,15 @@ export async function generateMetadata({
     },
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode),
+      canonical: getCanonicalPath("/"),
     },
-    openGraph: {
-      type: "website",
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: getSiteName(),
-      images: [imageUrl],
-    },
+    openGraph: getOpenGraph({ title, description, path: "/", image: imageUrl }),
     twitter: {
       card: "summary_large_image",
       title,
       description,
       images: [imageUrl],
     },
-    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 
@@ -241,6 +220,7 @@ export default async function Home(props: {
 
   return (
     <>
+      <JsonLd id="website-structured-data" data={getWebsiteStructuredData()} />
       {marketingData.activePopup && (
         <PopupAd data={marketingData.activePopup} />
       )}

@@ -6,29 +6,22 @@ import { selectAboutPageContent } from "@lib/cms/about-page-main"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
-  getLocalizedCanonicalPath,
+  getCanonicalPath,
+  getOpenGraph,
 } from "@lib/seo"
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ countryCode: string }>
-}): Promise<Metadata> {
-  const { countryCode } = await params
+export async function generateMetadata(): Promise<Metadata> {
   const title = "About Us"
   const description =
-    "Learn about SixthgearMoto, a rider-built motorcycle shop, workshop, and cafe hub in the Philippines."
+    "The rider-built motorcycle shop, workshop and café behind SixthGear Moto in Makati."
 
   return {
-    title: { absolute: title },
+    title,
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode, "/about"),
+      canonical: getCanonicalPath("/about"),
     },
-    openGraph: {
-      title,
-      description,
-    },
+    openGraph: getOpenGraph({ title, description, path: "/about" }),
     twitter: {
       card: "summary",
       title,
@@ -37,18 +30,13 @@ export async function generateMetadata({
   }
 }
 
-export default async function AboutPage({
-  params,
-}: {
-  params: Promise<{ countryCode: string }>
-}) {
-  const { countryCode } = await params
+export default async function AboutPage() {
   const aboutPage = await getAboutPage()
   const content = selectAboutPageContent(aboutPage)
   const ourSpaceExperienceContent = selectOurSpaceExperienceContent(
     aboutPage?.ourSpaceExperience
   )
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(countryCode, [
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
   ])

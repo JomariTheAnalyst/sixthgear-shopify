@@ -13,10 +13,13 @@ import {
   type RiderStoryPreview,
 } from "@lib/rider-stories"
 import {
-  getLocalizedCanonicalPath,
-  getNoindexFollowRobots,
-  hasNonCanonicalSearchParams,
+  getArticleStructuredData,
+  getBreadcrumbStructuredData,
+  getCanonicalPath,
+  getOpenGraph,
+  getPageTitle,
 } from "@lib/seo"
+import JsonLd from "@modules/common/components/json-ld"
 import { getClientStoriesWithFallbacks } from "@lib/strapi/client-stories"
 import { fetchHomeContent } from "@lib/strapi/home"
 import RiderStoryArticlePage from "@modules/rider-stories/templates/article-page"
@@ -173,11 +176,7 @@ async function getStoryWithFallback(slug: string): Promise<SanityBlogPost | null
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const { countryCode, slug } = await props.params
-  const searchParams = (await props.searchParams) ?? {}
-  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
-    allowPaginationParams: true,
-  })
+  const { slug } = await props.params
   const story = await getStoryWithFallback(slug)
 
   if (!story) {
@@ -186,23 +185,24 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     }
   }
 
+  const title = cleanSanityString(story.seoTitle || story.title || "Rider Story")
+  const description =
+    cleanOptionalSanityString(story.seoDescription || story.excerpt) || undefined
+  const path = `/rider-stories/${slug}`
+
   return {
-    title: `${cleanSanityString(story.seoTitle || story.title || "Rider Story")} | Rider Stories`,
-    description: cleanOptionalSanityString(story.seoDescription || story.excerpt) || undefined,
+    title: getPageTitle(title),
+    description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(
-        countryCode,
-        `/rider-stories/${slug}`
-      ),
+      canonical: getCanonicalPath(path),
     },
-    openGraph: {
-      title: cleanSanityString(story.seoTitle || story.title || "Rider Story"),
-      description: cleanOptionalSanityString(story.seoDescription || story.excerpt) || undefined,
-      images:
-        story.socialImageUrl || story.featuredImageUrl
-          ? [{ url: cleanSanityString(story.socialImageUrl || story.featuredImageUrl || "") }]
-          : [],
-    },
+    openGraph: getOpenGraph({
+      title,
+      description,
+      path,
+      type: "article",
+      image: cleanSanityString(story.socialImageUrl || story.featuredImageUrl || ""),
+    }),
     twitter: {
       card:
         story.socialImageUrl || story.featuredImageUrl
@@ -215,7 +215,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
           ? [cleanSanityString(story.socialImageUrl || story.featuredImageUrl || "")]
           : [],
     },
-    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 
@@ -239,10 +238,30 @@ export default async function RiderStoryPage(props: Props) {
           .slice(0, 2)
           .map(mapLegacyStoryToListItem)
 
+  const title = cleanSanityString(story.title || "Rider Story")
+  const path = `/rider-stories/${slug}`
+  const articleStructuredData = getArticleStructuredData({
+    slug,
+    title,
+    description: cleanOptionalSanityString(story.seoDescription || story.excerpt),
+    image: cleanSanityString(story.socialImageUrl || story.featuredImageUrl || ""),
+    publishedAt: story.publishedAt,
+    authorName: cleanOptionalSanityString(story.authorName),
+  })
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: "Rider Stories", path: "/rider-stories" },
+    { name: title, path },
+  ])
+
   return (
-    <RiderStoryArticlePage
-      article={story}
-      relatedStories={relatedStories}
-    />
+    <>
+      <JsonLd id="rider-story-breadcrumbs" data={breadcrumbStructuredData} />
+      <JsonLd id="rider-story-article" data={articleStructuredData} />
+      <RiderStoryArticlePage
+        article={story}
+        relatedStories={relatedStories}
+      />
+    </>
   )
 }

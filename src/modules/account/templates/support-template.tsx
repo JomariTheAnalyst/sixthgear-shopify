@@ -8,23 +8,20 @@
   ArrowUpRight,
   ArrowRight,
 } from "lucide-react"
+import { SOCIAL_LINKS } from "@lib/business"
 
 const SUPPORT = {
   email: "customercare@sixthgearmoto.com",
   phone: ["09950930157", "09155951120"],
   landline: "(02)7000-0141",
-  messenger: "https://www.facebook.com/camille.sixthgear",
+  messenger: SOCIAL_LINKS.facebook,
   facebook: [
     {
-      label: "Sixth Gear Moto",
-      url: "https://www.facebook.com/sixthgear.moto",
-    },
-    {
-      label: "Camille - Sixth Gear",
-      url: "https://www.facebook.com/camille.sixthgear",
+      label: "SixthGear Moto",
+      url: SOCIAL_LINKS.facebook,
     },
   ],
-  instagram: "https://www.instagram.com/6thgearmotosupply/",
+  instagram: SOCIAL_LINKS.instagram,
   hours: "Mon–Sat, 9:00 AM – 6:00 PM (PHT)",
   address: "3610 Bautista St, Makati City, Metro Manila",
   responseTime: "We typically respond within 24 hours",

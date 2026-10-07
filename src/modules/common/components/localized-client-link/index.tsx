@@ -1,17 +1,30 @@
 "use client"
 
 import Link from "next/link"
-import { useParams, usePathname, useSearchParams } from "next/navigation"
-import React, { useMemo } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
+import React from "react"
+
+import { toRootRelativeHref } from "@lib/util/href"
+
+// Where a product page was opened from, for its breadcrumb. Kept in
+// sessionStorage so product URLs stay clean (no ?from= query params).
+export const PRODUCT_SOURCE_STORAGE_KEY = "sg:product-source"
+
+export type ProductSource = {
+  productPath: string
+  href: string
+  label: string
+}
 
 /**
- * Use this component to create a Next.js `<Link />` that persists the current country code in the url,
- * without having to explicitly pass it as a prop.
+ * Internal link. Public URLs have no country prefix (see middleware); hrefs
+ * from CMS data are made root-relative here.
  */
 const LocalizedClientLink = ({
   children,
-  href,
+  href: rawHref,
   preserveSource = false,
+  onClick,
   ...props
 }: {
   children?: React.ReactNode
@@ -22,38 +35,43 @@ const LocalizedClientLink = ({
   passHref?: true
   [x: string]: any
 }) => {
-  const { countryCode } = useParams()
+  const href = toRootRelativeHref(rawHref)
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const localizedHref = useMemo(() => {
-    const baseHref = `/${countryCode}${href}`
+  const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
+    onClick?.(event)
 
     if (!preserveSource || !href.startsWith("/products/")) {
-      return baseHref
+      return
     }
 
-    const [path, existingQuery = ""] = baseHref.split("?")
-    const nextParams = new URLSearchParams(existingQuery)
     const currentQuery = searchParams.toString()
-    const currentPath = `${pathname}${currentQuery ? `?${currentQuery}` : ""}`
+    const label = pathname.includes("/store")
+      ? "Store"
+      : pathname.includes("/collections/")
+        ? "Collection"
+        : null
 
-    nextParams.set("from", currentPath)
-
-    if (pathname.includes("/store")) {
-      nextParams.set("fromLabel", "Store")
-    } else if (pathname.includes("/collections/")) {
-      nextParams.set("fromLabel", "Collection")
-    } else if (pathname.includes("/search")) {
-      nextParams.set("fromLabel", "Search")
+    if (!label) {
+      return
     }
 
-    const serializedParams = nextParams.toString()
-    return serializedParams ? `${path}?${serializedParams}` : path
-  }, [countryCode, href, pathname, preserveSource, searchParams])
+    const source: ProductSource = {
+      productPath: href.split("?")[0],
+      href: `${pathname}${currentQuery ? `?${currentQuery}` : ""}`,
+      label,
+    }
+
+    try {
+      sessionStorage.setItem(PRODUCT_SOURCE_STORAGE_KEY, JSON.stringify(source))
+    } catch {
+      // Storage unavailable (private mode): the breadcrumb falls back to Store.
+    }
+  }
 
   return (
-    <Link href={localizedHref} {...props}>
+    <Link href={href} onClick={handleClick} {...props}>
       {children}
     </Link>
   )

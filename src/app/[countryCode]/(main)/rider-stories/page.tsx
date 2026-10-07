@@ -4,54 +4,45 @@ import Image from "next/image"
 import { getLatestBlogPosts } from "@lib/cms/client"
 import { inter, montserrat } from "@lib/fonts"
 import {
-  getLocalizedCanonicalPath,
-  getNoindexFollowRobots,
-  hasNonCanonicalSearchParams,
+  getBreadcrumbStructuredData,
+  getCanonicalPath,
+  getOpenGraph,
 } from "@lib/seo"
+import JsonLd from "@modules/common/components/json-ld"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export const revalidate = 60
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ countryCode: string }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}): Promise<Metadata> {
-  const { countryCode } = await params
-  const rawSearchParams = await searchParams
-  const shouldNoindex = hasNonCanonicalSearchParams(rawSearchParams, {
-    allowPaginationParams: true,
-  })
+export async function generateMetadata(): Promise<Metadata> {
   const title = "Rider Stories"
   const description =
-    "Read rider stories, garage notes, and workshop articles from the SixthgearMoto team and community."
+    "Read rider stories, garage notes, and workshop articles from the SixthGear Moto team and community."
 
   return {
-    title: { absolute: title },
+    title,
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode, "/rider-stories"),
+      canonical: getCanonicalPath("/rider-stories"),
     },
-    openGraph: {
-      title,
-      description,
-    },
+    openGraph: getOpenGraph({ title, description, path: "/rider-stories" }),
     twitter: {
       card: "summary",
       title,
       description,
     },
-    ...(shouldNoindex ? { robots: getNoindexFollowRobots() } : {}),
   }
 }
 
 export default async function RiderStoriesListingPage() {
   const posts = await getLatestBlogPosts()
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: "Rider Stories", path: "/rider-stories" },
+  ])
 
   return (
     <main className="bg-white text-black">
+      <JsonLd id="rider-stories-breadcrumbs" data={breadcrumbStructuredData} />
       <section className="mx-auto max-w-[1440px] px-4 pb-14 pt-10 sm:px-6 lg:px-10 lg:pb-20 lg:pt-14">
         <div className="mx-auto max-w-[980px] text-center">
           <p
@@ -67,7 +58,7 @@ export default async function RiderStoriesListingPage() {
           <p
             className={`${inter.className} mx-auto mt-6 max-w-[680px] text-base leading-7 text-black/58 sm:text-[1.02rem]`}
           >
-            Practical stories from the road, the workshop, and the SixthgearMoto
+            Practical stories from the road, the workshop, and the SixthGear Moto
             community.
           </p>
         </div>

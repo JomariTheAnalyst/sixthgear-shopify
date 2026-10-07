@@ -14,9 +14,10 @@ import { searchProducts } from "@lib/data/search";
 import { parseSearchParams } from "@lib/util/filterParams";
 import {
   getBreadcrumbStructuredData,
-  getLocalizedCanonicalPath,
+  getCanonicalPath,
   getNoindexFollowRobots,
-  hasNonCanonicalSearchParams,
+  getOpenGraph,
+  hasFilterSearchParams,
 } from "@lib/seo";
 import CollectionHero from "@modules/collections/components/CollectionHero";
 import CollectionTemplate from "@modules/collections/templates";
@@ -152,25 +153,21 @@ type Params = {
 };
 
 export async function generateMetadata(props: Params): Promise<Metadata> {
-  const { countryCode } = await props.params;
   const searchParams = await props.searchParams;
-  const shouldNoindex = hasNonCanonicalSearchParams(searchParams, {
-    allowPaginationParams: true,
-  });
-  const title = "Shop";
+  // Search, filter and sort views stay noindex; pagination and tracking
+  // params canonicalise to /store.
+  const shouldNoindex = hasFilterSearchParams(searchParams);
+  const title = "Shop Motorcycle Parts & Gear";
   const description =
-    "Browse helmets, apparel, accessories, and motorcycle parts from SixthgearMoto.";
+    "Shop helmets, riding gear, exhausts and motorcycle parts with delivery across the Philippines.";
 
   return {
-    title: { absolute: title },
+    title,
     description,
     alternates: {
-      canonical: getLocalizedCanonicalPath(countryCode, "/store"),
+      canonical: getCanonicalPath("/store"),
     },
-    openGraph: {
-      title,
-      description,
-    },
+    openGraph: getOpenGraph({ title, description, path: "/store" }),
     twitter: {
       card: "summary",
       title,
@@ -183,13 +180,10 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
 export default async function StorePage(props: Params) {
   const params = await props.params;
   const rawSearchParams = await props.searchParams;
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(
-    params.countryCode,
-    [
-      { name: "Home", path: "/" },
-      { name: "Shop", path: "/store" },
-    ]
-  );
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/store" },
+  ]);
 
   const urlParams = new URLSearchParams();
   Object.entries(rawSearchParams).forEach(([key, value]) => {

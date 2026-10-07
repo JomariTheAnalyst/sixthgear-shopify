@@ -2,7 +2,6 @@
 
 import Image from "next/image"
 import { useMemo } from "react"
-import { useParams } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { MoreVertical, Package } from "lucide-react"
 import { ShopifyOrder } from "@lib/shopify/types"
@@ -76,24 +75,20 @@ type OrderCardProps = {
 }
 
 export default function OrderCard({ order, customerName, customerEmail }: OrderCardProps) {
-  const params = useParams<{ countryCode?: string | string[] }>()
   const lineItems = order.lineItems.edges.map((e) => e.node)
   const itemCount = lineItems.reduce((s, i) => s + (i.quantity ?? 0), 0)
   const status = getStatusConfig(order)
   const dt = order.processedAt ? fmtDateTime(order.processedAt) : null
-  const countryCode = Array.isArray(params?.countryCode)
-    ? params.countryCode[0]
-    : params?.countryCode
   const receiptUrl = useMemo(() => {
     const encodedOrderId = encodeURIComponent(order.id)
-    const path = `/${countryCode ?? "ph"}/orders/receipt/${encodedOrderId}`
+    const path = `/orders/receipt/${encodedOrderId}`
 
     if (typeof window === "undefined") {
       return path
     }
 
     return `${window.location.origin}${path}`
-  }, [countryCode, order.id])
+  }, [order.id])
 
   const PAID_STATUSES = ["PAID", "AUTHORIZED"]
   const UNPAID_STATUSES = ["PENDING", "PARTIALLY_PAID"]

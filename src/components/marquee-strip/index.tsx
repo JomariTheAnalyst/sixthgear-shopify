@@ -4,17 +4,12 @@ import { useRef, useState } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 
-import { businessInfo } from "@lib/business"
+import { SOCIAL_LINKS } from "@lib/business"
 import { nationalCompressed, nationalCondensed } from "@lib/fonts"
 
 import { createSeamlessLoop, type SeamlessLoop } from "./seamless-loop"
 
 gsap.registerPlugin(useGSAP)
-
-const INSTAGRAM_OVERRIDE_URL =
-  "https://www.instagram.com/sixthgear_moto_supply/"
-const YOUTUBE_DISCOVERY_URL =
-  "https://www.youtube.com/results?search_query=SixthGear+Moto+Supply"
 
 const TOP_ROW_PHRASES = [
   "FOR MORE STORIES",
@@ -27,25 +22,11 @@ const TOP_ROW_PHRASES = [
   "FOLLOW US",
 ] as const
 
-const SOCIAL_PLATFORM_SEQUENCE = [
-  { name: "YOUTUBE", host: "youtube.com" },
-  { name: "TIKTOK", host: "tiktok.com" },
-  { name: "FACEBOOK", host: "facebook.com" },
-  { name: "INSTAGRAM", host: "instagram.com" },
-  { name: "LINKEDIN", host: "linkedin.com" },
+const SOCIAL_ITEMS = [
+  { name: "TIKTOK", href: SOCIAL_LINKS.tiktok },
+  { name: "FACEBOOK", href: SOCIAL_LINKS.facebook },
+  { name: "INSTAGRAM", href: SOCIAL_LINKS.instagram },
 ] as const
-
-const SOCIAL_ITEMS = SOCIAL_PLATFORM_SEQUENCE.map((platform) => {
-  const existingProfile = businessInfo.socialProfiles.find((profile) =>
-    profile.toLowerCase().includes(platform.host)
-  )
-  const href =
-    platform.name === "INSTAGRAM"
-      ? INSTAGRAM_OVERRIDE_URL
-      : existingProfile ?? YOUTUBE_DISCOVERY_URL
-
-  return { name: platform.name, href }
-})
 
 const TOP_ROW_DURATION_SECONDS = 48
 const BOTTOM_ROW_DURATION_SECONDS = 24

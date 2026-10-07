@@ -1,7 +1,6 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -48,8 +47,6 @@ export default function AccountNav({
   hideMobileTrigger = false,
 }: AccountNavProps) {
   const pathname  = usePathname()
-  const params    = useParams()
-  const countryCode = (params?.countryCode as string) ?? "ph"
   const [isLoggingOut, setIsLoggingOut]   = useState(false)
   const [internalMobileOpen, setInternalMobileOpen]   = useState(false)
   const [isMobileMounted, setIsMobileMounted] = useState(false)
@@ -81,7 +78,7 @@ export default function AccountNav({
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      await signout(countryCode)
+      await signout()
     } finally {
       setIsLoggingOut(false)
     }

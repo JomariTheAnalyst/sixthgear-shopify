@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { getLocalizedCanonicalPath } from "@lib/seo"
+import { getCanonicalPath } from "@lib/seo"
 import {
   getShopPolicies,
   USE_SHOPIFY_PRIVACY_POLICY,
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description:
     "How Sixthgear Moto Supply & Cafe collects, uses, and protects your personal information.",
   alternates: {
-    canonical: getLocalizedCanonicalPath("ph", "/privacy"),
+    canonical: getCanonicalPath("/privacy"),
   },
 }
 

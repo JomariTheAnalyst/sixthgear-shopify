@@ -17,6 +17,13 @@ const nextConfig = (phase) => ({
   // Separate dev output so `next dev` and `next build` can run side by side.
   distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
   reactStrictMode: true,
+  // Trailing slashes are stripped in middleware, in the same 308 as the /ph prefix.
+  skipTrailingSlashRedirect: true,
+  // Bots that get metadata in <head> instead of streamed into <body>:
+  // Next's default list (next/dist/shared/lib/router/utils/html-bots.js) plus Googlebot.
+  // Re-check the default list when upgrading Next.
+  htmlLimitedBots:
+    /Googlebot|[\w-]+-Google|Google-[\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight/i,
   logging: {
     fetches: {
       fullUrl: true,
@@ -81,20 +88,13 @@ const nextConfig = (phase) => ({
         : []),
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: "/:countryCode/collections/helmets",
-        destination: "/:countryCode/collections/helmet",
-        permanent: true,
-      },
-    ]
-  },
+  // Redirects (incl. /collections/helmets) live in src/middleware.ts so every
+  // old URL reaches its current one in a single hop.
   async headers() {
     return [
       {
         // Presentation is mounted in the same deployment at /studio.
-        source: "/:countryCode(ph|us|sg|my)/:path*",
+        source: "/:path*",
         headers: [
           {
             key: "Content-Security-Policy",

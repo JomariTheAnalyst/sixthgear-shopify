@@ -7,6 +7,7 @@ import Link from "next/link"
 
 import type { SanityAnnouncementBar } from "@lib/cms/types"
 import {
+  cleanSanityHref,
   cleanSanityString,
   createSanityDataAttribute,
   keyedSanityPath,
@@ -61,7 +62,7 @@ function AnnouncementSequence({
           >
             {message.link ? (
               <Link
-                href={cleanSanityString(message.link)}
+                href={cleanSanityHref(message.link)}
                 data-sanity={editTarget}
                 tabIndex={duplicate ? -1 : undefined}
                 className={`${messageClassName} hover:underline`}

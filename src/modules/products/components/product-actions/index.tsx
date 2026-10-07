@@ -498,7 +498,7 @@ export default function ProductActions({
         {/* Utility Action Row â€” Chat, Wishlist, Share */}
         <div className="flex items-center justify-center gap-6 border-t border-gray-200 pt-5 mt-6 pb-2">
           <a
-            href="/ph/account/support"
+            href="/account/support"
             className="flex items-center gap-2 text-sm text-gray-700 font-medium hover:opacity-70 transition-opacity"
           >
             <MessageCircle className="w-4 h-4 text-gray-500" />

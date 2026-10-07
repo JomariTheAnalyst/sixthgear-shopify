@@ -39,7 +39,7 @@ const Login = ({ setCurrentView }: Props) => {
   const activationError = errorCode
     ? ACTIVATION_ERROR_MESSAGES[errorCode]
     : null
-  const redirectTo = searchParams.get("redirect") || `/${countryCode}/account`
+  const redirectTo = searchParams.get("redirect") || "/account"
 
   useEffect(() => {
     if (isPending) {

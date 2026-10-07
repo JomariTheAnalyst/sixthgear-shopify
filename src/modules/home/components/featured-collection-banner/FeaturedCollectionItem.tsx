@@ -15,7 +15,7 @@ import {
   resolveFeaturedCollectionProducts,
   warnFeaturedCollectionInDevelopment,
 } from "@lib/cms/featured-collection"
-import { cleanSanityString, keyedSanityPath } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString, keyedSanityPath } from "@lib/cms/visual-editing"
 import { buildSanityImageUrl, getObjectPosition } from "@lib/util/sanity-image"
 import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 import FullWidthBanner from "./full-width-banner"
@@ -182,7 +182,7 @@ export default async function FeaturedCollectionItem({
   const heading = data.heading as string
   const subtext = data.subtext || null
   const cta = data.ctaLabel as string
-  const url = cleanSanityString(data.ctaLink as string)
+  const url = cleanSanityHref(data.ctaLink as string)
   const campaignPath = data._key
     ? keyedSanityPath("featuredCollections", data._key)
     : "featuredCollections"

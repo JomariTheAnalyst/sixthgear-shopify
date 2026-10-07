@@ -5,7 +5,7 @@ import { getCategoryByHandle } from "@lib/data/categories"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
-  getLocalizedCanonicalPath,
+  getCanonicalPath,
 } from "@lib/seo"
 import CategoryTemplate from "@modules/categories/templates"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
@@ -35,7 +35,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       title,
       description,
       alternates: {
-        canonical: getLocalizedCanonicalPath(params.countryCode, categoryPath),
+        canonical: getCanonicalPath(categoryPath),
       },
     }
   } catch (error) {
@@ -54,14 +54,11 @@ export default async function CategoryPage(props: Props) {
     notFound()
   }
   const categoryPath = `/categories/${params.category.join("/")}`
-  const breadcrumbStructuredData = getBreadcrumbStructuredData(
-    params.countryCode,
-    [
-      { name: "Home", path: "/" },
-      { name: "Shop", path: "/store" },
-      { name: productCategory.title, path: categoryPath },
-    ]
-  )
+  const breadcrumbStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/store" },
+    { name: productCategory.title, path: categoryPath },
+  ])
 
   return (
     <>

@@ -152,7 +152,7 @@ export default function ModernServicesGrid({
 
                 <div className="pt-5">
                   <Link
-                    href={`/${countryCode}/services/${slug}`}
+                    href={`/services/${slug}`}
                     aria-label={`View ${title} service details`}
                     className="group/service-link block rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F16D34]"
                   >

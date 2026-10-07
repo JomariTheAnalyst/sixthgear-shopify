@@ -17,7 +17,7 @@ export function resolveBlogPostPath(slug: unknown): string | null {
   if (typeof slug !== 'string') return null
   const cleanSlug = stegaClean(slug).trim()
   if (!cleanSlug || cleanSlug.includes('/') || cleanSlug.includes('\\')) return null
-  return `/ph/rider-stories/${encodeURIComponent(cleanSlug)}`
+  return `/rider-stories/${encodeURIComponent(cleanSlug)}`
 }
 
 function singletonLocation(id: unknown, canonicalId: string, title: string, href: string) {
@@ -29,12 +29,12 @@ function singletonLocation(id: unknown, canonicalId: string, title: string, href
 export const presentationLocations: DocumentLocationResolvers = {
   homepage: defineLocations({
     select: { id: '_id' },
-    resolve: (value) => singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.homepage, 'Homepage', '/ph'),
+    resolve: (value) => singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.homepage, 'Homepage', '/'),
   }),
   aboutPage: defineLocations({
     select: { id: '_id' },
     resolve: (value) =>
-      singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.aboutPage, 'About Page', '/ph/about'),
+      singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.aboutPage, 'About Page', '/about'),
   }),
   servicesPage: defineLocations({
     select: { id: '_id' },
@@ -43,13 +43,13 @@ export const presentationLocations: DocumentLocationResolvers = {
         value?.id,
         CANONICAL_SINGLETON_IDS.servicesPage,
         'Services Page',
-        '/ph/services'
+        '/services'
       ),
   }),
   marketing: defineLocations({
     select: { id: '_id' },
     resolve: (value) =>
-      singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.marketing, 'Homepage marketing', '/ph'),
+      singletonLocation(value?.id, CANONICAL_SINGLETON_IDS.marketing, 'Homepage marketing', '/'),
   }),
   blogPost: defineLocations({
     select: { slug: 'slug.current', title: 'title' },

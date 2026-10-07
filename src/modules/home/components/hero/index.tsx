@@ -6,7 +6,7 @@ import { buildSanityImageUrl, getObjectPosition } from "@lib/util/sanity-image"
 import { inter, montserrat } from "@lib/fonts"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import type { SanityHeroSection } from "@lib/cms/types"
-import { cleanSanityString } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString } from "@lib/cms/visual-editing"
 
 const FALLBACK_HERO: SanityHeroSection = {
   useCustomHero: false,
@@ -169,7 +169,7 @@ const Hero = ({ data }: HeroProps) => {
                       }`}>
                       {mergedHero.primaryLink && mergedHero.primaryLabel && (
                         <LocalizedClientLink
-                          href={cleanSanityString(mergedHero.primaryLink)}
+                          href={cleanSanityHref(mergedHero.primaryLink)}
                           className={`${montserrat.className} flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-white text-black font-medium text-center rounded-md hover:bg-gray-100 transition-all uppercase tracking-[0.04em] text-sm`}
                         >
                           {mergedHero.primaryLabel}
@@ -178,7 +178,7 @@ const Hero = ({ data }: HeroProps) => {
 
                       {mergedHero.secondaryLabel && mergedHero.secondaryLink && (
                         <LocalizedClientLink
-                          href={cleanSanityString(mergedHero.secondaryLink)}
+                          href={cleanSanityHref(mergedHero.secondaryLink)}
                           className={`${montserrat.className} flex items-center justify-center w-full sm:w-auto px-6 py-4 sm:py-3 bg-transparent border-2 border-white text-white font-medium text-center rounded-md hover:bg-white hover:text-black transition-all uppercase tracking-[0.04em] text-sm`}
                         >
                           {mergedHero.secondaryLabel}

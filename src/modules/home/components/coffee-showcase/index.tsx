@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { interDisplay, lato } from "@lib/fonts"
 import type { SanityCoffeeShowcase } from "@lib/cms/types"
-import { cleanSanityString } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString } from "@lib/cms/visual-editing"
 import { selectCoffeeShowcaseContent } from "./content"
 import {
   ChevronRight,
@@ -399,7 +399,7 @@ export default function CoffeeShowcase({ data }: CoffeeShowcaseProps) {
 
               {content.buttonText && content.buttonLink ? (
                 <Link
-                  href={cleanSanityString(content.buttonLink)}
+                  href={cleanSanityHref(content.buttonLink)}
                   className={`${lato.className} mt-8 inline-flex items-center gap-2 text-[#f4a787] text-sm md:text-base font-semibold uppercase tracking-[0.06em] border-b-2 border-[#f4a787] pb-1 hover:opacity-75 transition-opacity`}
                 >
                   {content.buttonText}

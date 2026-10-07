@@ -339,7 +339,7 @@ export async function login(
 /**
  * Logout â€” invalidate token on Shopify, clear cookie, redirect.
  */
-export async function signout(countryCode: string): Promise<void> {
+export async function signout(): Promise<void> {
   const token = await getCustomerToken()
 
   if (token) {
@@ -349,7 +349,7 @@ export async function signout(countryCode: string): Promise<void> {
 
   await deleteCustomerToken()
   revalidatePath("/", "layout")
-  redirect(`/${countryCode}`)
+  redirect("/")
 }
 
 /**

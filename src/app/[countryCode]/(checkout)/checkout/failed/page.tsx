@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { XCircle } from "lucide-react"
+import { SOCIAL_LINKS } from "@lib/business"
 
 type Props = {
   params: Promise<{ countryCode: string }>
@@ -18,7 +19,6 @@ export const metadata: Metadata = {
  * Shown when payment fails or is canceled
  */
 export default async function CheckoutFailedPage(props: Props) {
-  const params = await props.params
   const searchParams = await props.searchParams
   const { session_id, reason } = searchParams
 
@@ -60,21 +60,21 @@ export default async function CheckoutFailedPage(props: Props) {
         {/* Actions */}
         <div className="space-y-4">
           <Link
-            href={`/${params.countryCode}/checkout`}
+            href={`/checkout`}
             className="block w-full bg-black text-white py-3 px-6 rounded-md hover:bg-gray-800 transition-colors"
           >
             Try Again
           </Link>
 
           <Link
-            href={`/${params.countryCode}/cart`}
+            href={`/cart`}
             className="block w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-md hover:bg-gray-50 transition-colors"
           >
             Return to Cart
           </Link>
 
           <Link
-            href={`/${params.countryCode}`}
+            href="/"
             className="block w-full text-gray-600 py-3 px-6 hover:text-gray-900 transition-colors"
           >
             Continue Shopping
@@ -91,12 +91,12 @@ export default async function CheckoutFailedPage(props: Props) {
             <p className="text-gray-700">
               <span className="font-medium">Facebook:</span>{" "}
               <a
-                href="https://facebook.com/camille.sixthgear"
+                href={SOCIAL_LINKS.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                facebook.com/camille.sixthgear
+                {SOCIAL_LINKS.facebook.replace(/^https:\/\/www\./, "")}
               </a>
             </p>
           </div>

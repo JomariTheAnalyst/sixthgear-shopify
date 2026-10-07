@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { SanityPromoBanner } from "@lib/cms/types"
 import { interDisplay, lato } from "@lib/fonts"
-import { cleanSanityString, keyedSanityPath } from "@lib/cms/visual-editing"
+import { cleanSanityHref, cleanSanityString, keyedSanityPath } from "@lib/cms/visual-editing"
 import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface PromoBannerProps {
@@ -55,7 +55,7 @@ export default function PromoBanner({ data }: PromoBannerProps) {
         {/* Button */}
         {data.buttonLabel && data.buttonLink && (
           <Link
-            href={cleanSanityString(data.buttonLink)}
+            href={cleanSanityHref(data.buttonLink)}
             className={`${interDisplay.className} absolute z-10 ${btnPos} inline-block bg-white text-gray-900 font-bold text-sm md:text-base uppercase tracking-wider px-6 py-3 md:px-8 md:py-4 hover:bg-gray-100 transition-colors duration-200`}
           >
             {data.buttonLabel}
