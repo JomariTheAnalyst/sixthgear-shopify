@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
       if (pathname === "/" || pathname === "") {
         return NextResponse.redirect(
           `${request.nextUrl.origin}/${DEFAULT_REGION}`,
-          307
+          308
         )
       }
 
