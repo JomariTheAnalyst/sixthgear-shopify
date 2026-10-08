@@ -3,6 +3,7 @@ import AboutTemplate from "@modules/about/templates"
 import { getAboutPage } from "@lib/cms/client"
 import { selectOurSpaceExperienceContent } from "@lib/cms/our-space-experience"
 import { selectAboutPageContent } from "@lib/cms/about-page-main"
+import { getBrandCollections } from "@lib/shopify"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
@@ -30,9 +31,30 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+/** Brands-in-store stat, from the same collections as the homepage. */
+async function getBrandCount(): Promise<number> {
+  try {
+    return (await getBrandCollections()).length
+  } catch (error) {
+    console.error("[about] Unable to load Shopify brand collections.", error)
+    return 0
+  }
+}
+
 export default async function AboutPage() {
-  const aboutPage = await getAboutPage()
+  const [aboutPage, brandCount] = await Promise.all([
+    getAboutPage(),
+    getBrandCount(),
+  ])
   const content = selectAboutPageContent(aboutPage)
+  const statement = {
+    ...content.statement,
+    stats: content.statement.stats
+      .map((stat) =>
+        stat.key === "brands" ? { ...stat, value: brandCount } : stat
+      )
+      .filter((stat) => stat.value > 0),
+  }
   const ourSpaceExperienceContent = selectOurSpaceExperienceContent(
     aboutPage?.ourSpaceExperience
   )
@@ -46,9 +68,10 @@ export default async function AboutPage() {
       <JsonLd id="about-breadcrumbs" data={breadcrumbStructuredData} />
       <AboutTemplate
         heroContent={content.hero}
+        statementContent={statement}
+        whoWeAreContent={content.whoWeAre}
         storyContent={content.story}
         ourSpaceExperienceContent={ourSpaceExperienceContent}
-        ourValuesContent={content.ourValues}
         whyChooseUsContent={content.whyChooseUs}
         ceoQuoteContent={content.ceoQuote}
         ctaBannerContent={content.ctaBanner}

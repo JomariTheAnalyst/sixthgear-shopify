@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { useRef } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
@@ -15,6 +14,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import type { ServicesProcessContent } from "@lib/cms/services-page-content"
 import { outfit } from "@lib/fonts"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import {
   cleanSanityString,
   createSanityDataAttribute,
@@ -194,12 +194,12 @@ export default function ProcessOfWork({
                     </p>
                   </div>
 
-                  <Link
+                  <LocalizedClientLink
                     href="/about"
                     className="mt-8 inline-flex min-h-11 w-fit items-center justify-center rounded-full bg-[#f4f3f1] px-7 py-3 text-sm font-medium tracking-[-0.14px] text-black transition-colors duration-200 hover:bg-[#F16D34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#F16D34]"
                   >
                     About Us
-                  </Link>
+                  </LocalizedClientLink>
                 </div>
               </li>
             )

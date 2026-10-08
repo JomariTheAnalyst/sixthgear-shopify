@@ -16,3 +16,12 @@ export const FALLBACK_ABOUT_MISSION: AboutMissionContent = {
   ceoPhotoDescription:
     "Portrait of Cap. Gregory Nick Sevilla, founder of SixthGearMoto, standing in the workshop.",
 }
+
+/** One container for every About section: 1760px max, 16px → 64px side padding. */
+export const ABOUT_CONTAINER =
+  "mx-auto w-full max-w-[1760px] px-4 sm:px-6 md:px-10 lg:px-16"
+
+/** Paragraphs stay near 60 characters wide inside the wide layout. */
+export const ABOUT_PROSE = "max-w-[60ch]"
+
+export const ABOUT_INK = "#1a1a1a"

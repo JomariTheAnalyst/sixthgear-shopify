@@ -28,6 +28,35 @@ export function buildSanityImageUrl(
   return image.fit("crop").crop("focalpoint").auto("format").url()
 }
 
+/**
+ * Sanity image URL (hotspot-aware) plus the matching object-position. Falls back
+ * to the plain asset URL when the source has no asset reference.
+ */
+export function resolveSanityImage(
+  source:
+    | {
+        asset?: { _ref?: string | null } | null
+        crop?: object | null
+        hotspot?: { x: number; y: number } | null
+      }
+    | null
+    | undefined,
+  fallbackUrl: string
+): { url: string; objectPosition: string } {
+  const ref = source?.asset?._ref
+  return {
+    url:
+      (ref &&
+        buildSanityImageUrl({
+          asset: { _ref: ref },
+          crop: source?.crop,
+          hotspot: source?.hotspot,
+        })) ||
+      fallbackUrl,
+    objectPosition: getObjectPosition(source?.hotspot),
+  }
+}
+
 export function getObjectPosition(
   hotspot?: {
     x: number

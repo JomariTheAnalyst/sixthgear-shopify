@@ -264,11 +264,19 @@ export interface HomepageCollectionSection {
   displayOrder: number
 }
 
+/** Raw Sanity image (asset reference, crop and hotspot) for buildSanityImageUrl. */
+export interface SanityImageSource {
+  asset?: { _ref?: string | null } | null
+  crop?: object | null
+  hotspot?: { x: number; y: number } | null
+}
+
 export interface SanityAboutPageHero {
   useSanityContent?: boolean | null
   title?: string | null
   description?: string | null
   backgroundImageUrl?: string | null
+  backgroundImageSource?: SanityImageSource | null
   backgroundImageAlt?: string | null
 }
 
@@ -277,6 +285,7 @@ export interface SanityAboutPageStoryItem {
   heading?: string | null
   body?: string | null
   imageUrl?: string | null
+  imageSource?: SanityImageSource | null
   imageAlt?: string | null
 }
 
@@ -304,6 +313,7 @@ export interface SanityOurSpaceExperienceItem {
   title?: string | null
   description?: string | null
   imageUrl?: string | null
+  imageSource?: SanityImageSource | null
   imageAlt?: string | null
 }
 
@@ -347,8 +357,10 @@ export interface SanityAboutPageWhyChooseUs {
   subtitle?: string | null
   items?: SanityAboutPageWhyChooseUsItem[] | null
   topImageUrl?: string | null
+  topImageSource?: SanityImageSource | null
   topImageAlt?: string | null
   bottomImageUrl?: string | null
+  bottomImageSource?: SanityImageSource | null
   bottomImageAlt?: string | null
 }
 
@@ -359,6 +371,7 @@ export interface SanityAboutPageCeoQuote {
   ceoName?: string | null
   ceoTitle?: string | null
   ceoPhotoUrl?: string | null
+  ceoPhotoSource?: SanityImageSource | null
   ceoPhotoDescription?: string | null
 }
 

@@ -5,19 +5,26 @@
  * Combines all about sections into a complete page
  */
 
+import { useEffect } from "react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
 import AboutHero from "./hero"
 import AboutStory from "./story"
-import ProjectsSection from "@modules/home/components/projects"
 import AboutMission from "./ceo-quote"
-import OurValues from "@modules/about/components/our-values"
+import AboutStatement from "@modules/about/components/about-statement"
+import BrandMarquee from "@modules/about/components/brand-marquee"
+import RegisteredBusiness from "@modules/about/components/registered-business"
+import SpaceBento from "@modules/about/components/space-bento"
+import WhoWeAre from "@modules/about/components/who-we-are"
 import WhyChooseUs from "@modules/about/components/why-choose-us"
 import CTABanner from "@modules/home/components/cta-banner"
 import type { OurSpaceExperienceContent } from "@lib/cms/our-space-experience"
 import type {
   AboutCeoQuoteSectionContent,
   AboutHeroSectionContent,
+  AboutStatementSectionContent,
   AboutStorySectionContent,
-  AboutValuesSectionContent,
+  AboutWhoWeAreSectionContent,
   AboutWhyChooseUsSectionContent,
 } from "@lib/cms/about-page-main"
 import type { PageCtaContent } from "@lib/cms/page-cta"
@@ -25,9 +32,10 @@ import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface AboutTemplateProps {
   heroContent: AboutHeroSectionContent
+  statementContent: AboutStatementSectionContent
+  whoWeAreContent: AboutWhoWeAreSectionContent
   storyContent: AboutStorySectionContent
   ourSpaceExperienceContent: OurSpaceExperienceContent
-  ourValuesContent: AboutValuesSectionContent
   whyChooseUsContent: AboutWhyChooseUsSectionContent
   ceoQuoteContent: AboutCeoQuoteSectionContent
   ctaBannerContent: PageCtaContent
@@ -35,13 +43,30 @@ interface AboutTemplateProps {
 
 export default function AboutTemplate({
   heroContent,
+  statementContent,
+  whoWeAreContent,
   storyContent,
   ourSpaceExperienceContent,
-  ourValuesContent,
   whyChooseUsContent,
   ceoQuoteContent,
   ctaBannerContent,
 }: AboutTemplateProps) {
+  // Trigger positions depend on final layout: re-measure once fonts and
+  // images have loaded. Lenis scrolls the window, so ScrollTrigger follows it.
+  useEffect(() => {
+    let active = true
+    const refresh = () => active && ScrollTrigger.refresh()
+
+    document.fonts?.ready.then(refresh)
+    if (document.readyState === "complete") refresh()
+    else window.addEventListener("load", refresh, { once: true })
+
+    return () => {
+      active = false
+      window.removeEventListener("load", refresh)
+    }
+  }, [])
+
   return (
     <>
       <SanityEditTarget
@@ -49,21 +74,11 @@ export default function AboutTemplate({
         documentType="aboutPage"
         path={heroContent.source === "sanity" ? "hero" : "hero.useSanityContent"}
       >
-        <AboutHero
-          title={heroContent.title}
-          subtitle={heroContent.subtitle}
-          backgroundImage={heroContent.backgroundImage}
-          backgroundImageAlt={heroContent.backgroundImageAlt}
-        />
+        <AboutHero content={heroContent} />
       </SanityEditTarget>
-      <SanityEditTarget
-        documentId="aboutPage"
-        documentType="aboutPage"
-        path={whyChooseUsContent.source === "sanity" ? "whyChooseUs" : "whyChooseUs.useSanityContent"}
-      >
-        <WhyChooseUs data={whyChooseUsContent} />
-      </SanityEditTarget>
-      <div className="h-6 sm:h-8 md:h-10 lg:h-12 bg-white" />
+      <BrandMarquee />
+      <AboutStatement content={statementContent} />
+      <WhoWeAre content={whoWeAreContent} />
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"
@@ -71,30 +86,22 @@ export default function AboutTemplate({
       >
         <AboutStory content={storyContent} />
       </SanityEditTarget>
-      <div className="h-16 md:h-24 lg:h-32 bg-[#FAFAFA]" />
-      <ProjectsSection content={ourSpaceExperienceContent} variant="dark" />
-      <div className="h-12 md:h-20 bg-white" />
+      <SpaceBento content={ourSpaceExperienceContent} />
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"
-        path={ourValuesContent.source === "sanity" ? "ourValues" : "ourValues.useSanityContent"}
+        path={whyChooseUsContent.source === "sanity" ? "whyChooseUs" : "whyChooseUs.useSanityContent"}
       >
-        <OurValues data={ourValuesContent} />
+        <WhyChooseUs data={whyChooseUsContent} />
       </SanityEditTarget>
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"
         path={ceoQuoteContent.source === "sanity" ? "ceoQuote" : "ceoQuote.useSanityContent"}
       >
-        <AboutMission
-          quoteText={ceoQuoteContent.quoteText}
-          highlightedPhrase={ceoQuoteContent.highlightedPhrase}
-          ceoName={ceoQuoteContent.ceoName}
-          ceoTitle={ceoQuoteContent.ceoTitle}
-          ceoPhoto={ceoQuoteContent.ceoPhotoUrl}
-          ceoPhotoDescription={ceoQuoteContent.ceoPhotoDescription}
-        />
+        <AboutMission content={ceoQuoteContent} />
       </SanityEditTarget>
+      <RegisteredBusiness />
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"

@@ -1,4 +1,5 @@
 import type {
+  SanityImageSource,
   SanityOurSpaceExperience,
   SanityOurSpaceExperienceItem,
 } from './types'
@@ -15,6 +16,8 @@ export type OurSpaceExperienceContent = {
     title: string
     description: string
     imageUrl: string
+    /** Raw Sanity image for hotspot handling; absent for fallback content. */
+    imageSource?: SanityImageSource | null
     imageAlt: string
   }>
 }
@@ -30,7 +33,7 @@ export const FALLBACK_OUR_SPACE_EXPERIENCE: OurSpaceExperienceContent = {
       description:
         'Carefully crafted coffee using quality beans, brewed to fuel riders, creatives, and everyday coffee lovers.',
       imageUrl:
-        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1778571332/signature_coffee_itsxtr.jpg',
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/v1778571332/signature_coffee_itsxtr.jpg',
       imageAlt: 'Signature coffee prepared in the SixthGear café',
     },
     {
@@ -39,7 +42,7 @@ export const FALLBACK_OUR_SPACE_EXPERIENCE: OurSpaceExperienceContent = {
       description:
         'A relaxed cafe and lounge where riders unwind, connect, and share stories between rides and wrench sessions.',
       imageUrl:
-        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1778571332/rider_lounge_wbwkpn.jpg',
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/v1778571332/rider_lounge_wbwkpn.jpg',
       imageAlt: 'SixthGear rider lounge and hangout space',
     },
     {
@@ -48,7 +51,7 @@ export const FALLBACK_OUR_SPACE_EXPERIENCE: OurSpaceExperienceContent = {
       description:
         'A welcoming space for rider meetups, small events, and casual gatherings built around coffee and motorcycle culture.',
       imageUrl:
-        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1778571330/community_and_meetups_zsfilb.jpg',
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/v1778571330/community_and_meetups_zsfilb.jpg',
       imageAlt: 'Riders gathering at a SixthGear community meetup',
     },
   ],
@@ -117,6 +120,7 @@ export function selectOurSpaceExperienceContent(
       title: item.title,
       description: item.description,
       imageUrl: item.imageUrl,
+      imageSource: item.imageSource ?? null,
       imageAlt: item.imageAlt,
     })),
   }
