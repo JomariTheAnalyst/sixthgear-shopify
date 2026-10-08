@@ -66,11 +66,12 @@ export default function AboutStory({ content }: AboutStoryProps) {
 
         // The pinned frame starts below the sticky header (announcement bar + nav).
         const header = document.querySelector<HTMLElement>("header")
-        const setOffset = () =>
-          section.style.setProperty(
-            "--story-offset",
-            `${Math.max(0, Math.round(header?.getBoundingClientRect().bottom ?? 0))}px`
-          )
+        // Frame height = screen - header - equal gaps above and below (1.5rem, 2rem on lg),
+        // so the gap under the header stays visible past the nav shadow.
+        const setOffset = () => {
+          const bottom = Math.round(header?.getBoundingClientRect().bottom ?? 0)
+          if (bottom > 0) section.style.setProperty("--story-offset", `${bottom}px`)
+        }
         setOffset()
         const headerObserver = new ResizeObserver(setOffset)
         if (header) headerObserver.observe(header)
@@ -141,7 +142,7 @@ export default function AboutStory({ content }: AboutStoryProps) {
 
       {/* Near full width: small gutters only. */}
       <div className="mx-auto w-full px-3 sm:px-4 lg:px-5">
-        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-[calc(100vh-var(--story-offset,88px)-2rem)] md:motion-safe:overflow-hidden md:motion-safe:rounded-[10px] md:motion-safe:bg-[#0A0A0A]">
+        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-[calc(100vh-var(--story-offset,88px)-3rem)] lg:motion-safe:h-[calc(100vh-var(--story-offset,88px)-4rem)] md:motion-safe:overflow-hidden md:motion-safe:rounded-[10px] md:motion-safe:bg-[#0A0A0A]">
           {content.items.map((item, index) => {
             const image = resolveSanityImage(item.imageSource, item.imageUrl)
             const itemPath = keyedSanityPath("ourStory.items", item.key)
