@@ -37,7 +37,7 @@ export default function ServicesBookingCta() {
     >
       <div className="relative z-0 w-full overflow-hidden bg-black">
         <video
-          className="block h-auto w-full"
+          className="block aspect-video w-full object-cover"
           src={BOOKING_VIDEO_URL}
           aria-label="Sixthgear motorcycle service workshop"
           autoPlay
