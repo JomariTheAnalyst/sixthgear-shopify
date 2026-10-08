@@ -14,7 +14,6 @@ import {
 import { resolveSanityImage } from "@lib/util/sanity-image"
 import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { ABOUT_CONTAINER } from "@modules/about/constants"
 import { riseIn } from "@modules/about/motion"
 import { ABOUT_BODY, ABOUT_TITLE } from "@modules/about/styles"
 import { useSanityVisualEditingEnabled } from "components/sanity/visual-editing-provider"
@@ -43,7 +42,8 @@ const BUTTON =
  * scroll screen wipes the next slide up over the last (clip-path, scrubbed, so
  * scrolling up plays it back down) and snaps to whole slides. Phones and
  * reduced motion: the same cards stacked, no pin (phones get a light reveal).
- * The pinned layout is pure CSS (md:motion-safe:), so nothing jumps before JS.
+ * The pinned layout is CSS (md:motion-safe:), so nothing jumps before JS; JS
+ * only sets --story-offset so the frame clears the sticky header.
  */
 export default function AboutStory({ content }: AboutStoryProps) {
   const sectionRef = useRef<HTMLElement>(null)
@@ -63,6 +63,17 @@ export default function AboutStory({ content }: AboutStoryProps) {
       media.add(PIN_QUERY, () => {
         if (slides.length < 2) return
         setPinned(true)
+
+        // The pinned frame starts below the sticky header (announcement bar + nav).
+        const header = document.querySelector<HTMLElement>("header")
+        const setOffset = () =>
+          section.style.setProperty(
+            "--story-offset",
+            `${Math.max(0, Math.round(header?.getBoundingClientRect().bottom ?? 0))}px`
+          )
+        setOffset()
+        const headerObserver = new ResizeObserver(setOffset)
+        if (header) headerObserver.observe(header)
 
         const steps = slides.length - 1
         const timeline = gsap.timeline({
@@ -100,6 +111,8 @@ export default function AboutStory({ content }: AboutStoryProps) {
         })
 
         return () => {
+          headerObserver.disconnect()
+          section.style.removeProperty("--story-offset")
           setPinned(false)
           setActive(0)
         }
@@ -120,14 +133,15 @@ export default function AboutStory({ content }: AboutStoryProps) {
     <section
       ref={sectionRef}
       aria-labelledby="about-story-heading"
-      className="bg-white py-20 md:py-28 lg:py-32 md:motion-safe:flex md:motion-safe:h-screen md:motion-safe:items-center md:motion-safe:py-0"
+      className="bg-white py-20 md:py-28 lg:py-32 md:motion-safe:h-screen md:motion-safe:pb-3 md:motion-safe:pt-[calc(var(--story-offset,88px)+0.75rem)]"
     >
       <h2 id="about-story-heading" className="sr-only">
         {content.heading}
       </h2>
 
-      <div className={ABOUT_CONTAINER}>
-        <div className="flex flex-col gap-6 md:gap-8 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-[clamp(520px,80vh,900px)] md:motion-safe:overflow-hidden md:motion-safe:rounded-[20px] md:motion-safe:bg-[#0A0A0A]">
+      {/* Near full width: small gutters only. */}
+      <div className="mx-auto w-full px-3 sm:px-4 lg:px-5 md:motion-safe:h-full">
+        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-full md:motion-safe:overflow-hidden md:motion-safe:rounded-[4px] md:motion-safe:bg-[#0A0A0A]">
           {content.items.map((item, index) => {
             const image = resolveSanityImage(item.imageSource, item.imageUrl)
             const itemPath = keyedSanityPath("ourStory.items", item.key)
@@ -147,7 +161,7 @@ export default function AboutStory({ content }: AboutStoryProps) {
                       })
                     : undefined
                 }
-                className={`relative isolate flex h-[70vh] min-h-[460px] flex-col justify-end overflow-hidden rounded-[20px] bg-[#0A0A0A] md:h-[clamp(520px,80vh,900px)] md:motion-safe:absolute md:motion-safe:inset-0 md:motion-safe:h-full md:motion-safe:min-h-0 md:motion-safe:rounded-none ${
+                className={`relative isolate flex h-[70vh] min-h-[460px] flex-col justify-end overflow-hidden rounded-[4px] bg-[#0A0A0A] md:h-[clamp(520px,80vh,900px)] md:motion-safe:absolute md:motion-safe:inset-0 md:motion-safe:h-full md:motion-safe:min-h-0 md:motion-safe:rounded-none ${
                   index > 0 ? "md:motion-safe:[clip-path:inset(100%_0%_0%_0%)]" : ""
                 }`}
               >
@@ -165,23 +179,23 @@ export default function AboutStory({ content }: AboutStoryProps) {
                   }
                   fill
                   loading={index === 0 ? "eager" : "lazy"}
-                  sizes="(max-width: 1760px) 100vw, 1632px"
+                  sizes="100vw"
                   className="-z-10 object-cover"
                   style={{ objectPosition: image.objectPosition }}
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/30 to-transparent"
+                  className="absolute inset-x-0 bottom-0 -z-10 h-3/5 bg-gradient-to-t from-black/55 via-black/15 to-transparent"
                 />
 
                 <p
                   aria-hidden="true"
-                  className={`${ABOUT_BODY} absolute right-5 top-5 font-semibold tabular-nums tracking-[0.12em] text-white/85 sm:right-8 sm:top-7 lg:right-12 lg:top-10`}
+                  className={`${ABOUT_BODY} absolute right-5 top-5 font-semibold tabular-nums tracking-[0.12em] text-white [text-shadow:0_1px_10px_rgba(0,0,0,0.45)] sm:right-8 sm:top-7 lg:right-12 lg:top-10`}
                 >
                   {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
                 </p>
 
-                <div data-copy className="px-5 pb-8 sm:px-8 sm:pb-10 lg:px-14 lg:pb-14">
+                <div data-copy className="px-5 pb-8 [text-shadow:0_1px_14px_rgba(0,0,0,0.35)] sm:px-8 sm:pb-10 lg:px-14 lg:pb-14">
                   <h3 className={`${ABOUT_TITLE} max-w-[14ch] text-white`}>
                     {item.heading}
                   </h3>
