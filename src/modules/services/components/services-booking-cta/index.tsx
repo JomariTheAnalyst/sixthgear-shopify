@@ -2,7 +2,8 @@
 
 import Image from "next/image"
 
-import { outfit } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
+import { ABOUT_TITLE } from "@modules/about/styles"
 import CalBookingTrigger from "@modules/booking/components/cal-booking-trigger"
 
 const BOOKING_VIDEO_URL =
@@ -33,7 +34,7 @@ export default function ServicesBookingCta() {
   return (
     <section
       aria-labelledby="services-booking-cta-heading"
-      className={`${outfit.className} relative isolate w-full overflow-hidden bg-white`}
+      className={`${parkinsans.className} relative isolate w-full overflow-hidden bg-white`}
     >
       <div className="relative z-0 w-full overflow-hidden bg-black">
         <video
@@ -57,7 +58,7 @@ export default function ServicesBookingCta() {
             </p>
             <h2
               id="services-booking-cta-heading"
-              className="mt-4 text-[clamp(1.75rem,4vw,4.5rem)] font-bold leading-[1.02] tracking-[-0.045em] sm:mt-5"
+              className={`${ABOUT_TITLE} mt-4 sm:mt-5`}
             >
               The road ahead feels better when your bike is ready for it.
             </h2>

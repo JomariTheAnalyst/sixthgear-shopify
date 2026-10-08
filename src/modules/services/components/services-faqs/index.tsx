@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
 
-import { outfit } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
+import { ABOUT_TITLE } from "@modules/about/styles"
 
 const SERVICE_FAQS = [
   {
@@ -44,13 +45,13 @@ export default function ServicesFaqs() {
   return (
     <section
       aria-labelledby="services-faq-heading"
-      className={`${outfit.className} bg-white px-5 py-20 text-[#151515] sm:px-8 md:py-28 lg:px-12 lg:py-32`}
+      className={`${parkinsans.className} bg-white px-5 py-20 text-[#151515] sm:px-8 md:py-28 lg:px-12 lg:py-32`}
     >
       <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[minmax(300px,0.72fr)_minmax(0,1.28fr)] lg:gap-16 xl:gap-24">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <h2
             id="services-faq-heading"
-            className="max-w-[12ch] text-[clamp(2.75rem,4.8vw,5rem)] font-semibold leading-[0.98] tracking-[-0.05em]"
+            className={`${ABOUT_TITLE} max-w-[12ch]`}
           >
             Got service questions? We’re ready to help.
           </h2>

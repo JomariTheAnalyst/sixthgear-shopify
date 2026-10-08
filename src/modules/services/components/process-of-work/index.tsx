@@ -13,7 +13,8 @@ import {
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import type { ServicesProcessContent } from "@lib/cms/services-page-content"
-import { outfit } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
+import { ABOUT_SUBTITLE } from "@modules/about/styles"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import {
   cleanSanityString,
@@ -91,6 +92,19 @@ export default function ProcessOfWork({
             return
           }
 
+          // Pinned content starts below the sticky header (announcement bar + nav).
+          const header = document.querySelector<HTMLElement>("header")
+          const setOffset = () => {
+            const bottom = Math.round(header?.getBoundingClientRect().bottom ?? 0)
+            const value = `${Math.max(bottom, 0)}px`
+            if (section.style.getPropertyValue("--process-offset") === value) return
+            section.style.setProperty("--process-offset", value)
+            ScrollTrigger.refresh()
+          }
+          setOffset()
+          const headerObserver = new ResizeObserver(setOffset)
+          if (header) headerObserver.observe(header.parentElement ?? header)
+
           const getTravel = () =>
             Math.max(0, track.scrollWidth - viewport.clientWidth)
 
@@ -114,7 +128,11 @@ export default function ProcessOfWork({
             ScrollTrigger.refresh()
           })
 
-          return () => window.cancelAnimationFrame(refreshFrame)
+          return () => {
+            window.cancelAnimationFrame(refreshFrame)
+            headerObserver.disconnect()
+            section.style.removeProperty("--process-offset")
+          }
         }
       )
 
@@ -132,12 +150,12 @@ export default function ProcessOfWork({
     <section
       ref={sectionRef}
       aria-labelledby="services-process-heading"
-      className={`${outfit.className} flex w-full flex-col justify-center overflow-hidden bg-white py-20 text-[#151515] md:py-24 lg:min-h-[100svh] lg:py-10`}
+      className={`${parkinsans.className} flex w-full flex-col justify-center overflow-hidden bg-white py-20 text-[#151515] md:py-24 lg:min-h-[100svh] lg:pb-10 lg:pt-[calc(var(--process-offset,88px)+1.5rem)]`}
     >
       <div className="mx-auto w-full max-w-[1400px] px-5 text-center sm:px-8 lg:px-12">
         <h2
           id="services-process-heading"
-          className="mx-auto max-w-[1100px] text-balance uppercase text-[28px] font-bold leading-[1.08] tracking-[-0.03em] sm:text-[clamp(1.5rem,3.6vw,3.5rem)]"
+          className={`${ABOUT_SUBTITLE} mx-auto max-w-[1100px] text-balance text-[clamp(2rem,3.4vw,3.75rem)]`}
         >
           {sectionHeading}
         </h2>
@@ -145,7 +163,7 @@ export default function ProcessOfWork({
 
       <div
         ref={viewportRef}
-        className="mt-12 w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-14 lg:overflow-visible"
+        className="mt-12 w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-8 lg:overflow-visible"
       >
         <ol
           ref={trackRef}

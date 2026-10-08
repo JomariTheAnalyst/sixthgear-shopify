@@ -6,7 +6,8 @@ import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import type { ServicesGridContent } from "@lib/cms/services-page-content"
-import { outfit } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
+import { ABOUT_TITLE } from "@modules/about/styles"
 import {
   cleanSanityString,
   createSanityDataAttribute,
@@ -86,12 +87,12 @@ export default function ModernServicesGrid({
   return (
     <section
       aria-labelledby="services-carousel-heading"
-      className={`${outfit.className} w-full overflow-hidden bg-white py-20 text-[#151515] md:py-28`}
+      className={`${parkinsans.className} w-full overflow-hidden bg-white py-20 text-[#151515] md:py-28`}
     >
       <header className="mx-auto grid max-w-[1400px] gap-7 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)] lg:items-end lg:gap-16 lg:px-12">
         <h2
           id="services-carousel-heading"
-          className="text-balance uppercase text-[clamp(1.75rem,3vw,3rem)] font-extrabold leading-[1.02] tracking-[-0.03em]"
+          className={`${ABOUT_TITLE} text-balance`}
         >
           {sectionHeading}
         </h2>
