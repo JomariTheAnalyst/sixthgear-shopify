@@ -39,6 +39,7 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
   const youtubeRef = useRef<HTMLIFrameElement | null>(null)
   const iconPathRef = useRef<SVGPathElement | null>(null)
   const controlVisualRef = useRef<HTMLSpanElement | null>(null)
+  const playButtonRef = useRef<HTMLButtonElement | null>(null)
   const overlayCopyRef = useRef<HTMLDivElement | null>(null)
   const playerControlsRef = useRef<HTMLDivElement | null>(null)
   const chromeHideTweenRef = useRef<gsap.core.Tween | null>(null)
@@ -93,6 +94,11 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
 
   const syncPlaybackState = contextSafe((playing: boolean) => {
     setIsPlaying(playing)
+
+    // The controls bar hides while paused; keep keyboard focus on the player.
+    if (!playing && playerControlsRef.current?.contains(document.activeElement)) {
+      playButtonRef.current?.focus()
+    }
 
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -196,6 +202,37 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
       chromeHideTweenRef.current?.kill()
     },
     { scope: sectionRef }
+  )
+
+  // Idle play button: soft pulse rings and a slow breathe, only while paused.
+  useGSAP(
+    () => {
+      if (isPlaying) return
+      const media = gsap.matchMedia()
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          "[data-play-ring]",
+          { scale: 1, opacity: 0.55 },
+          {
+            scale: 1.7,
+            opacity: 0,
+            duration: 2,
+            ease: "power2.out",
+            repeat: -1,
+            stagger: 1,
+          }
+        )
+        gsap.to("[data-play-face]", {
+          scale: 1.06,
+          duration: 1,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        })
+      })
+      return () => media.revert()
+    },
+    { scope: sectionRef, dependencies: [isPlaying], revertOnUpdate: true }
   )
 
   const togglePlayback = () => {
@@ -304,18 +341,26 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
           />
 
           <button
+            ref={playButtonRef}
             type="button"
             data-play-pause="toggle"
             aria-label={isPlaying ? "Pause video" : "Play video"}
             aria-pressed={isPlaying}
             onClick={togglePlayback}
-            className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center text-white focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
+            className="group absolute inset-0 z-10 flex cursor-pointer items-center justify-center text-white focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-white"
           >
             <span
               ref={controlVisualRef}
-              className="pointer-events-none flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-black/35 shadow-[0_12px_40px_rgba(0,0,0,0.32)] backdrop-blur-sm sm:h-20 sm:w-20"
+              className="pointer-events-none relative flex h-16 w-16 items-center justify-center transition-transform duration-300 ease-out group-hover:scale-110 motion-reduce:transition-none sm:h-20 sm:w-20"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 25" fill="none" className="h-8 w-8 sm:h-10 sm:w-10">
+              <span data-play-ring aria-hidden="true" className="absolute inset-0 rounded-full bg-[#F16D34] opacity-0" />
+              <span data-play-ring aria-hidden="true" className="absolute inset-0 rounded-full bg-[#F16D34] opacity-0" />
+              {/* Face: top-lit orange gradient, inner bevel and a warm drop shadow for depth. */}
+              <span
+                data-play-face
+                className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-b from-[#FF8A55] to-[#D9531C] shadow-[0_18px_36px_-10px_rgba(241,109,52,0.75),0_8px_16px_rgba(0,0,0,0.35),inset_0_2px_1px_rgba(255,255,255,0.45),inset_0_-5px_10px_rgba(0,0,0,0.28)]"
+              >
+              <svg aria-hidden="true" viewBox="0 0 24 25" fill="none" className="h-8 w-8 drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)] sm:h-10 sm:w-10">
                 <path
                   ref={iconPathRef}
                   data-play-pause="path"
@@ -326,6 +371,7 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
                   strokeLinecap="round"
                 />
               </svg>
+              </span>
             </span>
           </button>
 
@@ -348,7 +394,7 @@ export default function VideoFeature({ data }: { data: VideoFeatureContent }) {
             ref={playerControlsRef}
             role="group"
             aria-label="Video controls"
-            className="absolute inset-x-0 bottom-0 z-30 flex items-center gap-2 bg-black/95 px-3 py-3 text-white sm:gap-3 sm:px-5"
+            className={`absolute inset-x-0 bottom-0 z-30 items-center gap-2 bg-black/95 px-3 py-3 text-white sm:gap-3 sm:px-5 ${isPlaying ? "flex" : "hidden"}`}
           >
             <button type="button" onClick={togglePlayback} aria-label={isPlaying ? "Pause video" : "Play video"} className="shrink-0 p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
               {isPlaying ? (

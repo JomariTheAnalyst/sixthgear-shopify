@@ -3,13 +3,14 @@
 import { useRef, useState } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import { SOCIAL_LINKS } from "@lib/business"
 import { nationalCompressed, nationalCondensed } from "@lib/fonts"
 
 import { createSeamlessLoop, type SeamlessLoop } from "./seamless-loop"
 
-gsap.registerPlugin(useGSAP)
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 const TOP_ROW_PHRASES = [
   "FOR MORE STORIES",
@@ -32,6 +33,9 @@ const TOP_ROW_DURATION_SECONDS = 48
 const BOTTOM_ROW_DURATION_SECONDS = 24
 const BOTTOM_ROW_SLOW_SCALE = 0.35
 const MINIMUM_COPIES = 2
+/** Scroll velocity (px/s) that adds one extra resting speed. */
+const VELOCITY_PER_BOOST = 250
+const MAX_BOOST = 6
 
 const topLabelClassName =
   "shrink-0 whitespace-nowrap text-[18px] font-normal uppercase leading-none tracking-[0.025em] sm:text-[22px] lg:text-[26px]"
@@ -66,9 +70,8 @@ export default function MarqueeStrip() {
   const bottomViewportRef = useRef<HTMLDivElement | null>(null)
   const topTrackRef = useRef<HTMLDivElement | null>(null)
   const bottomTrackRef = useRef<HTMLDivElement | null>(null)
-  const topTimelineRef = useRef<gsap.core.Timeline | null>(null)
-  const bottomTimelineRef = useRef<gsap.core.Timeline | null>(null)
-  const speedTweenRef = useRef<gsap.core.Tween | null>(null)
+  const hoverRef = useRef({ scale: 1 })
+  const hoverTweenRef = useRef<gsap.core.Tween | null>(null)
   const [topCopies, setTopCopies] = useState(MINIMUM_COPIES)
   const [bottomCopies, setBottomCopies] = useState(MINIMUM_COPIES)
 
@@ -117,9 +120,6 @@ export default function MarqueeStrip() {
         paddingRight: () => getGap(bottomTrack),
       })
 
-      topTimelineRef.current = topLoop.timeline
-      bottomTimelineRef.current = bottomLoop.timeline
-
       const media = gsap.matchMedia()
       media.add(
         {
@@ -132,6 +132,44 @@ export default function MarqueeStrip() {
           if (allowMotion) {
             topLoop?.timeline.play()
             bottomLoop?.timeline.play()
+
+            // A loop playing forward moves right to left. Scrolling down (the
+            // default) runs the top row left to right and the bottom row the
+            // other way; scrolling up flips both. Scroll speed adds a boost
+            // that eases back to the resting speed.
+            const state = { direction: 1, boost: 0 }
+            const applySpeed = () => {
+              const speed = state.direction * (1 + state.boost)
+              topLoop?.timeline.timeScale(-speed)
+              bottomLoop?.timeline.timeScale(speed * hoverRef.current.scale)
+            }
+            applySpeed()
+            gsap.ticker.add(applySpeed)
+
+            let boostTween: gsap.core.Tween | null = null
+            const scroll = ScrollTrigger.create({
+              start: 0,
+              end: "max",
+              onUpdate: (self) => {
+                state.direction = self.direction
+                state.boost = Math.max(
+                  state.boost,
+                  Math.min(Math.abs(self.getVelocity()) / VELOCITY_PER_BOOST, MAX_BOOST)
+                )
+                boostTween?.kill()
+                boostTween = gsap.to(state, {
+                  boost: 0,
+                  duration: 1.2,
+                  ease: "power2.out",
+                })
+              },
+            })
+
+            return () => {
+              gsap.ticker.remove(applySpeed)
+              boostTween?.kill()
+              scroll.kill()
+            }
           } else {
             topLoop?.timeline.pause(0)
             bottomLoop?.timeline.pause(0)
@@ -177,8 +215,8 @@ export default function MarqueeStrip() {
 
       return () => {
         active = false
-        speedTweenRef.current?.kill()
-        speedTweenRef.current = null
+        hoverTweenRef.current?.kill()
+        hoverTweenRef.current = null
         resizeCall.kill()
         resizeObserver.disconnect()
         media.revert()
@@ -186,8 +224,6 @@ export default function MarqueeStrip() {
         bottomLoop?.kill()
         topLoop = null
         bottomLoop = null
-        topTimelineRef.current = null
-        bottomTimelineRef.current = null
       }
     },
     {
@@ -197,15 +233,13 @@ export default function MarqueeStrip() {
     }
   )
 
-  const setBottomSpeed = (timeScale: number) => {
-    if (!bottomTimelineRef.current) return
-
-    speedTweenRef.current?.kill()
-    speedTweenRef.current = gsap.to(bottomTimelineRef.current, {
-      timeScale,
+  /** Hover/focus slows the social row; the scroll speed multiplies it. */
+  const setBottomSpeed = (scale: number) => {
+    hoverTweenRef.current?.kill()
+    hoverTweenRef.current = gsap.to(hoverRef.current, {
+      scale,
       duration: 0.6,
       ease: "power2.out",
-      overwrite: true,
     })
   }
 
