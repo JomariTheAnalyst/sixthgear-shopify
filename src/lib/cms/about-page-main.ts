@@ -2,10 +2,13 @@ import { stegaClean } from 'next-sanity'
 
 import type {
   SanityAboutPage,
+  SanityAboutPageBrandMarquee,
   SanityAboutPageCeoQuote,
   SanityAboutPageHero,
   SanityAboutPageOurValues,
+  SanityAboutPageStatement,
   SanityAboutPageStory,
+  SanityAboutPageWhoWeAre,
   SanityAboutPageWhyChooseUs,
   SanityImageSource,
 } from './types'
@@ -25,6 +28,11 @@ export type AboutHeroSectionContent = {
   /** Raw Sanity image for hotspot handling; absent for fallback content. */
   backgroundImageSource?: SanityImageSource | null
   backgroundImageAlt: string
+}
+
+export type AboutBrandMarqueeContent = {
+  source: Source
+  statements: string[]
 }
 
 export type AboutStatementSectionContent = {
@@ -125,6 +133,16 @@ export const FALLBACK_ABOUT_HERO_SECTION: AboutHeroSectionContent = {
     'Complete diagnostics and care for your motorcycle, the gear we trust on our own rides, and a place to refuel and hang out. All under one roof.',
   backgroundImage: '/images/sixthgearleftsideimg.jpg',
   backgroundImageAlt: 'SixthGear Moto workshop and rider space',
+}
+
+/** Three short lines on who Sixth Gear is; the hero's running subtitle. */
+export const FALLBACK_ABOUT_BRAND_MARQUEE: AboutBrandMarqueeContent = {
+  source: 'fallback',
+  statements: [
+    'Wrenched by people who ride',
+    'Gear we would trust on our own rides',
+    'Where Makati riders refuel and reconnect',
+  ],
 }
 
 export const FALLBACK_ABOUT_STATEMENT: AboutStatementSectionContent = {
@@ -329,6 +347,105 @@ function invalidEnabled(section: { useSanityContent?: boolean | null } | null | 
   }
 }
 
+function isCount(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0
+}
+
+export function isCompleteAboutBrandMarquee(
+  value: SanityAboutPageBrandMarquee | null | undefined
+) {
+  return Boolean(
+    value?.useSanityContent === true &&
+      Array.isArray(value.statements) &&
+      value.statements.length > 0 &&
+      value.statements.every(nonEmpty)
+  )
+}
+
+export function selectAboutBrandMarqueeContent(
+  value: SanityAboutPageBrandMarquee | null | undefined
+): AboutBrandMarqueeContent {
+  if (!isCompleteAboutBrandMarquee(value)) {
+    invalidEnabled(value, 'Statement Marquee')
+    return FALLBACK_ABOUT_BRAND_MARQUEE
+  }
+  return { source: 'sanity', statements: value!.statements as string[] }
+}
+
+export function isCompleteAboutStatement(
+  value: SanityAboutPageStatement | null | undefined
+) {
+  return Boolean(
+    value?.useSanityContent === true &&
+      nonEmpty(value.text) &&
+      isCount(value.productsCount) &&
+      isCount(value.categoriesCount) &&
+      isCount(value.departmentsCount)
+  )
+}
+
+/** Labels, suffixes and order stay local; brands is filled from Shopify by the page. */
+export function selectAboutStatementContent(
+  value: SanityAboutPageStatement | null | undefined
+): AboutStatementSectionContent {
+  if (!isCompleteAboutStatement(value)) {
+    invalidEnabled(value, 'Statement & Stats')
+    return FALLBACK_ABOUT_STATEMENT
+  }
+  const counts: Record<string, number> = {
+    products: value!.productsCount!,
+    categories: value!.categoriesCount!,
+    departments: value!.departmentsCount!,
+  }
+  return {
+    source: 'sanity',
+    text: value!.text!,
+    stats: FALLBACK_ABOUT_STATEMENT.stats.map((stat) =>
+      stat.key in counts ? { ...stat, value: counts[stat.key] } : stat
+    ),
+  }
+}
+
+export function isCompleteAboutWhoWeAre(
+  value: SanityAboutPageWhoWeAre | null | undefined
+) {
+  return Boolean(
+    value?.useSanityContent === true &&
+      nonEmpty(value.heading) &&
+      nonEmpty(value.headingAccent) &&
+      Array.isArray(value.paragraphs) &&
+      value.paragraphs.length > 0 &&
+      value.paragraphs.every(nonEmpty) &&
+      nonEmpty(value.imageUrl) &&
+      nonEmpty(value.imageAlt)
+  )
+}
+
+/** The fallback borrows the Why Choose Us top image, as before. */
+export function selectAboutWhoWeAreContent(
+  value: SanityAboutPageWhoWeAre | null | undefined,
+  whyChooseUs: AboutWhyChooseUsSectionContent
+): AboutWhoWeAreSectionContent {
+  if (!isCompleteAboutWhoWeAre(value)) {
+    invalidEnabled(value, 'Who We Are')
+    return {
+      ...FALLBACK_ABOUT_WHO_WE_ARE,
+      imageUrl: whyChooseUs.topImageUrl,
+      imageSource: whyChooseUs.topImageSource,
+      imageAlt: whyChooseUs.topImageAlt,
+    }
+  }
+  return {
+    source: 'sanity',
+    heading: value!.heading!,
+    headingAccent: value!.headingAccent!,
+    paragraphs: value!.paragraphs as string[],
+    imageUrl: value!.imageUrl!,
+    imageSource: value!.imageSource ?? null,
+    imageAlt: value!.imageAlt!,
+  }
+}
+
 export function isCompleteAboutHero(value: SanityAboutPageHero | null | undefined) {
   return Boolean(
     value?.useSanityContent === true &&
@@ -363,7 +480,7 @@ export function isCompleteAboutStory(
   return Boolean(
     value?.useSanityContent === true &&
       Array.isArray(value.items) &&
-      value.items.length > 0 &&
+      value.items.length === 3 &&
       value.items.every(
         (item) =>
           item &&
@@ -390,6 +507,7 @@ export function selectAboutStoryContent(
       key: item!._key!,
       heading: item!.heading!,
       body: item!.body!,
+      lead: nonEmpty(item!.lead) ? item!.lead : undefined,
       imageUrl: item!.imageUrl!,
       imageSource: item!.imageSource ?? null,
       imageAlt: item!.imageAlt!,
@@ -412,7 +530,11 @@ export function isCompleteAboutWhyChooseUs(
           nonEmpty(item?._key) &&
           nonEmpty(item?.title) &&
           nonEmpty(item?.description) &&
-          nonEmpty(item?.icon)
+          nonEmpty(item?.icon) &&
+          nonEmpty(item?.imageAlt) &&
+          (item?.mediaType === 'video'
+            ? nonEmpty(item.videoUrl) && nonEmpty(item.posterUrl)
+            : nonEmpty(item?.imageUrl))
       ) &&
       nonEmpty(value.topImageUrl) &&
       nonEmpty(value.topImageAlt) &&
@@ -433,12 +555,20 @@ export function selectAboutWhyChooseUsContent(
     sectionLabel: value!.sectionLabel!,
     heading: value!.heading!,
     subtitle: value!.subtitle!,
-    items: value!.items!.map((item) => ({
-      key: item._key!,
-      title: item.title!,
-      description: item.description!,
-      icon: item.icon!,
-    })),
+    // A video reason uses its poster as the image, like the local coffee item.
+    items: value!.items!.map((item) => {
+      const video = item.mediaType === 'video'
+      return {
+        key: item._key!,
+        title: item.title!,
+        description: item.description!,
+        icon: item.icon!,
+        imageUrl: video ? item.posterUrl! : item.imageUrl!,
+        imageSource: (video ? item.posterSource : item.imageSource) ?? null,
+        imageAlt: item.imageAlt!,
+        videoUrl: video ? item.videoUrl! : undefined,
+      }
+    }),
     topImageUrl: value!.topImageUrl!,
     topImageSource: value!.topImageSource ?? null,
     topImageAlt: value!.topImageAlt!,
@@ -525,6 +655,7 @@ export function selectAboutCeoQuoteContent(
 
 export type AboutPageContent = {
   hero: AboutHeroSectionContent
+  brandMarquee: AboutBrandMarqueeContent
   statement: AboutStatementSectionContent
   whoWeAre: AboutWhoWeAreSectionContent
   story: AboutStorySectionContent
@@ -541,13 +672,9 @@ export function selectAboutPageContent(
 
   return {
     hero: selectAboutHeroContent(value?.hero),
-    statement: FALLBACK_ABOUT_STATEMENT,
-    whoWeAre: {
-      ...FALLBACK_ABOUT_WHO_WE_ARE,
-      imageUrl: whyChooseUs.topImageUrl,
-      imageSource: whyChooseUs.topImageSource,
-      imageAlt: whyChooseUs.topImageAlt,
-    },
+    brandMarquee: selectAboutBrandMarqueeContent(value?.brandMarquee),
+    statement: selectAboutStatementContent(value?.statement),
+    whoWeAre: selectAboutWhoWeAreContent(value?.whoWeAre, whyChooseUs),
     whyChooseUs,
     story: selectAboutStoryContent(value?.ourStory),
     ourValues: selectAboutValuesContent(value?.ourValues),

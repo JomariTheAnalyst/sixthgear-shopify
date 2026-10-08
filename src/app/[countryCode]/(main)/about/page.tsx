@@ -68,11 +68,12 @@ export default async function AboutPage() {
       <JsonLd id="about-breadcrumbs" data={breadcrumbStructuredData} />
       <AboutTemplate
         heroContent={content.hero}
+        brandMarqueeContent={content.brandMarquee}
         statementContent={statement}
         whoWeAreContent={content.whoWeAre}
         storyContent={content.story}
-        ourSpaceExperienceContent={ourSpaceExperienceContent}
         whyChooseUsContent={content.whyChooseUs}
+        ourSpaceExperienceContent={ourSpaceExperienceContent}
         ceoQuoteContent={content.ceoQuote}
         ctaBannerContent={content.ctaBanner}
       />
