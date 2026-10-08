@@ -80,7 +80,7 @@ export default function CookiesPage() {
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
           Cookie Policy
         </h1>
-        <p className="text-sm text-gray-500 mb-8">Last updated: [DATE]</p>
+        <p className="text-sm text-gray-500 mb-8">Last updated: OCTOBER 8 2026</p>
 
         <p className={p}>
           This page explains the cookies and similar storage our website uses,
@@ -222,7 +222,7 @@ export default function CookiesPage() {
         ))}
 
         <h2 className={h2}>Questions</h2>
-        <p className={p}>Email [PRIVACY EMAIL].</p>
+        <p className={p}>Email support@sixthgearmoto.com.</p>
       </div>
     </div>
   )
