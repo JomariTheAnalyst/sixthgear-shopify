@@ -230,7 +230,6 @@ export default async function Home(props: {
       </SanityEditTarget>
 
       <FeaturedBrand brands={shopifyBrandCards} />
-      <MarqueeStrip />
       {videoFeatureContent.enabled && (
         <SanityEditTarget
           documentId="homepage"
@@ -244,6 +243,7 @@ export default async function Home(props: {
           <VideoFeature data={videoFeatureContent} />
         </SanityEditTarget>
       )}
+      <MarqueeStrip />
 
       <FeaturedCollectionBanner data={getFeatured("after_hero")} />
       <PromoBanner data={getPromo("after_hero")} />

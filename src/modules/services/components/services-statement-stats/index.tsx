@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-import { outfit } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
@@ -198,7 +198,7 @@ export default function ServicesStatementStats({
     <section
       ref={sectionRef}
       aria-labelledby="services-statement-heading"
-      className={`${outfit.className} overflow-hidden bg-white px-5 py-20 text-black sm:px-8 md:py-28 lg:px-12 lg:py-36`}
+      className={`${parkinsans.className} overflow-hidden bg-white px-5 py-20 text-black sm:px-8 md:py-28 lg:px-12 lg:py-36`}
     >
       <div className="mx-auto max-w-[1320px]">
         <h2
