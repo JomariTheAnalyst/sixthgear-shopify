@@ -66,14 +66,16 @@ export default function AboutStory({ content }: AboutStoryProps) {
 
         // The pinned frame starts below the sticky header (announcement bar + nav).
         const header = document.querySelector<HTMLElement>("header")
-        const setOffset = () =>
-          section.style.setProperty(
-            "--story-offset",
-            `${Math.max(0, Math.round(header?.getBoundingClientRect().bottom ?? 0))}px`
-          )
+        // Frame height = screen - header - equal gaps above and below (1.5rem, 2rem on lg),
+        // so the gap under the header stays visible past the nav shadow.
+        const setOffset = () => {
+          const bottom = Math.round(header?.getBoundingClientRect().bottom ?? 0)
+          if (bottom > 0) section.style.setProperty("--story-offset", `${bottom}px`)
+        }
         setOffset()
         const headerObserver = new ResizeObserver(setOffset)
-        if (header) headerObserver.observe(header)
+        // The sticky wrapper also holds the dismissible announcement bar.
+        if (header) headerObserver.observe(header.parentElement ?? header)
 
         const steps = slides.length - 1
         const timeline = gsap.timeline({
@@ -133,15 +135,20 @@ export default function AboutStory({ content }: AboutStoryProps) {
     <section
       ref={sectionRef}
       aria-labelledby="about-story-heading"
-      className="bg-white py-20 md:py-28 lg:py-32 md:motion-safe:h-screen md:motion-safe:pb-3 md:motion-safe:pt-[calc(var(--story-offset,88px)+0.75rem)]"
+      // Pinned (md + motion): no padding on the section itself. ScrollTrigger
+      // copies the pinned element's padding inline at refresh, and the stacked
+      // py classes would otherwise win at lg. The header offset lives on the
+      // inner wrapper instead.
+      className="bg-white py-20 md:motion-reduce:py-28 lg:motion-reduce:py-32 md:motion-safe:h-screen md:motion-safe:py-0"
     >
       <h2 id="about-story-heading" className="sr-only">
         {content.heading}
       </h2>
 
-      {/* Near full width: small gutters only. */}
-      <div className="mx-auto w-full px-3 sm:px-4 lg:px-5 md:motion-safe:h-full">
-        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-full md:motion-safe:overflow-hidden md:motion-safe:rounded-[4px] md:motion-safe:bg-[#0A0A0A]">
+      {/* Near full width: small gutters only. Pinned: fills the screen below
+          the sticky header and centres the frame in what is left. */}
+      <div className="mx-auto w-full px-3 sm:px-4 lg:px-5 md:motion-safe:flex md:motion-safe:h-full md:motion-safe:flex-col md:motion-safe:justify-center md:motion-safe:pt-[var(--story-offset,88px)]">
+        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-[calc(100vh-var(--story-offset,88px)-3rem)] lg:motion-safe:h-[calc(100vh-var(--story-offset,88px)-4rem)] md:motion-safe:overflow-hidden md:motion-safe:rounded-[10px] md:motion-safe:bg-[#0A0A0A]">
           {content.items.map((item, index) => {
             const image = resolveSanityImage(item.imageSource, item.imageUrl)
             const itemPath = keyedSanityPath("ourStory.items", item.key)
@@ -161,7 +168,7 @@ export default function AboutStory({ content }: AboutStoryProps) {
                       })
                     : undefined
                 }
-                className={`relative isolate flex h-[70vh] min-h-[460px] flex-col justify-end overflow-hidden rounded-[4px] bg-[#0A0A0A] md:h-[clamp(520px,80vh,900px)] md:motion-safe:absolute md:motion-safe:inset-0 md:motion-safe:h-full md:motion-safe:min-h-0 md:motion-safe:rounded-none ${
+                className={`relative isolate flex h-[70vh] min-h-[460px] flex-col justify-end overflow-hidden rounded-[10px] bg-[#0A0A0A] md:h-[clamp(520px,80vh,900px)] md:motion-safe:absolute md:motion-safe:inset-0 md:motion-safe:h-full md:motion-safe:min-h-0 md:motion-safe:rounded-none ${
                   index > 0 ? "md:motion-safe:[clip-path:inset(100%_0%_0%_0%)]" : ""
                 }`}
               >
