@@ -57,10 +57,10 @@ export type AboutStorySectionContent = {
   items: Array<{
     key: string
     heading: string
-    /** Shown when an item has no points (e.g. Sanity items today). */
+    /** Long copy; shown (clamped) only when an item has no lead (Sanity items today). */
     body: string
+    /** Short line on the slide, about 50 characters. */
     lead?: string
-    points?: string[]
     imageUrl: string
     imageSource?: SanityImageSource | null
     imageAlt: string
@@ -168,12 +168,7 @@ export const FALLBACK_ABOUT_STORY_SECTION: AboutStorySectionContent = {
       key: 'fallback-story-riders',
       heading: 'At Our Core, We Are Riders',
       body: "When we built Sixth Gear, we didn't just want to open another shop. We wanted a place we'd actually want to hang out in ourselves. A true hub where serious riders could get professional, no-compromise servicing for their big bikes—whether it's routine PMS, tough repairs, or dialing in that perfect performance upgrade. We treat every machine rolling into our bays with the exact same precision and respect we give our own bikes.",
-      lead: 'The people working on your bike ride it the same way you do.',
-      points: [
-        'Mechanics who ride the same roads you do',
-        'We find the cause before we replace parts',
-        'Every bike in the bay gets the same care',
-      ],
+      lead: 'The crew on your bike rides the same roads.',
       imageUrl: '/images/sixthgear-workshop.jpg',
       imageAlt: 'Sixthgear Workshop',
     },
@@ -181,12 +176,7 @@ export const FALLBACK_ABOUT_STORY_SECTION: AboutStorySectionContent = {
       key: 'fallback-story-quality',
       heading: 'No Shortcuts On Quality',
       body: "Riding isn't just transport; it's a lifestyle. That's why we stock only the gear, parts, and accessories that we personally trust and use on the open road. If we won't bet our own safety on a helmet or throw a specific brand of luggage on our own touring rigs, you won't find it on our shelves. We're committed to bringing you the absolute highest standard of rider apparel because we know exactly what is at stake when you twist the throttle.",
-      lead: 'Our shelves only carry what we would use ourselves.',
-      points: [
-        'Original parts and trusted brands only',
-        'Gear we wear on our own rides',
-        'If it does not hold up, we do not stock it',
-      ],
+      lead: 'Our shelves carry only what we ride with.',
       imageUrl:
         'https://res.cloudinary.com/djn9ubf6a/image/upload/v1779091975/sixthgear-shop_gxf8bi.png',
       imageAlt:
@@ -196,12 +186,7 @@ export const FALLBACK_ABOUT_STORY_SECTION: AboutStorySectionContent = {
       key: 'fallback-story-community',
       heading: 'Fueling The Community',
       body: "A great ride always starts or ends with great coffee. That's the reason we integrated First Gear Coffee right into our space. It's more than just an espresso machine in a waiting area—it's a sanctuary for the riding community. We organize events, foster real friendships, and provide a place where you can grab a solid cup of coffee, talk shop, and swap stories with people who share the exact same passion for two wheels.",
-      lead: 'Riders come in for service and stay for the people.',
-      points: [
-        'First Gear Coffee right inside the shop',
-        'A lounge to wait in while we work',
-        'Group rides and meetups at the shop',
-      ],
+      lead: 'Come in for service, stay for the people.',
       imageUrl:
         'https://res.cloudinary.com/djn9ubf6a/image/upload/v1779090174/sixthgear-event_ossb2m.jpg',
       imageAlt: 'Sixthgear Moto rider community event',
