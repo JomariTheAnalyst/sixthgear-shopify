@@ -284,6 +284,7 @@ export interface SanityAboutPageStoryItem {
   _key?: string | null
   heading?: string | null
   body?: string | null
+  lead?: string | null
   imageUrl?: string | null
   imageSource?: SanityImageSource | null
   imageAlt?: string | null
@@ -348,6 +349,13 @@ export interface SanityAboutPageWhyChooseUsItem {
   title?: string | null
   description?: string | null
   icon?: string | null
+  mediaType?: 'image' | 'video' | null
+  imageUrl?: string | null
+  imageSource?: SanityImageSource | null
+  imageAlt?: string | null
+  videoUrl?: string | null
+  posterUrl?: string | null
+  posterSource?: SanityImageSource | null
 }
 
 export interface SanityAboutPageWhyChooseUs {
@@ -375,9 +383,35 @@ export interface SanityAboutPageCeoQuote {
   ceoPhotoDescription?: string | null
 }
 
+export interface SanityAboutPageBrandMarquee {
+  useSanityContent?: boolean | null
+  statements?: Array<string | null> | null
+}
+
+export interface SanityAboutPageStatement {
+  useSanityContent?: boolean | null
+  text?: string | null
+  productsCount?: number | null
+  categoriesCount?: number | null
+  departmentsCount?: number | null
+}
+
+export interface SanityAboutPageWhoWeAre {
+  useSanityContent?: boolean | null
+  heading?: string | null
+  headingAccent?: string | null
+  paragraphs?: Array<string | null> | null
+  imageUrl?: string | null
+  imageSource?: SanityImageSource | null
+  imageAlt?: string | null
+}
+
 export interface SanityAboutPage {
   useSanityContent?: boolean | null
   hero?: SanityAboutPageHero | null
+  brandMarquee?: SanityAboutPageBrandMarquee | null
+  statement?: SanityAboutPageStatement | null
+  whoWeAre?: SanityAboutPageWhoWeAre | null
   ourStory?: SanityAboutPageStory | null
   ourSpaceExperience?: SanityOurSpaceExperience | null
   ourValues?: SanityAboutPageOurValues | null

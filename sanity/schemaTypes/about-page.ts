@@ -28,6 +28,22 @@ function hasText(value: unknown) {
   return typeof value === 'string' && value.trim().length > 0
 }
 
+function numberRequiredWhenEnabled(message: string) {
+  return (Rule: any) =>
+    Rule.min(0).integer().custom((value: unknown, context: { parent?: unknown }) =>
+      !sourceEnabled(context.parent) || typeof value === 'number' || message
+    )
+}
+
+function textListRequiredWhenEnabled(message: string) {
+  return (Rule: any) =>
+    Rule.custom((value: unknown, context: { parent?: unknown }) =>
+      !sourceEnabled(context.parent) ||
+      (Array.isArray(value) && value.length > 0 && value.every(hasText)) ||
+      message
+    )
+}
+
 function sectionToggle(fallbackName: string) {
   return defineField({
     name: 'useSanityContent',
@@ -103,8 +119,197 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'brandMarquee',
+      title: '2. Statement Marquee',
+      type: 'object',
+      description:
+        'Scrolling black statements below the Hero. Disabled or incomplete content uses the existing three statements.',
+      fields: [
+        sectionToggle('Statement Marquee'),
+        defineField({
+          name: 'statements',
+          title: 'Statements',
+          type: 'array',
+          of: [defineArrayMember({ type: 'string' })],
+          description: 'Short lines shown in this order, about 40 characters each.',
+          validation: textListRequiredWhenEnabled(
+            'Add at least one statement when Sanity content is enabled.'
+          ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'statement',
+      title: '3. Statement & Stats',
+      type: 'object',
+      description:
+        'Large statement paragraph and counters. "Brands in store" is always counted live from Shopify. Disabled or incomplete content uses the existing statement and numbers.',
+      fields: [
+        sectionToggle('Statement & Stats'),
+        defineField({
+          name: 'text',
+          title: 'Statement',
+          type: 'text',
+          rows: 4,
+          validation: requiredWhenEnabled(
+            'Statement is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'productsCount',
+          title: 'Products in store',
+          type: 'number',
+          description: 'Shown with a "+" after it.',
+          validation: numberRequiredWhenEnabled(
+            'Products in store is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'categoriesCount',
+          title: 'Product categories',
+          type: 'number',
+          validation: numberRequiredWhenEnabled(
+            'Product categories is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'departmentsCount',
+          title: 'Departments, one roof',
+          type: 'number',
+          validation: numberRequiredWhenEnabled(
+            'Departments is required when Sanity content is enabled.'
+          ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'whoWeAre',
+      title: '4. Who We Are',
+      type: 'object',
+      description:
+        'Heading, paragraphs and square photo. Disabled or incomplete content uses the existing Who We Are section.',
+      fields: [
+        sectionToggle('Who We Are'),
+        defineField({
+          name: 'heading',
+          title: 'Heading',
+          type: 'string',
+          description: 'Black part of the heading, e.g. "Who".',
+          validation: requiredWhenEnabled(
+            'Heading is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'headingAccent',
+          title: 'Heading accent',
+          type: 'string',
+          description: 'Orange part of the heading, e.g. "We Are".',
+          validation: requiredWhenEnabled(
+            'Heading accent is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'paragraphs',
+          title: 'Paragraphs',
+          type: 'array',
+          of: [defineArrayMember({ type: 'text', rows: 4 })],
+          validation: textListRequiredWhenEnabled(
+            'Add at least one paragraph when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'image',
+          title: 'Photo',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Shown as a square; about 1600 × 1600 px or larger.',
+          validation: assetRequiredWhenEnabled(
+            'Photo is required when Sanity content is enabled.'
+          ),
+        }),
+        defineField({
+          name: 'imageAlt',
+          title: 'Photo description',
+          type: 'string',
+          validation: requiredWhenEnabled(
+            'Photo description is required when Sanity content is enabled.'
+          ),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'ourStory',
+      title: '5. Our Story',
+      type: 'object',
+      description:
+        'Three full-width slides. Disabled or incomplete content uses the existing three slides.',
+      fields: [
+        sectionToggle('Our Story'),
+        defineField({
+          name: 'items',
+          title: 'Slides',
+          type: 'array',
+          description:
+            'Exactly three slides. Each needs a title, body text, a landscape photo and a photo description. Drag to reorder.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [
+                defineField({
+                  name: 'heading',
+                  title: 'Heading',
+                  type: 'string',
+                }),
+                defineField({
+                  name: 'body',
+                  title: 'Body text',
+                  type: 'text',
+                  rows: 4,
+                }),
+                defineField({
+                  name: 'lead',
+                  title: 'Slide line',
+                  type: 'string',
+                  description:
+                    'Optional short line shown on the slide, about 50 characters. Without it the slide shows the body text, shortened.',
+                }),
+                defineField({
+                  name: 'image',
+                  title: 'Landscape photo',
+                  type: 'image',
+                  options: { hotspot: true },
+                }),
+                defineField({
+                  name: 'imageAlt',
+                  title: 'Photo description',
+                  type: 'string',
+                }),
+              ],
+              preview: {
+                select: { title: 'heading', subtitle: 'body', media: 'image' },
+              },
+            }),
+          ],
+          validation: (Rule) =>
+            Rule.custom((value, context) =>
+              !sourceEnabled(context.parent) ||
+              (Array.isArray(value) &&
+                value.length === 3 &&
+                value.every(
+                  (item: any) =>
+                    hasText(item?.heading) &&
+                    hasText(item?.body) &&
+                    Boolean(item?.image?.asset) &&
+                    hasText(item?.imageAlt)
+                )) ||
+              'Add exactly three complete slides when Sanity content is enabled.'
+            ),
+        }),
+      ],
+    }),
+    defineField({
       name: 'whyChooseUs',
-      title: '2. Why Choose Us',
+      title: '6. Why Choose Us',
       type: 'object',
       description:
         'Reasons and overlapping workshop photos shown below the Hero. Disabled or incomplete content uses the full local section.',
@@ -171,8 +376,56 @@ export default defineType({
                     ],
                   },
                 }),
+                defineField({
+                  name: 'mediaType',
+                  title: 'Media type',
+                  type: 'string',
+                  initialValue: 'image',
+                  options: {
+                    list: [
+                      { title: 'Image', value: 'image' },
+                      { title: 'Video', value: 'video' },
+                    ],
+                    layout: 'radio',
+                    direction: 'horizontal',
+                  },
+                }),
+                defineField({
+                  name: 'image',
+                  title: 'Image',
+                  type: 'image',
+                  options: { hotspot: true },
+                  description: 'Shown while this reason is open. Square crop.',
+                  hidden: ({ parent }) => parent?.mediaType === 'video',
+                }),
+                defineField({
+                  name: 'videoUrl',
+                  title: 'Video URL',
+                  type: 'url',
+                  description:
+                    'Link to a muted MP4 (e.g. Cloudinary). Plays while this reason is open.',
+                  hidden: ({ parent }) => parent?.mediaType !== 'video',
+                  validation: (Rule) => Rule.uri({ scheme: ['https'] }),
+                }),
+                defineField({
+                  name: 'poster',
+                  title: 'Video poster',
+                  type: 'image',
+                  options: { hotspot: true },
+                  description:
+                    'Still image shown before the video plays, and if it cannot play.',
+                  hidden: ({ parent }) => parent?.mediaType !== 'video',
+                }),
+                defineField({
+                  name: 'imageAlt',
+                  title: 'Media description',
+                  type: 'string',
+                  description: 'Accessible description of the image or video.',
+                }),
               ],
-              preview: { select: { title: 'title', subtitle: 'description' } },
+              preview: {
+                select: { title: 'title', subtitle: 'description', media: 'image' },
+              },
             }),
           ],
           validation: (Rule) =>
@@ -184,9 +437,13 @@ export default defineType({
                   (item: any) =>
                     hasText(item?.title) &&
                     hasText(item?.description) &&
-                    hasText(item?.icon)
+                    hasText(item?.icon) &&
+                    hasText(item?.imageAlt) &&
+                    (item?.mediaType === 'video'
+                      ? hasText(item?.videoUrl) && Boolean(item?.poster?.asset)
+                      : Boolean(item?.image?.asset))
                 )) ||
-              'Add at least one complete reason when Sanity content is enabled.'
+              'Each reason needs a title, description, icon, media description, and either an image or a video URL with a poster.'
             ),
         }),
         defineField({
@@ -228,69 +485,6 @@ export default defineType({
       ],
     }),
     defineField({
-      name: 'ourStory',
-      title: '3. Our Story',
-      type: 'object',
-      description:
-        'Alternating story rows on the About page. Disabled or incomplete content uses all existing local story rows.',
-      fields: [
-        sectionToggle('Our Story'),
-        defineField({
-          name: 'items',
-          title: 'Story rows',
-          type: 'array',
-          description:
-            'Each row needs complete copy, a landscape image, and accessible image text. Drag to reorder.',
-          of: [
-            defineArrayMember({
-              type: 'object',
-              fields: [
-                defineField({
-                  name: 'heading',
-                  title: 'Heading',
-                  type: 'string',
-                }),
-                defineField({
-                  name: 'body',
-                  title: 'Body text',
-                  type: 'text',
-                  rows: 4,
-                }),
-                defineField({
-                  name: 'image',
-                  title: 'Landscape photo',
-                  type: 'image',
-                  options: { hotspot: true },
-                }),
-                defineField({
-                  name: 'imageAlt',
-                  title: 'Photo description',
-                  type: 'string',
-                }),
-              ],
-              preview: {
-                select: { title: 'heading', subtitle: 'body', media: 'image' },
-              },
-            }),
-          ],
-          validation: (Rule) =>
-            Rule.custom((value, context) =>
-              !sourceEnabled(context.parent) ||
-              (Array.isArray(value) &&
-                value.length > 0 &&
-                value.every(
-                  (item: any) =>
-                    hasText(item?.heading) &&
-                    hasText(item?.body) &&
-                    Boolean(item?.image?.asset) &&
-                    hasText(item?.imageAlt)
-                )) ||
-              'Add at least one complete story row when Sanity content is enabled.'
-            ),
-        }),
-      ],
-    }),
-    defineField({
       name: 'story',
       title: 'Legacy Our Story rows (deprecated)',
       type: 'array',
@@ -321,17 +515,19 @@ export default defineType({
     }),
     defineField({
       name: 'ourSpaceExperience',
-      title: '4. Our Space & Experience',
+      title: '7. Our Space & Experience',
       type: 'ourSpaceExperienceSection',
       description:
         'Coffee, rider lounge, and community cards. Its own toggle controls only this section.',
     }),
     defineField({
       name: 'ourValues',
-      title: '5. Our Values',
+      title: 'Our Values (deprecated)',
       type: 'object',
+      hidden: true,
+      readOnly: true,
       description:
-        'Value cards shown below Our Space. Disabled or incomplete content uses the complete local Values section.',
+        'Legacy field retained for compatibility. It is not rendered on the About page.',
       fields: [
         sectionToggle('Our Values'),
         defineField({
@@ -408,7 +604,7 @@ export default defineType({
     }),
     defineField({
       name: 'ceoQuote',
-      title: '6. CEO Quote',
+      title: '8. CEO Quote',
       type: 'object',
       description:
         'Founder quote and portrait near the page bottom. Disabled or incomplete content uses the complete local quote.',
@@ -468,7 +664,7 @@ export default defineType({
     }),
     defineField({
       name: 'ctaBanner',
-      title: '7. CTA Banner',
+      title: '9. CTA Banner',
       type: 'ctaBanner',
       description:
         'Final dark CTA banner. Its source toggle is independent from every other About section.',

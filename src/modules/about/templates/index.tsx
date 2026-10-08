@@ -20,6 +20,7 @@ import WhyChooseUs from "@modules/about/components/why-choose-us"
 import CTABanner from "@modules/home/components/cta-banner"
 import type { OurSpaceExperienceContent } from "@lib/cms/our-space-experience"
 import type {
+  AboutBrandMarqueeContent,
   AboutCeoQuoteSectionContent,
   AboutHeroSectionContent,
   AboutStatementSectionContent,
@@ -32,22 +33,24 @@ import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface AboutTemplateProps {
   heroContent: AboutHeroSectionContent
+  brandMarqueeContent: AboutBrandMarqueeContent
   statementContent: AboutStatementSectionContent
   whoWeAreContent: AboutWhoWeAreSectionContent
   storyContent: AboutStorySectionContent
-  ourSpaceExperienceContent: OurSpaceExperienceContent
   whyChooseUsContent: AboutWhyChooseUsSectionContent
+  ourSpaceExperienceContent: OurSpaceExperienceContent
   ceoQuoteContent: AboutCeoQuoteSectionContent
   ctaBannerContent: PageCtaContent
 }
 
 export default function AboutTemplate({
   heroContent,
+  brandMarqueeContent,
   statementContent,
   whoWeAreContent,
   storyContent,
-  ourSpaceExperienceContent,
   whyChooseUsContent,
+  ourSpaceExperienceContent,
   ceoQuoteContent,
   ctaBannerContent,
 }: AboutTemplateProps) {
@@ -76,9 +79,27 @@ export default function AboutTemplate({
       >
         <AboutHero content={heroContent} />
       </SanityEditTarget>
-      <BrandMarquee />
-      <AboutStatement content={statementContent} />
-      <WhoWeAre content={whoWeAreContent} />
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={brandMarqueeContent.source === "sanity" ? "brandMarquee" : "brandMarquee.useSanityContent"}
+      >
+        <BrandMarquee content={brandMarqueeContent} />
+      </SanityEditTarget>
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={statementContent.source === "sanity" ? "statement" : "statement.useSanityContent"}
+      >
+        <AboutStatement content={statementContent} />
+      </SanityEditTarget>
+      <SanityEditTarget
+        documentId="aboutPage"
+        documentType="aboutPage"
+        path={whoWeAreContent.source === "sanity" ? "whoWeAre" : "whoWeAre.useSanityContent"}
+      >
+        <WhoWeAre content={whoWeAreContent} />
+      </SanityEditTarget>
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"
@@ -86,7 +107,6 @@ export default function AboutTemplate({
       >
         <AboutStory content={storyContent} />
       </SanityEditTarget>
-      <SpaceBento content={ourSpaceExperienceContent} />
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"
@@ -94,6 +114,7 @@ export default function AboutTemplate({
       >
         <WhyChooseUs data={whyChooseUsContent} />
       </SanityEditTarget>
+      <SpaceBento content={ourSpaceExperienceContent} />
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"

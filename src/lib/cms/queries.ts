@@ -507,12 +507,33 @@ export const aboutPageQuery = groq`
       "backgroundImageSource": backgroundImage{asset, crop, hotspot},
       backgroundImageAlt
     },
+    brandMarquee {
+      useSanityContent,
+      statements
+    },
+    statement {
+      useSanityContent,
+      text,
+      productsCount,
+      categoriesCount,
+      departmentsCount
+    },
+    whoWeAre {
+      useSanityContent,
+      heading,
+      headingAccent,
+      paragraphs,
+      "imageUrl": image.asset->url,
+      "imageSource": image{asset, crop, hotspot},
+      imageAlt
+    },
     ourStory {
       useSanityContent,
       "items": items[]{
         _key,
         heading,
         body,
+        lead,
         "imageUrl": image.asset->url,
         "imageSource": image{asset, crop, hotspot},
         imageAlt
@@ -551,7 +572,14 @@ export const aboutPageQuery = groq`
         _key,
         title,
         description,
-        icon
+        icon,
+        mediaType,
+        "imageUrl": image.asset->url,
+        "imageSource": image{asset, crop, hotspot},
+        imageAlt,
+        videoUrl,
+        "posterUrl": poster.asset->url,
+        "posterSource": poster{asset, crop, hotspot}
       },
       "topImageUrl": topImage.asset->url,
       "topImageSource": topImage{asset, crop, hotspot},

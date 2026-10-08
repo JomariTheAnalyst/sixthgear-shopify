@@ -5,17 +5,11 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
+import type { AboutBrandMarqueeContent } from "@lib/cms/about-page-main"
 import { nationalCompressed } from "@lib/fonts"
 import { MOTION_OK } from "@modules/about/motion"
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
-
-/** Three short lines on who Sixth Gear is; the hero's running subtitle. */
-const STATEMENTS = [
-  "Wrenched by people who ride",
-  "Gear we would trust on our own rides",
-  "Where Makati riders refuel and reconnect",
-]
 
 /** Resting speed in px per second. */
 const BASE_SPEED = 45
@@ -30,11 +24,15 @@ const WORDMARK_CLASS = `${nationalCompressed.className} flex items-center gap-12
 const DOT = <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#F16D34] md:h-3 md:w-3" />
 
 /**
- * Three About statements as black wordmarks.
+ * About statements as black wordmarks.
  * Moves left to right; scrolling up turns it right to left. Scroll speed adds a
  * boost that eases back to the resting speed in the last direction.
  */
-export default function BrandMarquee() {
+export default function BrandMarquee({
+  content,
+}: {
+  content: AboutBrandMarqueeContent
+}) {
   const rootRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
@@ -102,7 +100,7 @@ export default function BrandMarquee() {
 
       return () => media.revert()
     },
-    { scope: rootRef }
+    { scope: rootRef, dependencies: [content.statements.join("\n")], revertOnUpdate: true }
   )
 
   return (
@@ -113,8 +111,8 @@ export default function BrandMarquee() {
           className="flex w-max gap-12 will-change-transform md:gap-20 motion-reduce:w-full motion-reduce:justify-center motion-reduce:will-change-auto"
         >
           <ul ref={listRef} aria-label="About Sixth Gear" className={LIST_CLASS}>
-            {STATEMENTS.map((statement) => (
-              <li key={statement} className={WORDMARK_CLASS}>
+            {content.statements.map((statement, index) => (
+              <li key={`${index}-${statement}`} className={WORDMARK_CLASS}>
                 {statement}
                 {DOT}
               </li>
@@ -122,8 +120,8 @@ export default function BrandMarquee() {
           </ul>
           {/* Copy for the seamless loop; hidden from screen readers. */}
           <ul aria-hidden="true" className={`${LIST_CLASS} motion-reduce:hidden`}>
-            {STATEMENTS.map((statement) => (
-              <li key={statement} className={WORDMARK_CLASS}>
+            {content.statements.map((statement, index) => (
+              <li key={`${index}-${statement}`} className={WORDMARK_CLASS}>
                 {statement}
                 {DOT}
               </li>
