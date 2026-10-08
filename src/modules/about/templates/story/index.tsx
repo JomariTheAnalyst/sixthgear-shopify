@@ -133,15 +133,15 @@ export default function AboutStory({ content }: AboutStoryProps) {
     <section
       ref={sectionRef}
       aria-labelledby="about-story-heading"
-      className="bg-white py-20 md:py-28 lg:py-32 md:motion-safe:h-screen md:motion-safe:pb-3 md:motion-safe:pt-[calc(var(--story-offset,88px)+0.75rem)]"
+      className="bg-white py-20 md:py-28 lg:py-32 md:motion-safe:flex md:motion-safe:h-screen md:motion-safe:flex-col md:motion-safe:justify-center md:motion-safe:pb-0 md:motion-safe:pt-[var(--story-offset,88px)]"
     >
       <h2 id="about-story-heading" className="sr-only">
         {content.heading}
       </h2>
 
       {/* Near full width: small gutters only. */}
-      <div className="mx-auto w-full px-3 sm:px-4 lg:px-5 md:motion-safe:h-full">
-        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-full md:motion-safe:overflow-hidden md:motion-safe:rounded-[4px] md:motion-safe:bg-[#0A0A0A]">
+      <div className="mx-auto w-full px-3 sm:px-4 lg:px-5">
+        <div className="flex flex-col gap-4 md:gap-5 md:motion-safe:relative md:motion-safe:block md:motion-safe:h-[calc(100vh-var(--story-offset,88px)-2rem)] md:motion-safe:overflow-hidden md:motion-safe:rounded-[10px] md:motion-safe:bg-[#0A0A0A]">
           {content.items.map((item, index) => {
             const image = resolveSanityImage(item.imageSource, item.imageUrl)
             const itemPath = keyedSanityPath("ourStory.items", item.key)
@@ -161,7 +161,7 @@ export default function AboutStory({ content }: AboutStoryProps) {
                       })
                     : undefined
                 }
-                className={`relative isolate flex h-[70vh] min-h-[460px] flex-col justify-end overflow-hidden rounded-[4px] bg-[#0A0A0A] md:h-[clamp(520px,80vh,900px)] md:motion-safe:absolute md:motion-safe:inset-0 md:motion-safe:h-full md:motion-safe:min-h-0 md:motion-safe:rounded-none ${
+                className={`relative isolate flex h-[70vh] min-h-[460px] flex-col justify-end overflow-hidden rounded-[10px] bg-[#0A0A0A] md:h-[clamp(520px,80vh,900px)] md:motion-safe:absolute md:motion-safe:inset-0 md:motion-safe:h-full md:motion-safe:min-h-0 md:motion-safe:rounded-none ${
                   index > 0 ? "md:motion-safe:[clip-path:inset(100%_0%_0%_0%)]" : ""
                 }`}
               >
