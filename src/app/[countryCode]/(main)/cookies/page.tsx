@@ -21,8 +21,8 @@ const p = "text-gray-700 leading-relaxed mb-6"
 // Category table from the Cookie Policy draft (what each category does).
 const CATEGORY_SUMMARY = [
   {
-    name: "Necessary",
-    does: "Keeps the website working: your cart, your login, your cookie choices, and security",
+    name: "Essential",
+    does: "Keeps the website working: your cart, your login, your cookie choice, security, and spam protection on our forms (Cloudflare Turnstile)",
     optOut: "No. The website cannot work without it",
   },
   {
@@ -32,13 +32,42 @@ const CATEGORY_SUMMARY = [
   },
   {
     name: "Loads with the page",
-    does: "Services from other companies: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, with code from Meta). They may set their own cookies",
-    optOut: "Not on our website. You can block third-party cookies in your browser settings",
+    does: "Services from other companies that load for every visitor: live chat (Tidio), our social media feed (Curator, with code from Meta), online booking (cal.com), maps (Google), and product videos (YouTube, Vimeo). They set their own cookies",
+    optOut: "Not on our website. Accept or Reject does not change them. You can block third-party cookies in your browser settings",
   },
   {
     name: "Analytics",
-    does: "Counts visits to help us improve the website",
-    optOut: "We do not use any analytics right now. If we add it, we will ask you first",
+    does: "Counts visits and shows which pages people use, so we can improve the website (for example Google Analytics)",
+    optOut: "Yes, with Accept or Reject or in Cookie settings. We do not run any analytics tools right now",
+  },
+  {
+    name: "Marketing",
+    does: "Measures our ads and shows them to people who visited this website (for example a Meta pixel)",
+    optOut: "Yes, with Accept or Reject or in Cookie settings. We do not run any marketing tools right now",
+  },
+]
+
+// Plain-language summary of each outside service that loads with the page.
+const OUTSIDE_SERVICES = [
+  {
+    name: "Tidio (live chat)",
+    does: "Runs the chat window. Tidio sets its own cookies and stores your visitor ID and the messages you send in the chat.",
+  },
+  {
+    name: "Curator (social media feed)",
+    does: "Shows our latest Facebook and Instagram posts on the homepage. It loads code from Meta (Facebook), which may set its own cookies, including for advertising.",
+  },
+  {
+    name: "cal.com (online booking)",
+    does: "Runs the service booking form. The details you enter when you book are handled by cal.com.",
+  },
+  {
+    name: "Google Maps",
+    does: "Shows our store map on the homepage and Contact page. Google may set its own cookies.",
+  },
+  {
+    name: "YouTube and Vimeo",
+    does: "Play product videos. YouTube runs in privacy-enhanced mode. Both may set their own cookies.",
   },
 ]
 
@@ -67,20 +96,29 @@ export default function CookiesPage() {
 
         <h2 className={h2}>Your choices</h2>
         <p className={p}>
-          Some features come from other companies and load with the page:
-          chat (Tidio), online booking (cal.com), maps (Google), product videos
-          (YouTube, Vimeo), and our social media feed (Curator, which includes
-          code from Meta). These services may set their own cookies. To avoid
-          them, you can block third-party cookies in your browser settings.
+          On your first visit, a banner asks whether you allow optional
+          analytics and marketing cookies. We do not currently run any
+          analytics or marketing tools. If we add them, they will only load
+          after you click Accept. If your browser sends a Global Privacy
+          Control signal, we treat it as Reject. We ask again after 12 months,
+          or sooner if this policy changes. You can change your choice any time
+          with the <strong className="text-gray-900">Cookie settings</strong>{" "}
+          link at the bottom of every page.
         </p>
         <p className={p}>
-          We do not use analytics or marketing cookies of our own right now, so
-          there is nothing to choose. If we add them, we will ask you first, and
-          if your browser sends a Global Privacy Control signal, we will treat it
-          as a &quot;no&quot;. The{" "}
-          <strong className="text-gray-900">Cookie settings</strong> link at the
-          bottom of every page shows the same list as below.
+          Some services from other companies load for every visitor, whatever
+          you choose in the banner. Accept or Reject does not turn them off.
+          To avoid their cookies, you can block third-party cookies in your
+          browser settings.
         </p>
+        <ul className="mb-6 list-disc space-y-2 pl-6 text-gray-700 leading-relaxed">
+          {OUTSIDE_SERVICES.map((service) => (
+            <li key={service.name}>
+              <strong className="text-gray-900">{service.name}:</strong>{" "}
+              {service.does}
+            </li>
+          ))}
+        </ul>
         <CookieSettingsButton className="mb-6 inline-flex min-h-11 items-center justify-center bg-[#0A0B0A] px-6 text-sm font-semibold uppercase tracking-[0.06em] text-white hover:bg-[#0A0B0A]/85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A0B0A] focus-visible:ring-offset-2">
           Open cookie settings
         </CookieSettingsButton>

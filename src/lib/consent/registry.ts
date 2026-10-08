@@ -9,14 +9,15 @@
  * - "withPage": third-party services that load with the page (chat, booking,
  *   maps, product videos, the homepage social feed). Listed for transparency;
  *   no prompt.
- * - "analytics" and "marketing": need consent. The banner appears only while
- *   at least one of these has an entry. To add e.g. Google Analytics, add an
- *   entry here with category "analytics" (and `script` if it is a plain script
- *   tag; ConsentScripts loads it once allowed) AND bump CONSENT_POLICY_VERSION
- *   so everyone is asked, including visitors who saved settings before.
+ * - "analytics" and "marketing": optional, need consent. The banner asks on
+ *   the first visit even while these have no entries; the switches are always
+ *   in Cookie settings. To add e.g. Google Analytics, add an entry here with
+ *   category "analytics" (and `script` if it is a plain script tag;
+ *   ConsentScripts loads it once allowed) AND bump CONSENT_POLICY_VERSION so
+ *   everyone is asked again, including visitors who chose before.
  */
 
-export const CONSENT_POLICY_VERSION = "2026-10-02"
+export const CONSENT_POLICY_VERSION = "2026-10-08"
 export const CONSENT_COOKIE_NAME = "sg_consent"
 export const CONSENT_MAX_AGE_DAYS = 365
 
@@ -44,16 +45,14 @@ export type ConsentCategory = {
   description: string
   /** How the settings panel shows a category without a switch. */
   status?: "Always on" | "Loads with the page"
-  /** Consent categories: what the banner says this category is for. */
-  bannerText?: string
 }
 
 export const CONSENT_CATEGORIES: ConsentCategory[] = [
   {
     id: "necessary",
-    label: "Necessary",
+    label: "Essential",
     description:
-      "Keeps the website working: your cart, your login, your cookie choices, and security.",
+      "Keeps the website working: your cart, your login, your cookie choice, security, and spam protection on our forms.",
     status: "Always on",
   },
   {
@@ -67,22 +66,20 @@ export const CONSENT_CATEGORIES: ConsentCategory[] = [
     id: "withPage",
     label: "Loads with the page",
     description:
-      "Services from other companies that load with the page: chat (Tidio), online booking (cal.com), maps (Google), product videos (YouTube, Vimeo), and our social media feed (Curator, with code from Meta). They may set their own cookies. You can block third-party cookies in your browser settings.",
+      "Services from other companies that load for every visitor, whatever you choose: live chat (Tidio), our social media feed (Curator, which loads code from Meta), online booking (cal.com), maps (Google), and product videos (YouTube, Vimeo). They set their own cookies. You can block third-party cookies in your browser settings.",
     status: "Loads with the page",
   },
   {
     id: "analytics",
     label: "Analytics",
-    description: "Counts visits to help us improve the website.",
-    bannerText: "analytics cookies to count visits",
+    description:
+      "Counts visits and shows which pages people use, so we can improve the website (for example Google Analytics).",
   },
   {
     id: "marketing",
     label: "Marketing",
     description:
-      "Shows our social media feed (Curator), which loads code from Meta (Facebook) that may set marketing cookies.",
-    bannerText:
-      "marketing cookies for our social media feed, which loads code from Meta (Facebook)",
+      "Measures our ads and shows them to people who visited this website (for example a Meta pixel).",
   },
 ]
 
@@ -118,7 +115,7 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     category: "necessary",
     type: "Cookie",
     purpose:
-      "Remembers your cookie choices (only set if you save choices in Cookie settings)",
+      "Remembers your cookie choice (set when you choose in the banner or in Cookie settings)",
     duration: "12 months",
     policyUrl: OWN_POLICY,
   },
@@ -171,6 +168,18 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     purpose: "Blocks repeated login, sign-up, password and contact-form abuse",
     duration: "Up to 60 minutes",
     policyUrl: "https://upstash.com/trust/privacy.pdf",
+  },
+  {
+    id: "turnstile",
+    name: "Cloudflare Turnstile",
+    vendor: "Cloudflare",
+    category: "necessary",
+    type: "Third-party service",
+    purpose:
+      "Security: checks that a person, not a bot, is sending the form. It looks at information about your browser",
+    duration: "Set by Cloudflare",
+    loads: "On the contact, sign-up and password reset forms",
+    policyUrl: "https://www.cloudflare.com/privacypolicy/",
   },
   {
     id: "shopify-checkout",
@@ -238,7 +247,8 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "Tidio",
     category: "withPage",
     type: "Third-party service",
-    purpose: "Website chat: visitor ID and conversation",
+    purpose:
+      "Live chat. Tidio sets its own cookies and stores your visitor ID and the messages you send in the chat",
     duration: "Until cleared",
     loads: "On every page",
     policyUrl: "https://www.tidio.com/privacy-policy/",
@@ -249,7 +259,8 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "cal.com",
     category: "withPage",
     type: "Third-party service",
-    purpose: "Online service booking",
+    purpose:
+      "Online service booking. The booking form and the details you enter are handled by cal.com",
     duration: "Set by cal.com",
     loads: "On every page",
     policyUrl: "https://cal.com/privacy",
@@ -260,7 +271,7 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "Google",
     category: "withPage",
     type: "Third-party service",
-    purpose: "Interactive store map (for example the NID cookie)",
+    purpose: "Interactive store map. Google may set its own cookies, such as NID",
     duration: "Set by Google",
     loads: "On the homepage and Contact page",
     policyUrl: "https://policies.google.com/privacy",
@@ -271,7 +282,8 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "Google (YouTube), Vimeo",
     category: "withPage",
     type: "Third-party service",
-    purpose: "Plays product videos (YouTube in privacy-enhanced mode)",
+    purpose:
+      "Plays product videos. YouTube runs in privacy-enhanced mode; YouTube and Vimeo may set their own cookies",
     duration: "Set by YouTube or Vimeo",
     loads: "On product pages with a video",
     policyUrl: "https://policies.google.com/privacy",
@@ -282,7 +294,8 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "Curator.io",
     category: "withPage",
     type: "Third-party service",
-    purpose: "Shows our Facebook and Instagram posts on the homepage",
+    purpose:
+      "Shows our latest Facebook and Instagram posts on the homepage. It loads code from Meta (Facebook)",
     duration: "Set by Curator",
     loads: "On the homepage",
     policyUrl: "https://curator.io/privacy-policy",
@@ -293,7 +306,8 @@ export const CONSENT_REGISTRY: RegistryEntry[] = [
     vendor: "Meta",
     category: "withPage",
     type: "Third-party service",
-    purpose: "Loaded by the social media feed; may set marketing cookies",
+    purpose:
+      "Loaded by the social media feed. Meta may set its own cookies, including for advertising",
     duration: "Set by Meta",
     loads: "On the homepage",
     policyUrl: "https://www.facebook.com/privacy/policy/",
@@ -312,10 +326,22 @@ export function getVisibleCategories() {
 }
 
 /**
- * Consent categories (analytics, marketing) that have entries. The banner is
- * shown only when this is not empty.
+ * Consent categories (analytics, marketing) that have entries. Empty means no
+ * analytics or marketing tool runs yet; Cookie settings then says so.
  */
 export function getVisibleOptionalCategories(): OptionalCategoryId[] {
   const visible = new Set(getVisibleCategories().map((category) => category.id))
   return OPTIONAL_CATEGORIES.filter((id) => visible.has(id))
+}
+
+/**
+ * Rows for the Cookie settings panel: always-on categories that have entries,
+ * plus the analytics and marketing switches, which are always shown.
+ */
+export function getSettingsCategories() {
+  return CONSENT_CATEGORIES.filter(
+    (category) =>
+      OPTIONAL_CATEGORIES.includes(category.id as OptionalCategoryId) ||
+      getRegistryEntries(category.id).length > 0
+  )
 }
