@@ -13,7 +13,7 @@ import { X } from "lucide-react"
 
 import { NO_OPTIONAL_CONSENT, type ConsentChoices } from "@lib/consent/consent"
 import {
-  getVisibleCategories,
+  getSettingsCategories,
   getVisibleOptionalCategories,
   type OptionalCategoryId,
 } from "@lib/consent/registry"
@@ -21,8 +21,8 @@ import { CONSENT_BUTTON_CLASS } from "./consent-banner"
 import { useConsent } from "./consent-provider"
 
 const GPC_BLOCKED: OptionalCategoryId[] = ["analytics", "marketing"]
-// Accept / Reject / Save only when there is a category to decide on.
-const hasChoices = getVisibleOptionalCategories().length > 0
+// No analytics or marketing tool in the registry yet: say so under the switches.
+const noOptionalToolsYet = getVisibleOptionalCategories().length === 0
 
 export default function ConsentSettingsDialog() {
   const {
@@ -64,9 +64,8 @@ export default function ConsentSettingsDialog() {
                 Cookie settings
               </DialogTitle>
               <p className="mt-1 text-[13px] leading-relaxed text-black/70">
-                {hasChoices
-                  ? "Choose what you allow. You can change this any time with the Cookie settings link at the bottom of every page."
-                  : "What this website stores and loads, and when."}
+                Choose what you allow. You can change this any time with the
+                Cookie settings link at the bottom of every page.
               </p>
             </div>
             <button
@@ -80,16 +79,7 @@ export default function ConsentSettingsDialog() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-4 sm:px-6">
-            {!hasChoices && (
-              <p className="mb-2 text-[13px] leading-relaxed text-black/70">
-                Right now we do not use analytics or marketing cookies of our
-                own, so there is nothing to switch on or off. The services below
-                load with the page and may set their own cookies; you can block
-                third-party cookies in your browser settings.
-              </p>
-            )}
-
-            {gpc && hasChoices && (
+            {gpc && (
               <p
                 role="note"
                 className="mb-4 border border-black/15 bg-black/[0.03] px-3 py-2 text-[13px] leading-relaxed"
@@ -100,7 +90,7 @@ export default function ConsentSettingsDialog() {
             )}
 
             <ul className="divide-y divide-black/10">
-              {getVisibleCategories().map((category) => {
+              {getSettingsCategories().map((category) => {
                 const optionalId = category.id as OptionalCategoryId
                 const blockedByGpc = gpc && GPC_BLOCKED.includes(optionalId)
                 const descriptionId = `consent-category-${category.id}`
@@ -143,6 +133,15 @@ export default function ConsentSettingsDialog() {
               })}
             </ul>
 
+            {noOptionalToolsYet && (
+              <p
+                role="note"
+                className="border-t border-black/10 pt-3 text-[13px] leading-relaxed text-black/65"
+              >
+                We do not currently run any analytics or marketing tools.
+              </p>
+            )}
+
             <p className="mt-2 text-[13px] text-black/65">
               Full list of cookies and services:{" "}
               <Link
@@ -155,29 +154,21 @@ export default function ConsentSettingsDialog() {
             </p>
           </div>
 
-          {hasChoices ? (
-            <div className="grid grid-cols-3 gap-2 border-t border-black/10 px-5 py-4 sm:px-6">
-              <button type="button" onClick={acceptAll} className={CONSENT_BUTTON_CLASS}>
-                Accept all
-              </button>
-              <button type="button" onClick={rejectAll} className={CONSENT_BUTTON_CLASS}>
-                Reject non-essential
-              </button>
-              <button
-                type="button"
-                onClick={() => save(draft)}
-                className={CONSENT_BUTTON_CLASS}
-              >
-                Save choices
-              </button>
-            </div>
-          ) : (
-            <div className="border-t border-black/10 px-5 py-4 sm:px-6">
-              <button type="button" onClick={closeSettings} className={CONSENT_BUTTON_CLASS}>
-                Close
-              </button>
-            </div>
-          )}
+          <div className="grid grid-cols-3 gap-2 border-t border-black/10 px-5 py-4 sm:px-6">
+            <button type="button" onClick={acceptAll} className={CONSENT_BUTTON_CLASS}>
+              Accept all
+            </button>
+            <button type="button" onClick={rejectAll} className={CONSENT_BUTTON_CLASS}>
+              Reject all
+            </button>
+            <button
+              type="button"
+              onClick={() => save(draft)}
+              className={CONSENT_BUTTON_CLASS}
+            >
+              Save choices
+            </button>
+          </div>
         </DialogPanel>
       </div>
     </Dialog>

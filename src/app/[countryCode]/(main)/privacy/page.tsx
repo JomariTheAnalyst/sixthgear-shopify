@@ -4,6 +4,7 @@ import {
   getShopPolicies,
   USE_SHOPIFY_PRIVACY_POLICY,
 } from "@lib/shopify/policies"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ShopifyPolicy from "@modules/legal/components/shopify-policy"
 
 export const metadata: Metadata = {
@@ -368,23 +369,52 @@ function FallbackPrivacyPolicy() {
             Cookies
           </h2>
           <p className="text-gray-700 leading-relaxed mb-6">
-            This Website may place and access certain Cookies on your computer.
-            Sixthgear Moto Supply & Cafe uses Cookies to improve your experience
-            of using the Website and to improve our range of products.
+            We use essential Cookies to run the Website: your cart, your login,
+            your cookie choice, security, and spam protection on our forms.
           </p>
           <p className="text-gray-700 leading-relaxed mb-6">
-            Before the Website places Cookies on your computer, you will be
-            presented with a message bar requesting your consent to set those
-            Cookies. By giving your consent to the placing of Cookies, you are
-            enabling Sixthgear Moto Supply & Cafe to provide a better experience
-            and service to you.
+            On your first visit, a message bar asks whether you allow optional
+            analytics and marketing Cookies. We do not currently run any
+            analytics or marketing tools. If we add them, they will only load
+            after you click Accept, and a Global Privacy Control signal from
+            your browser counts as Reject.
           </p>
+          <p className="text-gray-700 leading-relaxed mb-4">
+            Some services from other companies load for every visitor, whatever
+            you choose in the message bar. They set their own Cookies:
+          </p>
+          <ul className="list-disc pl-6 mb-6 space-y-2 text-gray-700">
+            <li>
+              Tidio (live chat): runs the chat window, and stores your visitor
+              ID and the messages you send in the chat.
+            </li>
+            <li>
+              Curator (social media feed): shows our latest Facebook and
+              Instagram posts on the homepage. It loads code from Meta
+              (Facebook), which may set its own Cookies, including for
+              advertising.
+            </li>
+            <li>
+              cal.com (online booking): runs the service booking form. The
+              details you enter when you book are handled by cal.com.
+            </li>
+            <li>
+              Google Maps: shows our store map on the homepage and Contact page.
+            </li>
+            <li>
+              YouTube and Vimeo: play product videos. YouTube runs in
+              privacy-enhanced mode.
+            </li>
+          </ul>
           <p className="text-gray-700 leading-relaxed mb-12">
-            You can choose to enable or disable Cookies in your internet
-            browser. Most internet browsers also enable you to choose whether
-            you wish to disable all cookies or only third party cookies. By
-            default, most internet browsers accept Cookies but this can be
-            changed.
+            You can change your choice any time with the Cookie settings link at
+            the bottom of every page. You can also block third-party Cookies in
+            your internet browser. The full list of Cookies and services is in
+            our{" "}
+            <LocalizedClientLink href="/cookies" className="font-semibold underline">
+              Cookie Policy
+            </LocalizedClientLink>
+            .
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">
