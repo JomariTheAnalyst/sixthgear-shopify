@@ -32,14 +32,6 @@ export default function WhoWeAre({
         const copy = section.querySelector("[data-copy]")
         if (frame) revealFrame(frame, section.querySelector("[data-drift]"))
         if (copy) riseIn(copy.children, copy)
-
-        gsap.to("[data-pulse]", {
-          scale: 1.45,
-          opacity: 0,
-          duration: 2.2,
-          ease: "power1.out",
-          repeat: -1,
-        })
       })
 
       return () => media.revert()
@@ -73,22 +65,7 @@ export default function WhoWeAre({
         </div>
 
         <div data-copy>
-          <span
-            aria-hidden="true"
-            className="relative flex h-14 w-14 items-center justify-center"
-          >
-            <span
-              data-pulse
-              className="absolute inset-0 rounded-full border border-black/20"
-            />
-            <span className="absolute inset-[7px] rounded-full border border-black/25" />
-            <span className="h-5 w-5 rounded-full border-2 border-[#1a1a1a]" />
-          </span>
-
-          <h2
-            id="about-who-heading"
-            className={`${ABOUT_TITLE} mt-8 text-[#1a1a1a]`}
-          >
+          <h2 id="about-who-heading" className={`${ABOUT_TITLE} text-[#1a1a1a]`}>
             {content.heading}{" "}
             <span className="text-[#F16D34]">{content.headingAccent}</span>
           </h2>
@@ -96,7 +73,7 @@ export default function WhoWeAre({
           {content.paragraphs.map((paragraph) => (
             <p
               key={paragraph}
-              className={`${ABOUT_BODY} ${ABOUT_PROSE} mt-6 text-[#1a1a1a]/75`}
+              className={`${ABOUT_BODY} ${ABOUT_PROSE} mt-6 text-justify text-[#1a1a1a]/75`}
             >
               {paragraph}
             </p>

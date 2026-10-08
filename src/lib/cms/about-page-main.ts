@@ -77,6 +77,12 @@ export type AboutWhyChooseUsSectionContent = {
     title: string
     description: string
     icon: string
+    /** Media shown while the item is open; the section bottom image otherwise. */
+    imageUrl?: string
+    imageSource?: SanityImageSource | null
+    imageAlt?: string
+    /** Muted inline video; the accordion waits for it to end before moving on. */
+    videoUrl?: string
   }>
   topImageUrl: string
   topImageSource?: SanityImageSource | null
@@ -114,8 +120,7 @@ const ABOUT_HERO_EYEBROW = 'About Sixth Gear · Makati City'
 export const FALLBACK_ABOUT_HERO_SECTION: AboutHeroSectionContent = {
   source: 'fallback',
   eyebrow: ABOUT_HERO_EYEBROW,
-  // The line break puts the H1 on two lines.
-  title: 'Built by riders,\nfor riders.',
+  title: 'About Us',
   subtitle:
     'Complete diagnostics and care for your motorcycle, the gear we trust on our own rides, and a place to refuel and hang out. All under one roof.',
   backgroundImage: '/images/sixthgearleftsideimg.jpg',
@@ -128,7 +133,8 @@ export const FALLBACK_ABOUT_STATEMENT: AboutStatementSectionContent = {
   stats: [
     { key: 'products', value: 580, suffix: '+', label: 'Products in store' },
     { key: 'categories', value: 35, suffix: '', label: 'Product categories' },
-    { key: 'services', value: 8, suffix: '', label: 'Workshop services' },
+    // Filled from the live Shopify brand collections on the About page.
+    { key: 'brands', value: 0, suffix: '+', label: 'Brands in store' },
     { key: 'departments', value: 5, suffix: '', label: 'Departments, one roof' },
   ],
 }
@@ -142,8 +148,9 @@ export const FALLBACK_ABOUT_WHO_WE_ARE: Omit<
   heading: 'Who',
   headingAccent: 'We Are',
   paragraphs: [
-    'Sixth Gear Moto Supply is a premium motorcycle supply shop and motorcycle service center based in Makati City. Under one roof we run five departments: retail, service, carwash and detailing, our café, and bike hauling and towing.',
-    "We didn't build Sixth Gear to be just another service shop. We built it to be the place every rider can count on, with honest work, gear we trust on our own rides, and a crew that is always riding alongside you.",
+    'Sixth Gear Moto Supply is a premium motorcycle supply shop and motorcycle service center based in Makati City. Under one roof we run five departments: retail, service, carwash and detailing, our café, and bike hauling and towing. Everything a rider needs before, during, and after the ride lives in one place.',
+    "We didn't build Sixth Gear to be just another service shop. We built it to be the place every rider can count on, with honest work and gear we trust on our own rides. The people working on your bike ride the same roads you do.",
+    'That is why riders come in for service and stay for the people. Grab a coffee at First Gear Coffee while we work, talk shop with the crew, and join the next ride out. At Sixth Gear, you are always riding alongside us.',
   ],
 }
 
@@ -214,6 +221,8 @@ export const FALLBACK_ABOUT_WHY_CHOOSE_US: AboutWhyChooseUsSectionContent = {
       title: 'Expert Workshop You Can Trust',
       description:
         'Our certified technicians handle everything from routine PMS to advanced ECU diagnostics and full performance builds—on any big bike, any brand, zero shortcuts.',
+      imageUrl: '/images/sixthgear-workshop.jpg',
+      imageAlt: 'Sixthgear technician working on a motorcycle in the workshop',
     },
     {
       key: 'fallback-why-gear',
@@ -221,6 +230,9 @@ export const FALLBACK_ABOUT_WHY_CHOOSE_US: AboutWhyChooseUsSectionContent = {
       title: "Only Gear We'd Ride With",
       description:
         "Every helmet, accessory, and piece of apparel on our floor has been vetted the way we vet our own gear. We don't stock it unless we'd bet our safety on it.",
+      imageUrl:
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779179487/sixthgear-ridinggears_yncnuy.jpg',
+      imageAlt: 'Riding gear and helmets on the Sixthgear shop floor',
     },
     {
       key: 'fallback-why-community',
@@ -228,6 +240,9 @@ export const FALLBACK_ABOUT_WHY_CHOOSE_US: AboutWhyChooseUsSectionContent = {
       title: 'A Real Rider Community',
       description:
         "We host rides, meetups, and events that bring serious riders together. Sixth Gear isn't just a stop—it's a home base for the Filipino motorcycle community.",
+      imageUrl:
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/v1778571330/community_and_meetups_zsfilb.jpg',
+      imageAlt: 'Riders gathered at a Sixthgear community meetup',
     },
     {
       key: 'fallback-why-coffee',
@@ -235,6 +250,11 @@ export const FALLBACK_ABOUT_WHY_CHOOSE_US: AboutWhyChooseUsSectionContent = {
       title: 'More Than a Shop',
       description:
         'Fuel up at First Gear Coffee while your bike is being serviced. Our rider lounge is built for that in-between time—comfortable, honest, and unmistakably ours.',
+      imageUrl:
+        'https://res.cloudinary.com/djn9ubf6a/image/upload/q_auto/f_auto/v1779419298/coffeerider-andlounge_nyhzp7.jpg',
+      imageAlt: 'Riders relaxing at the First Gear Coffee lounge',
+      videoUrl:
+        'https://res.cloudinary.com/djn9ubf6a/video/upload/q_auto/f_auto/v1778579480/firstgear-video_iolpw5.mp4',
     },
   ],
   topImageUrl:

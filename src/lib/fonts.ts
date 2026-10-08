@@ -165,3 +165,13 @@ export const outfit = localFont({
   variable: "--font-outfit",
   display: "swap",
 })
+
+/** About page body/eyebrow type. Variable weight axis, 300–800. */
+export const parkinsans = localFont({
+  src: "../../public/fonts/Parkinsans-VariableFont_wght.ttf",
+  weight: "300 800",
+  style: "normal",
+  variable: "--font-parkinsans",
+  display: "swap",
+  preload: false,
+})

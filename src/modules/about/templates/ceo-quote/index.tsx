@@ -12,7 +12,7 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 
 import type { AboutCeoQuoteSectionContent } from "@lib/cms/about-page-main"
-import { inter } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
 import { resolveSanityImage } from "@lib/util/sanity-image"
 import { ABOUT_CONTAINER } from "@modules/about/constants"
 import { MOTION_OK } from "@modules/about/motion"
@@ -81,7 +81,7 @@ export default function AboutMission({
     <section
       ref={sectionRef}
       aria-label="A word from our founder"
-      className={`${inter.className} bg-white py-20 md:py-28 lg:py-32`}
+      className={`${parkinsans.className} bg-white py-20 md:py-28 lg:py-32`}
     >
       <div className={ABOUT_CONTAINER}>
         <figure className="mx-auto max-w-4xl text-center">

@@ -1,12 +1,12 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, type CSSProperties } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 import type { AboutStatementSectionContent } from "@lib/cms/about-page-main"
-import { inter } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
 import { ABOUT_CONTAINER, ABOUT_INK } from "@modules/about/constants"
 import { MOTION_OK } from "@modules/about/motion"
 
@@ -103,7 +103,7 @@ export default function AboutStatement({
     <section
       ref={sectionRef}
       aria-label="About Sixth Gear"
-      className={`${inter.className} bg-white py-20 text-[#1a1a1a] md:py-28 lg:py-32`}
+      className={`${parkinsans.className} bg-white py-20 text-[#1a1a1a] md:py-28 lg:py-32`}
     >
       <div className={ABOUT_CONTAINER}>
         <p
@@ -120,7 +120,8 @@ export default function AboutStatement({
 
         <ul
           data-stats
-          className="mx-auto mt-16 grid max-w-[1200px] grid-cols-2 gap-x-6 gap-y-10 md:mt-20 lg:grid-cols-4"
+          style={{ "--stat-count": content.stats.length } as CSSProperties}
+          className="mx-auto mt-16 grid max-w-[1200px] grid-cols-2 gap-x-6 gap-y-10 md:mt-20 lg:[grid-template-columns:repeat(var(--stat-count),minmax(0,1fr))]"
         >
           {content.stats.map((stat) => (
             <li key={stat.key} className="flex flex-col items-center text-center">

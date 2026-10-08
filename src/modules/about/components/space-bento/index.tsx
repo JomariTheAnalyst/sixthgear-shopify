@@ -11,7 +11,7 @@ import {
   createSanityDataAttribute,
   keyedSanityPath,
 } from "@lib/cms/visual-editing"
-import { inter } from "@lib/fonts"
+import { parkinsans } from "@lib/fonts"
 import { resolveSanityImage } from "@lib/util/sanity-image"
 import { ABOUT_CONTAINER, ABOUT_PROSE } from "@modules/about/constants"
 import { MOTION_OK, revealFrame } from "@modules/about/motion"
@@ -134,7 +134,7 @@ export default function SpaceBento({
                     {item.title}
                   </h3>
                   <p
-                    className={`${inter.className} mt-2 max-w-[48ch] text-sm leading-relaxed text-white/75 md:text-base`}
+                    className={`${parkinsans.className} mt-2 max-w-[48ch] text-sm leading-relaxed text-white/75 md:text-base`}
                   >
                     {item.description}
                   </p>

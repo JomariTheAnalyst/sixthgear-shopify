@@ -12,9 +12,7 @@ import AboutHero from "./hero"
 import AboutStory from "./story"
 import AboutMission from "./ceo-quote"
 import AboutStatement from "@modules/about/components/about-statement"
-import BrandMarquee, {
-  type MarqueeBrand,
-} from "@modules/about/components/brand-marquee"
+import BrandMarquee from "@modules/about/components/brand-marquee"
 import RegisteredBusiness from "@modules/about/components/registered-business"
 import SpaceBento from "@modules/about/components/space-bento"
 import WhoWeAre from "@modules/about/components/who-we-are"
@@ -34,7 +32,6 @@ import { SanityEditTarget } from "components/sanity/visual-editing-provider"
 
 interface AboutTemplateProps {
   heroContent: AboutHeroSectionContent
-  brands: MarqueeBrand[]
   statementContent: AboutStatementSectionContent
   whoWeAreContent: AboutWhoWeAreSectionContent
   storyContent: AboutStorySectionContent
@@ -46,7 +43,6 @@ interface AboutTemplateProps {
 
 export default function AboutTemplate({
   heroContent,
-  brands,
   statementContent,
   whoWeAreContent,
   storyContent,
@@ -80,7 +76,7 @@ export default function AboutTemplate({
       >
         <AboutHero content={heroContent} />
       </SanityEditTarget>
-      <BrandMarquee brands={brands} />
+      <BrandMarquee />
       <AboutStatement content={statementContent} />
       <WhoWeAre content={whoWeAreContent} />
       <SanityEditTarget
@@ -105,6 +101,7 @@ export default function AboutTemplate({
       >
         <AboutMission content={ceoQuoteContent} />
       </SanityEditTarget>
+      <RegisteredBusiness />
       <SanityEditTarget
         documentId="aboutPage"
         documentType="aboutPage"
@@ -112,7 +109,6 @@ export default function AboutTemplate({
       >
         <CTABanner {...ctaBannerContent} />
       </SanityEditTarget>
-      <RegisteredBusiness />
     </>
   )
 }

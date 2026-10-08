@@ -4,7 +4,6 @@ import { getAboutPage } from "@lib/cms/client"
 import { selectOurSpaceExperienceContent } from "@lib/cms/our-space-experience"
 import { selectAboutPageContent } from "@lib/cms/about-page-main"
 import { getBrandCollections } from "@lib/shopify"
-import type { MarqueeBrand } from "@modules/about/components/brand-marquee"
 import JsonLd from "@modules/common/components/json-ld"
 import {
   getBreadcrumbStructuredData,
@@ -32,23 +31,30 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-/** Brand names for the marquee, from the same collections as the homepage. */
-async function getMarqueeBrands(): Promise<MarqueeBrand[]> {
+/** Brands-in-store stat, from the same collections as the homepage. */
+async function getBrandCount(): Promise<number> {
   try {
-    const collections = await getBrandCollections()
-    return collections.map(({ id, title }) => ({ id, name: title }))
+    return (await getBrandCollections()).length
   } catch (error) {
     console.error("[about] Unable to load Shopify brand collections.", error)
-    return []
+    return 0
   }
 }
 
 export default async function AboutPage() {
-  const [aboutPage, brands] = await Promise.all([
+  const [aboutPage, brandCount] = await Promise.all([
     getAboutPage(),
-    getMarqueeBrands(),
+    getBrandCount(),
   ])
   const content = selectAboutPageContent(aboutPage)
+  const statement = {
+    ...content.statement,
+    stats: content.statement.stats
+      .map((stat) =>
+        stat.key === "brands" ? { ...stat, value: brandCount } : stat
+      )
+      .filter((stat) => stat.value > 0),
+  }
   const ourSpaceExperienceContent = selectOurSpaceExperienceContent(
     aboutPage?.ourSpaceExperience
   )
@@ -62,8 +68,7 @@ export default async function AboutPage() {
       <JsonLd id="about-breadcrumbs" data={breadcrumbStructuredData} />
       <AboutTemplate
         heroContent={content.hero}
-        brands={brands}
-        statementContent={content.statement}
+        statementContent={statement}
         whoWeAreContent={content.whoWeAre}
         storyContent={content.story}
         ourSpaceExperienceContent={ourSpaceExperienceContent}

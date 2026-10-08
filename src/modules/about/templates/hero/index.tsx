@@ -1,14 +1,13 @@
 /**
- * About hero: rounded photo frame inside the page container, copy over a dark
- * bottom gradient. The frame grows with its content, so the H1 never clips.
+ * About hero: same full-bleed frame as the homepage hero (one image, copy
+ * bottom-left), with the About display title kept as is.
  */
 
 import Image from "next/image"
 
 import type { AboutHeroSectionContent } from "@lib/cms/about-page-main"
-import { inter, nationalCompressed } from "@lib/fonts"
+import { nationalCompressed, parkinsans } from "@lib/fonts"
 import { resolveSanityImage } from "@lib/util/sanity-image"
-import { ABOUT_CONTAINER } from "@modules/about/constants"
 
 const FALLBACK_IMAGE = "/images/sixthgearleftsideimg.jpg"
 
@@ -23,43 +22,41 @@ export default function AboutHero({
   )
 
   return (
-    <section aria-labelledby="about-hero-heading" className="bg-white pt-3 md:pt-5">
-      <div className={ABOUT_CONTAINER}>
-        <div className="relative isolate flex min-h-[540px] flex-col justify-end overflow-hidden rounded-[20px] bg-[#0A0A0A] md:min-h-[620px] lg:min-h-[min(80vh,820px)]">
-          <Image
-            src={image.url}
-            alt={content.backgroundImageAlt}
-            fill
-            priority
-            sizes="(max-width: 1760px) 100vw, 1632px"
-            className="-z-10 object-cover"
-            style={{ objectPosition: image.objectPosition }}
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/35 to-transparent"
-          />
+    <section
+      aria-labelledby="about-hero-heading"
+      className="relative w-full overflow-hidden bg-black min-h-[85vh] sm:min-h-[400px] lg:h-auto lg:aspect-[3/1] max-h-[90vh] lg:max-h-[640px]"
+    >
+      <Image
+        src={image.url}
+        alt={content.backgroundImageAlt}
+        fill
+        priority
+        fetchPriority="high"
+        quality={85}
+        sizes="100vw"
+        className="object-cover"
+        style={{ objectPosition: image.objectPosition }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10"
+      />
 
-          <div className="px-5 pb-8 pt-32 sm:px-8 sm:pb-10 lg:px-14 lg:pb-14">
+      <div className="absolute inset-0 flex flex-col items-start justify-end px-6 pb-28 sm:px-12 sm:pb-20 lg:px-20 lg:pb-24">
+        <div className="w-full max-w-4xl text-left">
+          <h1
+            id="about-hero-heading"
+            className={`${nationalCompressed.className} mb-6 whitespace-pre-line break-words uppercase leading-[0.86] text-white text-[clamp(2.75rem,10vw,9.5rem)] sm:mb-4`}
+          >
+            {content.title}
+          </h1>
+          {content.subtitle ? (
             <p
-              className={`${inter.className} text-xs font-semibold uppercase tracking-[0.18em] text-white/80 md:text-sm`}
+              className={`${parkinsans.className} hidden max-w-xl text-sm leading-relaxed text-gray-200 sm:block sm:text-base`}
             >
-              {content.eyebrow}
+              {content.subtitle}
             </p>
-            <h1
-              id="about-hero-heading"
-              className={`${nationalCompressed.className} mt-4 whitespace-pre-line break-words uppercase leading-[0.86] text-white text-[clamp(2.75rem,10vw,9.5rem)]`}
-            >
-              {content.title}
-            </h1>
-            {content.subtitle ? (
-              <p
-                className={`${inter.className} mt-5 max-w-[60ch] text-base leading-relaxed text-white/80 md:mt-6 md:text-lg`}
-              >
-                {content.subtitle}
-              </p>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       </div>
     </section>
