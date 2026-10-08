@@ -108,22 +108,23 @@ export function TestimonialsSectionSkeleton() {
     <section className="bg-white py-16 md:py-24">
       <div className="max-w-[1440px] mx-auto px-4 md:px-8">
         <SectionHeaderSkeleton />
-        <div className="flex gap-6 md:gap-8 overflow-hidden -mx-2 px-2">
-          {[...Array(3)].map((_, index) => (
-            <div
-              key={index}
-              className="min-w-[300px] max-w-[360px] flex-shrink-0 rounded-2xl border border-gray-100 bg-[#F9F9F9] p-6 md:p-8"
-            >
-              <div className="mx-auto h-6 w-8 animate-pulse rounded bg-gray-200" />
-              <div className="mt-6 h-4 w-full animate-pulse rounded bg-gray-200" />
-              <div className="mt-3 h-4 w-5/6 animate-pulse rounded bg-gray-200" />
-              <div className="mt-3 h-4 w-4/6 animate-pulse rounded bg-gray-200" />
-              <div className="mx-auto mt-8 h-px w-12 bg-gray-200" />
-              <div className="mx-auto mt-5 h-4 w-28 animate-pulse rounded bg-gray-200" />
-              <div className="mx-auto mt-2 h-3 w-24 animate-pulse rounded bg-gray-100" />
-            </div>
-          ))}
-        </div>
+      </div>
+      <div className="flex gap-3 overflow-hidden px-3">
+        {[...Array(4)].map((_, index) => (
+          <div
+            key={index}
+            className="flex min-h-[360px] shrink-0 basis-[85%] flex-col rounded-xl bg-[#f3f3f3] p-5 xsmall:min-h-[420px] xsmall:basis-[calc((100%_-_0.75rem)/2)] xsmall:p-6 md:min-h-[480px] md:p-8 small:basis-[calc((100%_-_1.5rem)/3)] medium:basis-[calc((100%_-_2.25rem)/4)] xlarge:min-h-[540px]"
+          >
+            <div className="h-5 w-7 animate-pulse rounded bg-gray-200" />
+            <div className="mt-8 h-5 w-full animate-pulse rounded bg-gray-200" />
+            <div className="mt-3 h-5 w-5/6 animate-pulse rounded bg-gray-200" />
+            <div className="mt-3 h-5 w-4/6 animate-pulse rounded bg-gray-200" />
+            <div className="mt-auto h-4 w-28 animate-pulse rounded bg-gray-200" />
+            <div className="mt-2 h-3 w-24 animate-pulse rounded bg-gray-100" />
+          </div>
+        ))}
+      </div>
+      <div className="px-4 md:px-8">
         <div className="mt-6 flex justify-center gap-3">
           <SkeletonBlock className="h-12 w-12" />
           <SkeletonBlock className="h-12 w-12" />

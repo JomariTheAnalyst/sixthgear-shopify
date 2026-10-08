@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef } from "react"
-import { inter, montserrat, outfit } from "@lib/fonts"
+import { useRef, type PointerEvent } from "react"
+import { inter, outfit } from "@lib/fonts"
 
 /**
  * Client Testimonials Section
@@ -112,12 +112,13 @@ const testimonialsFallback: Testimonial[] = [
 // ── Sub-components ───────────────────────────────────────────────────────────
 const QuoteIcon = () => (
   <svg
-    width="32"
-    height="24"
-    viewBox="0 0 32 24"
+    width="28"
+    height="21"
+    viewBox="0 0 34 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="text-black"
+    className="text-[#F16D34]"
+    aria-hidden="true"
   >
     <path
       d="M0 15.6C0 9.8 1.6 5.6 4.8 3C8 0.4 11.6 -0.6 15.6 0L13.8 4.8C11.8 4.8 10 5.4 8.4 6.6C6.8 7.8 6 9.4 6 11.4V12H12V24H0V15.6ZM18 15.6C18 9.8 19.6 5.6 22.8 3C26 0.4 29.6 -0.6 33.6 0L31.8 4.8C29.8 4.8 28 5.4 26.4 6.6C24.8 7.8 24 9.4 24 11.4V12H30V24H18V15.6Z"
@@ -138,35 +139,32 @@ const Stars = ({ count = 5 }: { count?: number }) => (
 )
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => (
-  <div className="bg-[#eeeeee] rounded-2xl p-6 md:p-8 flex flex-col h-full border border-[#e0e0e0] hover:shadow-lg hover:border-[#F16D34]/20 transition-all duration-300 min-w-[300px] md:min-w-[360px] max-w-[360px]">
-    {/* Quote icon */}
-    <div className="mb-3 flex justify-center">
-      <QuoteIcon />
-    </div>
+  <figure className="flex h-full min-h-[360px] flex-col rounded-xl bg-[#f3f3f3] p-5 xsmall:min-h-[420px] xsmall:p-6 md:min-h-[480px] md:p-8 xlarge:min-h-[540px]">
+    <QuoteIcon />
 
-    {/* Quote text */}
-    <p
-      className={`${inter.className} text-gray-700 text-sm md:text-base leading-relaxed flex-grow mb-6 italic text-center`}
-    >
-      &quot;{testimonial.quote}&quot;
-    </p>
-
-    {/* Divider */}
-    <div className="w-12 h-0.5 bg-black/20 mx-auto mb-4" />
-
-    {/* Author */}
-    <div className="flex flex-col items-center text-center mt-auto">
-
-      <span
-        className={`${montserrat.className} text-gray-900 text-base font-bold mb-1`}
+    <blockquote className="mt-6 md:mt-10">
+      <p
+        className={`${outfit.className} text-lg leading-[1.3] xsmall:text-[clamp(1.25rem,1.45vw,1.75rem)] xsmall:leading-[1.25] tracking-[-0.02em] text-[#241015]`}
       >
-        {testimonial.name}
-      </span>
-      <span className={`${inter.className} text-black/60 text-xs uppercase tracking-wider font-semibold`}>
-        {testimonial.role}
-      </span>
-    </div>
-  </div>
+        {testimonial.quote}
+      </p>
+    </blockquote>
+
+    <figcaption className="mt-auto pt-8 md:pt-10">
+      <div className="border-l-2 border-black/15 pl-4">
+        <span
+          className={`${outfit.className} block text-base font-semibold text-[#241015] md:text-lg`}
+        >
+          {testimonial.name}
+        </span>
+        <span
+          className={`${inter.className} mt-1 block text-xs uppercase tracking-wider text-black/55`}
+        >
+          {testimonial.role}
+        </span>
+      </div>
+    </figcaption>
+  </figure>
 )
 
 // ── Main component ───────────────────────────────────────────────────────────
@@ -183,49 +181,63 @@ export default function ClientTestimonials({
   const activeTestimonials =
     testimonials && testimonials.length > 0 ? testimonials : testimonialsFallback
 
+  // One card per step: card width + track gap, read from the DOM so it follows
+  // the responsive card size.
   const scroll = (direction: "left" | "right") => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 360 + 32 // card width + gap
-      scrollContainerRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      })
-    }
+    const track = scrollContainerRef.current
+    const card = track?.firstElementChild as HTMLElement | null
+    if (!track || !card) return
+    const step = card.offsetWidth + parseFloat(getComputedStyle(track).columnGap || "0")
+    track.scrollBy({ left: direction === "left" ? -step : step, behavior: "smooth" })
+  }
+
+  // Mouse drag moves one card in the drag direction (touch uses native swipe).
+  const dragStartX = useRef<number | null>(null)
+  const onPointerDown = (e: PointerEvent) => {
+    if (e.pointerType === "mouse") dragStartX.current = e.clientX
+  }
+  const onPointerUp = (e: PointerEvent) => {
+    const start = dragStartX.current
+    dragStartX.current = null
+    if (start === null) return
+    const dx = e.clientX - start
+    if (Math.abs(dx) > 40) scroll(dx < 0 ? "right" : "left")
   }
 
   return (
     <section className="bg-white py-16 md:py-24">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+      <header
+        className={`${outfit.className} mx-auto mb-10 flex max-w-[900px] flex-col items-center px-4 text-center antialiased md:mb-14 lg:mb-16`}
+      >
+        <h2 className="text-[clamp(2.5rem,4.3vw,4.75rem)] font-black uppercase leading-[0.98] tracking-[-0.04em] text-[#241015] [text-wrap:balance]">
+          {activeTitle}
+        </h2>
+        <p className="mt-4 max-w-[52ch] text-base font-light leading-[1.6] text-[#4b4b4b] small:mt-5 small:text-lg">
+          {activeDescription}
+        </p>
+      </header>
 
-        {/* Header row */}
-        <div className="mb-10 md:mb-14 lg:mb-16">
-          <div className="mx-auto w-full max-w-[1200px] text-center">
-            <h2
-              className={`${outfit.className} mb-3 text-[clamp(2.5rem,4.3vw,4.75rem)] font-black leading-[0.98] tracking-[-0.04em] text-[#241015] [text-wrap:balance] md:mb-4`}
-            >
-              {activeTitle}
-            </h2>
-            <p className={`${inter.className} mx-auto max-w-[760px] text-base font-medium leading-[1.35] tracking-[-0.02em] text-black/70 md:text-xl lg:text-2xl`}>
-              {activeDescription}
-            </p>
+      {/* Full-width track: 1 card (+ peek) on phones, 2 / 3 / 4 as the screen grows */}
+      <div
+        ref={scrollContainerRef}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        onPointerLeave={() => (dragStartX.current = null)}
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-3 px-3 pb-2 scrollbar-hide select-none md:cursor-grab md:active:cursor-grabbing"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {activeTestimonials.map((testimonial) => (
+          <div
+            key={testimonial.id}
+            className="shrink-0 snap-start snap-always basis-[85%] xsmall:basis-[calc((100%_-_0.75rem)/2)] small:basis-[calc((100%_-_1.5rem)/3)] medium:basis-[calc((100%_-_2.25rem)/4)]"
+          >
+            <TestimonialCard testimonial={testimonial} />
           </div>
+        ))}
+      </div>
 
-        </div>
-
-        {/* Testimonials carousel */}
-        <div
-          ref={scrollContainerRef}
-          className="flex overflow-x-auto pb-6 gap-6 md:gap-8 snap-x snap-mandatory scrollbar-hide -mx-2 px-2"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {activeTestimonials.map((testimonial) => (
-            <div key={testimonial.id} className="snap-center flex-shrink-0">
-              <TestimonialCard testimonial={testimonial} />
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-center gap-3 mt-2 md:mt-4">
+      <div className="px-4 md:px-8">
+        <div className="flex justify-center gap-3 mt-6 md:mt-8">
           <button
             onClick={() => scroll("left")}
             className="w-12 h-12 flex items-center justify-center bg-[#FF5000] hover:bg-[#e54800] text-white transition-all duration-300 active:scale-95"
